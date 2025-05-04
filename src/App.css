@@ -1,0 +1,10 @@
+body.score-viewer-app {
+  box-sizing: border-box;
+  margin: 0px;
+  overflow: hidden;
+}
+
+#root.score-viewer-app {
+  text-align: center;
+}
+

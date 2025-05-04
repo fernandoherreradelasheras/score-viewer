@@ -1,0 +1,29 @@
+<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+  <!-- Center vertical line -->
+  <line x1="24" y1="8" x2="24" y2="40" stroke="#4285F4" stroke-width="2.5"/>
+  
+  <!-- Left note (approaching) -->
+  <g transform="translate(6, 12)">
+    <!-- Note head -->
+    <ellipse cx="8" cy="20" rx="6" ry="4.5" fill="#333333" transform="rotate(-20, 8, 20)"/>
+    
+    <!-- Note stem -->
+    <line x1="13" y1="18" x2="13" y2="2" stroke="#333333" stroke-width="2"/>
+    
+    <!-- Movement arrow -->
+    <path d="M18,24 L22,24 L20,21 Z" fill="#666666"/>
+  </g>
+  
+  <!-- Right note (moving away) -->
+  <g transform="translate(28, 12)">
+    <!-- Note head -->
+    <ellipse cx="8" cy="20" rx="6" ry="4.5" fill="#999999" transform="rotate(-20, 8, 20)"/>
+    
+    <!-- Note stem -->
+    <line x1="13" y1="18" x2="13" y2="2" stroke="#999999" stroke-width="2"/>
+    
+    <!-- Movement arrow -->
+    <path d="M4,24 L0,24 L2,21 Z" fill="#666666"/>
+  </g>
+</svg>
+

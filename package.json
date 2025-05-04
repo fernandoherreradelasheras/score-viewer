@@ -1,0 +1,88 @@
+{
+  "name": "score-viewer",
+  "description": "Multi modal score viewer. Display MEI files, txt sections and plays audio files synced with the score visualization. Delivered as a react component and as a standalone iframe using a config file",
+  "main": "./dist/score-viewer.umd.cjs",
+  "module": "./dist/score-viewer.js",
+  "types": "./dist/lib/main.d.ts",
+  "private": false,
+  "version": "1.0.0",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "dev:iframe": "vite --config vite.config.ts --mode iframe --host",
+    "build": "tsc -b && vite build",
+    "build:iframe": "vite build --mode iframe",
+    "build:all": "npm run build && npm run build:iframe",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "preview:iframe": "vite preview --outDir dist/iframe"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.6.1",
+    "@uidotdev/usehooks": "^2.4.1",
+    "antd": "^5.24.6",
+    "react-device-detect": "^2.2.3",
+    "react-markdown": "^10.1.0",
+    "react-swipeable": "^7.0.2",
+    "react-tooltip": "^5.28.1",
+    "react-use-size": "^5.0.1",
+    "react-zoom-pan-pinch": "^3.7.0",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.1",
+    "verovio": "^5.1.0",
+    "vite-plugin-dts": "^4.5.3",
+    "zustand": "^5.0.3"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@svgr/rollup": "^8.1.0",
+    "@svgr/webpack": "^8.1.0",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@types/verovio": "^5.1.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^15.15.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.24.1",
+    "vite": "^6.2.0",
+    "vite-plugin-svgr": "^4.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fernandoherreradelasheras/score-viewer.git"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/lib/main.d.ts",
+      "import": "./dist/score-viewer.js",
+      "require": "./dist/score-viewer.umd.cjs"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "keywords": [
+    "mei",
+    "music",
+    "score",
+    "viewer",
+    "verovio",
+    "react"
+  ],
+  "author": "Fernando Herrera de las Heras",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/fernandoherreradelasheras/score-viewer/issues"
+  },
+  "homepage": "https://github.com/fernandoherreradelasheras/score-viewer#readme"
+}

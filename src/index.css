@@ -1,0 +1,176 @@
+.svg-container.scrolling-score {
+  pointer-events: none;
+}
+
+.ant-tabs-content-top:has(.score-viewer) {
+  height: 100%
+}
+
+.ant-tabs-tabpane-active:has(.score-viewer) {
+  height: 100%
+}
+
+
+.svg-container.editorial-active {
+  z-index: 20;
+}
+
+.opacity-overlay.active {
+  background-image: var(--score-overlay-gradient);
+  z-index: 10;
+}
+
+.opacity-overlay.inactive {
+  z-index: -10;
+  visibility: hidden;
+}
+
+.unclear {
+  --show-fill-color: blue;
+  --show-outline-color: darkgreen;
+}
+
+.sic {
+  --show-fill-color: blue;
+  --show-outline-color: darkorange;
+}
+
+.choice {
+  --show-fill-color: blue;
+  --show-outline-color: palebrown;
+}
+
+.corr {
+  --show-fill-color: blue;
+  --show-outline-color: darkviolet;
+}
+
+.reg {
+  --show-fill-color: blue;
+  --show-outline-color: rgb(0, 89, 255);;
+}
+
+.clef[data-corresp] {
+  --show-fill-color: blue;
+  --show-outline-color: rgb(0, 89, 255);
+}
+
+.svg-container.static-score:not(.editorial-active) svg .unclear.bounding-box rect,
+.svg-container.static-score:not(.editorial-active) svg .sic.bounding-box rect,
+.svg-container.static-score:not(.editorial-active) svg .choice.bounding-box rect,
+.svg-container.static-score:not(.editorial-active) svg .corr.bounding-box rect,
+.svg-container.static-score:not(.editorial-active) svg .reg.bounding-box rect {
+  fill: transparent;
+}
+
+.svg-container.editorial-active.static-score svg .unclear,
+.svg-container.editorial-active.static-score svg .sic,
+.svg-container.editorial-active.static-score svg .choice,
+.svg-container.editorial-active.static-score svg .corr,
+.svg-container.editorial-active.static-score svg .reg,
+.svg-container.editorial-active.static-score svg g.clef[data-corresp] {
+  fill: var(--show-fill-color);
+  pointer-events: auto;
+  visibility: visible;
+  cursor: pointer;
+}
+
+.svg-container.editorial-active.static-score svg .unclear.bounding-box rect,
+.svg-container.editorial-active.static-score svg .sic.bounding-box rect,
+.svg-container.editorial-active.static-score svg .choice.bounding-box rect,
+.svg-container.editorial-active.static-score svg .corr.bounding-box rect,
+.svg-container.editorial-active.static-score svg .reg.bounding-box rect,
+.svg-container.editorial-active.static-score svg g.clef.bounding-box[data-corresp] rect {
+  fill-opacity: 0;
+  outline: 30px solid var(--show-outline-color);
+  outline-offset: 120px;
+}
+
+.svg-container.editorial-active.static-score svg .unclear:hover,
+.svg-container.editorial-active.static-score svg .sic:hover,
+.svg-container.editorial-active.static-score svg .choice:hover,
+.svg-container.editorial-active.static-score svg .corr:hover,
+.svg-container.editorial-active.static-score svg .reg:hover,
+.svg-container.editorial-active.static-score svg g.clef[data-corresp]:hover {
+  filter: url(#highlighting-hover);
+}
+
+
+.svg-container.editorial-active.static-score svg .unclear:hover rect,
+.svg-container.editorial-active.static-score svg .sic:hover rect,
+.svg-container.editorial-active.static-score svg .choice:hover rect,
+.svg-container.editorial-active.static-score svg .corr:hover rect,
+.svg-container.editorial-active.static-score svg .reg:hover rect {
+  fill-opacity: 0.5;
+  filter: hue-rotate(180deg);
+}
+
+
+
+
+
+
+.svg-container.static-score svg.with-transition  {
+  transition-property: opacity, transform, scale;
+  transition-duration: 0.4s;
+  transition-timing-function: ease-in-out;
+}
+
+.svg-container svg.zero-opacity {
+  opacity: 0;
+}
+
+.svg-container svg.displaced-right {
+  transform: translateX(100%);
+}
+
+.svg-container svg.displaced-left {
+  transform: translateX(-100%);
+}
+
+.svg-container svg.underscaled {
+  transform: scale(0.6);
+}
+
+.svg-container svg.overscaled {
+  transform: scale(1.2);
+}
+
+.svg-container svg.transition-end {
+  transform: scale(1) translateX(0px);
+  opacity: 1;
+}
+
+.svg-container svg {
+  background-color: var(--score-bg-color);
+}
+
+.score-container {
+  position: relative;
+}
+
+.score-spotlight-overlay {
+  position: absolute;
+  top: 0;
+  left: calc(-1 * var(--expand-left));
+  width: calc(var(--host-width));
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  --center-size: min(30%, calc(var(--host-width) * 0.15));
+  --fade-size: min(45%, calc(var(--host-width) * 0.25));
+  background: radial-gradient(
+    circle at center,
+    transparent var(--center-size),
+    rgba(238, 142, 46, 0.15) calc(var(--center-size) + var(--fade-size) * 0.4),
+    rgba(170, 147, 125, 0.22) calc(var(--center-size) + var(--fade-size))
+  );
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.score-spotlight-overlay.visible {
+  opacity: 1;
+}
+
+
