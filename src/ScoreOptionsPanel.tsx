@@ -7,13 +7,18 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
         // State
         showNVerses,
         showEditorial,
+        showOriginalClefs,
+        showReconstructions,
         normalizeFicta,
         transposition,
         score,
 
         // Derived state
         numVersesAvailable,
+        originalClefsAvailable,
         verseOptions,
+        showReconstructionOptions,
+        voiceRecontructions,
         editorialDisabled,
         fictaSwictchDisabled,
         showTranspositionOption,
@@ -21,14 +26,41 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
 
         // Actions
         onVersesSelected,
+        onReconstructionSelected,
         onShowEditorialChange,
         onNormalizeFictaChange,
+        onShowOriginalClefsChange,
         onTranspositionChange
     } = useScoreOptions();
+
+    const reconstructionRows = showReconstructionOptions ? voiceRecontructions?.map(voiceReconstruction =>
+            <Row align={"middle"}>
+            <Col span={12}>
+            <Space direction="vertical">
+                <Typography.Text strong={true} >
+                    { `Reconstrucción ${voiceReconstruction.voiceName}` }
+                </Typography.Text>
+            </Space>
+        </Col>
+        <Col span={10}>
+            <Select
+                size="middle"
+                options={voiceReconstruction.selectOptions}
+                value={showReconstructions[voiceReconstruction.staff] ? showReconstructions[voiceReconstruction.staff] : "none"}
+                defaultValue="none"
+                disabled={voiceReconstruction.selectOptions ? voiceReconstruction.selectOptions.length <= 1 : true}
+                onSelect={(value) => onReconstructionSelected(voiceReconstruction.staff, value)}
+            />
+        </Col>
+        </Row>
+    ) : null
 
     return (
         <Drawer title="Opciones de visualizacion" open={open} onClose={onClose}>
             <Space direction="vertical" size="large">
+
+                {reconstructionRows}
+
                 <Row align={"middle"}>
                     <Col span={20}>
                         <Space direction="vertical">
@@ -59,6 +91,29 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
                         <Switch value={normalizeFicta} defaultValue={false} disabled={fictaSwictchDisabled} onChange={onNormalizeFictaChange} />
                     </Col>
                 </Row>
+
+                {originalClefsAvailable &&
+                    <Row align={"middle"}>
+                        <Col span={20}>
+                            <Space direction="vertical">
+                                <Typography.Text strong={true} type={showOriginalClefs ? undefined : "secondary"}>
+                                    Claves originales
+                                </Typography.Text>
+                                <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} type={showOriginalClefs ? undefined : "secondary"} >
+                                    Muestra las claves originales del manuscrito sin modernizar
+                                </Typography.Text>
+                            </Space>
+                        </Col>
+                        <Col span={4}>
+                            <Switch
+                                value={showOriginalClefs}
+                                defaultValue={false}
+                                disabled={!originalClefsAvailable}
+                                onChange={onShowOriginalClefsChange}
+                            />
+                        </Col>
+                    </Row>}
+
                 {showTranspositionOption &&
                 <Row align={"middle"}>
                     <Col span={20}>

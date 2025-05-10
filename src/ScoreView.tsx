@@ -44,6 +44,8 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const transposition = useStore.use.transposition();
     const renderedSvgData = useStore.use.renderedSvgData();
     const setRenderedSvgData = useStore.use.setRenderedSvgData();
+    const showReconstructions = useStore.use.showReconstructions();
+    const showOriginalClefs = useStore.use.showOriginalClefs();
 
     // References and component state
     const { handleElementClick } = useEditorialHandler();
@@ -69,6 +71,8 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         appOptions,
         choiceOptions,
         transposition,
+        showReconstructions,
+        showOriginalClefs
     });
 
 
@@ -198,7 +202,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         const anchor = renderedSvgData?.anchorElement || undefined;
         const action = loadAction({ meiStr: showingMei, page: page, scale, restorePositionForAchor: anchor });
         setPendingAction(action);
-    }, [appOptions, choiceOptions, transposition]);
+    }, [appOptions, choiceOptions, transposition, showReconstructions, showOriginalClefs]);
 
     useEffect(() => {
         if (!isReady() || !showingMei || !renderedSvgData) return;

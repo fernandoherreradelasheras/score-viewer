@@ -31,6 +31,10 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
 
     const transposition = useStore.use.transposition();
 
+    const showReconstructions = useStore.use.showReconstructions();
+
+    const showOriginalClefs = useStore.use.showOriginalClefs();
+
     const setRenderedSvgData = useStore.use.setRenderedSvgData();
 
     const { ref: svgContainerRef, width: svgContainerWidth, height: svgContainerHeight } = useComponentSize();
@@ -66,6 +70,8 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
         appOptions,
         choiceOptions,
         transposition,
+        showReconstructions,
+        showOriginalClefs
     });
 
 

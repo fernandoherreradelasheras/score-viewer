@@ -8,7 +8,7 @@ import ScoreProcessor from './ScoreProcessor';
 import { ConfigProvider, Select, Space, Tabs, TabsProps, theme, Typography } from 'antd'
 import { isMobile } from 'react-device-detect';
 import ErrorBoundary from './ErrorBoundary';
-import { FacsimileItem, Score } from './types';
+import { FacsimileItem, Score, ScoreProperties } from './types';
 import ScoreViewContainer from './ScoreViewContainer';
 import { DefaultOptionType } from 'antd/es/select';
 import TextView from './TextView';
@@ -41,18 +41,6 @@ export interface ScoreViewerConfig {
   scores:ScoreItem[]
 }
 
-
-export type ScoreProperties = {
-    hasFicta: boolean,
-    numVerses: number,
-    numMeasures: number,
-    editor: string,
-    reconstructionBy: string | null,
-    sections: {label: string, id: string}[],
-    notes: string[],
-    hasEditorial: boolean,
-    encodedTransposition?: string
-}
 
 export interface ScoreViewerProps {
   config: ScoreViewerConfig

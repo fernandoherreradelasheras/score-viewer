@@ -50,10 +50,6 @@
   --show-outline-color: rgb(0, 89, 255);;
 }
 
-.clef[data-corresp] {
-  --show-fill-color: blue;
-  --show-outline-color: rgb(0, 89, 255);
-}
 
 .svg-container.static-score:not(.editorial-active) svg .unclear.bounding-box rect,
 .svg-container.static-score:not(.editorial-active) svg .sic.bounding-box rect,
@@ -67,8 +63,7 @@
 .svg-container.editorial-active.static-score svg .sic,
 .svg-container.editorial-active.static-score svg .choice,
 .svg-container.editorial-active.static-score svg .corr,
-.svg-container.editorial-active.static-score svg .reg,
-.svg-container.editorial-active.static-score svg g.clef[data-corresp] {
+.svg-container.editorial-active.static-score svg .reg {
   fill: var(--show-fill-color);
   pointer-events: auto;
   visibility: visible;
@@ -79,8 +74,7 @@
 .svg-container.editorial-active.static-score svg .sic.bounding-box rect,
 .svg-container.editorial-active.static-score svg .choice.bounding-box rect,
 .svg-container.editorial-active.static-score svg .corr.bounding-box rect,
-.svg-container.editorial-active.static-score svg .reg.bounding-box rect,
-.svg-container.editorial-active.static-score svg g.clef.bounding-box[data-corresp] rect {
+.svg-container.editorial-active.static-score svg .reg.bounding-box rect {
   fill-opacity: 0;
   outline: 30px solid var(--show-outline-color);
   outline-offset: 120px;
@@ -90,8 +84,7 @@
 .svg-container.editorial-active.static-score svg .sic:hover,
 .svg-container.editorial-active.static-score svg .choice:hover,
 .svg-container.editorial-active.static-score svg .corr:hover,
-.svg-container.editorial-active.static-score svg .reg:hover,
-.svg-container.editorial-active.static-score svg g.clef[data-corresp]:hover {
+.svg-container.editorial-active.static-score svg .reg:hover {
   filter: url(#highlighting-hover);
 }
 

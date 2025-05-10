@@ -131,7 +131,9 @@ const createPlayerStore = create<PlayerState>((set) => ({
 
 interface EditorialState {
     showNVerses: number | null
+    showReconstructions: { [staff: string]: string }
     showEditorial: boolean
+    showOriginalClefs: boolean
     normalizeFicta: boolean
     showingEditorial: string | null
     appOptions: string[]
@@ -140,7 +142,9 @@ interface EditorialState {
     transposition: string | null
 
     setShowNVerses: (n: number | null) => void
+    setShowReconstructions: (reconstructions: { [staff: string]: string }, replace: boolean) => void
     setShowEditorial: (showEditorial: boolean) => void
+    setShowOriginalClefs: (showOriginalClefs: boolean) => void
     setNormalizeFicta: (normalizeFicta: boolean) => void
     setShowingEditorial: (editorial: string | null) => void
     setAppOptions: (options: string[], replace: boolean) => void
@@ -151,7 +155,9 @@ interface EditorialState {
 
 const createEditorialStore = create<EditorialState>((set) => ({
     showNVerses: null,
+    showReconstructions: {},
     showEditorial: false,
+    showOriginalClefs: false,
     normalizeFicta: false,
     showingEditorial: null,
     appOptions: [],
@@ -160,7 +166,11 @@ const createEditorialStore = create<EditorialState>((set) => ({
     transposition: null,
 
     setShowNVerses: (n: number | null) => set(() => ({ showNVerses: n })),
+    setShowReconstructions: (reconstructions: { [staff: string]: string }, replace: boolean) => set((state) => ({
+        showReconstructions: replace ? reconstructions : { ...state.showReconstructions, ...reconstructions }
+     })),
     setShowEditorial: (showEditorial: boolean) => set(() => ({ showEditorial })),
+    setShowOriginalClefs: (showOriginalClefs: boolean) => set(() => ({ showOriginalClefs })),
     setNormalizeFicta: (normalizeFicta: boolean) => set(() => ({ normalizeFicta })),
     setShowingEditorial: (editorial: string | null) => set(() => ({ showingEditorial: editorial })),
     setAppOptions: (options: string[], replace: boolean) => set((state) => ({
@@ -232,7 +242,9 @@ class StoreApi {
 
         // Editorial Store
         showNVerses: createEditorialStoreWithSelectors.use.showNVerses,
+        showReconstructions: createEditorialStoreWithSelectors.use.showReconstructions,
         showEditorial: createEditorialStoreWithSelectors.use.showEditorial,
+        showOriginalClefs: createEditorialStoreWithSelectors.use.showOriginalClefs,
         normalizeFicta: createEditorialStoreWithSelectors.use.normalizeFicta,
         showingEditorial: createEditorialStoreWithSelectors.use.showingEditorial,
         appOptions: createEditorialStoreWithSelectors.use.appOptions,
@@ -240,7 +252,9 @@ class StoreApi {
         section: createEditorialStoreWithSelectors.use.section,
         transposition: createEditorialStoreWithSelectors.use.transposition,
         setShowNVerses: createEditorialStoreWithSelectors.use.setShowNVerses,
+        setShowReconstructions: createEditorialStoreWithSelectors.use.setShowReconstructions,
         setShowEditorial: createEditorialStoreWithSelectors.use.setShowEditorial,
+        setShowOriginalClefs: createEditorialStoreWithSelectors.use.setShowOriginalClefs,
         setNormalizeFicta: createEditorialStoreWithSelectors.use.setNormalizeFicta,
         setShowingEditorial: createEditorialStoreWithSelectors.use.setShowingEditorial,
         setAppOptions: createEditorialStoreWithSelectors.use.setAppOptions,

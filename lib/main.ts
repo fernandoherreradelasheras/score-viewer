@@ -1,8 +1,9 @@
-import ScoreViewer, { ScoreProperties, ScoreViewerConfig, ScoreViewerProps } from '../src/ScoreViewer';
+import ScoreViewer, { ScoreViewerConfig, ScoreViewerProps } from '../src/ScoreViewer';
 import ScoreView from '../src/ScoreView';
 import useStore from '../src/store';
 import { Context } from '../src/Context';
-import '../src/style.css'; // Import our consolidated styles
+import '../src/style.css';
+import { ScoreProperties } from '../src/types';
 
 export {
   ScoreViewer,

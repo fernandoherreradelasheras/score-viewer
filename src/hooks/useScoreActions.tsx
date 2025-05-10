@@ -88,6 +88,8 @@ interface ScoreActionsConfig {
   appOptions: string[];
   choiceOptions: string[];
   transposition: string | null;
+  showReconstructions: { [staff: string]: string };
+  showOriginalClefs: boolean;
 }
 
   /**
@@ -104,6 +106,18 @@ interface ScoreActionsConfig {
       };
     });
 
+const buildAppOptions = (appOptions: string[], showReconstructions: { [staff: string] : string }, showOriginalClefs: boolean) => {
+  const voiceReconstructionSelectors = Object.values(showReconstructions).map(label =>
+    `./*[contains(@label, '${label}')]`
+  )
+
+  return [
+    ...appOptions,
+    ...voiceReconstructionSelectors,
+    ...showOriginalClefs ? [`./rdg[contains(@label, 'app_clefs')]`] : []
+  ]
+}
+
 /**
  * Custom hook that manages score action execution
  */
@@ -114,6 +128,8 @@ export default function useScoreActions({
   appOptions,
   choiceOptions,
   transposition,
+  showReconstructions,
+  showOriginalClefs
 }: ScoreActionsConfig) {
 
   /**
@@ -134,13 +150,15 @@ export default function useScoreActions({
       adjustPageHeight: false,
       landscape: loadedHeight > loadedWidth,
       svgAdditionalAttribute: EXTRA_SVG_ATTRIBUTES,
-      appXPathQuery: appOptions,
+      appXPathQuery: buildAppOptions(appOptions, showReconstructions, showOriginalClefs),
       choiceXPathQuery: choiceOptions,
       pageHeight: loadedHeight,
       pageWidth: loadedWidth,
       scale: scale,
       transpose: transposition != null ? transposition : ""
     };
+
+    console.log(options.appXPathQuery)
 
     try {
       verovio.setOptions(options);
@@ -170,7 +188,7 @@ export default function useScoreActions({
       console.error("Error performing load action:", error);
       return null;
     }
-  }, [verovio, svgContainerWidth, svgContainerHeight, appOptions, choiceOptions, transposition]);
+  }, [verovio, svgContainerWidth, svgContainerHeight, appOptions, choiceOptions, transposition, showReconstructions, showOriginalClefs]);
 
   /**
    * Execute the load auto-scroll action - prepares Verovio for auto-scroll mode
@@ -186,7 +204,7 @@ export default function useScoreActions({
       adjustPageHeight: true,
       svgViewBox: true,
       svgAdditionalAttribute: EXTRA_SVG_ATTRIBUTES,
-      appXPathQuery: appOptions,
+      appXPathQuery: buildAppOptions(appOptions, showReconstructions, showOriginalClefs),
       choiceXPathQuery: choiceOptions,
       pageHeight: height,
       pageWidth: AUTO_SCROLL_RENDERING_WIDTH_LIMIT,
@@ -202,7 +220,7 @@ export default function useScoreActions({
       console.error("Error performing auto-scroll load action:", error);
       return null;
     }
-  }, [verovio, appOptions, choiceOptions, transposition]);
+  }, [verovio, appOptions, choiceOptions, transposition, showReconstructions, showOriginalClefs]);
 
   /**
    * Render the score as a standard page

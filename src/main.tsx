@@ -17,7 +17,7 @@ const defaultConfig: ScoreViewerConfig = {
     {
       title: "Airecillos mansos",
       audioUrl: "/test.mp3",
-      meiUrl: "/test.mei",
+      meiUrl: "/1.mei",
       textUrl: "/test.txt",
       encodingProperties: { encodedTransposition: "-P4" },
       facsimileItems: [

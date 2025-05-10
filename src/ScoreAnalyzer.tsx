@@ -1,5 +1,4 @@
-import { ScoreProperties } from "./ScoreViewer";
-import { EditorialItem, Annotation } from "./types";
+import { EditorialItem, Annotation, ReconstructionItem, ScoreProperties } from "./types";
 
 
 
@@ -37,6 +36,12 @@ class ScoreAnalyzer {
     hasFictaElements() {
         const it = this.document.evaluate('//mei:accid[@func="edit"]', this.document, nsResolver, XPathResult.ANY_TYPE, null)
         return it.iterateNext() != null
+    }
+
+    hasOriginalClefs() {
+        const res = this.document.evaluate('//mei:rdg[@label="app_clefs"]', this.document, nsResolver, XPathResult.ANY_TYPE, null).iterateNext()
+        console.log(res)
+        return res != null
     }
 
     hasEditorialElements() {
@@ -83,6 +88,59 @@ class ScoreAnalyzer {
         return sections
     }
 
+    getVoiceName(staff: string) {
+        let voiceName = this.document.evaluate(`//mei:staffDef[@n="${staff}"]/mei:label`, this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
+        return voiceName ? voiceName : null
+    }
+
+
+    getReconstructions() {
+        const reconstructions : { staff: string, voiceName: string, reconstructionsForVoice : ReconstructionItem[] }[] = []
+        let matches = this.document.evaluate(`//mei:app[@type="voice_reconstruction"]/mei:rdg`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        console.log(matches)
+        var node = matches.iterateNext()
+        while (node != null) {
+            const reconstruction = node as Element
+            const label = reconstruction.getAttribute("label")
+            const staff = reconstruction.parentElement?.parentElement?.tagName == "staff" ? reconstruction.parentElement.parentElement.getAttribute("n") : null
+            if (!label || !staff) {
+                node = matches.iterateNext()
+                continue
+            }
+            const voiceName = this.getVoiceName(staff)
+            if (!voiceName) {
+                node = matches.iterateNext()
+                continue
+            }
+
+            var reconstructionsForVoice = reconstructions.find(r => r.voiceName == voiceName)?.reconstructionsForVoice
+            if (!reconstructionsForVoice) {
+                reconstructionsForVoice = []
+                reconstructions.push({staff: staff, voiceName: voiceName, reconstructionsForVoice: reconstructionsForVoice})
+            }
+
+            if (reconstructionsForVoice.find(r => r.label == label)) {
+                node = matches.iterateNext()
+                continue
+            }
+
+            const reconstructionItem : ReconstructionItem = { label: label, voice: voiceName, reconstructionBy: "" }
+            reconstructionsForVoice.push(reconstructionItem)
+            node = matches.iterateNext()
+        }
+
+        return reconstructions.length > 0 ? reconstructions.map(r => {
+            return {
+                staff: r.staff,
+                voiceName: r.voiceName,
+                reconstructionsForVoice:
+                    [...r.reconstructionsForVoice,
+                    { label: "none", voice: r.voiceName, reconstructionBy: "" }],
+
+            }
+        }) : []
+    }
+
 
     getScoreProperties(): ScoreProperties {
         return {
@@ -91,9 +149,11 @@ class ScoreAnalyzer {
             numMeasures: this.getNumMeasures(),
             editor: this.getEditor(),
             reconstructionBy: this.getReconstructionBy(),
+            reconstructions: this.getReconstructions(),
             notes: this.getMeiNotes(),
             sections: this.getSections(),
-            hasEditorial: this.hasEditorialElements()
+            hasEditorial: this.hasEditorialElements(),
+            hasOriginalClefs: this.hasOriginalClefs(),
         }
     }
 
@@ -129,25 +189,47 @@ class ScoreAnalyzer {
         return items
     }
 
+    choiceNodeToEditorialItem (node: Element, type: string) : EditorialItem {
+        const choiceId = node.getAttribute("xml:id")
+        const options: Option[] = []
+        const choice = { id: choiceId!!, options: options }
 
-    getChoiceNodesOfType (type: string)  {
+        for (let child of [...node.childNodes?.values()].filter(n => n.nodeType == Node.ELEMENT_NODE)) {
+            const choiceElement = child as Element
+            const optionLabel = choiceElement.getAttribute("label")
+            const nodeType = choiceElement.tagName
+            choice.options.push({ type: nodeType, selector: `./${nodeType}[@label='${optionLabel}']` })
+        }
+
+        return { id: choiceId!!, type: type, resp: "", reason: "", choice: choice, annotations: new Set() }
+    }
+
+
+    getChoiceNodes ()  {
         const items: EditorialItem[] = []
-        let matches = this.document.evaluate(`//mei:${type}`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        let matches = this.document.evaluate('//mei:choice', this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
         while (node != null) {
             const element = node as Element
-            const choiceId = element.getAttribute("xml:id")
-            const options: Option[] = []
-            const choice = { id: choiceId!!, options: options }
+            const item = this.choiceNodeToEditorialItem(element, "choice")
+            items.push(item)
+            node = matches.iterateNext()
+        }
+        return items
+    }
 
-            for (let child of [...node.childNodes?.values()].filter(n => n.nodeType == Node.ELEMENT_NODE)) {
-                const choiceElement = child as Element
-                const optionLabel = choiceElement.getAttribute("label")
-                const nodeType = choiceElement.tagName
-                choice.options.push({ type: nodeType, selector: `./${nodeType}[@label='${optionLabel}']` })
+    getAppChoiceNodes ()  {
+        const items: EditorialItem[] = []
+        let matches = this.document.evaluate(`//mei:app`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        let node = matches.iterateNext()
+        while (node != null) {
+            const element = node as Element
+            // app elements with defined type are not considered editorial choices but
+            // global choices and are handles on the options panel (e.g. voice reconstruction, original clefs, etc...)
+            if (element.getAttribute("type") == null) {
+                const item = this.choiceNodeToEditorialItem(element, "app")
+                items.push(item)
             }
-
-            items.push({ id: choiceId!!, type: type, resp: "", reason: "", choice: choice, annotations: new Set() })
             node = matches.iterateNext()
         }
         return items
@@ -176,9 +258,8 @@ class ScoreAnalyzer {
                 .concat(this.getEditorialNodesOfType("corr"))
                 .concat(this.getEditorialNodesOfType("supplied"))
                 .concat(this.getEditorialNodesOfType("reg"))
-                .concat(this.getChoiceNodesOfType("choice"))
-                .concat(this.getChoiceNodesOfType("app"))
-
+                .concat(this.getChoiceNodes())
+                .concat(this.getAppChoiceNodes())
 
         const annotations = this.getAnnotations()
         const consumedAnnotationsTargets = new Set()

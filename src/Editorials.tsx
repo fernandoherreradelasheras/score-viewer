@@ -23,7 +23,7 @@ function Editorials() {
     const { formatType } = useEditorialHandler();
 
     const TOOLTIP_SELECTOR = useMemo(() =>
-        ['corr', 'unclear', 'sic', 'app', 'choice', 'lem', 'reg', 'orig', 'supplied', 'clef[data-corresp]']
+        ['corr', 'unclear', 'sic', 'app', 'choice', 'lem', 'reg', 'orig', 'supplied']
         .map(e => `svg .${e}:not(.bounding-box)`).join(", ")
     ,[])
 

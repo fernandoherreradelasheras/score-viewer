@@ -6,6 +6,12 @@ export type FacsimileItem = {
     url: string
 }
 
+export type ReconstructionItem = {
+    voice: string
+    label: string
+    reconstructionBy: string
+}
+
 export type Score = {
     url: string
     title: string
@@ -17,6 +23,12 @@ export type Score = {
     fascimileItems?: FacsimileItem[]
 }
 
+export type Reconstruction = {
+    staff: string
+    voiceName:string
+    reconstructionsForVoice: ReconstructionItem[]
+}
+
 /**
  * Properties of a music score
  */
@@ -25,9 +37,11 @@ export type ScoreProperties = {
     numVerses: number,
     numMeasures: number,
     editor: string,
+    reconstructions: Reconstruction[],
     reconstructionBy: string | null,
     sections: {label: string, id: string}[],
     notes: string[],
     hasEditorial: boolean,
+    hasOriginalClefs: boolean,
     encodedTransposition?: string
 }
