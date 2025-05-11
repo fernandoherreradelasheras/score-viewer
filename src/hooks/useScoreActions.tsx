@@ -227,7 +227,6 @@ export default function useScoreActions({
       const newTimeMap = timemap.map(e => {return {...e}})
       console.log(newTimeMap)
       for (const { first, second } of tiedNotes) {
-        console.log(first, second)
         const firstOnIndex = newTimeMap.findIndex(e => e.on != null && e.on.includes(first));
         const firstOffIndex = newTimeMap.findIndex(e => e.off != null && e.off.includes(first));
         const secondOnIndex = newTimeMap.findIndex(e => e.on != null && e.on.includes(second));
