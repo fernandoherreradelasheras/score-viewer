@@ -25,6 +25,7 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps) {
 
     const score = useStore.use.score();
     const autoScroll = useStore.use.autoScroll();
+    const setAutoScroll = useStore.use.setAutoScroll();
     const playingState = useStore.use.playingState();
     const setPlayingState = useStore.use.setPlayingState();
     const setCurrentPage = useStore.use.setCurrentPage();
@@ -77,6 +78,14 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps) {
             setPlayingState(PlayingState.STOPPED);
         }
     }, [score])
+
+    useEffect(() => {
+        if (playingState == PlayingState.STOPPED) {
+            if (autoScroll) {
+                setAutoScroll(false);
+            }
+        }
+    }, [playingState]);
 
     return (
         <div ref={scoreViewerRef}

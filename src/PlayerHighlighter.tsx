@@ -4,7 +4,7 @@ import { svgFilter } from "./SvgUtils";
 import { TimeMapEvent, PlayingState } from "./types";
 
 
-const staffHighlightColors = ["#8e0000", "#227710", "#5500aa", "#e9227a", "#fa8072", "#11ddff", "#8e0000", "#227710"]
+const staffHighlightColors = ["#8e0000", "#227710", "#5500aa", "#e9227a", "#0026f3", "#11ddff", "#8e0000", "#227710"]
 
 
 const noteHighlightStyle = `

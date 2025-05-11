@@ -157,10 +157,10 @@ const createPlayerStore = create<PlayerState>((set) => ({
             }
         };
     }),
-    setPlayingState: (playingState: PlayingState) => set(() => ({ playingState })),
+    setPlayingState: (playingState: PlayingState) => set(() => ({ playingState: playingState })),
     setPlayingPosition: (position: number) => set(() => ({ playingPosition: position })),
     setSeekPosition: (position: number) => set(() => ({ seekPosition: position })),
-    setAutoScroll: (autoScroll: boolean) => { console.trace(); set(() => ({ autoScroll })) },
+    setAutoScroll: (autoScroll: boolean) => set(() => ({ autoScroll: autoScroll })),
     resetPlayerPosition: () => set(() => ({
         playingPosition: 0,
         seekPosition: 0,

@@ -312,21 +312,11 @@ export default function useWebAudioPlayer(timemap: TimeMapEvent[] | null) {
     }, [playingState]);
 
 
-
-
     const handleStop = useCallback(() => {
         stopPlayback();
         setIsLoading(true);
-        // react will not allow the audio src to sync to the pause state until the state is processed
-        setTimeout(() => {
-            setPlayingState(PlayingState.STOPPED);
-            setSeekPosition(0);
-            if (autoScroll) {
-                setAutoScroll(false);
-            }
-            setIsLoading(false);
-        }, 50);
-
+        onAudioEnded();
+        setIsLoading(false);
     }, [playingState, setPlayingState, autoScroll, setAutoScroll, stopPlayback]);
 
     const getAudioDuration = useCallback(() => {
