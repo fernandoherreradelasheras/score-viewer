@@ -223,6 +223,35 @@ export default function useScoreActions({
     }
   }, [verovio, appOptions, choiceOptions, transposition, showReconstructions, showOriginalClefs]);
 
+  const mergeTimemapTies = (timemap: TimeMapEvent[], tiedNotes: {first: string, second: string} []) => {
+      const newTimeMap = timemap.map(e => {return {...e}})
+      console.log(newTimeMap)
+      for (const { first, second } of tiedNotes) {
+        console.log(first, second)
+        const firstOnIndex = newTimeMap.findIndex(e => e.on != null && e.on.includes(first));
+        const firstOffIndex = newTimeMap.findIndex(e => e.off != null && e.off.includes(first));
+        const secondOnIndex = newTimeMap.findIndex(e => e.on != null && e.on.includes(second));
+        const secondOffIndex = newTimeMap.findIndex(e => e.off != null && e.off.includes(second));
+        if (firstOnIndex == -1 || firstOffIndex == -1 || secondOnIndex == -1 || secondOffIndex == -1) {
+          // ties could be for a reconstructed voice not selected
+          continue;
+        }
+
+        console.log(firstOnIndex, firstOffIndex, secondOnIndex, secondOffIndex)
+        newTimeMap[firstOnIndex].on!.push(second)
+        newTimeMap[firstOffIndex].off = newTimeMap[firstOffIndex].off!.filter(id => id != first)
+        newTimeMap[secondOnIndex].on = newTimeMap[secondOnIndex].on!.filter(id => id != second)
+        newTimeMap[secondOffIndex].off!.push(first)
+    }
+    return newTimeMap
+  }
+
+  const resolveTimemap = (timemap: TimeMapEvent[]) => {
+    const analyzer = new ScoreAnalyzer(0, verovio.getMEI())
+    const timeMapWithTiesMerged = mergeTimemapTies(timemap, analyzer.getTiedNotes())
+    return resolveTimemapAnimations(timeMapWithTiesMerged)
+  }
+
   /**
    * Render the score as a standard page
    */
@@ -258,7 +287,7 @@ export default function useScoreActions({
       const newSvg = {
         id: svgElement.id,
         scale: scale,
-        timemap: resolveTimemapAnimations(timemap),
+        timemap: resolveTimemap(timemap),
         anchorElement: firstMeasureId,
         page: renderPage,
       };
@@ -294,10 +323,12 @@ export default function useScoreActions({
 
       element.style.height = `${renderedHeight}px`;
 
+
+
       const newSvg = {
         id: "svg-auto-scrolling",
         scale: 100, // Auto-scroll uses fixed scale
-        timemap: resolveTimemapAnimations(timemap),
+        timemap: resolveTimemap(timemap),
         width: renderedWidth,
         height: renderedHeight,
         anchorElement: null,

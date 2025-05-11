@@ -152,6 +152,7 @@ class ScoreAnalyzer {
             sections: this.getSections(),
             hasEditorial: this.hasEditorialElements(),
             hasOriginalClefs: this.hasOriginalClefs(),
+            tiedNotes: this.getTiedNotes(),
         }
     }
 
@@ -247,6 +248,25 @@ class ScoreAnalyzer {
         }
         return annotations
     }
+
+    getTiedNotes() {
+        const tiedNotes: {first: string, second: string }[] = []
+        let matches = this.document.evaluate(`//mei:tie`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        let node = matches.iterateNext()
+        while (node != null) {
+            const element = node as Element
+            const startid = element.getAttribute("startid")
+            const endid = element.getAttribute("endid")
+            const first = startid?.startsWith("#") ? startid?.slice(1) : null
+            const second = endid?.startsWith("#") ? endid?.slice(1) : null
+            if (first && second) {
+                tiedNotes.push({ first, second })
+            }
+            node = matches.iterateNext()
+        }
+        return tiedNotes
+    }
+
 
 
     getEditorial() : EditorialItem[] {

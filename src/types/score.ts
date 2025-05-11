@@ -44,4 +44,5 @@ export type ScoreProperties = {
     hasEditorial: boolean,
     hasOriginalClefs: boolean,
     encodedTransposition?: string
+    tiedNotes: { first: string, second: string }[]
 }
