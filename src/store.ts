@@ -9,6 +9,8 @@ import {
     Action,
     Score,
     PlayingState,
+    AudioTrack,
+    AudioTracks,
 } from './types'
 import { RenderedData } from './hooks/useScoreRenderer'
 
@@ -97,12 +99,17 @@ const createUILayoutStore = create<UILayoutState>((set) => ({
 
 interface PlayerState {
     audioUrl: string | null
+    audioTracks: AudioTracks
     playingState: PlayingState
     playingPosition: number
     seekPosition: number
     autoScroll: boolean
 
     setAudioUrl: (audioUrl: string | null) => void
+    setAudioTracks: (tracks: AudioTracks) => void
+    addAudioTrack: (track: AudioTrack) => void
+    removeAudioTrack: (trackId: string) => void
+    updateAudioTrack: (trackId: string, updates: Partial<AudioTrack>) => void
     setPlayingState: (state: PlayingState) => void
     setPlayingPosition: (position: number) => void
     setSeekPosition: (position: number) => void
@@ -112,16 +119,48 @@ interface PlayerState {
 
 const createPlayerStore = create<PlayerState>((set) => ({
     audioUrl: null,
+    audioTracks: { base: null, overlays: [] },
     playingState: PlayingState.STOPPED,
     playingPosition: 0,
     seekPosition: -1,
     autoScroll: false,
 
-    setAudioUrl: (audioUrl: string | null) => set(() => ({ audioUrl })),
+    setAudioUrl: (audioUrl: string | null) => set((state) => {
+        // When setting a new audio URL, also update the base track
+        let audioTracks = state.audioTracks;
+        return { audioUrl, audioTracks };
+    }),
+    setAudioTracks: (audioTracks: AudioTracks) => set(() => ({ audioTracks })),
+    addAudioTrack: (track: AudioTrack) => set((state) => {
+            return {
+                audioTracks: {
+                    ...state.audioTracks,
+                    overlays: [...state.audioTracks.overlays, track]
+                }
+            };
+    }),
+    removeAudioTrack: (trackId: string) => set((state) => {
+        return {
+            audioTracks: {
+                ...state.audioTracks,
+                overlays: state.audioTracks.overlays.filter(track => track.id !== trackId)
+            }
+        };
+    }),
+    updateAudioTrack: (trackId: string, updates: Partial<AudioTrack>) => set((state) => {
+        return {
+            audioTracks: {
+                ...state.audioTracks,
+                overlays: state.audioTracks.overlays.map(track =>
+                    track.id === trackId ? { ...track, ...updates } : track
+                )
+            }
+        };
+    }),
     setPlayingState: (playingState: PlayingState) => set(() => ({ playingState })),
     setPlayingPosition: (position: number) => set(() => ({ playingPosition: position })),
     setSeekPosition: (position: number) => set(() => ({ seekPosition: position })),
-    setAutoScroll: (autoScroll: boolean) => set(() => ({ autoScroll })),
+    setAutoScroll: (autoScroll: boolean) => { console.trace(); set(() => ({ autoScroll })) },
     resetPlayerPosition: () => set(() => ({
         playingPosition: 0,
         seekPosition: 0,
@@ -229,11 +268,16 @@ class StoreApi {
 
         // Player Store
         audioUrl: createPlayerStoreWithSelectors.use.audioUrl,
+        audioTracks: createPlayerStoreWithSelectors.use.audioTracks,
         playingState: createPlayerStoreWithSelectors.use.playingState,
         playingPosition: createPlayerStoreWithSelectors.use.playingPosition,
         seekPosition: createPlayerStoreWithSelectors.use.seekPosition,
         autoScroll: createPlayerStoreWithSelectors.use.autoScroll,
         setAudioUrl: createPlayerStoreWithSelectors.use.setAudioUrl,
+        setAudioTracks: createPlayerStoreWithSelectors.use.setAudioTracks,
+        addAudioTrack: createPlayerStoreWithSelectors.use.addAudioTrack,
+        removeAudioTrack: createPlayerStoreWithSelectors.use.removeAudioTrack,
+        updateAudioTrack: createPlayerStoreWithSelectors.use.updateAudioTrack,
         setPlayingState: createPlayerStoreWithSelectors.use.setPlayingState,
         setPlayingPosition: createPlayerStoreWithSelectors.use.setPlayingPosition,
         setSeekPosition: createPlayerStoreWithSelectors.use.setSeekPosition,

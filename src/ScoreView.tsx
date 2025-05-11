@@ -114,8 +114,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             return;
         }
 
-        console.log(`effect container size: ${svgContainerWidth} x ${svgContainerHeight}`);
-
         const { success, nextAction, result } = executeAction(pendingAction, svgContainerRef.current);
 
         if (success) {
@@ -175,6 +173,8 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         setPendingAction(action);
 
     }, [verovio, svgContainerRef.current]);
+
+
 
 
     // Handle scale changes

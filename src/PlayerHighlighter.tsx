@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import useStore from "./store";
 import { svgFilter } from "./SvgUtils";
 import { TimeMapEvent, PlayingState } from "./types";
@@ -6,19 +6,12 @@ import { TimeMapEvent, PlayingState } from "./types";
 
 const staffHighlightColors = ["#8e0000", "#227710", "#5500aa", "#e9227a", "#fa8072", "#11ddff", "#8e0000", "#227710"]
 
-const SVG_STYLE_RULES = [1, 2, 3, 4, 5, 6, 7, 8].map(i=> `.staff[data-n="${i}"] { \
-    --high: url(#highlighting-${i}); \
-    --hgcolor: ${staffHighlightColors[i-1]} }`).join('\n')
-
 
 const noteHighlightStyle = `
         .notehead.note-highlight { filter: var(--high); fill: var(--hgcolor); }
         g.stem path.note-highlight { color: var(--hgcolor); stroke-width: 36; }
-        .verse[data-n="1"].note-highlight { font-weight: bold; fill: var(--hgcolor); }
+        .verse[data-n="1"].note-highlight { font-weight: var(--verseFontWeight); fill: var(--hgcolor); }
       `
-
-
-
 
 
 
@@ -47,6 +40,14 @@ const svgHighlightFilters =
 </svg>
 
 
+const getSvgStyleRules = (ignoreStaffs: Set<string>) =>
+    [1, 2, 3, 4, 5, 6, 7, 8]
+    .filter(i => !ignoreStaffs.has(`${i}`))
+    .map(i=> `.staff[data-n="${i}"] { \
+        --high: url(#highlighting-${i}); \
+        --verseFontWeight: bold; \
+        --hgcolor: ${staffHighlightColors[i-1]} }`).join('\n')
+
 
 function PlayerHighlighter({ timemap } : { timemap:  TimeMapEvent[] } ) {
 
@@ -55,6 +56,9 @@ function PlayerHighlighter({ timemap } : { timemap:  TimeMapEvent[] } ) {
     const playingState = useStore.use.playingState()
     const playingPosition = useStore.use.playingPosition()
     const seekPosition = useStore.use.seekPosition()
+    const showReconstructions = useStore.use.showReconstructions()
+    const audioTracks = useStore.use.audioTracks();
+
 
     const renderedSvgData = useStore.use.renderedSvgData()
 
@@ -120,17 +124,21 @@ function PlayerHighlighter({ timemap } : { timemap:  TimeMapEvent[] } ) {
                 resetHiglights()
             }
         }
-
     }, [playingState])
+
+    const higlightNotesAtPosition = (position: number) => {
+        timemap.slice().reverse().find(e=> e.on && e.tstamp <= position)?.on?.forEach(id => {
+            console.log(`highlighter: highlighting note ${id}`)
+            document?.querySelectorAll(`#${id} > *`)?.forEach(noteElement => {
+                noteElement.classList.add('note-highlight')
+            })
+        })
+    }
 
     useEffect(() => {
         if (playingState == PlayingState.PAUSED) {
             console.log(`highlighter: changed svg rendered while on pause. Re higihlighting notes`)
-            timemap.slice().reverse().find(e=> e.on && e.tstamp <= playingPosition)?.on?.forEach(id => {
-                document?.querySelectorAll(`#${id} > *`)?.forEach(noteElement => {
-                    noteElement.classList.add('note-highlight')
-                })
-            })
+            higlightNotesAtPosition(playingPosition)
         }
     }, [renderedSvgData])
 
@@ -142,6 +150,21 @@ function PlayerHighlighter({ timemap } : { timemap:  TimeMapEvent[] } ) {
             noteElement.classList.remove('note-highlight')
         })
     }
+
+    const ignoreStaffs = useMemo(() => {
+        const staffsWithoutAudio = new Set<string>()
+        const labelsWithAudio = audioTracks.overlays.map(t => t.label)
+        for (let [staff, label] of Object.entries(showReconstructions)) {
+            if (!labelsWithAudio.includes(label)) {
+                staffsWithoutAudio.add(staff)
+            }
+        }
+        return staffsWithoutAudio
+    }, [showReconstructions, audioTracks])
+
+    const svgStyleRules = useMemo(() => {
+        return getSvgStyleRules(ignoreStaffs)
+    }, [ignoreStaffs])
 
 
     useEffect(() => {
@@ -200,6 +223,11 @@ function PlayerHighlighter({ timemap } : { timemap:  TimeMapEvent[] } ) {
     useEffect(() => {
         stopGlowingNotes()
         resetHiglights()
+        if (seekPosition > 0 && playingState == PlayingState.PAUSED) {
+            console.log(`highlight notes un pause at seek position ${seekPosition}`)
+            higlightNotesAtPosition(seekPosition)
+        }
+
     }, [seekPosition])
 
     return (
@@ -209,7 +237,7 @@ function PlayerHighlighter({ timemap } : { timemap:  TimeMapEvent[] } ) {
 
             <style>
                 {`
-                    ${SVG_STYLE_RULES}
+                    ${svgStyleRules}
                     ${noteHighlightStyle}
                 `}
             </style>

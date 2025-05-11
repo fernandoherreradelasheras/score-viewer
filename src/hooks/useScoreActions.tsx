@@ -142,7 +142,7 @@ export default function useScoreActions({
     const loadedHeight = svgContainerHeight;
     const loadedWidth = svgContainerWidth;
 
-    console.log(`loading score: page=${page} pageWidth=${loadedWidth}, pageHeight=${loadedHeight}, scale=${scale} transition=${postLoadTransition}`);
+    console.log(`loading score: mode=normal page=${page} pageWidth=${loadedWidth}, pageHeight=${loadedHeight}, scale=${scale} transition=${postLoadTransition}`);
 
     const options: VerovioOptions = {
       ...verovioBaseOptions,
@@ -157,8 +157,6 @@ export default function useScoreActions({
       scale: scale,
       transpose: transposition != null ? transposition : ""
     };
-
-    console.log(options.appXPathQuery)
 
     try {
       verovio.setOptions(options);
@@ -198,6 +196,9 @@ export default function useScoreActions({
 
     const { height, meiStr } = config;
 
+    console.log(`loading score: mode=autoscroll height=${height}`);
+
+
     const options: VerovioOptions = {
       ...verovioBaseOptions,
       adjustPageWidth: true,
@@ -229,7 +230,7 @@ export default function useScoreActions({
     if (!verovio || !element) return null;
 
     const { transition, loadedHeight, loadedWidth, renderPage, scale, loadedPagesCount } = config;
-    console.log(`Rendering score: page=${renderPage} scale=${scale} transition=${transition}`);
+    console.log(`Rendering score: mode=normal page=${renderPage} scale=${scale} transition=${transition}`);
 
     try {
       const timemap = verovio.renderToTimemap({ includeMeasures: true });
@@ -259,7 +260,7 @@ export default function useScoreActions({
         scale: scale,
         timemap: resolveTimemapAnimations(timemap),
         anchorElement: firstMeasureId,
-        page: renderPage
+        page: renderPage,
       };
 
       return { newSvg, loadedPagesCount, scale, renderPage };
@@ -276,6 +277,8 @@ export default function useScoreActions({
     if (!verovio || !element) return null;
 
     const { height } = config;
+    console.log(`Rendering score: mode=autoscroll height=${height}`);
+
 
     try {
       const timemap = verovio.renderToTimemap({ includeMeasures: true });
@@ -298,7 +301,7 @@ export default function useScoreActions({
         width: renderedWidth,
         height: renderedHeight,
         anchorElement: null,
-        page: 1
+        page: 1,
       };
 
       return { newSvg };

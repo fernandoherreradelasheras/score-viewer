@@ -40,7 +40,6 @@ class ScoreAnalyzer {
 
     hasOriginalClefs() {
         const res = this.document.evaluate('//mei:rdg[@label="app_clefs"]', this.document, nsResolver, XPathResult.ANY_TYPE, null).iterateNext()
-        console.log(res)
         return res != null
     }
 
@@ -97,7 +96,6 @@ class ScoreAnalyzer {
     getReconstructions() {
         const reconstructions : { staff: string, voiceName: string, reconstructionsForVoice : ReconstructionItem[] }[] = []
         let matches = this.document.evaluate(`//mei:app[@type="voice_reconstruction"]/mei:rdg`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
-        console.log(matches)
         var node = matches.iterateNext()
         while (node != null) {
             const reconstruction = node as Element

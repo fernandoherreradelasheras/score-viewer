@@ -16,13 +16,12 @@ const formatTime = (millis: number) => {
 const tooltipNullFormater  = (_?: number) => null
 
 
-interface PlayerControlProps {
-    audioDuration: number
+export interface PlayerControlProps {
+    audioDuration?: number;
 }
 
 
-function PlayerControls({ audioDuration }: PlayerControlProps) {
-
+function PlayerControls({ audioDuration = 0 }: PlayerControlProps) {
     const playingPosition = useStore.use.playingPosition()
     const setSeekPosition = useStore.use.setSeekPosition()
     const setAutoScroll = useStore.use.setAutoScroll()
@@ -30,16 +29,18 @@ function PlayerControls({ audioDuration }: PlayerControlProps) {
     const [positionString, setPositionString] = useState("00:00")
     const [durationString, setDurationString] = useState("00:00")
     const [playerMode, setPlayerMode] = useState("static")
+    const [currentDuration, setCurrentDuration] = useState(audioDuration || 0);
 
     const seekValue = useRef(0)
     const isChanging = useRef(false)
 
-
     useEffect(() => {
-        const durationStr = formatTime(audioDuration)
-        setDurationString(durationStr)
-    }, [audioDuration])
-
+        if (audioDuration > 0) {
+            setCurrentDuration(audioDuration);
+            const durationStr = formatTime(audioDuration);
+            setDurationString(durationStr);
+        }
+    }, [audioDuration]);
 
     const updateTime = (position: number) => {
         seekValue.current = position
@@ -58,7 +59,7 @@ function PlayerControls({ audioDuration }: PlayerControlProps) {
         isChanging.current = false
         setSeekPosition(seekValue.current)
         updateTime(Math.round(seekValue.current))
-    }, []);
+    }, [setSeekPosition]);
 
 
     useEffect(() => {
@@ -82,6 +83,7 @@ function PlayerControls({ audioDuration }: PlayerControlProps) {
         }
     }
 
+
     const playModeSegmented = (
         <Segmented
             size="small"
@@ -94,7 +96,6 @@ function PlayerControls({ audioDuration }: PlayerControlProps) {
             ]} />
     )
 
-
     const playerControls = useMemo(() => (
         <Row align="top" style={{ justifyContent: "left", backgroundColor: "white" }} gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
             <Col span={4} style={{ textAlign: "right" }}>
@@ -104,13 +105,12 @@ function PlayerControls({ audioDuration }: PlayerControlProps) {
                 <Slider
                     style={{ width: "100%", margin: "6px" }}
                     min={0}
-                    max={audioDuration}
+                    max={currentDuration}
                     step={1}
                     tooltip={ { formatter: tooltipNullFormater, open: false } }
                     value={seekValue.current}
                     onChange={handleSliderChange}
                     onChangeComplete={handleSliderChangeComplete} />
-
             </Col>
             <Col span={4} style={{ textAlign: "left" }}>
                 {durationString}
@@ -119,8 +119,7 @@ function PlayerControls({ audioDuration }: PlayerControlProps) {
                 {playModeSegmented}
             </Col>
         </Row>
-    ), [durationString, positionString, playerMode])
-
+    ), [durationString, positionString, playerMode, currentDuration, handleSliderChange, handleSliderChangeComplete])
 
     return (
         playerControls

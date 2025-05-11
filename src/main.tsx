@@ -16,7 +16,11 @@ const defaultConfig: ScoreViewerConfig = {
   scores: [
     {
       title: "Airecillos mansos",
-      audioUrl: "/test.mp3",
+      audioUrl: "/1-base.mp3",
+      audioOverlays: [
+        { staff: "3", appLabel: "reconstruction:3:IA:DeepSeek-V3-0324", url: "/1-DeepSeek-V3-0324.mp3" }
+      ],
+
       meiUrl: "/1.mei",
       textUrl: "/test.txt",
       encodingProperties: { encodedTransposition: "-P4" },

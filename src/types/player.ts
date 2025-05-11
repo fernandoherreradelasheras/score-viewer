@@ -15,3 +15,16 @@ export type TimeMapEvent = {
     tempo?: number,
     stavesOn?: string[],
 }
+
+export interface AudioTrack {
+    id: string;
+    label: string;
+    url: string;
+    volume?: number; // Default volume (0-1)
+}
+
+export interface AudioTracks {
+    overlays: AudioTrack[];
+}
+
+

@@ -16,11 +16,16 @@ import Icon, { FileImageOutlined, FileTextOutlined } from '@ant-design/icons';
 import MusicSvg from "../assets/music.svg?react";
 import FacsimileView from './FacsimileView';
 
-
+export interface AudioOverlay {
+  staff: string;
+  appLabel: string;
+  url: string;
+}
 
 export interface ScoreItem {
   title: string
   audioUrl?: string
+  audioOverlays?: AudioOverlay[]
   meiUrl: string
   textUrl?: string
   facsimileItems?: FacsimileItem[]
@@ -61,6 +66,9 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
   const score = useStore.use.score()
   const setScore = useStore.use.setScore()
   const setAudioUrl = useStore.use.setAudioUrl()
+  const showReconstructions = useStore.use.showReconstructions()
+  const addAudioTrack = useStore.use.addAudioTrack()
+  const setAudioTracks = useStore.use.setAudioTracks()
   const normalizeFicta = useStore.use.normalizeFicta()
   const showNVerses = useStore.use.showNVerses()
   const setShowNVerses = useStore.use.setShowNVerses()
@@ -75,8 +83,6 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
     }
   }, [config]);
 
-
-
   useEffect(() => {
     if (scoreSectionId && scoreIndex == currentScoreIdx) {
       const sectionPage = verovio?.getPageWithElement(scoreSectionId)
@@ -86,6 +92,32 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
     }
   }, [scoreSectionId])
 
+  useEffect(() => {
+    console.log("effect: showReconstructions changed: ", showReconstructions);
+    console.log(`score: ${score} currentScoreIdx: ${currentScoreIdx}`);
+    if (!score || currentScoreIdx == null) return;
+
+    const currentScoreItem = config.scores[currentScoreIdx];
+    if (!currentScoreItem?.audioOverlays) return;
+
+    setAudioTracks({
+      overlays: []
+    });
+
+    const selectedReconstructions = Object.values(showReconstructions);
+    for (const overlay of currentScoreItem.audioOverlays) {
+      if (selectedReconstructions.includes(overlay.appLabel)) {
+        console.log("Adding overlay track: ", overlay.appLabel);
+          addAudioTrack({
+            id: `overlay-${overlay.appLabel}`,
+            label: overlay.appLabel,
+            url: overlay.url,
+            volume: 1
+          });
+        }
+      }
+
+  }, [showReconstructions, score, currentScoreIdx]);
 
   const generateOneVerseMei = (mei: string) => {
     const scoreProcessor = new ScoreProcessor(mei)
@@ -98,7 +130,9 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
 
   const updateScore = (scoreIndex: number, newScore: Score, audioUrl?: string) => {
     setScore(newScore)
+
     setAudioUrl(audioUrl || null)
+
     if (showNVerses) {
       setShowNVerses(null)
     }
@@ -216,8 +250,6 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
     backgroundColor={config.settings.backgroundColor}
     showDownloadButton={config.settings.showDownloadButton}
     />
-
-
 
   const tabsItems: TabsProps['items'] = useMemo(() => [
     {

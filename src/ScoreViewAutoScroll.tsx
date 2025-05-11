@@ -5,7 +5,7 @@ import { useComponentSize } from "react-use-size";
 import useScoreAnimation from './hooks/useScoreAnimation';
 import useScoreActions from './hooks/useScoreActions';
 import useScoreRenderer from './hooks/useScoreRenderer';
-import { PlayingState, loadAutoScrollAction } from './types';
+import { PlayingState, Score, loadAutoScrollAction } from './types';
 import { ScoreViewProps } from './ScoreView';
 
 
@@ -35,6 +35,7 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
 
     const showOriginalClefs = useStore.use.showOriginalClefs();
 
+    const renderedSvgData = useStore.use.renderedSvgData();
     const setRenderedSvgData = useStore.use.setRenderedSvgData();
 
     const { ref: svgContainerRef, width: svgContainerWidth, height: svgContainerHeight } = useComponentSize();
@@ -74,18 +75,30 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
         showOriginalClefs
     });
 
-
-    useEffect(() => {
-        if (!score || !verovio || svgContainerHeight <= 0) {
-            return;
-        }
+    const addLoadAction = (score: Score) => {
         if (showEditorial) {
             setShowEditorial(false);
         }
         const action = loadAutoScrollAction({ height: svgContainerHeight, meiStr: score.singleVerseMei });
         setPendingAction(action);
+    }
+
+
+    useEffect(() => {
+        if (!score || !verovio || svgContainerHeight <= 0) {
+            return;
+        }
+        addLoadAction(score)
     }, [svgContainerRef.current])
 
+    useEffect(() => {
+        if (!score || !verovio || svgContainerHeight <= 0) {
+            return;
+        }
+        if (!renderedSvgData || renderedSvgData.id != "svg-auto-scrolling") {
+            addLoadAction(score);
+        }
+    }, [svgContainerHeight])
 
 
     // Process pending actions

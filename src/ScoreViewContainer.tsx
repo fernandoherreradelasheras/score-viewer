@@ -65,11 +65,9 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps) {
     }, [renderedSvgData]);
 
 
-
     // Pause when not visible
     useEffect(() => {
         if (!isScoreVisible && playingState == PlayingState.PLAYING) {
-            console.log("Not visible anymore. Pausing the score");
             setPlayingState(PlayingState.PAUSED);
         }
     }, [isScoreVisible]);
@@ -79,7 +77,6 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps) {
             setPlayingState(PlayingState.STOPPED);
         }
     }, [score])
-
 
     return (
         <div ref={scoreViewerRef}
@@ -102,12 +99,8 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps) {
                 height: "100%",
             }}>
 
-            { autoScroll ? <ScoreViewAutoScroll
-                            backgroundColor={backgroundColor} />
-
-            : <ScoreView
-                    backgroundColor={backgroundColor} />
-            }
+            {autoScroll ? <ScoreViewAutoScroll backgroundColor={backgroundColor} />
+            : <ScoreView backgroundColor={backgroundColor} />}
 
         </div>
 
