@@ -140,7 +140,7 @@ export default function useScoreAnimation({
 
   // Update animation position based on seek position
   useEffect(() => {
-    if (!animationRef.current) return;
+    if (!animationRef.current || seekPosition == -1) return;
 
     animationRef.current.currentTime = seekPosition;
   }, [seekPosition]);

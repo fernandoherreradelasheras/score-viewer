@@ -264,7 +264,6 @@ export default function useScoreActions({
       const svgData = verovio.renderToSVG(renderPage)
         .replace(`width="${loadedWidth}px"`, 'width="100%"')
         .replace(`height="${loadedHeight}px"`, 'height="100%"');
-      console.log(svgData.substring(0, 100));
       element.innerHTML = svgData;
       const svgElement = element.querySelector("svg") as SVGSVGElement | null;
       if (!svgElement) {

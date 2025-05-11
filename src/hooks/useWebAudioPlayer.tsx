@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import useStore from "../store";
 import { TimeMapEvent, PlayingState, AudioTrack } from "../types";
 import useVerovio from "../useVerovio";
@@ -7,7 +7,7 @@ let sharedAudioContext: AudioContext | null = null;
 const MS_OVER_LAST_TIMESTAMP = 1000;
 
 
-export default function useWebAudioPlayer(timemap: TimeMapEvent[] | null) {
+export default function useWebAudioPlayer() {
     // Get state and base functionality from base hook
 
     const playingState = useStore.use.playingState();
@@ -20,6 +20,9 @@ export default function useWebAudioPlayer(timemap: TimeMapEvent[] | null) {
     const autoScroll = useStore.use.autoScroll();
     const setAutoScroll = useStore.use.setAutoScroll();
     const setIsLoading = useStore.use.setIsLoading();
+
+    const renderedSvgData = useStore.use.renderedSvgData();
+
 
     const verovio = useVerovio();
 
@@ -157,7 +160,6 @@ export default function useWebAudioPlayer(timemap: TimeMapEvent[] | null) {
         return () => {
             stopPlayback()
             if (audioContextRef.current?.state === 'running') {
-                console.log("Suspending audio context")
                 audioContextRef.current.suspend().then(() => {
                     console.log("Audio context suspended");
                     audioContextRef.current = null;
@@ -175,20 +177,7 @@ export default function useWebAudioPlayer(timemap: TimeMapEvent[] | null) {
         return await context.decodeAudioData(arrayBuffer);
     }, []);
 
-    useEffect(() => {
-        if (seekPosition <= 0) {
-            return
-        }
-        if (playingState === PlayingState.PLAYING) {
-            stopPlayback();
-            startPlayback(seekPosition);
-        } else {
-            pausedPositionRef.current = seekPosition;
-            setSeekPosition(-1)
-        }
-    }, [seekPosition]);
-
-    const checkPageForPosition = useCallback((position: number) => {
+    const checkPageForPosition = (position: number) => {
         if (!autoScroll && playingState !== PlayingState.STOPPED) {
             const playingAtPosition = verovio?.getElementsAtTime(position);
             const playingPage = playingAtPosition?.page;
@@ -196,7 +185,26 @@ export default function useWebAudioPlayer(timemap: TimeMapEvent[] | null) {
                 setCurrentPage(playingPage);
             }
         }
-    }, [autoScroll, playingState, verovio, currentPage, setCurrentPage]);
+    }
+
+
+    useEffect(() => {
+        if (seekPosition <= 0) {
+            return
+        }
+        console.log(`Seeking to position: ${seekPosition} ms. Playing state: ${playingState}`);
+        if (playingState === PlayingState.PLAYING) {
+            stopPlayback();
+            checkPageForPosition(seekPosition);
+            startPlayback(seekPosition);
+            setSeekPosition(-1)
+        } else {
+            pausedPositionRef.current = seekPosition;
+            checkPageForPosition(seekPosition);
+            setSeekPosition(-1)
+        }
+    }, [seekPosition]);
+
 
     useEffect(() => {
         switch (playingState) {
@@ -255,7 +263,6 @@ export default function useWebAudioPlayer(timemap: TimeMapEvent[] | null) {
 
             audioBuffersRef.current.forEach((buffer, trackId) => {
                 const source = context.createBufferSource();
-                console.log(`Creating source for track ${trackId}: ${source}`);
                 source.buffer = buffer;
                 source.connect(context.destination);
 
@@ -299,6 +306,13 @@ export default function useWebAudioPlayer(timemap: TimeMapEvent[] | null) {
         return Math.max(0, positionSeconds * 1000);
     }, [getAudioContext]);
 
+    const timemap = useMemo(() => {
+        if (renderedSvgData?.timemap) {
+            return renderedSvgData.timemap as TimeMapEvent[];
+        }
+        return [];
+    }, [renderedSvgData]);
+
     const updatePlaybackPosition = useCallback(() => {
         if (playingState !== PlayingState.PLAYING) return;
 
@@ -315,12 +329,6 @@ export default function useWebAudioPlayer(timemap: TimeMapEvent[] | null) {
 
         animationFrameRef.current = requestAnimationFrame(updatePlaybackPosition);
     }, [getCurrentPosition, setPlayingPosition, timemap, stopPlayback, onAudioEnded, checkPageForPosition, playingState]);
-
-    useEffect(() => {
-        if (!autoScroll && seekPosition >= 0) {
-            checkPageForPosition(seekPosition);
-        }
-    }, [seekPosition, autoScroll, checkPageForPosition]);
 
 
     const playPauseTooltip = useCallback(() => {

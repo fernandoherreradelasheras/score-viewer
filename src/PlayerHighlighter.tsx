@@ -128,7 +128,6 @@ function PlayerHighlighter({ timemap } : { timemap:  TimeMapEvent[] } ) {
 
     const higlightNotesAtPosition = (position: number) => {
         timemap.slice().reverse().find(e=> e.on && e.tstamp <= position)?.on?.forEach(id => {
-            console.log(`highlighter: highlighting note ${id}`)
             document?.querySelectorAll(`#${id} > *`)?.forEach(noteElement => {
                 noteElement.classList.add('note-highlight')
             })
@@ -137,7 +136,6 @@ function PlayerHighlighter({ timemap } : { timemap:  TimeMapEvent[] } ) {
 
     useEffect(() => {
         if (playingState == PlayingState.PAUSED) {
-            console.log(`highlighter: changed svg rendered while on pause. Re higihlighting notes`)
             higlightNotesAtPosition(playingPosition)
         }
     }, [renderedSvgData])
@@ -221,10 +219,12 @@ function PlayerHighlighter({ timemap } : { timemap:  TimeMapEvent[] } ) {
     }, [playingPosition])
 
     useEffect(() => {
+        if (seekPosition == -1) {
+            return
+        }
         stopGlowingNotes()
         resetHiglights()
         if (seekPosition > 0 && playingState == PlayingState.PAUSED) {
-            console.log(`highlight notes un pause at seek position ${seekPosition}`)
             higlightNotesAtPosition(seekPosition)
         }
 

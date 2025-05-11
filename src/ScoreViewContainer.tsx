@@ -114,7 +114,7 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps) {
 
         </div>
 
-        {audioUrl && renderedSvgData?.timemap ? <AudioPlayer /> : null}
+        {audioUrl ? <AudioPlayer /> : null}
 
         {showEditorial && renderedSvgData?.id ? <Editorials /> : null}
     </div>

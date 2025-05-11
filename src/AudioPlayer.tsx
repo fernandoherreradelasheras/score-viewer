@@ -20,7 +20,7 @@ function AudioPlayer() {
     const playingState = useStore.use.playingState();
     const renderedSvgData = useStore.use.renderedSvgData();
 
-    const player = useWebAudioPlayer(renderedSvgData?.timemap || null);
+    const player = useWebAudioPlayer()
     const {
         playPauseTooltip,
         handlePlay,
