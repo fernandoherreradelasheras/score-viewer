@@ -119,7 +119,7 @@ function PlayerControls({ audioDuration = 0 }: PlayerControlProps) {
                 {playModeSegmented}
             </Col>
         </Row>
-    ), [durationString, positionString, playerMode, currentDuration, handleSliderChange, handleSliderChangeComplete])
+    ), [durationString, positionString, playerMode, currentDuration, seekValue.current, handleSliderChange, handleSliderChangeComplete])
 
     return (
         playerControls
