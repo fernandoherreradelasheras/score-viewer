@@ -103,6 +103,11 @@ export default function useWebAudioPlayer(timemap: TimeMapEvent[] | null) {
 
     useEffect(() => {
         const loadAudio = async () => {
+            if (playingState !== PlayingState.STOPPED) {
+                stopPlayback();
+                setPlayingState(PlayingState.STOPPED);
+            }
+
             setIsLocalLoading(true);
             setIsLoading(true);
             setCanPlay(false);
@@ -114,7 +119,6 @@ export default function useWebAudioPlayer(timemap: TimeMapEvent[] | null) {
                 return;
             }
 
-            stopPlayback();
             audioBuffersRef.current.clear();
             setLoadedTracks([]);
 
@@ -244,7 +248,6 @@ export default function useWebAudioPlayer(timemap: TimeMapEvent[] | null) {
                 source.start(0, startSeconds);
                 sourceNodesRef.current.set(trackId, source);
             });
-
             updatePlaybackPosition();
         });
     }, [getAudioContext, audioTracks, resumeAudioContext, playingState]);
@@ -259,7 +262,6 @@ export default function useWebAudioPlayer(timemap: TimeMapEvent[] | null) {
         if (!context) return;
 
         pausedPositionRef.current = getCurrentPosition();
-
         sourceNodesRef.current.forEach(source => {
             try {
                 source.stop();

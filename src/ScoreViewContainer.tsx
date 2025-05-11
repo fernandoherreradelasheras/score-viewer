@@ -26,13 +26,13 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps) {
     const score = useStore.use.score();
     const autoScroll = useStore.use.autoScroll();
     const setAutoScroll = useStore.use.setAutoScroll();
+    const audioUrl = useStore.use.audioUrl();
     const playingState = useStore.use.playingState();
     const setPlayingState = useStore.use.setPlayingState();
     const setCurrentPage = useStore.use.setCurrentPage();
     const currentPage = useStore.use.currentPage();
     const pageCount = useStore.use.pageCount();
     const resetPlayerPosition = useStore.use.resetPlayerPosition();
-    const audioUrl = useStore.use.audioUrl();
     const showEditorial = useStore.use.showEditorial();
     const renderedSvgData = useStore.use.renderedSvgData();
 

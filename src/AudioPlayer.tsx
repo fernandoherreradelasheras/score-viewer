@@ -20,7 +20,6 @@ function AudioPlayer() {
     const playingState = useStore.use.playingState();
     const renderedSvgData = useStore.use.renderedSvgData();
 
-    // Use the player factory instead of a specific player implementation
     const player = useWebAudioPlayer(renderedSvgData?.timemap || null);
     const {
         playPauseTooltip,

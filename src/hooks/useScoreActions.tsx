@@ -225,7 +225,6 @@ export default function useScoreActions({
 
   const mergeTimemapTies = (timemap: TimeMapEvent[], tiedNotes: {first: string, second: string} []) => {
       const newTimeMap = timemap.map(e => {return {...e}})
-      console.log(newTimeMap)
       for (const { first, second } of tiedNotes) {
         const firstOnIndex = newTimeMap.findIndex(e => e.on != null && e.on.includes(first));
         const firstOffIndex = newTimeMap.findIndex(e => e.off != null && e.off.includes(first));
@@ -236,7 +235,6 @@ export default function useScoreActions({
           continue;
         }
 
-        console.log(firstOnIndex, firstOffIndex, secondOnIndex, secondOffIndex)
         newTimeMap[firstOnIndex].on!.push(second)
         newTimeMap[firstOffIndex].off = newTimeMap[firstOffIndex].off!.filter(id => id != first)
         newTimeMap[secondOnIndex].on = newTimeMap[secondOnIndex].on!.filter(id => id != second)

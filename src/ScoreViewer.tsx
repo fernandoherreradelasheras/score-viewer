@@ -8,7 +8,7 @@ import ScoreProcessor from './ScoreProcessor';
 import { ConfigProvider, Select, Space, Tabs, TabsProps, theme, Typography } from 'antd'
 import { isMobile } from 'react-device-detect';
 import ErrorBoundary from './ErrorBoundary';
-import { FacsimileItem, Score, ScoreProperties } from './types';
+import { FacsimileItem, PlayingState, Score, ScoreProperties } from './types';
 import ScoreViewContainer from './ScoreViewContainer';
 import { DefaultOptionType } from 'antd/es/select';
 import TextView from './TextView';
@@ -73,6 +73,9 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
   const showNVerses = useStore.use.showNVerses()
   const setShowNVerses = useStore.use.setShowNVerses()
 
+  const playingState = useStore.use.playingState()
+  const setPlayingState = useStore.use.setPlayingState()
+
   const [activeTab, setActiveTab] = useState<string>()
 
   const verovio = useVerovio()
@@ -93,9 +96,11 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
   }, [scoreSectionId])
 
   useEffect(() => {
-    console.log("effect: showReconstructions changed: ", showReconstructions);
-    console.log(`score: ${score} currentScoreIdx: ${currentScoreIdx}`);
     if (!score || currentScoreIdx == null) return;
+
+    if (playingState == PlayingState.PLAYING) {
+      setPlayingState(PlayingState.STOPPED)
+    }
 
     const currentScoreItem = config.scores[currentScoreIdx];
     if (!currentScoreItem?.audioOverlays) return;
