@@ -59,6 +59,21 @@ const defaultConfig: ScoreViewerConfig = {
   ]
 };
 
+/*
+function TestWrapper() {
+  const [away, setAway] = useState(false)
+  const toggleAway = () => setAway(!away)
+
+  return (
+    <div>
+      <Button type="primary" onClick={toggleAway}>Toggle away</Button>
+      { !away ? <ScoreViewer width="100%" height="95vh" config={defaultConfig} /> : <div>Score is away</div>}
+    </div>
+  )
+}
+*/
+
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ScoreViewer width="100%" height="95vh" config={defaultConfig} />

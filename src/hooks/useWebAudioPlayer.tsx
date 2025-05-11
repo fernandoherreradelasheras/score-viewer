@@ -152,6 +152,20 @@ export default function useWebAudioPlayer(timemap: TimeMapEvent[] | null) {
         loadAudio();
     }, [audioUrl, audioTracks, getAudioContext, setIsLoading]);
 
+    // We need a clean up effect to release the audio context when the component gets removed.
+    useEffect(() => {
+        return () => {
+            stopPlayback()
+            if (audioContextRef.current?.state === 'running') {
+                console.log("Suspending audio context")
+                audioContextRef.current.suspend().then(() => {
+                    console.log("Audio context suspended");
+                    audioContextRef.current = null;
+                })
+            }
+        };
+    }, [])
+
     const fetchAudioBuffer = useCallback(async (url: string, context: AudioContext): Promise<AudioBuffer> => {
         const response = await fetch(url);
         if (!response.ok) {
