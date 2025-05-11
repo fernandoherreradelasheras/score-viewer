@@ -166,4 +166,9 @@
   opacity: 1;
 }
 
+.svg-container svg.transition-zero-end {
+  opacity: 0;
+  transition-duration: 0.3s !important;
+}
+
 

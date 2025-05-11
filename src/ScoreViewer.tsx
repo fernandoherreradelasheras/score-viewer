@@ -133,7 +133,16 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
     return scoreProcessor.filterScore()
   }
 
+  const addFadeOutTransiton = () => {
+    const svgElement = document.querySelector(".svg-container svg") as SVGSVGElement | null;
+    if (svgElement) {
+      svgElement.classList.add("transition-zero-end");
+    }
+  }
+
   const updateScore = (scoreIndex: number, newScore: Score, audioUrl?: string) => {
+
+    addFadeOutTransiton()
     setScore(newScore)
 
     setAudioUrl(audioUrl || null)
