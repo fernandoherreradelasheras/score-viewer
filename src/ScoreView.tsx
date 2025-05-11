@@ -98,6 +98,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         if (!newShowingMei) return;
 
         const action = loadAction({
+            scoreUrl: score?.url || "",
             postLoadTransition: Transition.FADE_IN,
             meiStr: newShowingMei,
             page: 1,
@@ -165,14 +166,21 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     // Handle the initial load when verovio and the container are ready
     useEffect(() => {
-        if (!isReady() || !showingMei) return
-
+        if (!isReady() || !showingMei) {
+            return;
+        }
+        if (renderedSvgData?.height == svgContainerHeight &&
+            renderedSvgData?.page == 1 &&
+            renderedSvgData?.scale == scale &&
+            renderedSvgData?.scoreUrl == score?.url) {
+                return
+            }
         const action = loadAction({
+            scoreUrl: score?.url || "",
             postLoadTransition: playingState == PlayingState.STOPPED ? Transition.FADE_IN : undefined,
             meiStr: showingMei, page: 1, scale });
         setPendingAction(action);
-
-    }, [verovio, svgContainerRef.current]);
+    }, [verovio, svgContainerRef.current, svgContainerHeight]);
 
 
 
@@ -186,6 +194,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         const transition = (renderedSvgData && renderedSvgData.scale < scale)
             ? Transition.GROW : Transition.NARROW;
         const action = loadAction({
+            scoreUrl: score?.url || "",
             postLoadTransition: transition,
             meiStr: showingMei,
             page: currentPage,
@@ -200,7 +209,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
         const page = currentPage > 0 ? currentPage : 1;
         const anchor = renderedSvgData?.anchorElement || undefined;
-        const action = loadAction({ meiStr: showingMei, page: page, scale, restorePositionForAchor: anchor });
+        const action = loadAction({ scoreUrl: score?.url || "", meiStr: showingMei, page: page, scale, restorePositionForAchor: anchor });
         setPendingAction(action);
     }, [appOptions, choiceOptions, transposition, showReconstructions, showOriginalClefs]);
 
@@ -216,6 +225,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             transition = currentPage > renderedSvgData.page ? Transition.SLIDE_LEFT : Transition.SLIDE_RIGHT;
         }
         const action = renderAction({
+            scoreUrl: renderedSvgData.scoreUrl,
             transition,
             renderPage: currentPage,
             loadedWidth: renderedSvgData.width || svgContainerWidth,

@@ -138,7 +138,7 @@ export default function useScoreActions({
   const performLoadAction = useCallback((config: LoadConfig) => {
     if (!verovio) return null;
 
-    const { postLoadTransition, meiStr, page, scale, restorePositionForAchor } = config;
+    const { postLoadTransition, meiStr, page, scale, restorePositionForAchor, scoreUrl } = config;
     const loadedHeight = svgContainerHeight;
     const loadedWidth = svgContainerWidth;
 
@@ -175,6 +175,7 @@ export default function useScoreActions({
       }
 
       return renderAction({
+        scoreUrl,
         transition: postLoadTransition,
         loadedHeight,
         loadedWidth,
@@ -255,7 +256,7 @@ export default function useScoreActions({
   const performRenderAction = useCallback((config: RenderConfig, element: HTMLDivElement): RenderActionResult | null => {
     if (!verovio || !element) return null;
 
-    const { transition, loadedHeight, loadedWidth, renderPage, scale, loadedPagesCount } = config;
+    const { transition, loadedHeight, loadedWidth, renderPage, scale, loadedPagesCount, scoreUrl } = config;
     console.log(`Rendering score: mode=normal page=${renderPage} scale=${scale} transition=${transition}`);
 
     try {
@@ -283,10 +284,13 @@ export default function useScoreActions({
 
       const newSvg = {
         id: svgElement.id,
+        scoreUrl: scoreUrl,
         scale: scale,
         timemap: resolveTimemap(timemap),
         anchorElement: firstMeasureId,
         page: renderPage,
+        height: loadedHeight,
+        width: loadedWidth
       };
 
       return { newSvg, loadedPagesCount, scale, renderPage };

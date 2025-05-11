@@ -11,6 +11,7 @@ interface SvgRendererConfig {
 
 export interface RenderedData {
   id: string;
+  scoreUrl: string;
   scale: number;
   page: number;
   timemap: TimeMapEvent[];

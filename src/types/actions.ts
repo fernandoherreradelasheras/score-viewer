@@ -2,6 +2,7 @@
 import { Transition } from './ui';
 
 export type LoadConfig = {
+    scoreUrl: string
     postLoadTransition?: Transition
     meiStr: string
     page?: number
@@ -15,6 +16,7 @@ export type LoadAutoScrollConfig = {
 }
 
 export type RenderConfig = {
+    scoreUrl: string
     loadedWidth: number
     loadedHeight: number
     transition?: Transition
