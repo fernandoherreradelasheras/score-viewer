@@ -57,6 +57,7 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps) {
         },
         delta: 10,
         swipeDuration: 300,
+        preventScrollOnSwipe: true,
     });
 
 
