@@ -1,11 +1,10 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import useStore from "./store";
 import { useEditorialHandler } from "./hooks/useEditorialHandler";
 import HoverHighlighter from "./HoverHighlighter";
 import { Button, Modal, Radio } from "antd";
 import { Tooltip } from "react-tooltip";
 import { EditorialItem, Choice, Option } from "./types";
-import { expandBBsForEditorialItems } from "./SvgUtils";
 
 function Editorials() {
     const score = useStore.use.score();
@@ -19,7 +18,6 @@ function Editorials() {
 
     const editorials = score?.editorialItems;
 
-    //custom hook for editorial handling
     const { formatType } = useEditorialHandler();
 
     const TOOLTIP_SELECTOR = useMemo(() =>
@@ -113,13 +111,6 @@ function Editorials() {
 
         return 0;
     };
-
-    useEffect(() => {
-        if (showingEditorial) {
-            expandBBsForEditorialItems();
-        }
-    }
-    , [showingEditorial]);
 
 
     const getChoices = (item: EditorialItem) => {

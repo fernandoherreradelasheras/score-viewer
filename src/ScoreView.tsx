@@ -4,7 +4,7 @@ import { Context } from './Context';
 import { useComponentSize } from "react-use-size";
 import ScoreProcessor from './ScoreProcessor';
 import { useEditorialHandler } from './hooks/useEditorialHandler';
-import { expandBBsForEditorialItems } from './SvgUtils';
+import { expandBBsForEditorialItems, expandBBsForRdgs } from './SvgUtils';
 import useScoreActions from './hooks/useScoreActions';
 import useScoreRenderer from './hooks/useScoreRenderer';
 import { Transition, PlayingState, loadAction, renderAction } from './types';
@@ -132,6 +132,11 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                         if (showEditorial) {
                             expandBBsForEditorialItems();
                         }
+                        const showingReconstructiononsLabels = Object.values(showReconstructions).filter(label => label != "none")
+                        if (showingReconstructiononsLabels.length > 0) {
+                            expandBBsForRdgs(showingReconstructiononsLabels);
+                        }
+
                         setIsLoading(false);
                         setPageCount(loadedPagesCount);
                         setScale(newScale);
@@ -145,7 +150,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                             }
                         }, 400);
                     }
-
                 }
             }
         } else {

@@ -42,11 +42,9 @@ export const SVG_EDITORIAL_FILTERS =
 </defs>
 </svg>
 
-// @ts-ignore
 export function expandBBsForEditorialItems() {
 
     const svgContainer = document.querySelector('.svg-container') as SVGSVGElement | null
-
     const svgElement = document.querySelector('.svg-container svg') as SVGSVGElement | null
     if (!svgElement || !svgContainer) {
         return;
@@ -56,11 +54,9 @@ export function expandBBsForEditorialItems() {
         const boundingBoxes = svgElement.querySelectorAll(`g .${elem}.bounding-box`);
         boundingBoxes.forEach(box => {
             if ((box as SVGAElement).childElementCount == 0) {
-                console.log (`found empty bouding box in a ${elem}. Looking for siblings...`)
                 if (box.nextSibling) {
                     const bbox = (box.nextElementSibling as SVGAElement)?.getBBox()
                     if (bbox) {
-                        console.log(`Got a bb from ${box.nextElementSibling}`)
                         const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
                         rect.setAttribute('x', bbox.x.toString());
                         rect.setAttribute('y', bbox.y.toString());
@@ -76,5 +72,35 @@ export function expandBBsForEditorialItems() {
         });
     })
 }
+
+export function expandBBsForRdgs(labels: string[]) {
+
+    const svgContainer = document.querySelector('.svg-container') as SVGSVGElement | null
+    const svgElement = document.querySelector('.svg-container svg') as SVGSVGElement | null
+    if (!svgElement || !svgContainer) {
+        return;
+    }
+
+    labels.forEach(label => {
+        const staffs = svgElement.querySelectorAll(`g.staff:has(g.rdg.bounding-box[data-label="${label}"])`);
+        staffs.forEach(staff => {
+            const bbox = (staff as SVGAElement).getBBox()
+            const g = staff.querySelector(`g.rdg.bounding-box[data-label="${label}"`)
+            if (!bbox || !g) {
+                return
+            }
+            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect.setAttribute('x', bbox.x.toString());
+            rect.setAttribute('y', bbox.y.toString());
+            rect.setAttribute('width', bbox.width.toString());
+            rect.setAttribute('height',bbox.height.toString());
+            rect.classList.add('rdg-recontruction-highlight');
+            g.appendChild(rect);
+        })
+    })
+}
+
+
+
 
 

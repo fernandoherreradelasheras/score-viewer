@@ -6,7 +6,6 @@ const nsResolver = (prefix: string | null) => { return { mei: "http://www.music-
 
 
 const AddSectionTitlesFilter: FilterFunc = (doc: Document, _: {}) => {
-
     let matches = doc?.evaluate(`//mei:section[@label]/@label`, doc, nsResolver, XPathResult.ANY_TYPE, null)
     let node;
     const labels = []
@@ -36,6 +35,65 @@ const AddSectionTitlesFilter: FilterFunc = (doc: Document, _: {}) => {
         rend.setAttribute("fontweight", "bold")
         dir.appendChild(rend)
         const text = doc.createTextNode(title)
+        rend.appendChild(text)
+    })
+}
+
+const AddReconstructionNamesFilter: FilterFunc = (doc: Document, _: {}) => {
+    let measure = doc?.evaluate('//mei:measure[1]', doc, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()
+    console.log(measure)
+    if (measure == null) {
+        return
+    }
+
+    let matches = doc?.evaluate('(//mei:measure[1])//mei:app[@type="voice_reconstruction"]/mei:rdg/@label', doc, nsResolver, XPathResult.ANY_TYPE, null)
+    console.log(matches)
+    const labels = []
+    let node;
+    while ((node = matches?.iterateNext())) {
+        console.log(node)
+
+        if (node.nodeValue != null ) {
+            labels.push(node.nodeValue)
+        }
+    }
+
+    const app = doc.createElement("app")
+    app.setAttribute("type", "voice_reconstruction")
+    measure?.insertBefore(app, measure.firstChild)
+
+    const lem = doc.createElement("lem")
+    lem.setAttribute("label", "none")
+    app.appendChild(lem)
+
+    labels.forEach(label => {
+        const parts = label.split(":")
+        if (parts.length < 4 || parts[0] != "reconstruction") {
+            return
+        }
+        const staff = label.split(":")[1]
+        const type = label.split(":")[2]
+        const name = label.split(":")[3]
+        const desc = type == "IA" ?`Reconstrucción por IA. Modelo ${name}` : `Reconstrucción por ${name}`
+
+        const rdg = doc.createElement("rdg")
+        rdg.setAttribute("label", label)
+        app.appendChild(rdg)
+
+
+        const dir = doc.createElement("dir")
+        dir.setAttribute("place", "above")
+        dir.setAttribute("staff", staff)
+        dir.setAttribute("tstamp", "0")
+        dir.setAttribute("type", "reconstruction-name")
+        rdg.appendChild(dir)
+
+        const rend = doc.createElement("rend")
+        rend.setAttribute("fontstyle", "normal")
+        rend.setAttribute("fontweight", "bold")
+        dir.appendChild(rend)
+
+        const text = doc.createTextNode(desc)
         rend.appendChild(text)
     })
 
@@ -113,6 +171,9 @@ class ScoreProcessor {
 
     addTitlesFilter() {
         this.filters.push([AddSectionTitlesFilter, {}])
+    }
+    addReonstructionNamesFilter() {
+        this.filters.push([AddReconstructionNamesFilter, {}])
     }
     addNVersesFilter(numVerses: number) {
         this.filters.push([FilterToNVerses, { n: numVerses}])

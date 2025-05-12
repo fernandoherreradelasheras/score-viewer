@@ -15,7 +15,7 @@ import {
 } from '../types';
 
 // Constants moved from ScoreView
-const EXTRA_SVG_ATTRIBUTES = ["measure@n", "staff@n", "clef@corresp", "verse@n", "note@dur"];
+const EXTRA_SVG_ATTRIBUTES = ["measure@n", "staff@n", "clef@corresp", "verse@n", "note@dur", "rdg@label"];
 const AUTO_SCROLL_RENDERING_WIDTH_LIMIT = 60000;
 
 const verovioBaseOptions: VerovioOptions = {

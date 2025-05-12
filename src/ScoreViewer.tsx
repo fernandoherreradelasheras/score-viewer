@@ -203,10 +203,12 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
         const scoreProcessor = new ScoreProcessor(meiString)
         if (config.settings.renderTitlesFromMEI) {
           scoreProcessor.addTitlesFilter()
+          scoreProcessor.addReonstructionNamesFilter()
         }
         scoreProcessor.addEnsureMeasuresIdFilter()
         scoreProcessor.addEnsureSectionsIdFilter()
         const originalMei = scoreProcessor.filterScore()
+        console.log("Original MEI: ", originalMei)
         const analyzer = new ScoreAnalyzer(0, originalMei)
         const properties = {
           ...analyzer.getScoreProperties(),
