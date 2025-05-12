@@ -89,7 +89,7 @@ interface ScoreActionsConfig {
   choiceOptions: string[];
   transposition: string | null;
   showReconstructions: { [staff: string]: string };
-  showOriginalClefs: boolean;
+  showOriginalClefs: boolean | null;
 }
 
   /**
@@ -142,7 +142,7 @@ export default function useScoreActions({
     const loadedHeight = svgContainerHeight;
     const loadedWidth = svgContainerWidth;
 
-    console.log(`loading score: mode=normal page=${page} pageWidth=${loadedWidth}, pageHeight=${loadedHeight}, scale=${scale} transition=${postLoadTransition}`);
+    console.log(`loading score: mode=normal page=${page} pageWidth=${loadedWidth}, pageHeight=${loadedHeight}, scale=${scale} restorePositionForAchor=${restorePositionForAchor}`);
 
     const options: VerovioOptions = {
       ...verovioBaseOptions,
@@ -150,7 +150,7 @@ export default function useScoreActions({
       adjustPageHeight: false,
       landscape: false,
       svgAdditionalAttribute: EXTRA_SVG_ATTRIBUTES,
-      appXPathQuery: buildAppOptions(appOptions, showReconstructions, showOriginalClefs),
+      appXPathQuery: buildAppOptions(appOptions, showReconstructions, showOriginalClefs || false),
       choiceXPathQuery: choiceOptions,
       pageHeight: loadedHeight,
       pageWidth: loadedWidth,
@@ -206,7 +206,7 @@ export default function useScoreActions({
       adjustPageHeight: true,
       svgViewBox: true,
       svgAdditionalAttribute: EXTRA_SVG_ATTRIBUTES,
-      appXPathQuery: buildAppOptions(appOptions, showReconstructions, showOriginalClefs),
+      appXPathQuery: buildAppOptions(appOptions, showReconstructions, showOriginalClefs || false),
       choiceXPathQuery: choiceOptions,
       pageHeight: height,
       pageWidth: AUTO_SCROLL_RENDERING_WIDTH_LIMIT,

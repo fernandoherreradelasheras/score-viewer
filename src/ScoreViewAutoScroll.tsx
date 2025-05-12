@@ -41,7 +41,6 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
     const { ref: svgContainerRef, width: svgContainerWidth, height: svgContainerHeight } = useComponentSize();
 
 
-    // Use our custom hooks for SVG rendering, animation, and actions
     const {
         svgContainerClasses,
         fadeOutScore,
@@ -53,7 +52,6 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
         svgContainerRef,
         svgContainerHeight
     });
-
 
     const {
         startAnimation,

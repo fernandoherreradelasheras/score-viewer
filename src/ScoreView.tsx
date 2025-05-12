@@ -35,6 +35,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const pageCount = useStore.use.pageCount();
     const setPageCount = useStore.use.setPageCount();
     const showNVerses = useStore.use.showNVerses();
+
     const normalizeFicta = useStore.use.normalizeFicta();
     const showEditorial = useStore.use.showEditorial();
     const appOptions = useStore.use.appOptions();
@@ -47,11 +48,9 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const showReconstructions = useStore.use.showReconstructions();
     const showOriginalClefs = useStore.use.showOriginalClefs();
 
-    // References and component state
     const { handleElementClick } = useEditorialHandler();
     const { ref: svgContainerRef, width: svgContainerWidth, height: svgContainerHeight } = useComponentSize();
 
-    // Use our custom hooks for SVG rendering, animation, and actions
     const {
         svgContainerClasses,
         calculateEffectiveMaxScale,
@@ -159,10 +158,17 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         updateScore(false);
     }, [score]);
 
-    // Update score when verses or ficta settings change
     useEffect(() => {
-        updateScore(true);
-    }, [showNVerses, normalizeFicta]);
+        if (showNVerses != null) {
+            updateScore(true);
+        }
+    }, [showNVerses]);
+
+    useEffect(() => {
+        if (normalizeFicta != null) {
+            updateScore(true);
+        }
+    }, [normalizeFicta]);
 
     // Handle the initial load when verovio and the container are ready
     useEffect(() => {

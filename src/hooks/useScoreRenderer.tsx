@@ -3,7 +3,7 @@ import { TimeMapEvent, PlayingState } from '../types';
 
 interface SvgRendererConfig {
   autoScroll: boolean;
-  showEditorial: boolean;
+  showEditorial: boolean | null;
   playingState: PlayingState;
   svgContainerRef: RefObject<HTMLDivElement>;
   svgContainerHeight: number;

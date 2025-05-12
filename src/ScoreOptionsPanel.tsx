@@ -73,7 +73,7 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
                         </Space>
                     </Col>
                     <Col span={4}>
-                        <Switch value={showEditorial} defaultValue={false} disabled={editorialDisabled} onChange={onShowEditorialChange} />
+                        <Switch value={showEditorial || false} defaultValue={false} disabled={editorialDisabled} onChange={onShowEditorialChange} />
                     </Col>
                 </Row>
                 <Row align={"middle"}>
@@ -88,7 +88,7 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
                         </Space>
                     </Col>
                     <Col span={4}>
-                        <Switch value={normalizeFicta} defaultValue={false} disabled={fictaSwictchDisabled} onChange={onNormalizeFictaChange} />
+                        <Switch value={normalizeFicta || false} defaultValue={false} disabled={fictaSwictchDisabled} onChange={onNormalizeFictaChange} />
                     </Col>
                 </Row>
 
@@ -106,7 +106,7 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
                         </Col>
                         <Col span={4}>
                             <Switch
-                                value={showOriginalClefs}
+                                value={showOriginalClefs || false}
                                 defaultValue={false}
                                 disabled={!originalClefsAvailable}
                                 onChange={onShowOriginalClefsChange}

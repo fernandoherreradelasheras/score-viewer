@@ -70,7 +70,7 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
   const addAudioTrack = useStore.use.addAudioTrack()
   const setAudioTracks = useStore.use.setAudioTracks()
   const normalizeFicta = useStore.use.normalizeFicta()
-  const showNVerses = useStore.use.showNVerses()
+  const setNormalizeFicta = useStore.use.setNormalizeFicta()
   const setShowNVerses = useStore.use.setShowNVerses()
 
   const playingState = useStore.use.playingState()
@@ -141,15 +141,16 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
   }
 
   const updateScore = (scoreIndex: number, newScore: Score, audioUrl?: string) => {
-
     addFadeOutTransiton()
+
+    // clear options that should not be persistent. TODO: define them properly
+    setShowNVerses(null)
+    setNormalizeFicta(null)
+
     setScore(newScore)
 
     setAudioUrl(audioUrl || null)
 
-    if (showNVerses) {
-      setShowNVerses(null)
-    }
     if (onScoreAnalyzed) {
       onScoreAnalyzed(scoreIndex, newScore.properties)
     }

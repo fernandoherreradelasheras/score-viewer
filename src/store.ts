@@ -171,9 +171,9 @@ const createPlayerStore = create<PlayerState>((set) => ({
 interface EditorialState {
     showNVerses: number | null
     showReconstructions: { [staff: string]: string }
-    showEditorial: boolean
-    showOriginalClefs: boolean
-    normalizeFicta: boolean
+    showEditorial: boolean | null
+    showOriginalClefs: boolean | null
+    normalizeFicta: boolean | null
     showingEditorial: string | null
     appOptions: string[]
     choiceOptions: string[]
@@ -184,7 +184,7 @@ interface EditorialState {
     setShowReconstructions: (reconstructions: { [staff: string]: string }, replace: boolean) => void
     setShowEditorial: (showEditorial: boolean) => void
     setShowOriginalClefs: (showOriginalClefs: boolean) => void
-    setNormalizeFicta: (normalizeFicta: boolean) => void
+    setNormalizeFicta: (normalizeFicta: boolean | null) => void
     setShowingEditorial: (editorial: string | null) => void
     setAppOptions: (options: string[], replace: boolean) => void
     setChoiceOptions: (options: string[], replace: boolean) => void
@@ -197,7 +197,7 @@ const createEditorialStore = create<EditorialState>((set) => ({
     showReconstructions: {},
     showEditorial: false,
     showOriginalClefs: false,
-    normalizeFicta: false,
+    normalizeFicta: null,
     showingEditorial: null,
     appOptions: [],
     choiceOptions: [],
@@ -210,7 +210,7 @@ const createEditorialStore = create<EditorialState>((set) => ({
      })),
     setShowEditorial: (showEditorial: boolean) => set(() => ({ showEditorial })),
     setShowOriginalClefs: (showOriginalClefs: boolean) => set(() => ({ showOriginalClefs })),
-    setNormalizeFicta: (normalizeFicta: boolean) => set(() => ({ normalizeFicta })),
+    setNormalizeFicta: (normalizeFicta: boolean | null) => set(() => ({ normalizeFicta })),
     setShowingEditorial: (editorial: string | null) => set(() => ({ showingEditorial: editorial })),
     setAppOptions: (options: string[], replace: boolean) => set((state) => ({
         appOptions: replace ? options : [...state.appOptions, ...options]
