@@ -174,13 +174,18 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         }
     }, [normalizeFicta]);
 
-    // Handle the initial load when verovio and the container are ready
+    // Handle the initial load when verovio has been initialized and when the container is ready.
+    // As the component might have been removed from the tree (svgContainerHeight = 0),
+    // we check if we have loaded and rendered the same score. Page is also checked because
+    // whe might support keep the player going when the component is not visible (switching to text tab,
+    // for example).
     useEffect(() => {
         if (!isReady() || !showingMei) {
             return;
         }
-        if (renderedSvgData?.height == svgContainerHeight &&
-            renderedSvgData?.page == 1 &&
+        if (renderedSvgData?.height &&
+            Math.abs(renderedSvgData.height - svgContainerHeight) < 100 &&
+            renderedSvgData?.page == currentPage &&
             renderedSvgData?.scale == scale &&
             renderedSvgData?.scoreUrl == score?.url) {
                 return
@@ -191,8 +196,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             meiStr: showingMei, page: 1, scale });
         setPendingAction(action);
     }, [verovio, svgContainerRef.current, svgContainerHeight]);
-
-
 
 
     // Handle scale changes
