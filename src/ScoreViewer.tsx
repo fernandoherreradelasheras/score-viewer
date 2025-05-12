@@ -67,6 +67,7 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
   const setScore = useStore.use.setScore()
   const setAudioUrl = useStore.use.setAudioUrl()
   const showReconstructions = useStore.use.showReconstructions()
+  const setShowReconstructions = useStore.use.setShowReconstructions()
   const addAudioTrack = useStore.use.addAudioTrack()
   const setAudioTracks = useStore.use.setAudioTracks()
   const normalizeFicta = useStore.use.normalizeFicta()
@@ -143,9 +144,11 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
   const updateScore = (scoreIndex: number, newScore: Score, audioUrl?: string) => {
     addFadeOutTransiton()
 
-    // clear options that should not be persistent. TODO: define them properly
+    // clear options that should not be persistent
+    // TODO: define all these settings consistently
     setShowNVerses(null)
     setNormalizeFicta(null)
+    setShowReconstructions({}, true)
 
     setScore(newScore)
 
@@ -208,7 +211,6 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
         scoreProcessor.addEnsureMeasuresIdFilter()
         scoreProcessor.addEnsureSectionsIdFilter()
         const originalMei = scoreProcessor.filterScore()
-        console.log("Original MEI: ", originalMei)
         const analyzer = new ScoreAnalyzer(0, originalMei)
         const properties = {
           ...analyzer.getScoreProperties(),

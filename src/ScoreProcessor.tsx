@@ -41,18 +41,14 @@ const AddSectionTitlesFilter: FilterFunc = (doc: Document, _: {}) => {
 
 const AddReconstructionNamesFilter: FilterFunc = (doc: Document, _: {}) => {
     let measure = doc?.evaluate('//mei:measure[1]', doc, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()
-    console.log(measure)
     if (measure == null) {
         return
     }
 
     let matches = doc?.evaluate('(//mei:measure[1])//mei:app[@type="voice_reconstruction"]/mei:rdg/@label', doc, nsResolver, XPathResult.ANY_TYPE, null)
-    console.log(matches)
     const labels = []
     let node;
     while ((node = matches?.iterateNext())) {
-        console.log(node)
-
         if (node.nodeValue != null ) {
             labels.push(node.nodeValue)
         }

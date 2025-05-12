@@ -221,7 +221,20 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         const anchor = renderedSvgData?.anchorElement || undefined;
         const action = loadAction({ scoreUrl: score?.url || "", meiStr: showingMei, page: page, scale, restorePositionForAchor: anchor });
         setPendingAction(action);
-    }, [appOptions, choiceOptions, transposition, showReconstructions, showOriginalClefs]);
+    }, [appOptions, choiceOptions, transposition, showOriginalClefs]);
+
+    useEffect(() => {
+        // showReconstructions with value {} is the resetted state when loading a new score,
+        // so we don't trigger a reloading
+        if (!isReady() || !showingMei || Object.keys(showReconstructions).length <= 0) {
+            return
+        }
+
+        const page = currentPage > 0 ? currentPage : 1;
+        const anchor = renderedSvgData?.anchorElement || undefined;
+        const action = loadAction({ scoreUrl: score?.url || "", meiStr: showingMei, page: page, scale, restorePositionForAchor: anchor });
+        setPendingAction(action);
+    }, [showReconstructions]);
 
     useEffect(() => {
         if (!isReady() || !showingMei || !renderedSvgData) return;

@@ -1,7 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { VerovioToolkit } from 'verovio/esm';
 import createVerovioModule from 'verovio/wasm';
 
+
+let tk: VerovioToolkit|null = null
 
 const initPromise = createVerovioModule().then((VerovioModule: any)  => {
     const tk = new VerovioToolkit(VerovioModule)
@@ -10,21 +12,17 @@ const initPromise = createVerovioModule().then((VerovioModule: any)  => {
 })
 
 function useVerovio() {
-
-    const toolkit = useRef<VerovioToolkit|null>(null)
-
     useEffect(() => {
-
         async function initVerovio() {
             console.log("waiting promise Verovio")
-            const tk = await initPromise
-            toolkit.current = tk
+            tk = await initPromise
         }
-
-        initVerovio()
+        if (tk == null) {
+            initVerovio()
+        }
     }, [])
 
-    return toolkit.current
+    return tk
 }
 
 export default useVerovio

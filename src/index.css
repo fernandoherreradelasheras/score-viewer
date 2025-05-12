@@ -171,21 +171,23 @@
     opacity: 0.7;
 }
 
-.svg-container.static-score svg g[data-label*="claude_sonet_3_7"] .rdg-recontruction-highlight {
-    fill: #8fe3ff;
+.svg-container.static-score svg g .rdg-recontruction-highlight {
     fill-opacity: 1;
     opacity: 0.3;
 }
 
 .svg-container.static-score svg g[data-label*="DeepSeek-V3-0324"] .rdg-recontruction-highlight {
     fill: #28ad39;
-    fill-opacity: 1;
-    opacity: 0.3;
 }
 
 .svg-container.static-score svg g[data-label*="google_gemma-3_27b"] .rdg-recontruction-highlight {
     fill: #f5b966;
-    fill-opacity: 1;
-    opacity: 0.3;
 }
 
+.svg-container.static-score svg g[data-label*="claude_sonet_3_7"] .rdg-recontruction-highlight {
+    fill: #8fe3ff;
+}
+
+.svg-container.static-score svg g[data-label*="llama_4_maverick_17B"] .rdg-recontruction-highlight {
+    fill: #ad28a2;
+}
