@@ -55,7 +55,6 @@ export interface ScoreViewerProps {
   scoreSectionId?: string
   onScoreAnalyzed?: (scoreIndex: number, properties: ScoreProperties) => void
   onVisualizationOptionsChanged?: (scoreIndex: number, options: VisualizationOptions) => void
-
 }
 
 function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScoreAnalyzed, onVisualizationOptionsChanged }: ScoreViewerProps) {
