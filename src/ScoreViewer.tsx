@@ -8,7 +8,7 @@ import ScoreProcessor from './ScoreProcessor';
 import { ConfigProvider, Select, Space, Tabs, TabsProps, theme, Typography } from 'antd'
 import { isMobile } from 'react-device-detect';
 import ErrorBoundary from './ErrorBoundary';
-import { FacsimileItem, PlayingState, Score, ScoreProperties } from './types';
+import { FacsimileItem, PlayingState, Score, ScoreProperties, VisualizationOptions } from './types';
 import ScoreViewContainer from './ScoreViewContainer';
 import { DefaultOptionType } from 'antd/es/select';
 import TextView from './TextView';
@@ -54,9 +54,11 @@ export interface ScoreViewerProps {
   scoreIndex?: number
   scoreSectionId?: string
   onScoreAnalyzed?: (scoreIndex: number, properties: ScoreProperties) => void
+  onVisualizationOptionsChanged?: (scoreIndex: number, options: VisualizationOptions) => void
+
 }
 
-function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScoreAnalyzed }: ScoreViewerProps) {
+function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScoreAnalyzed, onVisualizationOptionsChanged }: ScoreViewerProps) {
   const currentScoreIdx = useStore.use.currentScoreIdx()
   const setCurrentScoreIdx = useStore.use.setCurrentScoreIdx()
   const currentPage = useStore.use.currentPage()
@@ -73,6 +75,8 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
   const normalizeFicta = useStore.use.normalizeFicta()
   const setNormalizeFicta = useStore.use.setNormalizeFicta()
   const setShowNVerses = useStore.use.setShowNVerses()
+  const showOriginalClefs = useStore.use.showOriginalClefs()
+  const setShowOriginalClefs = useStore.use.setShowOriginalClefs()
 
   const playingState = useStore.use.playingState()
   const setPlayingState = useStore.use.setPlayingState()
@@ -125,6 +129,22 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
 
   }, [showReconstructions, score, currentScoreIdx]);
 
+
+  useEffect(() => {
+    if (onVisualizationOptionsChanged && currentScoreIdx != null && showOriginalClefs != null) {
+      onVisualizationOptionsChanged(currentScoreIdx,
+        { showOriginalClefs })
+    }
+  }, [showOriginalClefs])
+
+    useEffect(() => {
+    if (onVisualizationOptionsChanged && currentScoreIdx != null && Object.keys(showReconstructions).length > 0) {
+      onVisualizationOptionsChanged(currentScoreIdx,
+        { showReconstructions })
+    }
+  }, [showReconstructions])
+
+
   const generateOneVerseMei = (mei: string) => {
     const scoreProcessor = new ScoreProcessor(mei)
     if (normalizeFicta) {
@@ -149,6 +169,7 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
     setShowNVerses(null)
     setNormalizeFicta(null)
     setShowReconstructions({}, true)
+    setShowOriginalClefs(null)
 
     setScore(newScore)
 

@@ -183,7 +183,7 @@ interface EditorialState {
     setShowNVerses: (n: number | null) => void
     setShowReconstructions: (reconstructions: { [staff: string]: string }, replace: boolean) => void
     setShowEditorial: (showEditorial: boolean) => void
-    setShowOriginalClefs: (showOriginalClefs: boolean) => void
+    setShowOriginalClefs: (showOriginalClefs: boolean | null) => void
     setNormalizeFicta: (normalizeFicta: boolean | null) => void
     setShowingEditorial: (editorial: string | null) => void
     setAppOptions: (options: string[], replace: boolean) => void
@@ -196,7 +196,7 @@ const createEditorialStore = create<EditorialState>((set) => ({
     showNVerses: null,
     showReconstructions: {},
     showEditorial: false,
-    showOriginalClefs: false,
+    showOriginalClefs: null,
     normalizeFicta: null,
     showingEditorial: null,
     appOptions: [],
@@ -209,7 +209,7 @@ const createEditorialStore = create<EditorialState>((set) => ({
         showReconstructions: replace ? reconstructions : { ...state.showReconstructions, ...reconstructions }
      })),
     setShowEditorial: (showEditorial: boolean) => set(() => ({ showEditorial })),
-    setShowOriginalClefs: (showOriginalClefs: boolean) => set(() => ({ showOriginalClefs })),
+    setShowOriginalClefs: (showOriginalClefs: boolean | null) => set(() => ({ showOriginalClefs })),
     setNormalizeFicta: (normalizeFicta: boolean | null) => set(() => ({ normalizeFicta })),
     setShowingEditorial: (editorial: string | null) => set(() => ({ showingEditorial: editorial })),
     setAppOptions: (options: string[], replace: boolean) => set((state) => ({

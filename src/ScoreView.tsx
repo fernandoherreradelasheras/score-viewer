@@ -77,36 +77,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     const isReady = () => (score && verovio && svgContainerWidth > 0 && svgContainerHeight > 0 && !pendingAction)
 
-    const generateShowingScore = () => {
-        if (!score) return null;
-
-        const scoreProcessor = new ScoreProcessor(score.originalMei);
-        if (normalizeFicta) {
-            scoreProcessor.addNormalizeFictaFilter();
-        }
-        if (showNVerses != null && showNVerses != score.properties?.numVerses) {
-            scoreProcessor.addNVersesFilter(showNVerses);
-        }
-        return scoreProcessor.filterScore();
-    };
-
-    const updateScore = (restoreAnchor: boolean) => {
-        fadeOutScore();
-
-        const newShowingMei = generateShowingScore();
-        if (!newShowingMei) return;
-
-        const action = loadAction({
-            scoreUrl: score?.url || "",
-            postLoadTransition: Transition.FADE_IN,
-            meiStr: newShowingMei,
-            page: 1,
-            scale,
-            restorePositionForAchor: restoreAnchor && renderedSvgData?.anchorElement ? renderedSvgData.anchorElement : undefined
-        });
-        setPendingAction(action);
-        setShowingMei(newShowingMei);
-    };
 
     // Process pending actions
     useEffect(() => {
@@ -157,22 +127,55 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         }
     }, [pendingAction, svgContainerHeight]);
 
-    // Update the score when it changes
+
+    const generateShowingScore = () => {
+        if (!score) return null;
+
+        const scoreProcessor = new ScoreProcessor(score.originalMei);
+        if (normalizeFicta) {
+            scoreProcessor.addNormalizeFictaFilter();
+        }
+        if (showNVerses != null && showNVerses != score.properties?.numVerses) {
+            scoreProcessor.addNVersesFilter(showNVerses);
+        }
+        return scoreProcessor.filterScore();
+    };
+
+    const updateScore = (restoreAnchor: boolean, fadeIn: boolean) => {
+        const newShowingMei = generateShowingScore();
+        if (!newShowingMei) return;
+
+        const action = loadAction({
+            scoreUrl: score?.url || "",
+            postLoadTransition: fadeIn ? Transition.FADE_IN : undefined,
+            meiStr: newShowingMei,
+            page: 1,
+            scale,
+            restorePositionForAchor: restoreAnchor && renderedSvgData?.anchorElement ? renderedSvgData.anchorElement : undefined
+        });
+        setPendingAction(action);
+        setShowingMei(newShowingMei);
+    };
+
+    // This group of changes require rebuilding the score and reloading it
     useEffect(() => {
-        updateScore(false);
+        fadeOutScore();
+        updateScore(false, true);
     }, [score]);
 
     useEffect(() => {
         if (showNVerses != null) {
-            updateScore(true);
+            updateScore(true, false);
         }
     }, [showNVerses]);
 
     useEffect(() => {
         if (normalizeFicta != null) {
-            updateScore(true);
+            updateScore(true, false);
         }
     }, [normalizeFicta]);
+
+
 
     // Handle the initial load when verovio has been initialized and when the container is ready.
     // As the component might have been removed from the tree (svgContainerHeight = 0),
@@ -183,17 +186,27 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         if (!isReady() || !showingMei) {
             return;
         }
-        if (renderedSvgData?.height &&
-            Math.abs(renderedSvgData.height - svgContainerHeight) < 100 &&
-            renderedSvgData?.page == currentPage &&
-            renderedSvgData?.scale == scale &&
-            renderedSvgData?.scoreUrl == score?.url) {
+
+        let restoreAnchor;
+        if (renderedSvgData && renderedSvgData?.scoreUrl == score?.url) {
+            if (renderedSvgData?.height &&
+                Math.abs(renderedSvgData.height - svgContainerHeight) < 100 &&
+                renderedSvgData?.page == currentPage &&
+                renderedSvgData?.scale == scale){
                 return
             }
+            if (renderedSvgData.anchorElement) {
+                restoreAnchor = renderedSvgData.anchorElement
+            }
+        }
         const action = loadAction({
             scoreUrl: score?.url || "",
-            postLoadTransition: playingState == PlayingState.STOPPED ? Transition.FADE_IN : undefined,
-            meiStr: showingMei, page: 1, scale });
+            postLoadTransition: playingState == PlayingState.STOPPED  && !restoreAnchor ? Transition.FADE_IN : undefined,
+            meiStr: showingMei,
+            page: 1,
+            scale,
+            restorePositionForAchor: restoreAnchor
+         });
         setPendingAction(action);
     }, [verovio, svgContainerRef.current, svgContainerHeight]);
 
@@ -217,26 +230,32 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         setPendingAction(action);
     }, [scale]);
 
-    useEffect(() => {
+    const reloadScore = () => {
         if (!isReady() || !showingMei) return;
 
         const page = currentPage > 0 ? currentPage : 1;
         const anchor = renderedSvgData?.anchorElement || undefined;
         const action = loadAction({ scoreUrl: score?.url || "", meiStr: showingMei, page: page, scale, restorePositionForAchor: anchor });
         setPendingAction(action);
-    }, [appOptions, choiceOptions, transposition, showOriginalClefs]);
+    }
+
+    // These changes requires reloading the currently built score
+    useEffect(() => {
+        reloadScore();
+    }, [appOptions, choiceOptions, transposition]);
 
     useEffect(() => {
-        // showReconstructions with value {} is the resetted state when loading a new score,
-        // so we don't trigger a reloading
-        if (!isReady() || !showingMei || Object.keys(showReconstructions).length <= 0) {
+        if (showOriginalClefs == null) {
             return
         }
+        reloadScore()
+    }, [showOriginalClefs]);
 
-        const page = currentPage > 0 ? currentPage : 1;
-        const anchor = renderedSvgData?.anchorElement || undefined;
-        const action = loadAction({ scoreUrl: score?.url || "", meiStr: showingMei, page: page, scale, restorePositionForAchor: anchor });
-        setPendingAction(action);
+    useEffect(() => {
+        if (Object.keys(showReconstructions).length <= 0) {
+            return
+        }
+        reloadScore()
     }, [showReconstructions]);
 
     useEffect(() => {

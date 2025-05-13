@@ -46,3 +46,8 @@ export type ScoreProperties = {
     encodedTransposition?: string
     tiedNotes: { first: string, second: string }[]
 }
+
+export type VisualizationOptions = {
+    showOriginalClefs?: boolean | null
+    showReconstructions?: { [staff:string] : string }
+}

@@ -125,13 +125,16 @@ export default function useWebAudioPlayer() {
             audioBuffersRef.current.clear();
             setLoadedTracks([]);
 
+            var loadingError = false
+
             if (audioUrl) {
                 try {
                     const buffer = await fetchAudioBuffer(audioUrl, context);
                     audioBuffersRef.current.set('main', buffer);
-                    setLoadedTracks(prev => [...prev, 'main']);
+                    setLoadedTracks(['main']);
                 } catch (error) {
                     console.error("Failed to load main audio:", error);
+                    loadingError = true
                 }
             }
 
@@ -149,7 +152,7 @@ export default function useWebAudioPlayer() {
             }
             setIsLocalLoading(false);
             setIsLoading(false);
-            setCanPlay(true);
+            setCanPlay(!loadingError);
         };
 
         loadAudio();
