@@ -1,0 +1,153 @@
+{
+    "settings": {
+        "showDownloadButton": true,
+        "showFacsimileSection": true,
+        "showTextSection": true,
+        "renderTitlesFromMEI": false,
+        "showScoreSelector": true,
+        "backgroundColor": "#f5f5f5",
+        "basePath": "/tonos/",
+        "facsimileImagesPath": "/tonos/facsimile/"
+    },
+    "scores": [
+        {
+            "path": "01",
+            "title": "Un imposible me mata",
+            "audioBaseFile": "01-render-base-20250511.mp3",
+            "audioOverlays": [
+                {
+                    "staff": "3",
+                    "appLabel": "reconstruction:3:IA:claude_sonet_3_7",
+                    "file": "01-render-reconstruction:3:IA:claude_sonet_3_7-20250511.mp3"
+                },
+                {
+                    "staff": "3",
+                    "appLabel": "reconstruction:3:IA:DeepSeek-V3-0324",
+                    "file": "01-render-reconstruction:3:IA:DeepSeek-V3-0324-20250511.mp3"
+                }
+            ],
+            "meiFile": "01_-_Un_imposible_me_mata-music-T.mei",
+            "text": [
+                {
+                    "file": "01_-_Un_imposible_me_mata-text.txt",
+                    "append_to": "coplas",
+                    "name": "Coplas"
+                }
+            ],
+            "encodingProperties": {
+                "encodedTransposition": "n"
+            },
+            "facsimileItems": [
+                {
+                    "name": "Soprano 1 page 9",
+                    "file": "S1/image-009.jpg"
+                },
+                {
+                    "name": "Soprano 2 page 9",
+                    "file": "S2/image-009.jpg"
+                },
+                {
+                    "name": "Tenor page 12",
+                    "file": "T/image-012.jpg"
+                },
+                {
+                    "name": "Guion page 7",
+                    "file": "G/image-007.jpg"
+                }
+            ],
+            "introductionFile": "01_-_Un_imposible_me_mata-intro.md",
+            "textCommentsFile": "01_-_Un_imposible_me_mata-text-comments.md"
+        },
+        {
+            "path": "02",
+            "title": "Querido imposible mío",
+            "audioBaseFile": "02-render-base-20250511.mp3",
+            "audioOverlays": [
+                {
+                    "staff": "3",
+                    "appLabel": "reconstruction:3:IA:claude_sonet_3_7",
+                    "file": "02-render-claude37-20250511.mp3"
+                },
+                {
+                    "staff": "3",
+                    "appLabel": "reconstruction:3:IA:DeepSeek-V3-0324",
+                    "file": "02-render-deepseek-20250511.mp3"
+                }
+            ],
+            "meiFile": "02_-_Querido_imposible_mio-music-T.mei",
+            "text": [
+                {
+                    "file": "02_-_Querido_imposible_mio-text.txt",
+                    "append_to": "coplas",
+                    "name": "Coplas"
+                }
+            ],
+            "encodingProperties": {
+                "encodedTransposition": "1s"
+            },
+            "facsimileItems": [
+                {
+                    "name": "Soprano 1 page 10",
+                    "file": "S1/image-010.jpg"
+                },
+                {
+                    "name": "Soprano 2 page 10",
+                    "file": "S2/image-010.jpg"
+                },
+                {
+                    "name": "Tenor page 13",
+                    "file": "T/image-013.jpg"
+                },
+                {
+                    "name": "Guion page 7",
+                    "file": "G/image-007.jpg"
+                }
+            ],
+            "introductionFile": "02_-_Querido_imposible_mio-intro.md",
+            "textCommentsFile": "02_-_Querido_imposible_mio-text-comments.md"
+        },
+        {
+            "path": "03",
+            "title": "Amariles yo no puedo",
+            "audioBaseFile": "03-render-base-20250511.mp3",
+            "audioOverlays": [
+                {
+                    "staff": "3",
+                    "appLabel": "reconstruction:3:IA:claude_sonet_3_7",
+                    "file": "03-render-claude-20250511.mp3"
+                }
+            ],
+            "meiFile": "03_-_Amariles_yo_no_puedo-music-T.mei",
+            "text": [
+                {
+                    "file": "03_-_Amariles_yo_no_puedo-text.txt",
+                    "append_to": "coplas",
+                    "name": "Coplas"
+                }
+            ],
+            "encodingProperties": {
+                "encodedTransposition": "n"
+            },
+            "facsimileItems": [
+                {
+                    "name": "Soprano 1 page 11",
+                    "file": "S1/image-011.jpg"
+                },
+                {
+                    "name": "Soprano 2 page 11",
+                    "file": "S2/image-011.jpg"
+                },
+                {
+                    "name": "Tenor page 14",
+                    "file": "T/image-014.jpg"
+                },
+                {
+                    "name": "Guion page 8",
+                    "file": "G/image-008.jpg"
+                }
+            ],
+            "introductionFile": "03_-_Amariles_yo_no_puedo-intro.md",
+            "textCommentsFile": "03_-_Amariles_yo_no_puedo-text-comments.md"
+        }
+    ]
+}

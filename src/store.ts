@@ -10,7 +10,6 @@ import {
     Score,
     PlayingState,
     AudioTrack,
-    AudioTracks,
 } from './types'
 import { RenderedData } from './hooks/useScoreRenderer'
 
@@ -33,7 +32,7 @@ interface ScoreManagementState {
     showingMei: string | null
     scoreCache: { [index: string]: Score }
 
-    setCurrentScoreIdx: (idx: number) => void
+    setCurrentScoreIdx: (idx: number | null) => void
     setScore: (score: Score | null) => void
     setShowingMei: (mei: string | null) => void
     setScoreCache: (scoreCache: { [index: string]: Score }) => void
@@ -45,7 +44,7 @@ const createScoreManagementStore = create<ScoreManagementState>((set) => ({
     showingMei: null,
     scoreCache: {},
 
-    setCurrentScoreIdx: (idx: number) => set(() => ({ currentScoreIdx: idx })),
+    setCurrentScoreIdx: (idx: number | null) => set(() => ({ currentScoreIdx: idx })),
     setScore: (score: Score | null) => set(() => ({ score: score })),
     setShowingMei: (mei: string | null) => set(() => ({ showingMei: mei })),
     setScoreCache: (scoreCache: { [index: string]: Score }) => set((state) => ({
@@ -99,17 +98,14 @@ const createUILayoutStore = create<UILayoutState>((set) => ({
 
 interface PlayerState {
     audioUrl: string | null
-    audioTracks: AudioTracks
+    audioOverlayTracks: AudioTrack[]
     playingState: PlayingState
     playingPosition: number
     seekPosition: number
     autoScroll: boolean
 
     setAudioUrl: (audioUrl: string | null) => void
-    setAudioTracks: (tracks: AudioTracks) => void
-    addAudioTrack: (track: AudioTrack) => void
-    removeAudioTrack: (trackId: string) => void
-    updateAudioTrack: (trackId: string, updates: Partial<AudioTrack>) => void
+    setAudioOverlayTracks: (tracks: AudioTrack[]) => void
     setPlayingState: (state: PlayingState) => void
     setPlayingPosition: (position: number) => void
     setSeekPosition: (position: number) => void
@@ -119,44 +115,14 @@ interface PlayerState {
 
 const createPlayerStore = create<PlayerState>((set) => ({
     audioUrl: null,
-    audioTracks: { base: null, overlays: [] },
+    audioOverlayTracks:[],
     playingState: PlayingState.STOPPED,
     playingPosition: 0,
     seekPosition: -1,
     autoScroll: false,
 
-    setAudioUrl: (audioUrl: string | null) => set((state) => {
-        // When setting a new audio URL, also update the base track
-        let audioTracks = state.audioTracks;
-        return { audioUrl, audioTracks };
-    }),
-    setAudioTracks: (audioTracks: AudioTracks) => set(() => ({ audioTracks })),
-    addAudioTrack: (track: AudioTrack) => set((state) => {
-            return {
-                audioTracks: {
-                    ...state.audioTracks,
-                    overlays: [...state.audioTracks.overlays, track]
-                }
-            };
-    }),
-    removeAudioTrack: (trackId: string) => set((state) => {
-        return {
-            audioTracks: {
-                ...state.audioTracks,
-                overlays: state.audioTracks.overlays.filter(track => track.id !== trackId)
-            }
-        };
-    }),
-    updateAudioTrack: (trackId: string, updates: Partial<AudioTrack>) => set((state) => {
-        return {
-            audioTracks: {
-                ...state.audioTracks,
-                overlays: state.audioTracks.overlays.map(track =>
-                    track.id === trackId ? { ...track, ...updates } : track
-                )
-            }
-        };
-    }),
+    setAudioUrl: (audioUrl: string | null) => set(() => ({ audioUrl })),
+    setAudioOverlayTracks: (audioOverlayTracks: AudioTrack[]) => set(() => ({ audioOverlayTracks })),
     setPlayingState: (playingState: PlayingState) => set(() => ({ playingState: playingState })),
     setPlayingPosition: (position: number) => set(() => ({ playingPosition: position })),
     setSeekPosition: (position: number) => set(() => ({ seekPosition: position })),
@@ -268,16 +234,13 @@ class StoreApi {
 
         // Player Store
         audioUrl: createPlayerStoreWithSelectors.use.audioUrl,
-        audioTracks: createPlayerStoreWithSelectors.use.audioTracks,
+        audioOverlayTracks: createPlayerStoreWithSelectors.use.audioOverlayTracks,
         playingState: createPlayerStoreWithSelectors.use.playingState,
         playingPosition: createPlayerStoreWithSelectors.use.playingPosition,
         seekPosition: createPlayerStoreWithSelectors.use.seekPosition,
         autoScroll: createPlayerStoreWithSelectors.use.autoScroll,
         setAudioUrl: createPlayerStoreWithSelectors.use.setAudioUrl,
-        setAudioTracks: createPlayerStoreWithSelectors.use.setAudioTracks,
-        addAudioTrack: createPlayerStoreWithSelectors.use.addAudioTrack,
-        removeAudioTrack: createPlayerStoreWithSelectors.use.removeAudioTrack,
-        updateAudioTrack: createPlayerStoreWithSelectors.use.updateAudioTrack,
+        setAudioOverlayTracks: createPlayerStoreWithSelectors.use.setAudioOverlayTracks,
         setPlayingState: createPlayerStoreWithSelectors.use.setPlayingState,
         setPlayingPosition: createPlayerStoreWithSelectors.use.setPlayingPosition,
         setSeekPosition: createPlayerStoreWithSelectors.use.setSeekPosition,

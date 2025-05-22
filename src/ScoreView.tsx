@@ -199,6 +199,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                 restoreAnchor = renderedSvgData.anchorElement
             }
         }
+
         const action = loadAction({
             scoreUrl: score?.url || "",
             postLoadTransition: playingState == PlayingState.STOPPED  && !restoreAnchor ? Transition.FADE_IN : undefined,

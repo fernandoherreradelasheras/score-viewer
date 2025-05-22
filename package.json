@@ -5,7 +5,7 @@
   "module": "./dist/score-viewer.js",
   "types": "./dist/lib/main.d.ts",
   "private": false,
-  "version": "1.0.13",
+  "version": "1.0.14",
   "type": "module",
   "files": [
     "dist"
@@ -68,7 +68,8 @@
       "import": "./dist/score-viewer.js",
       "require": "./dist/score-viewer.umd.cjs"
     },
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/style.css",
+    "./types": "./dist/src/index.d.ts"
   },
   "keywords": [
     "mei",

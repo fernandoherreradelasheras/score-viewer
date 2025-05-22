@@ -58,6 +58,16 @@ class ScoreAnalyzer {
         return name ? name : "<missing>"
     }
 
+    getComposer() {
+        let name = this.document.evaluate("//mei:composer/mei:persName[@role=\"composer\"][1]", this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
+        return name || "Anónimo"
+    }
+
+    getLyricist() {
+        let name = this.document.evaluate("//mei:lyricist/mei:persName[@role=\"lyricist\"][1]", this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
+        return name  || "Anónimo"
+    }
+
     getReconstructionBy() {
         let name = this.document.evaluate("//mei:respStmt/mei:persName[@role=\"reconstruction\"][1]", this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
         return name ? name : null
@@ -145,6 +155,8 @@ class ScoreAnalyzer {
             hasFicta: this.hasFictaElements(),
             numVerses: this.maxVerseNum(),
             numMeasures: this.getNumMeasures(),
+            composer: this.getComposer(),
+            lyricist: this.getLyricist(),
             editor: this.getEditor(),
             reconstructionBy: this.getReconstructionBy(),
             reconstructions: this.getReconstructions(),

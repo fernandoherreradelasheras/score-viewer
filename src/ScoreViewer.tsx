@@ -8,43 +8,15 @@ import ScoreProcessor from './ScoreProcessor';
 import { ConfigProvider, Select, Space, Tabs, TabsProps, theme, Typography } from 'antd'
 import { isMobile } from 'react-device-detect';
 import ErrorBoundary from './ErrorBoundary';
-import { FacsimileItem, PlayingState, Score, ScoreProperties, VisualizationOptions } from './types';
+import { LyricItem, PlayingState, Score, ScoreProperties, VisualizationOptions } from './types';
 import ScoreViewContainer from './ScoreViewContainer';
 import { DefaultOptionType } from 'antd/es/select';
 import TextView from './TextView';
 import Icon, { FileImageOutlined, FileTextOutlined } from '@ant-design/icons';
 import MusicSvg from "../assets/music.svg?react";
 import FacsimileView from './FacsimileView';
+import { ScoreViewerConfig, ScoreViewerConfigScoreText } from './types/config';
 
-export interface AudioOverlay {
-  staff: string;
-  appLabel: string;
-  url: string;
-}
-
-export interface ScoreItem {
-  title: string
-  audioUrl?: string
-  audioOverlays?: AudioOverlay[]
-  meiUrl: string
-  textUrl?: string
-  facsimileItems?: FacsimileItem[]
-  encodingProperties: {
-    encodedTransposition?: string
-  }
-}
-
-export interface ScoreViewerConfig {
-  settings: {
-    showScoreSelector: boolean,
-    showDownloadButton: boolean,
-    showTextSection: boolean,
-    showFacsimileSection: boolean,
-    renderTitlesFromMEI: boolean
-    backgroundColor?: string
-  },
-  scores:ScoreItem[]
-}
 
 
 export interface ScoreViewerProps {
@@ -55,6 +27,18 @@ export interface ScoreViewerProps {
   scoreSectionId?: string
   onScoreAnalyzed?: (scoreIndex: number, properties: ScoreProperties) => void
   onVisualizationOptionsChanged?: (scoreIndex: number, options: VisualizationOptions) => void
+}
+
+const getLyrics = async (path: string, textItems: ScoreViewerConfigScoreText[]) => {
+  const lyrics: LyricItem[] = []
+  for (let textItem of textItems) {
+    let text = await fetch(path + textItem.file).then(res => res.text())
+    lyrics.push({
+      title: textItem.name,
+      text: text
+    } as LyricItem)
+  }
+  return lyrics
 }
 
 function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScoreAnalyzed, onVisualizationOptionsChanged }: ScoreViewerProps) {
@@ -69,8 +53,7 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
   const setAudioUrl = useStore.use.setAudioUrl()
   const showReconstructions = useStore.use.showReconstructions()
   const setShowReconstructions = useStore.use.setShowReconstructions()
-  const addAudioTrack = useStore.use.addAudioTrack()
-  const setAudioTracks = useStore.use.setAudioTracks()
+  const setAudioOverlayTracks = useStore.use.setAudioOverlayTracks()
   const normalizeFicta = useStore.use.normalizeFicta()
   const setNormalizeFicta = useStore.use.setNormalizeFicta()
   const setShowNVerses = useStore.use.setShowNVerses()
@@ -87,6 +70,13 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
   useEffect(() => {
     if (config.settings.showScoreSelector && config.scores.length > 0) {
         setCurrentScoreIdx(0)
+    }
+
+    //
+    return () => {
+      setCurrentScoreIdx(null)
+      setAudioUrl(null)
+      setScore(null)
     }
   }, [config]);
 
@@ -109,24 +99,21 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
     const currentScoreItem = config.scores[currentScoreIdx];
     if (!currentScoreItem?.audioOverlays) return;
 
-    setAudioTracks({
-      overlays: []
-    });
-
+    const path = config.settings.basePath + currentScoreItem.path + "/"
     const selectedReconstructions = Object.values(showReconstructions);
+    const newAudioOverlayTracks = []
     for (const overlay of currentScoreItem.audioOverlays) {
       if (selectedReconstructions.includes(overlay.appLabel)) {
-        console.log("Adding overlay track: ", overlay.appLabel);
-          addAudioTrack({
-            id: `overlay-${overlay.appLabel}`,
-            label: overlay.appLabel,
-            url: overlay.url,
-            volume: 1
-          });
-        }
+        newAudioOverlayTracks.push({
+          id: `overlay-staff-${overlay.staff}`,
+          label: overlay.appLabel,
+          url: path + overlay.file,
+          volume: 1
+        });
       }
-
-  }, [showReconstructions, score, currentScoreIdx]);
+    }
+    setAudioOverlayTracks(newAudioOverlayTracks)
+  }, [showReconstructions, score]);
 
 
   useEffect(() => {
@@ -177,7 +164,7 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
     if (onScoreAnalyzed) {
       onScoreAnalyzed(scoreIndex, newScore.properties)
     }
-    if ((activeTab == "text" && !newScore.text) ||
+    if ((activeTab == "text" && !newScore.lyrics) ||
         (activeTab == "facsimile" && !newScore.fascimileItems)) {
       setActiveTab("music")
     }
@@ -211,18 +198,22 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
         return
       }
 
-      const meiUrl = config.scores[currentScoreIdx].meiUrl
-      const textUrl = config.settings.showTextSection ? config.scores[currentScoreIdx].textUrl : undefined
+      const scoreDef =  config.scores[currentScoreIdx]
+      const path = config.settings.basePath + scoreDef.path + "/"
+      const meiUrl = path + scoreDef.meiFile
+      const encodingProperties = scoreDef.encodingProperties
+      const audioUrl = path + scoreDef.audioBaseFile
 
-      const encodingProperties = config.scores[currentScoreIdx].encodingProperties
-      const audioUrl = config.scores[currentScoreIdx].audioUrl
 
       if (scoreCache[meiUrl]) {
         const cachedScore = scoreCache[meiUrl]
         updateScore(currentScoreIdx, cachedScore, audioUrl)
       } else {
         const meiString = await fetchMei(meiUrl)
-        const textString = textUrl ? await fetch(textUrl).then(res => res.text()) : undefined
+
+      const lyrics = config.settings.showTextSection && scoreDef.text ?
+        await getLyrics(path, scoreDef.text) : undefined
+
         const scoreProcessor = new ScoreProcessor(meiString)
         if (config.settings.renderTitlesFromMEI) {
           scoreProcessor.addTitlesFilter()
@@ -244,7 +235,7 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
           singleVerseMei: generateOneVerseMei(originalMei),
           properties: properties,
           editorialItems: editorialItems,
-          text: textString,
+          lyrics: lyrics,
           fascimileItems: scoreEntry.facsimileItems,
         }
 
@@ -255,7 +246,7 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
 
       }
     })()
-  }, [config, currentScoreIdx])
+  }, [currentScoreIdx])
 
 
   const onScoreChanged = (value: number) => {
@@ -296,15 +287,15 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
       label: <Space direction='horizontal'><Icon component={MusicSvg} />Musica</Space>,
       children: scoreView
     },
-    config.settings.showTextSection && score?.text ? {
+    config.settings.showTextSection && score?.lyrics ? {
       key: 'text',
       label: <Space direction='horizontal'><FileTextOutlined />Texto</Space>,
-      children: <TextView title={score.title} text={score.text} />
+      children: <TextView title={score.title} items={score.lyrics} />
     } : null,
     config.settings.showFacsimileSection && score?.fascimileItems?.length ? {
       key: 'facsimile',
       label: <Space direction='horizontal'> <FileImageOutlined />Facsimil</Space>,
-      children: <FacsimileView items={score.fascimileItems} />
+      children: <FacsimileView path={config.settings.facsimileImagesPath} items={score.fascimileItems} />
     } : null
   ].filter(t => t != null), [config, score])
 

@@ -3,13 +3,18 @@ import { EditorialItem } from './editorial';
 
 export type FacsimileItem = {
     name: string
-    url: string
+    file: string
 }
 
 export type ReconstructionItem = {
     voice: string
     label: string
     reconstructionBy: string
+}
+
+export type LyricItem = {
+    title: string
+    text: string
 }
 
 export type Score = {
@@ -19,7 +24,7 @@ export type Score = {
     singleVerseMei: string
     properties: ScoreProperties
     editorialItems: EditorialItem[]
-    text?: string
+    lyrics?: LyricItem[]
     fascimileItems?: FacsimileItem[]
 }
 
@@ -36,6 +41,8 @@ export type ScoreProperties = {
     hasFicta: boolean,
     numVerses: number,
     numMeasures: number,
+    composer: string,
+    lyricist: string,
     editor: string,
     reconstructions: Reconstruction[],
     reconstructionBy: string | null,

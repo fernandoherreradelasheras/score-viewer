@@ -20,7 +20,8 @@
     // Enhanced source map options for better debugging
     "sourceMap": true,
     "inlineSources": true,
-    "inlineSourceMap": false
+    "inlineSourceMap": false,
+    "esModuleInterop": true
   },
   "include": ["src", "lib"],
   "references": [{ "path": "./tsconfig.node.json" }],

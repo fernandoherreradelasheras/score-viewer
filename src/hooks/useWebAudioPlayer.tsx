@@ -19,15 +19,13 @@ export default function useWebAudioPlayer() {
     const setCurrentPage = useStore.use.setCurrentPage();
     const autoScroll = useStore.use.autoScroll();
     const setAutoScroll = useStore.use.setAutoScroll();
-    const setIsLoading = useStore.use.setIsLoading();
 
     const renderedSvgData = useStore.use.renderedSvgData();
-
 
     const verovio = useVerovio();
 
     const audioUrl = useStore.use.audioUrl();
-    const audioTracks = useStore.use.audioTracks();
+    const audioOverlayTracks = useStore.use.audioOverlayTracks();
 
     const audioContextRef = useRef<AudioContext | null>(null);
     const startTimeRef = useRef<number>(0);
@@ -38,7 +36,6 @@ export default function useWebAudioPlayer() {
     const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
 
     const [canPlay, setCanPlay] = useState(false);
-    const [isLoading, setIsLocalLoading] = useState(false);
     const [loadedTracks, setLoadedTracks] = useState<string[]>([]);
     const [audioContextResumed, setAudioContextResumed] = useState(false);
     const needsUserInteractionRef = useRef(true);
@@ -105,58 +102,58 @@ export default function useWebAudioPlayer() {
     }, [getAudioContext]);
 
     useEffect(() => {
-        const loadAudio = async () => {
-            if (playingState !== PlayingState.STOPPED) {
-                stopPlayback();
-                setPlayingState(PlayingState.STOPPED);
-            }
-
-            setIsLocalLoading(true);
-            setIsLoading(true);
-            setCanPlay(false);
-
+        const loadAudio = async (audioUrl: string) => {
             const context = getAudioContext();
             if (!context) {
-                setIsLocalLoading(false);
-                setIsLoading(false);
-                return;
+                return
             }
-
             audioBuffersRef.current.clear();
             setLoadedTracks([]);
+            try {
+                const buffer = await fetchAudioBuffer(audioUrl, context);
+                audioBuffersRef.current.set('main', buffer);
+                setLoadedTracks(['main']);
+                setCanPlay(true);
+            } catch (error) {
+                console.error("Failed to load main audio:", error);
+            }
+        }
 
-            var loadingError = false
+        if (playingState !== PlayingState.STOPPED) {
+            stopPlayback();
+            setPlayingState(PlayingState.STOPPED);
+        }
+        setCanPlay(false);
 
-            if (audioUrl) {
+        if (audioUrl) {
+            loadAudio(audioUrl)
+        }
+    }, [audioUrl]);
+
+
+    useEffect(() => {
+        const loadOverlayAudio = async (audioOverlayTracks: AudioTrack[]) => {
+            const context = getAudioContext();
+            if (!context) {
+                return;
+            }
+            await Promise.all(audioOverlayTracks.map(async (track: AudioTrack) => {
+                if (!track.url) return;
                 try {
-                    const buffer = await fetchAudioBuffer(audioUrl, context);
-                    audioBuffersRef.current.set('main', buffer);
-                    setLoadedTracks(['main']);
+                    const buffer = await fetchAudioBuffer(track.url, context);
+                    audioBuffersRef.current.set(track.id, buffer);
+                    setLoadedTracks(prev => [...prev, track.id]);
                 } catch (error) {
-                    console.error("Failed to load main audio:", error);
-                    loadingError = true
+                    console.error(`Failed to load track ${track.id}:`, error);
                 }
-            }
+            }));
+        }
 
-            if (audioTracks.overlays.length > 0) {
-                await Promise.all(audioTracks.overlays.map(async (track: AudioTrack) => {
-                    if (!track.url) return;
-                    try {
-                        const buffer = await fetchAudioBuffer(track.url, context);
-                        audioBuffersRef.current.set(track.id, buffer);
-                        setLoadedTracks(prev => [...prev, track.id]);
-                    } catch (error) {
-                        console.error(`Failed to load track ${track.id}:`, error);
-                    }
-                }));
-            }
-            setIsLocalLoading(false);
-            setIsLoading(false);
-            setCanPlay(!loadingError);
-        };
+        if (audioOverlayTracks.length > 0) {
+            loadOverlayAudio(audioOverlayTracks)
+        }
+    }, [audioOverlayTracks]);
 
-        loadAudio();
-    }, [audioUrl, audioTracks, getAudioContext, setIsLoading]);
 
     // We need a clean up effect to release the audio context when the component gets removed.
     useEffect(() => {
@@ -259,8 +256,6 @@ export default function useWebAudioPlayer() {
             if (!success) return;
 
             pausedPositionRef.current = startPosition;
-            console.log(`Starting playback at ${startPosition} ms`);
-
             const startSeconds = startPosition / 1000;
             startTimeRef.current = context.currentTime - startSeconds;
 
@@ -274,7 +269,7 @@ export default function useWebAudioPlayer() {
             });
             updatePlaybackPosition();
         });
-    }, [getAudioContext, audioTracks, resumeAudioContext, playingState]);
+    }, [getAudioContext, audioOverlayTracks, resumeAudioContext, playingState]);
 
     const pausePlayback = useCallback(() => {
         if (animationFrameRef.current) {
@@ -341,9 +336,7 @@ export default function useWebAudioPlayer() {
 
     const handleStop = useCallback(() => {
         stopPlayback();
-        setIsLoading(true);
         onAudioEnded();
-        setIsLoading(false);
     }, [playingState, setPlayingState, autoScroll, setAutoScroll, stopPlayback]);
 
     const getAudioDuration = useCallback(() => {
@@ -356,7 +349,6 @@ export default function useWebAudioPlayer() {
 
     return {
         canPlay,
-        isLoading,
         playPauseTooltip,
         handlePlay,
         handlePlayPause,

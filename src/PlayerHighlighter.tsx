@@ -57,7 +57,7 @@ function PlayerHighlighter({ timemap } : { timemap:  TimeMapEvent[] } ) {
     const playingPosition = useStore.use.playingPosition()
     const seekPosition = useStore.use.seekPosition()
     const showReconstructions = useStore.use.showReconstructions()
-    const audioTracks = useStore.use.audioTracks();
+    const audioOverlayTracks = useStore.use.audioOverlayTracks()
 
 
     const renderedSvgData = useStore.use.renderedSvgData()
@@ -151,14 +151,14 @@ function PlayerHighlighter({ timemap } : { timemap:  TimeMapEvent[] } ) {
 
     const ignoreStaffs = useMemo(() => {
         const staffsWithoutAudio = new Set<string>()
-        const labelsWithAudio = audioTracks.overlays.map(t => t.label)
+        const labelsWithAudio = audioOverlayTracks.map(t => t.label)
         for (let [staff, label] of Object.entries(showReconstructions)) {
             if (!labelsWithAudio.includes(label)) {
                 staffsWithoutAudio.add(staff)
             }
         }
         return staffsWithoutAudio
-    }, [showReconstructions, audioTracks])
+    }, [showReconstructions, audioOverlayTracks])
 
     const svgStyleRules = useMemo(() => {
         return getSvgStyleRules(ignoreStaffs)

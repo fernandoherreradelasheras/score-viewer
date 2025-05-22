@@ -1,7 +1,11 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import ScoreViewer, { ScoreViewerConfig } from './ScoreViewer'
+import ScoreViewer from './ScoreViewer'
+import testConfig from '../assets/test.json'
+import { ScoreViewerConfig } from './types/config'
+
+const USE_TEST_CONFIG = true
 
 // Default test configuration for development
 const defaultConfig: ScoreViewerConfig = {
@@ -11,53 +15,65 @@ const defaultConfig: ScoreViewerConfig = {
     showTextSection: true,
     renderTitlesFromMEI: true,
     showScoreSelector: true,
-    backgroundColor: "#f6eee3"
+    backgroundColor: "#f6eee3",
+    basePath: "/",
+    facsimileImagesPath: "/",
   },
   scores: [
     {
       title: "Airecillos mansos",
-      audioUrl: "/1-base.mp3",
+      path: "",
+      audioBaseFile: "1-base.mp3",
       audioOverlays: [
-        { staff: "3", appLabel: "reconstruction:3:IA:DeepSeek-V3-0324", url: "/1-DeepSeek-V3-0324.mp3" }
+        { staff: "3", appLabel: "reconstruction:3:IA:DeepSeek-V3-0324", file: "/1-DeepSeek-V3-0324.mp3" }
       ],
 
-      meiUrl: "/1.mei",
-      textUrl: "/test.txt",
+      meiFile: "1.mei",
+      text: [
+        { "file": "test.txt", "append_to": "coplas", "name": "Coplas" }
+      ],
       encodingProperties: { encodedTransposition: "-P4" },
       facsimileItems: [
-        { name: "Page 32", url: "/page32.jpg" },
-        { name: "Page 33", url: "/page33.jpg" }
+        { name: "Page 32", file: "page32.jpg" },
+        { name: "Page 33", file: "page33.jpg" }
       ]
     },
     {
       title: "Un imposible me mata",
-      audioUrl: "/test2.mp3",
-      meiUrl: "/test2.mei",
+      path: "",
+      audioBaseFile: "test2.mp3",
+      meiFile: "test2.mei",
       encodingProperties: { encodedTransposition: undefined }
     },
     {
       title: "test 3",
-      meiUrl: "/test3.mei",
+      path: "",
+      meiFile: "test3.mei",
       encodingProperties: { encodedTransposition: undefined }
     },
     {
       title: "test 4",
-      meiUrl: "/test4.mei",
+      path: "",
+      meiFile: "test4.mei",
       encodingProperties: { encodedTransposition: undefined }
     },
     {
       title: "test 5",
-      meiUrl: "/test5.mei",
+      path: "",
+      meiFile: "test5.mei",
       encodingProperties: { encodedTransposition: undefined }
     },
     {
       title: "test 6",
-      audioUrl: "/test6.mp3",
-      meiUrl: "/test6.mei",
+      path: "",
+      audioBaseFile: "test6.mp3",
+      meiFile: "test6.mei",
       encodingProperties: { encodedTransposition: undefined }
     }
   ]
 };
+
+
 
 /*
 function TestWrapper() {
@@ -74,8 +90,10 @@ function TestWrapper() {
 */
 
 
+const config = USE_TEST_CONFIG ? testConfig : defaultConfig
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ScoreViewer width="100%" height="95vh" config={defaultConfig} />
+    <ScoreViewer width="100%" height="95vh" config={config} />
   </StrictMode>,
 )

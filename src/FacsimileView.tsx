@@ -7,7 +7,7 @@ import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pa
 import { ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 
 
-function FacsimileView({ items }: { items: FacsimileItem[] }) {
+function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }) {
 
   const [currentItem, setCurrentItem] = useState(0);
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
@@ -54,7 +54,7 @@ function FacsimileView({ items }: { items: FacsimileItem[] }) {
             <TransformComponent
                 wrapperStyle={{ width: "100%", height: "100%" }}>
                 <div style={{ width: "100%", height: "100%", padding: "12px" }}  ref={(el: HTMLDivElement | null) => setContainer(el)}>
-                  <img src={items[currentItem].url} alt={items[currentItem].name} style={{height: `${containerHeight}px`, width: "auto" }}/>
+                  <img src={path + items[currentItem].file} alt={items[currentItem].name} style={{height: `${containerHeight}px`, width: "auto" }}/>
                 </div>
             </TransformComponent>
           </>

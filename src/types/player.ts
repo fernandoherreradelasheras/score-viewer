@@ -23,8 +23,5 @@ export interface AudioTrack {
     volume?: number; // Default volume (0-1)
 }
 
-export interface AudioTracks {
-    overlays: AudioTrack[];
-}
 
 

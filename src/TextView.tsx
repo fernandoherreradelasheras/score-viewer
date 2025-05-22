@@ -2,35 +2,56 @@ import { useEffect, useState } from 'react'
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from 'rehype-raw'
+import { LyricItem } from './types';
 
 
 const markdownTitle = (title: string) => `## ${title}\n\n`
 
+const formatText = (text: string, initialLineNumber: number) => {
+        var formattedText = "";
+        var lastLineNumber = initialLineNumber
 
-function TextView({ title, text }: { title: string, text: string }) {
+
+        for (let line of text.split('\n')) {
+
+            if (line == "") {
+                formattedText = formattedText.slice(0, -2) + "\n\n"
+            } else if (line.startsWith("[") && line.endsWith("]")) {
+                formattedText += `### ${line.slice(1, -1)}\n`
+            } else {
+                lastLineNumber += 1
+                if (lastLineNumber % 5 == 0) {
+                    formattedText += `*${line}*<span style="float: right; margin-right: -20px;" > ${lastLineNumber}</span>\\\n`
+                } else {
+                    formattedText += `*${line}*\\\n`
+                }
+            }
+        }
+        return { formattedText, lastLineNumber }
+
+}
+
+
+function TextView({ title, items }: { title: string, items: LyricItem[] }) {
 
     const [markdownText, setMarkdownText] = useState<string>("")
 
     useEffect(() => {
         var newText = "";
-        var lineNumber = 0
         newText += markdownTitle(title)
-        for (let line of text.split('\n')) {
-            if (line == "") {
-                newText = newText.slice(0, -2) + "\n\n"
-            } else if (line.startsWith("[") && line.endsWith("]")) {
-                newText += `### ${line.slice(1, -1)}\n`
-            } else {
-                lineNumber += 1
-                if (lineNumber % 5 == 0) {
-                    newText += `*${line}*<span style="float: right; margin-right: -20px;" > ${lineNumber}</span>\\\n`
-                } else {
-                    newText += `*${line}*\\\n`
-                }
+        var lineNumber = 0
+
+        for (let item of items) {
+            if (items.length > 1) {
+                newText += `### ${item.title}\n`
             }
+            const { formattedText, lastLineNumber } = formatText(item.text, lineNumber)
+            newText += formattedText
+            lineNumber = lastLineNumber
         }
+
         setMarkdownText(newText);
-    }, [title, text]);
+    }, [title, items]);
 
     return (
         <div style={{ display: "flex", flexDirection: "row" }}>
