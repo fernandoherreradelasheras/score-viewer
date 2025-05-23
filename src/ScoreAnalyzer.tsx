@@ -91,6 +91,7 @@ class ScoreAnalyzer {
         var node = matches.iterateNext()
         while (node != null) {
             const section = node as Element
+            console.log(section)
             sections.push({ label: section.getAttribute("label") || "", id: section.getAttribute("xml:id") || "" })
             node = matches.iterateNext()
         }

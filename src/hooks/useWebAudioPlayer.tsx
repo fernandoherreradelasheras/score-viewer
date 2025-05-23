@@ -16,7 +16,7 @@ export default function useWebAudioPlayer() {
     const setPlayingState = useStore.use.setPlayingState();
     const setPlayingPosition = useStore.use.setPlayingPosition();
     const currentPage = useStore.use.currentPage();
-    const setCurrentPage = useStore.use.setCurrentPage();
+    const goToPage = useStore.use.goToPage();
     const autoScroll = useStore.use.autoScroll();
     const setAutoScroll = useStore.use.setAutoScroll();
 
@@ -182,7 +182,7 @@ export default function useWebAudioPlayer() {
             const playingAtPosition = verovio?.getElementsAtTime(position);
             const playingPage = playingAtPosition?.page;
             if (playingPage && playingPage !== currentPage) {
-                setCurrentPage(playingPage);
+                goToPage(playingPage);
             }
         }
     }

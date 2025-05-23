@@ -5,7 +5,7 @@ import { useComponentSize } from "react-use-size";
 import ScoreProcessor from './ScoreProcessor';
 import { useEditorialHandler } from './hooks/useEditorialHandler';
 import { expandBBsForEditorialItems, expandBBsForRdgs } from './SvgUtils';
-import useScoreActions from './hooks/useScoreActions';
+import useScoreActions, { RenderActionResult } from './hooks/useScoreActions';
 import useScoreRenderer from './hooks/useScoreRenderer';
 import { Transition, PlayingState, loadAction, renderAction } from './types';
 
@@ -31,17 +31,13 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const reachedEffectiveMaxScale = useStore.use.reachedEffectiveMaxScale();
     const setReachedEffectiveMaxScale = useStore.use.setReachedEffectiveMaxScale();
     const currentPage = useStore.use.currentPage();
-    const setCurrentPage = useStore.use.setCurrentPage();
     const pageCount = useStore.use.pageCount();
-    const setPageCount = useStore.use.setPageCount();
     const showNVerses = useStore.use.showNVerses();
 
     const normalizeFicta = useStore.use.normalizeFicta();
     const showEditorial = useStore.use.showEditorial();
     const appOptions = useStore.use.appOptions();
     const choiceOptions = useStore.use.choiceOptions();
-    const section = useStore.use.section();
-    const setSection = useStore.use.setSection();
     const transposition = useStore.use.transposition();
     const renderedSvgData = useStore.use.renderedSvgData();
     const setRenderedSvgData = useStore.use.setRenderedSvgData();
@@ -74,7 +70,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         showOriginalClefs
     });
 
-
     const isReady = () => (score && verovio && svgContainerWidth > 0 && svgContainerHeight > 0 && !pendingAction)
 
 
@@ -95,8 +90,8 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                 // Handle the results of render actions
                 if (result) {
                     if (pendingAction.type === "render") {
-                        const renderResult = result as { newSvg: any; loadedPagesCount: number; scale: number; renderPage: number };
-                        const { newSvg, loadedPagesCount, scale: newScale, renderPage } = renderResult;
+                        const renderResult = result as RenderActionResult
+                        const { newSvg, scale: newScale } = renderResult;
                         setRenderedSvgData(newSvg);
 
                         if (showEditorial) {
@@ -108,9 +103,8 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                         }
 
                         setIsLoading(false);
-                        setPageCount(loadedPagesCount);
+
                         setScale(newScale);
-                        setCurrentPage(renderPage);
 
                         // Calculate max scale after transition completes
                         setTimeout(() => {
@@ -282,17 +276,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         setPendingAction(action);
     }, [currentPage]);
 
-    useEffect(() => {
-        if (!isReady() || !showingMei || !renderedSvgData || currentPage < 1) return;
-
-        if (section != null) {
-            const page = verovio.getPageWithElement(section);
-            setSection(null);
-            if (page != null && page > 0 && page != currentPage) {
-                setCurrentPage(page);
-            }
-        }
-    }, [section]);
 
 
     return (

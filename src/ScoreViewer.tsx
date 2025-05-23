@@ -1,6 +1,6 @@
 import './App.css'
 import useStore from "./store";
-import React, {  useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, Ref, useEffect, useMemo, useState } from 'react';
 import useVerovio from './useVerovio';
 import { Context } from './Context';
 import { ConfigProvider, Select, Space, Tabs, TabsProps, theme, Typography } from 'antd'
@@ -16,25 +16,31 @@ import FacsimileView from './FacsimileView';
 import { ScoreViewerConfig } from './types/config';
 import { useScoreManager } from './hooks/useScoreManager';
 import { useTextParts } from './hooks/useTextParts';
+import { useImperativeHandle } from 'react';
 
 
 export interface ScoreViewerProps {
+  ref?: React.Ref<unknown>
   config: ScoreViewerConfig
   width: string
   height: string
   scoreIndex?: number
-  scoreSectionId?: string
   onScoreAnalyzed?: (scoreIndex: number, properties: ScoreProperties) => void
   onVisualizationOptionsChanged?: (scoreIndex: number, options: VisualizationOptions) => void
   onTextPartChanged?: (scoreIndex: number, partName: string, text: LyricItem[] | string | null | undefined) => void
 }
 
-function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScoreAnalyzed, onTextPartChanged, onVisualizationOptionsChanged  } : ScoreViewerProps )   {
+export interface ScoreViewerRef {
+  goToSection: (sectionId: string) => void
+}
+
+
+
+
+const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTextPartChanged, onVisualizationOptionsChanged }: ScoreViewerProps, ref: Ref<ScoreViewerRef>) => {
 
   const currentScoreIdx = useStore.use.currentScoreIdx()
   const setCurrentScoreIdx = useStore.use.setCurrentScoreIdx()
-  const currentPage = useStore.use.currentPage()
-  const setCurrentPage = useStore.use.setCurrentPage()
   const score = useStore.use.score()
   const setScore = useStore.use.setScore()
   const showReconstructions = useStore.use.showReconstructions()
@@ -46,9 +52,18 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
   const playingState = useStore.use.playingState()
   const setPlayingState = useStore.use.setPlayingState()
 
+  const goToSection = useStore.use.goToSection()
+
   const [activeTab, setActiveTab] = useState<string>("music")
 
   const verovio = useVerovio()
+
+  useImperativeHandle(ref, () => ({
+    goToSection: (section: string) => {
+        console.log("got request to go to section", section);
+        goToSection(section)
+    }
+  }));
 
   useEffect(() => {
     if (config.settings.showScoreSelector && config.scores.length > 0) {
@@ -62,17 +77,7 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
     }
   }, [config]);
 
-  useEffect(() => {
-    if (scoreSectionId && scoreIndex == currentScoreIdx) {
-      console.log(`section ${scoreSectionId} while scoreIndex = ${scoreIndex} and currentScoreIdx = ${currentScoreIdx}`)
-      const sectionPage = verovio?.getPageWithElement(scoreSectionId)
-      if (sectionPage && sectionPage > 0 && sectionPage != currentPage) {
-        setCurrentPage(sectionPage)
-      }
-    } else {
-      console.log(`section changed ${scoreSectionId} while scoreIdndex = ${scoreIndex} and currentScoreIdx = ${currentScoreIdx}`)
-    }
-  }, [scoreSectionId])
+
 
   useEffect(() => {
     if (!score || currentScoreIdx == null) return;
@@ -225,7 +230,6 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
   )
 }
 
-// Export with explicit type annotation
-const TypedScoreViewer: React.FC<ScoreViewerProps> = ScoreViewer;
-export default TypedScoreViewer;
 
+
+export default forwardRef<ScoreViewerRef, ScoreViewerProps>(ScoreViewer)

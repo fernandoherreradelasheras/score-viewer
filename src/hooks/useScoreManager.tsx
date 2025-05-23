@@ -100,6 +100,7 @@ export function useScoreManager({
           ...analyzer.getScoreProperties(),
           encodedTransposition: encodingProperties.encodedTransposition ?? undefined,
         };
+
         const editorialItems = analyzer.getEditorial();
         const newScore: Score = {
           url: meiUrl,

@@ -29,8 +29,9 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps) {
     const audioUrl = useStore.use.audioUrl();
     const playingState = useStore.use.playingState();
     const setPlayingState = useStore.use.setPlayingState();
-    const setCurrentPage = useStore.use.setCurrentPage();
     const currentPage = useStore.use.currentPage();
+    const goToNextPage = useStore.use.goToNextPage;
+    const goToPreviousPage = useStore.use.goToPreviousPage;
     const pageCount = useStore.use.pageCount();
     const resetPlayerPosition = useStore.use.resetPlayerPosition();
     const showEditorial = useStore.use.showEditorial();
@@ -46,13 +47,13 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps) {
         onSwipedLeft: (_) => {
             if (playingState != PlayingState.PLAYING && currentPage < pageCount) {
                 resetPlayerPosition();
-                setCurrentPage(currentPage + 1);
+                goToNextPage();
             }
         },
         onSwipedRight: (_) => {
             if (playingState != PlayingState.PLAYING && currentPage > 1) {
                 resetPlayerPosition();
-                setCurrentPage(currentPage - 1);
+                goToPreviousPage()
             }
         },
         delta: 10,

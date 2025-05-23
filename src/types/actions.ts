@@ -34,6 +34,7 @@ export type Action = {
     config: LoadConfig | LoadAutoScrollConfig | RenderConfig | RenderAutoScrollConfig
 }
 
+
 export const loadAction = (config: LoadConfig): Action => ({type: "load", config})
 export const loadAutoScrollAction = (config: LoadAutoScrollConfig): Action => ({type: "loadAutoScroll", config})
 export const renderAction = (config: RenderConfig): Action => ({type: "render", config})

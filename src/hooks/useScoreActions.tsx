@@ -13,6 +13,9 @@ import {
   renderAction,
   renderAutoScrollAction
 } from '../types';
+import { RenderedData } from './useScoreRenderer';
+import useStore from "../store";
+
 
 // Constants moved from ScoreView
 const EXTRA_SVG_ATTRIBUTES = ["measure@n", "staff@n", "clef@corresp", "verse@n", "note@dur", "rdg@label"];
@@ -59,26 +62,16 @@ const initialClassForTransition = (transition: Transition) => {
   }
 };
 
-// Type definitions for render results
-interface RenderedSvg {
-  id: string;
-  scale: number;
-  timemap: TimeMapEvent[];
-  anchorElement: string | null;
-  page: number;
-  width?: number | undefined;
-  height?: number | undefined;
-}
 
-interface RenderActionResult {
-  newSvg: RenderedSvg;
+export interface RenderActionResult {
+  newSvg: RenderedData;
   loadedPagesCount: number;
   scale: number;
   renderPage: number;
 }
 
 interface RenderAutoScrollResult {
-  newSvg: RenderedSvg;
+  newSvg: RenderedData;
 }
 
 interface ScoreActionsConfig {
@@ -132,6 +125,24 @@ export default function useScoreActions({
   showOriginalClefs
 }: ScoreActionsConfig) {
 
+  const setScoreLayout = useStore.use.setScoreLayout()
+
+  const getSectionMap = (scoreMei: string) => {
+    const analyzer = new ScoreAnalyzer(0, scoreMei);
+    const sections = analyzer.getSections()
+    const sectionsMap: Record<string, number> = {}
+    sections.forEach((section) => {
+      const sectionId = section.id;
+      const sectionPage = verovio.getPageWithElement(sectionId);
+      if (sectionId && sectionPage) {
+        sectionsMap[sectionId] = sectionPage
+      }
+    })
+    return sectionsMap
+
+  }
+
+
   /**
    * Execute the load action - prepares Verovio with options and loads the MEI data
    */
@@ -162,6 +173,8 @@ export default function useScoreActions({
       verovio.setOptions(options);
       verovio.loadData(meiStr);
       const loadedPagesCount = verovio.getPageCount();
+      const sectionMap = getSectionMap(meiStr)
+
 
       let renderPage = undefined;
       if (restorePositionForAchor) {
@@ -174,6 +187,8 @@ export default function useScoreActions({
         renderPage = (page <= loadedPagesCount) ? page : loadedPagesCount;
       }
 
+      setScoreLayout({ currentPage: renderPage, pageCount: loadedPagesCount, sectionPageMap: sectionMap })
+
       return renderAction({
         scoreUrl,
         transition: postLoadTransition,
@@ -181,7 +196,7 @@ export default function useScoreActions({
         loadedWidth,
         renderPage,
         scale,
-        loadedPagesCount
+        loadedPagesCount,
       });
     } catch (error) {
       console.error("Error performing load action:", error);
@@ -250,6 +265,7 @@ export default function useScoreActions({
     return resolveTimemapAnimations(timeMapWithTiesMerged)
   }
 
+
   /**
    * Render the score as a standard page
    */
@@ -281,7 +297,8 @@ export default function useScoreActions({
       const analyzer = new ScoreAnalyzer(0, verovio.getMEI({ pageNo: renderPage }));
       const firstMeasureId = analyzer.getFirstMeasureId();
 
-      const newSvg = {
+
+      const newSvg : RenderedData = {
         id: svgElement.id,
         scoreUrl: scoreUrl,
         scale: scale,
@@ -292,7 +309,7 @@ export default function useScoreActions({
         width: loadedWidth
       };
 
-      return { newSvg, loadedPagesCount, scale, renderPage };
+      return { newSvg, loadedPagesCount, scale, renderPage } as RenderActionResult;
     } catch (error) {
       console.log(`Error rendering page: ${error}`);
       return null;
@@ -323,11 +340,10 @@ export default function useScoreActions({
 
       element.style.height = `${renderedHeight}px`;
 
-
-
-      const newSvg = {
+      const newSvg: RenderedData = {
         id: "svg-auto-scrolling",
         scale: 100, // Auto-scroll uses fixed scale
+        scoreUrl: "",
         timemap: resolveTimemap(timemap),
         width: renderedWidth,
         height: renderedHeight,

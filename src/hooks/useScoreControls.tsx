@@ -23,7 +23,7 @@ export default function useScoreControls(
   const setReachedEffectiveMaxScale = useStore.use.setReachedEffectiveMaxScale();
   const pageCount = useStore.use.pageCount();
   const currentPageNumber = useStore.use.currentPage();
-  const setCurrentPage = useStore.use.setCurrentPage();
+  const goToPage = useStore.use.goToPage()
 
   // Component state
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -70,7 +70,7 @@ export default function useScoreControls(
   // Page navigation
   const handlePageClick = (page: number) => {
     resetPlayerPosition();
-    setCurrentPage(page);
+    goToPage(page);
   };
 
 

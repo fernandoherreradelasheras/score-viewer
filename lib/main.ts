@@ -1,5 +1,6 @@
 import ScoreViewer from '../src/ScoreViewer';
 import type { ScoreViewerProps } from '../src/ScoreViewer';
+import type { ScoreViewerRef } from '../src/ScoreViewer';
 import ScoreView from '../src/ScoreView';
 import useStore from '../src/store';
 import { Context } from '../src/Context';
@@ -9,14 +10,14 @@ import { ScoreViewerConfig, ScoreViewerConfigSettings, ScoreViewerConfigScore, S
 import { useScoreManager } from '../src/hooks/useScoreManager';
 import { useTextParts } from '../src/hooks/useTextParts';
 
-const TypedScoreViewer: React.FC<ScoreViewerProps> = ScoreViewer;
 
-export { TypedScoreViewer as ScoreViewer };
+export { ScoreViewer as ScoreViewer };
 export { ScoreView, useStore, Context };
 export { useScoreManager, useTextParts }; // TODO: are these hooks really needed?
 
 export type {
   ScoreViewerProps,
+  ScoreViewerRef,
   ScoreViewerConfig,
   ScoreViewerConfigSettings,
   ScoreViewerConfigScore,
@@ -30,4 +31,4 @@ export type {
   TextParts
 };
 
-export default TypedScoreViewer;
+export default ScoreViewer;

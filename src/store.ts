@@ -77,14 +77,68 @@ const createScoreManagementStore = create<ScoreManagementState>((set) => ({
 }))
 
 
+interface ScoreNavigationState {
+    pageCount: number
+    currentPage: number
+
+    sectionPageMap: Record<string, number>
+
+    setScoreLayout : (layout: { pageCount: number, sectionPageMap: Record<string, number>, currentPage: number }) => void
+
+    goToPage: (page: number) => void
+    goToNextPage: () => void
+    goToPreviousPage: () => void
+
+    goToSection: (sectionId: string) => void
+    navigationCommand: { type: 'section' | 'page', target: string | number } | null
+
+    clearNavigationCommand: () => void
+}
+
+export const createScoreViewerStore = create<ScoreNavigationState>((set, get) => ({
+  pageCount: 0,
+  currentPage: 1,
+  sectionPageMap: { },
+
+  setScoreLayout: ({ pageCount, sectionPageMap, currentPage }) => {
+    console.log(`setScoreLayout: pageCount: ${pageCount}, sectionPageMap: ${JSON.stringify(sectionPageMap)}, currentPage: ${currentPage}`);
+    set({
+      pageCount,
+      sectionPageMap,
+      currentPage,
+      navigationCommand: null
+    });
+  },
+
+  goToPage: (page) => set({
+    currentPage: Math.max(1, Math.min(page, get().pageCount))
+  }),
+  goToNextPage: () => get().goToPage(get().currentPage + 1),
+  goToPreviousPage: () => get().goToPage(get().currentPage - 1),
+
+  goToSection: (sectionId) => {
+    const page = get().sectionPageMap[sectionId];
+    console.log(`target page for section ${sectionId}: ${page}`);
+    if (page) {
+      set({
+        navigationCommand: { type: 'section', target: sectionId },
+        currentPage: page
+      });
+    }
+  },
+
+  navigationCommand: null,
+
+  clearNavigationCommand: () => set({ navigationCommand: null }),
+}));
+
 
 interface UILayoutState {
     isLoading: boolean
     scoreSvg: string | null
     scale: number
     reachedEffectiveMaxScale: boolean
-    pageCount: number
-    currentPage: number
+
 
     setIsLoading: (isLoading: boolean) => void
     setScoreSvg: (svg: string | null) => void
@@ -92,8 +146,6 @@ interface UILayoutState {
     increaseScale: () => void
     decreaseScale: () => void
     setReachedEffectiveMaxScale: (value: boolean) => void
-    setPageCount: (count: number) => void
-    setCurrentPage: (page: number) => void
 }
 
 const createUILayoutStore = create<UILayoutState>((set) => ({
@@ -101,8 +153,7 @@ const createUILayoutStore = create<UILayoutState>((set) => ({
     scoreSvg: null,
     scale: DEFAULT_SCALE,
     reachedEffectiveMaxScale: false,
-    pageCount: 0,
-    currentPage: 1,
+
 
     setIsLoading: (isLoading: boolean) => set(() => ({ isLoading })),
     setScoreSvg: (svg: string | null) => set(() => ({ scoreSvg: svg })),
@@ -116,8 +167,6 @@ const createUILayoutStore = create<UILayoutState>((set) => ({
         scale: Math.max(state.scale - 10, MIN_SCALE),
     })),
     setReachedEffectiveMaxScale: (value: boolean) => set(() => ({ reachedEffectiveMaxScale: value })),
-    setPageCount: (count: number) => set(() => ({ pageCount: count })),
-    setCurrentPage: (page: number) => set(() => ({ currentPage: page })),
 }))
 
 
@@ -168,7 +217,6 @@ interface EditorialState {
     showingEditorial: string | null
     appOptions: string[]
     choiceOptions: string[]
-    section: string | null
     transposition: string | null
 
     setShowNVerses: (n: number | null) => void
@@ -179,7 +227,6 @@ interface EditorialState {
     setShowingEditorial: (editorial: string | null) => void
     setAppOptions: (options: string[], replace: boolean) => void
     setChoiceOptions: (options: string[], replace: boolean) => void
-    setSection: (section: string | null) => void
     setTransposition: (transposition: string | null) => void
 }
 
@@ -192,7 +239,6 @@ const createEditorialStore = create<EditorialState>((set) => ({
     showingEditorial: null,
     appOptions: [],
     choiceOptions: [],
-    section: null,
     transposition: null,
 
     setShowNVerses: (n: number | null) => set(() => ({ showNVerses: n })),
@@ -209,7 +255,6 @@ const createEditorialStore = create<EditorialState>((set) => ({
     setChoiceOptions: (options: string[], replace: boolean) => set((state) => ({
         choiceOptions: replace ? options : [...state.choiceOptions, ...options]
     })),
-    setSection: (section: string | null) => set(() => ({ section })),
     setTransposition: (transposition: string | null) => set(() => ({ transposition })),
 }))
 
@@ -255,16 +300,24 @@ class StoreApi {
         scoreSvg: createUILayoutStoreWithSelectors.use.scoreSvg,
         scale: createUILayoutStoreWithSelectors.use.scale,
         reachedEffectiveMaxScale: createUILayoutStoreWithSelectors.use.reachedEffectiveMaxScale,
-        pageCount: createUILayoutStoreWithSelectors.use.pageCount,
-        currentPage: createUILayoutStoreWithSelectors.use.currentPage,
         setIsLoading: createUILayoutStoreWithSelectors.use.setIsLoading,
         setScoreSvg: createUILayoutStoreWithSelectors.use.setScoreSvg,
         setScale: createUILayoutStoreWithSelectors.use.setScale,
         increaseScale: createUILayoutStoreWithSelectors.use.increaseScale,
         decreaseScale: createUILayoutStoreWithSelectors.use.decreaseScale,
         setReachedEffectiveMaxScale: createUILayoutStoreWithSelectors.use.setReachedEffectiveMaxScale,
-        setPageCount: createUILayoutStoreWithSelectors.use.setPageCount,
-        setCurrentPage: createUILayoutStoreWithSelectors.use.setCurrentPage,
+
+        // Score Navigation Store
+        pageCount: createScoreViewerStoreWithSelectors.use.pageCount,
+        currentPage: createScoreViewerStoreWithSelectors.use.currentPage,
+        sectionPageMap: createScoreViewerStoreWithSelectors.use.sectionPageMap,
+        setScoreLayout: createScoreViewerStoreWithSelectors.use.setScoreLayout,
+        goToPage: createScoreViewerStoreWithSelectors.use.goToPage,
+        goToNextPage: createScoreViewerStoreWithSelectors.use.goToNextPage,
+        goToPreviousPage: createScoreViewerStoreWithSelectors.use.goToPreviousPage,
+        goToSection: createScoreViewerStoreWithSelectors.use.goToSection,
+        navigationCommand: createScoreViewerStoreWithSelectors.use.navigationCommand,
+        clearNavigationCommand: createScoreViewerStoreWithSelectors.use.clearNavigationCommand,
 
         // Player Store
         audioUrl: createPlayerStoreWithSelectors.use.audioUrl,
@@ -290,7 +343,6 @@ class StoreApi {
         showingEditorial: createEditorialStoreWithSelectors.use.showingEditorial,
         appOptions: createEditorialStoreWithSelectors.use.appOptions,
         choiceOptions: createEditorialStoreWithSelectors.use.choiceOptions,
-        section: createEditorialStoreWithSelectors.use.section,
         transposition: createEditorialStoreWithSelectors.use.transposition,
         setShowNVerses: createEditorialStoreWithSelectors.use.setShowNVerses,
         setShowReconstructions: createEditorialStoreWithSelectors.use.setShowReconstructions,
@@ -300,7 +352,6 @@ class StoreApi {
         setShowingEditorial: createEditorialStoreWithSelectors.use.setShowingEditorial,
         setAppOptions: createEditorialStoreWithSelectors.use.setAppOptions,
         setChoiceOptions: createEditorialStoreWithSelectors.use.setChoiceOptions,
-        setSection: createEditorialStoreWithSelectors.use.setSection,
         setTransposition: createEditorialStoreWithSelectors.use.setTransposition,
 
         // Rendered SVG Store
@@ -311,6 +362,8 @@ class StoreApi {
 
 const createRenderingStoreWithSelectors = createSelectors(createRenderingStore);
 const createScoreManagementStoreWithSelectors = createSelectors(createScoreManagementStore);
+const createScoreViewerStoreWithSelectors = createSelectors(createScoreViewerStore);
+
 const createUILayoutStoreWithSelectors = createSelectors(createUILayoutStore);
 const createPlayerStoreWithSelectors = createSelectors(createPlayerStore);
 const createEditorialStoreWithSelectors = createSelectors(createEditorialStore);

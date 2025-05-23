@@ -1,9 +1,11 @@
-import { StrictMode } from 'react'
+import { StrictMode, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import ScoreViewer from './ScoreViewer'
+import ScoreViewer, { ScoreViewerRef } from './ScoreViewer'
 import testConfig from '../assets/test.json'
 import { ScoreViewerConfig } from './types/config'
+import { Button, Space } from 'antd'
+import { ScoreProperties } from './types'
 
 const USE_TEST_CONFIG = true
 
@@ -77,26 +79,44 @@ const defaultConfig: ScoreViewerConfig = {
 };
 
 
+const config = USE_TEST_CONFIG ? testConfig : defaultConfig
 
-/*
-function TestWrapper() {
-  const [away, setAway] = useState(false)
-  const toggleAway = () => setAway(!away)
+
+function TestSections() {
+  const [sections, setSections] = useState<{ label: string; id: string }[]>([])
+
+  const onScoreAnalyzed = (_: number, properties: ScoreProperties) => {
+    setSections(properties.sections)
+  }
+
+  const ref = useRef<ScoreViewerRef>(null)
 
   return (
     <div>
-      <Button type="primary" onClick={toggleAway}>Toggle away</Button>
-      { !away ? <ScoreViewer width="100%" height="95vh" config={defaultConfig} /> : <div>Score is away</div>}
+      <Space direction="horizontal" size="large">
+        {sections.map((section) => (
+          <Button key={section.id} onClick={() => ref.current?.goToSection(section.id)}>
+            {section.label}
+          </Button>
+        ))}
+        </Space>
+      <ScoreViewer ref={ref} width="100%" height="95vh" config={config} onScoreAnalyzed={onScoreAnalyzed}/>
     </div>
   )
 }
-*/
 
 
-const config = USE_TEST_CONFIG ? testConfig : defaultConfig
+function TestBasic() {
+  return (
+    <ScoreViewer width="100%" height="95vh" config={config} />
+  )
+}
+
+const testUi = false ? <TestSections /> : <TestBasic />
+
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ScoreViewer width="100%" height="95vh" config={config} />
+ { testUi  }
   </StrictMode>,
 )
