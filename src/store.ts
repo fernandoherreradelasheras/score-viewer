@@ -10,7 +10,10 @@ import {
     Score,
     PlayingState,
     AudioTrack,
+    TextPartsCache,
+    LyricItem,
 } from './types'
+
 import { RenderedData } from './hooks/useScoreRenderer'
 
 
@@ -26,16 +29,26 @@ const createRenderingStore = create<RenderingState>((set) => ({
 }))
 
 
+
 interface ScoreManagementState {
     currentScoreIdx: number | null
     score: Score | null
     showingMei: string | null
     scoreCache: { [index: string]: Score }
+    textCache: TextPartsCache
+    textComments: string | null | undefined
+    textIntroduction: string | null | undefined
+    textLyrics: LyricItem[] | null | undefined
 
     setCurrentScoreIdx: (idx: number | null) => void
     setScore: (score: Score | null) => void
+
     setShowingMei: (mei: string | null) => void
     setScoreCache: (scoreCache: { [index: string]: Score }) => void
+    setTextCache: (textCache: TextPartsCache, replace:boolean ) => void
+    setTextComments: (textComments: string | null | undefined) => void
+    setTextIntroduction: (textIntroduction: string | null | undefined) => void
+    setTextLyrics: (textLyrics: LyricItem[] | null | undefined, replace: boolean) => void
 }
 
 const createScoreManagementStore = create<ScoreManagementState>((set) => ({
@@ -43,6 +56,10 @@ const createScoreManagementStore = create<ScoreManagementState>((set) => ({
     score: null,
     showingMei: null,
     scoreCache: {},
+    textCache: {},
+    textComments: undefined,
+    textIntroduction: undefined,
+    textLyrics: undefined,
 
     setCurrentScoreIdx: (idx: number | null) => set(() => ({ currentScoreIdx: idx })),
     setScore: (score: Score | null) => set(() => ({ score: score })),
@@ -50,7 +67,15 @@ const createScoreManagementStore = create<ScoreManagementState>((set) => ({
     setScoreCache: (scoreCache: { [index: string]: Score }) => set((state) => ({
         scoreCache: { ...state.scoreCache, ...scoreCache }
     })),
+    setTextCache: (textCache: TextPartsCache, replace: boolean) => set((state) => ({
+        textCache: replace ? textCache : { ...state.textCache, ...textCache }
+    })),
+    setTextComments: (textComments: string | null | undefined) => set(() => ({ textComments })),
+    setTextIntroduction: (textIntroduction: string | null | undefined) => set(() => ({ textIntroduction })),
+    setTextLyrics: (textLyrics: LyricItem[] | null | undefined, replace: boolean) => set((state) => ({
+        textLyrics: replace ? textLyrics : [...state.textLyrics || [],  ...(textLyrics || [])]}))
 }))
+
 
 
 interface UILayoutState {
@@ -211,10 +236,19 @@ class StoreApi {
         score: createScoreManagementStoreWithSelectors.use.score,
         showingMei: createScoreManagementStoreWithSelectors.use.showingMei,
         scoreCache: createScoreManagementStoreWithSelectors.use.scoreCache,
+        textCache: createScoreManagementStoreWithSelectors.use.textCache,
+        textComments: createScoreManagementStoreWithSelectors.use.textComments,
+        textIntroduction: createScoreManagementStoreWithSelectors.use.textIntroduction,
+        textLyrics: createScoreManagementStoreWithSelectors.use.textLyrics,
         setCurrentScoreIdx: createScoreManagementStoreWithSelectors.use.setCurrentScoreIdx,
         setScore: createScoreManagementStoreWithSelectors.use.setScore,
         setShowingMei: createScoreManagementStoreWithSelectors.use.setShowingMei,
         setScoreCache: createScoreManagementStoreWithSelectors.use.setScoreCache,
+        setTextCache: createScoreManagementStoreWithSelectors.use.setTextCache,
+        setTextComments: createScoreManagementStoreWithSelectors.use.setTextComments,
+        setTextIntroduction: createScoreManagementStoreWithSelectors.use.setTextIntroduction,
+        setTextLyrics: createScoreManagementStoreWithSelectors.use.setTextLyrics,
+
 
         // UI/Layout Store
         isLoading: createUILayoutStoreWithSelectors.use.isLoading,

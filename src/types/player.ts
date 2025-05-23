@@ -7,20 +7,20 @@ export enum PlayingState {
 }
 
 export type TimeMapEvent = {
-    on?: string[],
-    off?: string[],
-    measureOn?: string,
-    qstamp: number,
-    tstamp: number,
-    tempo?: number,
-    stavesOn?: string[],
+    on?: string[] | undefined;
+    off?: string[] | undefined;
+    measureOn?: string | undefined;
+    qstamp: number;
+    tstamp: number;
+    tempo?: number | undefined;
+    stavesOn?: string[] | undefined;
 }
 
 export interface AudioTrack {
     id: string;
     label: string;
     url: string;
-    volume?: number; // Default volume (0-1)
+    volume?: number | undefined; // Default volume (0-1)
 }
 
 

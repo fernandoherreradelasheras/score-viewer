@@ -16,8 +16,8 @@ const getAudioDurationMillis = (timemap: TimeMapEvent[]) => {
 
 
   export interface ScoreViewContainerProps {
-    backgroundColor?: string;
-    showDownloadButton?: boolean;
+    backgroundColor?: string | undefined;
+    showDownloadButton?: boolean | undefined;
   }
 
 function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps) {
@@ -98,7 +98,7 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps) {
 
         { scoreViewerRef.current ? <ScoreControls
             fullScreenElement={scoreViewerRef.current}
-            showDownloadButton={scoreViewContainerProps.showDownloadButton}
+            showDownloadButton={scoreViewContainerProps.showDownloadButton ?? false}
             audioDuration={audioDuration}/> : null }
 
         <div className="score-container swipeable-container"

@@ -30,7 +30,10 @@ const defaultConfig: ScoreViewerConfig = {
 
       meiFile: "1.mei",
       text: [
-        { "file": "test.txt", "append_to": "coplas", "name": "Coplas" }
+        { "file": "test.txt", "append_to": "coplas", "name": "Coplas" },
+        { "file": "test3.txt", "type": "estribillo" },
+
+
       ],
       encodingProperties: { encodedTransposition: "-P4" },
       facsimileItems: [
@@ -43,32 +46,32 @@ const defaultConfig: ScoreViewerConfig = {
       path: "",
       audioBaseFile: "test2.mp3",
       meiFile: "test2.mei",
-      encodingProperties: { encodedTransposition: undefined }
+      encodingProperties: { encodedTransposition: "" }
     },
     {
       title: "test 3",
       path: "",
       meiFile: "test3.mei",
-      encodingProperties: { encodedTransposition: undefined }
+      encodingProperties: { encodedTransposition: "" }
     },
     {
       title: "test 4",
       path: "",
       meiFile: "test4.mei",
-      encodingProperties: { encodedTransposition: undefined }
+      encodingProperties: { encodedTransposition: "" }
     },
     {
       title: "test 5",
       path: "",
       meiFile: "test5.mei",
-      encodingProperties: { encodedTransposition: undefined }
+      encodingProperties: { encodedTransposition: "" }
     },
     {
       title: "test 6",
       path: "",
       audioBaseFile: "test6.mp3",
       meiFile: "test6.mei",
-      encodingProperties: { encodedTransposition: undefined }
+      encodingProperties: { encodedTransposition: "" }
     }
   ]
 };

@@ -16,10 +16,10 @@ export type PlayerControlEvent = {
 }
 
 interface ScoreControlProps {
-    style?: React.CSSProperties
-    fullScreenElement: HTMLElement | null,
-    showDownloadButton?: boolean,
-    audioDuration: number
+    style?: React.CSSProperties | undefined;
+    fullScreenElement: HTMLElement | null;
+    showDownloadButton?: boolean | undefined;
+    audioDuration: number;
 }
 
 const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDuration }: ScoreControlProps) => {
@@ -59,7 +59,7 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDura
                 disabled={playingState === PlayingState.PLAYING}>Opciones</Button>
 
             {showDownloadButton ?
-                <Button type="default" icon={<DownloadOutlined />} download href={scoreUrl}>MEI</Button> : null}
+                <Button type="default" icon={<DownloadOutlined />} download href={scoreUrl || ''}>MEI</Button> : null}
 
         </Space>
     ), [canZoomIn, canZoomOut, playingState, isFullScreen, scoreUrl]);

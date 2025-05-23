@@ -1,22 +1,21 @@
 import './App.css'
 import useStore from "./store";
-import { useEffect, useMemo, useState } from 'react';
+import React, {  useEffect, useMemo, useState } from 'react';
 import useVerovio from './useVerovio';
 import { Context } from './Context';
-import ScoreAnalyzer from './ScoreAnalyzer';
-import ScoreProcessor from './ScoreProcessor';
 import { ConfigProvider, Select, Space, Tabs, TabsProps, theme, Typography } from 'antd'
 import { isMobile } from 'react-device-detect';
 import ErrorBoundary from './ErrorBoundary';
-import { LyricItem, PlayingState, Score, ScoreProperties, VisualizationOptions } from './types';
+import { LyricItem, PlayingState, ScoreProperties, VisualizationOptions } from './types';
 import ScoreViewContainer from './ScoreViewContainer';
 import { DefaultOptionType } from 'antd/es/select';
 import TextView from './TextView';
 import Icon, { FileImageOutlined, FileTextOutlined } from '@ant-design/icons';
 import MusicSvg from "../assets/music.svg?react";
 import FacsimileView from './FacsimileView';
-import { ScoreViewerConfig, ScoreViewerConfigScoreText } from './types/config';
-
+import { ScoreViewerConfig } from './types/config';
+import { useScoreManager } from './hooks/useScoreManager';
+import { useTextParts } from './hooks/useTextParts';
 
 
 export interface ScoreViewerProps {
@@ -27,52 +26,35 @@ export interface ScoreViewerProps {
   scoreSectionId?: string
   onScoreAnalyzed?: (scoreIndex: number, properties: ScoreProperties) => void
   onVisualizationOptionsChanged?: (scoreIndex: number, options: VisualizationOptions) => void
+  onTextPartChanged?: (scoreIndex: number, partName: string, text: LyricItem[] | string | null | undefined) => void
 }
 
-const getLyrics = async (path: string, textItems: ScoreViewerConfigScoreText[]) => {
-  const lyrics: LyricItem[] = []
-  for (let textItem of textItems) {
-    let text = await fetch(path + textItem.file).then(res => res.text())
-    lyrics.push({
-      title: textItem.name,
-      text: text
-    } as LyricItem)
-  }
-  return lyrics
-}
+function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScoreAnalyzed, onTextPartChanged, onVisualizationOptionsChanged  } : ScoreViewerProps )   {
 
-function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScoreAnalyzed, onVisualizationOptionsChanged }: ScoreViewerProps) {
   const currentScoreIdx = useStore.use.currentScoreIdx()
   const setCurrentScoreIdx = useStore.use.setCurrentScoreIdx()
   const currentPage = useStore.use.currentPage()
   const setCurrentPage = useStore.use.setCurrentPage()
-  const scoreCache = useStore.use.scoreCache()
-  const setScoreCache = useStore.use.setScoreCache()
   const score = useStore.use.score()
   const setScore = useStore.use.setScore()
-  const setAudioUrl = useStore.use.setAudioUrl()
   const showReconstructions = useStore.use.showReconstructions()
-  const setShowReconstructions = useStore.use.setShowReconstructions()
   const setAudioOverlayTracks = useStore.use.setAudioOverlayTracks()
   const normalizeFicta = useStore.use.normalizeFicta()
-  const setNormalizeFicta = useStore.use.setNormalizeFicta()
-  const setShowNVerses = useStore.use.setShowNVerses()
+  const setAudioUrl = useStore.use.setAudioUrl()
   const showOriginalClefs = useStore.use.showOriginalClefs()
-  const setShowOriginalClefs = useStore.use.setShowOriginalClefs()
 
   const playingState = useStore.use.playingState()
   const setPlayingState = useStore.use.setPlayingState()
 
-  const [activeTab, setActiveTab] = useState<string>()
+  const [activeTab, setActiveTab] = useState<string>("music")
 
   const verovio = useVerovio()
 
   useEffect(() => {
     if (config.settings.showScoreSelector && config.scores.length > 0) {
-        setCurrentScoreIdx(0)
+      setCurrentScoreIdx(0)
     }
 
-    //
     return () => {
       setCurrentScoreIdx(null)
       setAudioUrl(null)
@@ -82,10 +64,13 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
 
   useEffect(() => {
     if (scoreSectionId && scoreIndex == currentScoreIdx) {
+      console.log(`section ${scoreSectionId} while scoreIndex = ${scoreIndex} and currentScoreIdx = ${currentScoreIdx}`)
       const sectionPage = verovio?.getPageWithElement(scoreSectionId)
       if (sectionPage && sectionPage > 0 && sectionPage != currentPage) {
         setCurrentPage(sectionPage)
       }
+    } else {
+      console.log(`section changed ${scoreSectionId} while scoreIdndex = ${scoreIndex} and currentScoreIdx = ${currentScoreIdx}`)
     }
   }, [scoreSectionId])
 
@@ -123,52 +108,12 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
     }
   }, [showOriginalClefs])
 
-    useEffect(() => {
+  useEffect(() => {
     if (onVisualizationOptionsChanged && currentScoreIdx != null && Object.keys(showReconstructions).length > 0) {
       onVisualizationOptionsChanged(currentScoreIdx,
         { showReconstructions })
     }
   }, [showReconstructions])
-
-
-  const generateOneVerseMei = (mei: string) => {
-    const scoreProcessor = new ScoreProcessor(mei)
-    if (normalizeFicta) {
-      scoreProcessor.addNormalizeFictaFilter()
-    }
-    scoreProcessor.addNVersesFilter(1)
-    return scoreProcessor.filterScore()
-  }
-
-  const addFadeOutTransiton = () => {
-    const svgElement = document.querySelector(".svg-container svg") as SVGSVGElement | null;
-    if (svgElement) {
-      svgElement.classList.add("transition-zero-end");
-    }
-  }
-
-  const updateScore = (scoreIndex: number, newScore: Score, audioUrl?: string) => {
-    addFadeOutTransiton()
-
-    // clear options that should not be persistent
-    // TODO: define all these settings consistently
-    setShowNVerses(null)
-    setNormalizeFicta(null)
-    setShowReconstructions({}, true)
-    setShowOriginalClefs(null)
-
-    setScore(newScore)
-
-    setAudioUrl(audioUrl || null)
-
-    if (onScoreAnalyzed) {
-      onScoreAnalyzed(scoreIndex, newScore.properties)
-    }
-    if ((activeTab == "text" && !newScore.lyrics) ||
-        (activeTab == "facsimile" && !newScore.fascimileItems)) {
-      setActiveTab("music")
-    }
-  }
 
   useEffect(() => {
     if (config.settings.showScoreSelector) {
@@ -182,71 +127,15 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
   }, [scoreIndex])
 
 
-  useEffect(() => {
-    (async () => {
-      const fetchMei = async (meiUrl: string) => {
-        const res = await fetch(meiUrl)
-        return res.text()
-      }
+  useScoreManager({
+    config,
+    currentScoreIdx,
+    normalizeFicta,
+    activeTab,
+    onScoreAnalyzed
+  });
 
-      if (currentScoreIdx == null) {
-        return
-      }
-
-      const scoreEntry = config.scores[currentScoreIdx]
-      if (!scoreEntry) {
-        return
-      }
-
-      const scoreDef =  config.scores[currentScoreIdx]
-      const path = config.settings.basePath + scoreDef.path + "/"
-      const meiUrl = path + scoreDef.meiFile
-      const encodingProperties = scoreDef.encodingProperties
-      const audioUrl = path + scoreDef.audioBaseFile
-
-
-      if (scoreCache[meiUrl]) {
-        const cachedScore = scoreCache[meiUrl]
-        updateScore(currentScoreIdx, cachedScore, audioUrl)
-      } else {
-        const meiString = await fetchMei(meiUrl)
-
-      const lyrics = config.settings.showTextSection && scoreDef.text ?
-        await getLyrics(path, scoreDef.text) : undefined
-
-        const scoreProcessor = new ScoreProcessor(meiString)
-        if (config.settings.renderTitlesFromMEI) {
-          scoreProcessor.addTitlesFilter()
-          scoreProcessor.addReonstructionNamesFilter()
-        }
-        scoreProcessor.addEnsureMeasuresIdFilter()
-        scoreProcessor.addEnsureSectionsIdFilter()
-        const originalMei = scoreProcessor.filterScore()
-        const analyzer = new ScoreAnalyzer(0, originalMei)
-        const properties = {
-          ...analyzer.getScoreProperties(),
-          encodedTransposition: encodingProperties.encodedTransposition || undefined,
-        }
-        const editorialItems = analyzer.getEditorial()
-        const newScore: Score = {
-          url: meiUrl,
-          title: scoreEntry.title,
-          originalMei: originalMei,
-          singleVerseMei: generateOneVerseMei(originalMei),
-          properties: properties,
-          editorialItems: editorialItems,
-          lyrics: lyrics,
-          fascimileItems: scoreEntry.facsimileItems,
-        }
-
-        setScoreCache(
-          { [meiUrl]: newScore }
-        )
-        updateScore(currentScoreIdx, newScore, audioUrl)
-
-      }
-    })()
-  }, [currentScoreIdx])
+  const { textIntroduction, textLyrics, textComments } = useTextParts({ config, currentScoreIdx, onTextPartChanged })
 
 
   const onScoreChanged = (value: number) => {
@@ -263,34 +152,42 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
   })), [config])
 
 
+
   const scoreSelector = useMemo(() =>
-        config.scores.length > 1 && config.settings.showScoreSelector ?
-            <Space direction='horizontal' style={{ marginBottom: "10px", textAlign: "start" }}>
-              <Typography.Text style={{ marginLeft: "10px" }}>Parte:</Typography.Text>
-              <Select
-                  style={{ minWidth: "200px", marginRight: "10px" }}
-                  defaultValue={0}
-                  options={scoreItems}
-                  onChange={onScoreChanged}/>
-              </Space>
-              : null
-  , [config])
+    config.scores.length > 1 && config.settings.showScoreSelector ?
+      <Space direction='horizontal' style={{ marginBottom: "10px", textAlign: "start" }}>
+        <Typography.Text style={{ marginLeft: "10px" }}>Parte:</Typography.Text>
+        <Select
+          style={{ minWidth: "200px", marginRight: "10px" }}
+          defaultValue={0}
+          options={scoreItems}
+          onChange={onScoreChanged} />
+      </Space>
+      : null
+    , [config])
 
   const scoreView = <ScoreViewContainer
     backgroundColor={config.settings.backgroundColor}
     showDownloadButton={config.settings.showDownloadButton}
-    />
+  />
+
+
 
   const tabsItems: TabsProps['items'] = useMemo(() => [
+    textIntroduction ? {
+      key: 'intro',
+      label: <Space direction='horizontal'>Introducción</Space>,
+      children: <TextView title="Introducción" intro={textIntroduction} />
+    } : null,
     {
       key: 'music',
       label: <Space direction='horizontal'><Icon component={MusicSvg} />Musica</Space>,
       children: scoreView
     },
-    config.settings.showTextSection && score?.lyrics ? {
+    config.settings.showTextSection && textLyrics ? {
       key: 'text',
       label: <Space direction='horizontal'><FileTextOutlined />Texto</Space>,
-      children: <TextView title={score.title} items={score.lyrics} />
+      children: <TextView title={score?.title || ""} items={textLyrics} comments={textComments} />
     } : null,
     config.settings.showFacsimileSection && score?.fascimileItems?.length ? {
       key: 'facsimile',
@@ -300,11 +197,11 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
   ].filter(t => t != null), [config, score])
 
 
-  const tabs = useMemo(() => config.settings.showTextSection || config.settings.showFacsimileSection  ?
-    <Tabs items={tabsItems} defaultActiveKey={tabsItems[0].key} activeKey={activeTab} onChange={onTabChange} style={{ width:"100%", height: "100%" }}/> : null
-  ,[config, score, activeTab])
+  const tabs = useMemo(() => config.settings.showTextSection || config.settings.showFacsimileSection ?
+    <Tabs items={tabsItems} defaultActiveKey="music" activeKey={activeTab} onChange={onTabChange} style={{ width: "100%", height: "100%" }} /> : null
+    , [config, score, activeTab])
 
-  const content = tabs  && tabsItems.length > 1 ? tabs : scoreView
+  const content = tabs && tabsItems.length > 1 ? tabs : scoreView
 
   return (
     <ConfigProvider
@@ -318,8 +215,8 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
         <ErrorBoundary>
           <div className="score-viewer" style={{ width: width, height: height }}>
             <div style={{ width: "calc(100% - 12px)", height: "calc(100% - 12px)", padding: "6px" }}>
-              { scoreSelector }
-              { content }
+              {scoreSelector}
+              {content}
             </div>
           </div>
         </ErrorBoundary>
@@ -328,5 +225,7 @@ function ScoreViewer({ config, width, height, scoreIndex, scoreSectionId, onScor
   )
 }
 
-export default ScoreViewer
+// Export with explicit type annotation
+const TypedScoreViewer: React.FC<ScoreViewerProps> = ScoreViewer;
+export default TypedScoreViewer;
 

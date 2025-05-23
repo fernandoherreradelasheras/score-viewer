@@ -7,40 +7,40 @@ export interface AudioOverlay {
 }
 
 export interface ScoreViewerConfigScoreText  {
-  file: string
-  append_to?: string
-  type?: string
-  name?: string
+  file: string;
+  append_to?: string | undefined;
+  type?: string | undefined;
+  name?: string | undefined;
 }
 
 
 export interface ScoreViewerConfigScore  {
-  title: string
-  path: string
-  audioBaseFile?: string
-  audioOverlays?: AudioOverlay[]
-  introductionFile?: string
-  textCommentsFile?: string
-  meiFile: string
-  text?: ScoreViewerConfigScoreText[]
-  facsimileItems?: FacsimileItem[]
+  title: string;
+  path: string;
+  audioBaseFile?: string | undefined;
+  audioOverlays?: AudioOverlay[] | undefined;
+  introductionFile?: string | undefined;
+  textCommentsFile?: string | undefined;
+  meiFile: string;
+  text?: ScoreViewerConfigScoreText[] | undefined;
+  facsimileItems?: FacsimileItem[] | undefined;
   encodingProperties: {
-    encodedTransposition?: string
-  }
+    encodedTransposition?: string | undefined;
+  };
 }
 
 export interface ScoreViewerConfigSettings {
-    showScoreSelector: boolean
-    showDownloadButton: boolean
-    showTextSection: boolean
-    showFacsimileSection: boolean
-    renderTitlesFromMEI: boolean
-    backgroundColor?: string
-    basePath: string
-    facsimileImagesPath: string
+    showScoreSelector: boolean;
+    showDownloadButton: boolean;
+    showTextSection: boolean;
+    showFacsimileSection: boolean;
+    renderTitlesFromMEI: boolean;
+    backgroundColor?: string | undefined;
+    basePath: string;
+    facsimileImagesPath: string;
 }
 
 export interface ScoreViewerConfig  {
-  settings: ScoreViewerConfigSettings
-  scores:ScoreViewerConfigScore[]
+  settings: ScoreViewerConfigSettings;
+  scores: ScoreViewerConfigScore[];
 }

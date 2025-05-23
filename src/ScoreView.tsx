@@ -10,7 +10,7 @@ import useScoreRenderer from './hooks/useScoreRenderer';
 import { Transition, PlayingState, loadAction, renderAction } from './types';
 
 export interface ScoreViewProps {
-    backgroundColor?: string
+    backgroundColor?: string | undefined;
 }
 
 

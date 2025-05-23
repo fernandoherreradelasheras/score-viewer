@@ -19,7 +19,13 @@ export default defineConfig(({ mode }) => {
         //fastRefresh: true,
         jsxRuntime: 'automatic'
       }),
-      dts({ rollupTypes: true }),
+      dts({
+        rollupTypes: true,
+        insertTypesEntry: true,
+        staticImport: true,
+        include: ['lib/**/*', 'src/**/*'],
+        outDir: 'dist/types'
+      }),
       svgr({ svgrOptions: { icon: false } })
     ],
     // Enable source maps for better debugging

@@ -2,12 +2,12 @@
 import { Transition } from './ui';
 
 export type LoadConfig = {
-    scoreUrl: string
-    postLoadTransition?: Transition
-    meiStr: string
-    page?: number
-    scale: number
-    restorePositionForAchor? : string
+    scoreUrl: string;
+    postLoadTransition?: Transition | undefined;
+    meiStr: string;
+    page?: number | undefined;
+    scale: number;
+    restorePositionForAchor?: string | undefined;
 }
 
 export type LoadAutoScrollConfig = {
@@ -16,13 +16,13 @@ export type LoadAutoScrollConfig = {
 }
 
 export type RenderConfig = {
-    scoreUrl: string
-    loadedWidth: number
-    loadedHeight: number
-    transition?: Transition
-    renderPage: number
-    loadedPagesCount: number
-    scale: number
+    scoreUrl: string;
+    loadedWidth: number;
+    loadedHeight: number;
+    transition?: Transition | undefined;
+    renderPage: number;
+    loadedPagesCount: number;
+    scale: number;
 }
 
 export type RenderAutoScrollConfig = {

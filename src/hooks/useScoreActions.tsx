@@ -66,8 +66,8 @@ interface RenderedSvg {
   timemap: TimeMapEvent[];
   anchorElement: string | null;
   page: number;
-  width?: number;
-  height?: number;
+  width?: number | undefined;
+  height?: number | undefined;
 }
 
 interface RenderActionResult {
@@ -95,7 +95,7 @@ interface ScoreActionsConfig {
   /**
    * Transform a timemap with staff animation references
    */
-  const resolveTimemapAnimations = (timemap: TimeMapEvent[]) =>
+  const resolveTimemapAnimations = (timemap: TimeMapEvent[]): TimeMapEvent[] =>
     timemap.map(e => {
       return {
         ...e,
@@ -103,7 +103,7 @@ interface ScoreActionsConfig {
           const staff = document.querySelector(`.staff:has(#${id})`)?.getAttribute("data-n");
           return `#radius-${staff}-animation`;
         })
-      };
+      } as TimeMapEvent;
     });
 
 const buildAppOptions = (appOptions: string[], showReconstructions: { [staff: string] : string }, showOriginalClefs: boolean) => {
@@ -224,8 +224,8 @@ export default function useScoreActions({
     }
   }, [verovio, appOptions, choiceOptions, transposition, showReconstructions, showOriginalClefs]);
 
-  const mergeTimemapTies = (timemap: TimeMapEvent[], tiedNotes: {first: string, second: string} []) => {
-      const newTimeMap = timemap.map(e => {return {...e}})
+  const mergeTimemapTies = (timemap: TimeMapEvent[], tiedNotes: {first: string; second: string;} []) => {
+      const newTimeMap = timemap.map(e => {return {...e} as TimeMapEvent});
       for (const { first, second } of tiedNotes) {
         const firstOnIndex = newTimeMap.findIndex(e => e.on != null && e.on.includes(first));
         const firstOffIndex = newTimeMap.findIndex(e => e.off != null && e.off.includes(first));
@@ -244,7 +244,7 @@ export default function useScoreActions({
     return newTimeMap
   }
 
-  const resolveTimemap = (timemap: TimeMapEvent[]) => {
+  const resolveTimemap = (timemap: TimeMapEvent[]): TimeMapEvent[] => {
     const analyzer = new ScoreAnalyzer(0, verovio.getMEI())
     const timeMapWithTiesMerged = mergeTimemapTies(timemap, analyzer.getTiedNotes())
     return resolveTimemapAnimations(timeMapWithTiesMerged)

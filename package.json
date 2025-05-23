@@ -3,7 +3,15 @@
   "description": "Multi modal score viewer. Display MEI files, txt sections and plays audio files synced with the score visualization. Delivered as a react component and as a standalone iframe using a config file",
   "main": "./dist/score-viewer.umd.cjs",
   "module": "./dist/score-viewer.js",
-  "types": "./dist/lib/main.d.ts",
+  "types": "./dist/types/main.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/score-viewer.js",
+      "require": "./dist/score-viewer.umd.cjs",
+      "types": "./dist/types/main.d.ts"
+    },
+    "./style.css": "./dist/style.css"
+  },
   "private": false,
   "version": "1.0.14",
   "type": "module",
@@ -49,40 +57,38 @@
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.21.0",
     "eslint-plugin-react-hooks": "^5.1.0",
-    "eslint-plugin-react-refresh": "^0.4.19",
-    "globals": "^15.15.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "typescript": "~5.7.2",
-    "typescript-eslint": "^8.24.1",
-    "vite": "^6.2.0",
-    "vite-plugin-svgr": "^4.3.0"
+    "globals": "^15.13.0",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.8",
+    "vite-plugin-svgr": "^4.2.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fernandoherreradelasheras/score-viewer.git"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/lib/main.d.ts",
-      "import": "./dist/score-viewer.js",
-      "require": "./dist/score-viewer.umd.cjs"
-    },
-    "./style.css": "./dist/style.css",
-    "./types": "./dist/src/index.d.ts"
+  "eslintConfig": {
+    "extends": [
+      "eslint:recommended",
+      "plugin:react-hooks/recommended"
+    ],
+    "overrides": [
+      {
+        "files": [
+          "**/*.ts?(x)"
+        ],
+        "rules": {
+          "react-hooks/exhaustive-deps": "warn",
+          "no-unused-vars": "off"
+        }
+      }
+    ],
+    "ignorePatterns": [
+      "node_modules/",
+      "dist/"
+    ]
   },
   "keywords": [
     "mei",
     "music",
     "score",
     "viewer",
-    "verovio",
-    "react"
-  ],
-  "author": "Fernando Herrera de las Heras",
-  "license": "GPL-3.0",
-  "bugs": {
-    "url": "https://github.com/fernandoherreradelasheras/score-viewer/issues"
-  },
-  "homepage": "https://github.com/fernandoherreradelasheras/score-viewer#readme"
+    "player",
+    "musicology"
+  ]
 }

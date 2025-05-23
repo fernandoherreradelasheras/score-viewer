@@ -11,7 +11,6 @@ const formatText = (text: string, initialLineNumber: number) => {
         var formattedText = "";
         var lastLineNumber = initialLineNumber
 
-
         for (let line of text.split('\n')) {
 
             if (line == "") {
@@ -32,26 +31,40 @@ const formatText = (text: string, initialLineNumber: number) => {
 }
 
 
-function TextView({ title, items }: { title: string, items: LyricItem[] }) {
-
+function TextView({ title, intro, items, comments }: { title: string, intro?: string | null, items?: LyricItem[], comments?: string | null}) {
     const [markdownText, setMarkdownText] = useState<string>("")
 
     useEffect(() => {
-        var newText = "";
-        newText += markdownTitle(title)
-        var lineNumber = 0
+        const renderText = (items: LyricItem[], comments?: string | null) => {
+            var newText = "";
+            newText += markdownTitle(title)
+            var lineNumber = 0
 
-        for (let item of items) {
-            if (items.length > 1) {
-                newText += `### ${item.title}\n`
+            for (let item of items) {
+                if (items.length > 1) {
+                    newText += `### ${item.title}\n`
+                }
+                const { formattedText, lastLineNumber } = formatText(item.text, lineNumber)
+                newText += formattedText
+                lineNumber = lastLineNumber
             }
-            const { formattedText, lastLineNumber } = formatText(item.text, lineNumber)
-            newText += formattedText
-            lineNumber = lastLineNumber
-        }
 
+            if (comments) {
+                newText += "\n\n"
+                newText += "## Notas al texto\n\n" + comments + "\n\n"
+            }
+            return newText
+        }
+        var newText = ""
+        if (intro) {
+            console.log("Intro: ", intro)
+            newText = markdownTitle(title)
+            newText += intro + "\n\n"
+        } else if (items && items.length > 0) {
+          newText = renderText(items, comments)
+        }
         setMarkdownText(newText);
-    }, [title, items]);
+    }, [intro, title, items, comments]);
 
     return (
         <div style={{ display: "flex", flexDirection: "row" }}>

@@ -17,7 +17,7 @@
     "noFallthroughCasesInSwitch": true,
     "declaration": true,
     "declarationDir": "dist",
-    // Enhanced source map options for better debugging
+    "declarationMap": true,
     "sourceMap": true,
     "inlineSources": true,
     "inlineSourceMap": false,
