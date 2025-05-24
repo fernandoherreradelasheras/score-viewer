@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Score, ScoreProperties } from '../types';
+import { Score, ScoreProperties, Transposition } from '../types';
 import useStore from '../store';
 import ScoreProcessor from '../ScoreProcessor';
 import ScoreAnalyzer from '../ScoreAnalyzer';
@@ -98,7 +98,7 @@ export function useScoreManager({
         const analyzer = new ScoreAnalyzer(0, originalMei);
         const properties = {
           ...analyzer.getScoreProperties(),
-          encodedTransposition: encodingProperties.encodedTransposition ?? undefined,
+          encodedTransposition: encodingProperties.encodedTransposition as Transposition ?? undefined,
         };
 
         const editorialItems = analyzer.getEditorial();

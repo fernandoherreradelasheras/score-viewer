@@ -32,9 +32,10 @@ export type Reconstruction = {
     reconstructionsForVoice: ReconstructionItem[];
 }
 
-/**
- * Properties of a music score
- */
+// just adding here those we might use. See verovio docs for explanation
+export type Transposition = "" | "P4" | "+P4" | "-P4" | "M3" | "+M3" | "-M3" | "P8" | "+P8" | "-P8"
+
+
 export type ScoreProperties = {
     hasFicta: boolean;
     numVerses: number;
@@ -48,7 +49,7 @@ export type ScoreProperties = {
     notes: string[];
     hasEditorial: boolean;
     hasOriginalClefs: boolean;
-    encodedTransposition?: string | undefined;
+    encodedTransposition?: Transposition | undefined
     tiedNotes: { first: string; second: string; }[];
 }
 

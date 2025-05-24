@@ -2,12 +2,9 @@ import { useMemo } from "react";
 import { SelectProps } from 'antd/es/select';
 import useStore from "../store";
 
-/**
- * Custom hook to handle score viewing options logic
- * @returns Functions and derived state for score options panel
- */
+
+
 export default function useScoreOptions() {
-  // Get state and actions from store
   const score = useStore.use.score();
   const showNVerses = useStore.use.showNVerses();
   const setShowNVerses = useStore.use.setShowNVerses();
@@ -22,15 +19,15 @@ export default function useScoreOptions() {
   const transposition = useStore.use.transposition();
   const setTransposition = useStore.use.setTransposition();
 
-  // Helper function to get the reverse transposition
   const getReverseTransposition = (transposition?: string) => {
-    if (transposition === "-P4") {
-      return "P4";
+    if (transposition?.startsWith("-")) {
+      return "+" + transposition.substring(1);
+    } else if (transposition?.startsWith("+") || (transposition && transposition.length > 1)) {
+      return "-" + transposition.substring(1);
     }
     return "";
   };
 
-  // Handler functions
   const onVersesSelected = (value: number) => {
     setShowNVerses(value);
   };
@@ -97,11 +94,9 @@ export default function useScoreOptions() {
   }, [numReconstructionsAvailable])
 
 
-
-
   const editorialDisabled = score?.properties ? !score.properties.hasEditorial : true;
   const fictaSwictchDisabled = score?.properties ? !score.properties.hasFicta : true;
-  const showTranspositionOption = Boolean(score?.properties?.encodedTransposition);
+  const showTranspositionOption = score?.properties?.encodedTransposition !== undefined && score?.properties?.encodedTransposition !== "";
   const showVerseOptions = verseOptions.length > 0;
   const showReconstructionOptions = numReconstructionsAvailable > 0
 

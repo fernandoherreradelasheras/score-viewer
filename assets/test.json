@@ -35,7 +35,7 @@
                 }
             ],
             "encodingProperties": {
-                "encodedTransposition": "n"
+                "encodedTransposition": ""
             },
             "facsimileItems": [
                 {
@@ -83,7 +83,7 @@
                 }
             ],
             "encodingProperties": {
-                "encodedTransposition": "1s"
+                "encodedTransposition": "-P4"
             },
             "facsimileItems": [
                 {
@@ -126,7 +126,7 @@
                 }
             ],
             "encodingProperties": {
-                "encodedTransposition": "n"
+                "encodedTransposition": "-P4"
             },
             "facsimileItems": [
                 {

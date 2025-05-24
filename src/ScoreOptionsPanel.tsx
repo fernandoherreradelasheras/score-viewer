@@ -64,10 +64,10 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
                 <Row align={"middle"}>
                     <Col span={20}>
                         <Space direction="vertical">
-                            <Typography.Text strong={true} type={showEditorial ? "success" : "secondary"}>
+                            <Typography.Text strong={true}  {...(!showEditorial ? {type: 'secondary'} :{} )}>
                                 Notas editoriales
                             </Typography.Text>
-                            <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} type={showEditorial ? "success" : "secondary"}>
+                            <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }}  {...(!showEditorial ? {type: 'secondary'} :{} )}>
                                 Muestra una capa con las notas críticas y elección de variantes variantes
                             </Typography.Text>
                         </Space>
@@ -79,10 +79,10 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
                 <Row align={"middle"}>
                     <Col span={20}>
                         <Space direction="vertical">
-                            <Typography.Text strong={true} type={normalizeFicta ? "success" : "secondary"}>
+                            <Typography.Text strong={true}  {...(!normalizeFicta ? {type: 'secondary'} :{} )}>
                                 Normalizar musica ficta
                             </Typography.Text>
-                            <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} type={normalizeFicta ? "success" : "secondary"} >
+                            <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!normalizeFicta ? {type: 'secondary'} :{} )}>
                                 Mostrar las alteraciones subintelectas de como las normales prececiendo a la nota
                             </Typography.Text>
                         </Space>
@@ -96,10 +96,10 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
                     <Row align={"middle"}>
                         <Col span={20}>
                             <Space direction="vertical">
-                                <Typography.Text strong={true} type={showOriginalClefs ? "success" : "secondary"}>
+                                <Typography.Text strong={true} {...(!showOriginalClefs ? {type: 'secondary'} :{} )}>
                                     Claves originales
                                 </Typography.Text>
-                                <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} type={showOriginalClefs ? "success" : "secondary"} >
+                                <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!showOriginalClefs ? {type: 'secondary'} :{} )} >
                                     Muestra las claves originales del manuscrito sin modernizar
                                 </Typography.Text>
                             </Space>
@@ -118,10 +118,10 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
                 <Row align={"middle"}>
                     <Col span={20}>
                         <Space direction="vertical">
-                            <Typography.Text strong={true} type={transposition != null ? "success" : "secondary"}>
+                            <Typography.Text strong={true} {...(!transposition ? {type: 'secondary'} :{} )}>
                                 Sin transposición
                             </Typography.Text>
-                            <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} type={transposition != null ? "success" : "secondary"} >
+                            <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!transposition ? {type: 'secondary'} :{} )} >
                                 Muestra la partitura deshaciendo la transposición desde claves altas ({score?.properties?.encodedTransposition})
                             </Typography.Text>
                         </Space>
@@ -140,10 +140,10 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
                 <Row align={"middle"}>
                     <Col span={16}>
                         <Space direction="vertical">
-                            <Typography.Text strong={true} type={showNVerses ? "success" : "secondary"}>
+                            <Typography.Text strong={true} {...(!showNVerses ? {type: 'secondary'} :{} )}>
                                 Limitar versos
                             </Typography.Text>
-                            <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} type={showNVerses ? "success" : "secondary"} >
+                            <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!showNVerses ? {type: 'secondary'} :{} )} >
                                 Elige la cantidad de versos a mostrar en las coplas
                             </Typography.Text>
                         </Space>
