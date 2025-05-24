@@ -306,9 +306,9 @@ class ScoreAnalyzer {
         // Create EditorialElements for those ids that were target of an annotation but are not covered by
         // any other EditorialElement
         annotations.forEach(annot => {
-            const unusedIds = annot.targetIds.filter(id => !consumedAnnotationsTargets.has(id))
+            const unusedIds = annot.targetIds?.filter(id => !consumedAnnotationsTargets.has(id))
 
-            if (unusedIds.length > 0) {
+            if (unusedIds && unusedIds.length > 0) {
                 const elementsForAnnotation = editorialElements.filter(e => e.annotations.has(annot))
                 if (elementsForAnnotation.length == 1) {
                     // Append the ids referenced by the annotation as @corres
