@@ -13,6 +13,7 @@ const USE_TEST_CONFIG = true
 const defaultConfig: ScoreViewerConfig = {
   settings: {
     showDownloadButton: true,
+    showIntroductionSection: true,
     showFacsimileSection: true,
     showTextSection: true,
     renderTitlesFromMEI: true,

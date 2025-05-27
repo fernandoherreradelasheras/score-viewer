@@ -32,6 +32,7 @@ export interface ScoreViewerConfigScore  {
 export interface ScoreViewerConfigSettings {
     showScoreSelector: boolean;
     showDownloadButton: boolean;
+    showIntroductionSection: boolean;
     showTextSection: boolean;
     showFacsimileSection: boolean;
     renderTitlesFromMEI: boolean;

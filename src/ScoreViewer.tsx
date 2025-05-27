@@ -60,7 +60,6 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
 
   useImperativeHandle(ref, () => ({
     goToSection: (section: string) => {
-        console.log("got request to go to section", section);
         goToSection(section)
     }
   }));
@@ -178,33 +177,40 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
 
 
 
-  const tabsItems: TabsProps['items'] = useMemo(() => [
-    textIntroduction ? {
-      key: 'intro',
-      label: <Space direction='horizontal'>Introducción</Space>,
-      children: <TextView title="Introducción" intro={textIntroduction} />
-    } : null,
-    {
-      key: 'music',
-      label: <Space direction='horizontal'><Icon component={MusicSvg} />Musica</Space>,
-      children: scoreView
-    },
-    config.settings.showTextSection && textLyrics ? {
-      key: 'text',
-      label: <Space direction='horizontal'><FileTextOutlined />Texto</Space>,
-      children: <TextView title={score?.title || ""} items={textLyrics} comments={textComments} />
-    } : null,
-    config.settings.showFacsimileSection && score?.fascimileItems?.length ? {
-      key: 'facsimile',
-      label: <Space direction='horizontal'> <FileImageOutlined />Facsimil</Space>,
-      children: <FacsimileView path={config.settings.facsimileImagesPath} items={score.fascimileItems} />
-    } : null
-  ].filter(t => t != null), [config, score])
+  const tabsItems: TabsProps['items'] = useMemo(() =>
+    config.settings.showIntroductionSection ||
+      config.settings.showTextSection ||
+      config.settings.showFacsimileSection ? [
+        config.settings.showIntroductionSection && textIntroduction != null ? {
+          key: 'intro',
+          label: <Space direction='horizontal'>Introducción</Space>,
+          children: <TextView title="Introducción" intro={textIntroduction} />
+        } : null,
+        {
+          key: 'music',
+          label: <Space direction='horizontal'><Icon component={MusicSvg} />Musica</Space>,
+          children: scoreView
+        },
+        config.settings.showTextSection && textLyrics != null ? {
+          key: 'text',
+          label: <Space direction='horizontal'><FileTextOutlined />Texto</Space>,
+          children: <TextView title={score?.title || ""} items={textLyrics} comments={textComments} />
+        } : null,
+        config.settings.showFacsimileSection && score?.fascimileItems?.length ? {
+          key: 'facsimile',
+          label: <Space direction='horizontal'> <FileImageOutlined />Facsimil</Space>,
+          children: <FacsimileView path={config.settings.facsimileImagesPath} items={score.fascimileItems} />
+        } : null
+      ].filter(t => t != null) : [], [config, score, textIntroduction, textLyrics])
 
 
-  const tabs = useMemo(() => config.settings.showTextSection || config.settings.showFacsimileSection ?
-    <Tabs items={tabsItems} defaultActiveKey="music" activeKey={activeTab} onChange={onTabChange} style={{ width: "100%", height: "100%" }} /> : null
-    , [config, score, activeTab])
+  const tabs = useMemo(() =>
+    tabsItems ? <Tabs items={tabsItems}
+                    defaultActiveKey="music"
+                    activeKey={activeTab}
+                    onChange={onTabChange}
+                    style={{ width: "100%", height: "100%" }} /> : null
+  , [config, score, tabsItems, activeTab])
 
   const content = tabs && tabsItems.length > 1 ? tabs : scoreView
 
