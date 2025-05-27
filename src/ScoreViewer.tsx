@@ -181,7 +181,7 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
     config.settings.showIntroductionSection ||
       config.settings.showTextSection ||
       config.settings.showFacsimileSection ? [
-        config.settings.showIntroductionSection && textIntroduction != null ? {
+        config.settings.showIntroductionSection && textIntroduction !== null ? {
           key: 'intro',
           label: <Space direction='horizontal'>Introducción</Space>,
           children: <TextView title="Introducción" intro={textIntroduction} />
@@ -191,7 +191,7 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
           label: <Space direction='horizontal'><Icon component={MusicSvg} />Musica</Space>,
           children: scoreView
         },
-        config.settings.showTextSection && textLyrics != null ? {
+        config.settings.showTextSection && textLyrics !== null ? {
           key: 'text',
           label: <Space direction='horizontal'><FileTextOutlined />Texto</Space>,
           children: <TextView title={score?.title || ""} items={textLyrics} comments={textComments} />
