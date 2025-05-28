@@ -63,8 +63,7 @@ export function expandBBsForEditorialItems() {
                         rect.setAttribute('width', bbox.width.toString());
                         rect.setAttribute('height', bbox.height.toString());
                         rect.setAttribute('fill', '#8fe3ff');
-                        rect.setAttribute('fill-opacity', '0.2');
-
+                        rect.setAttribute('fill-opacity', '0');
                         box.appendChild(rect);
                     }
                 }

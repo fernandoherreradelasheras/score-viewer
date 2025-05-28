@@ -94,9 +94,9 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                         const { newSvg, scale: newScale } = renderResult;
                         setRenderedSvgData(newSvg);
 
-                        if (showEditorial) {
-                            expandBBsForEditorialItems();
-                        }
+                        // will only be visible when showingEditorial is true via css
+                        expandBBsForEditorialItems();
+
                         const showingReconstructiononsLabels = Object.values(showReconstructions).filter(label => label != "none")
                         if (showingReconstructiononsLabels.length > 0) {
                             expandBBsForRdgs(showingReconstructiononsLabels);

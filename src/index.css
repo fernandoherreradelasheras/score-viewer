@@ -50,11 +50,17 @@
   --show-outline-color: rgb(0, 89, 255);;
 }
 
+.supplied {
+  --show-fill-color: rgb(30, 30, 177);
+  --show-outline-color: rgb(28, 214, 22);;
+}
+
 
 .svg-container.static-score:not(.editorial-active) svg .unclear.bounding-box rect,
 .svg-container.static-score:not(.editorial-active) svg .sic.bounding-box rect,
 .svg-container.static-score:not(.editorial-active) svg .choice.bounding-box rect,
 .svg-container.static-score:not(.editorial-active) svg .corr.bounding-box rect,
+.svg-container.static-score:not(.editorial-active) svg .supplied.bounding-box rect,
 .svg-container.static-score:not(.editorial-active) svg .reg.bounding-box rect {
   fill: transparent;
 }
@@ -63,6 +69,7 @@
 .svg-container.editorial-active.static-score svg .sic,
 .svg-container.editorial-active.static-score svg .choice,
 .svg-container.editorial-active.static-score svg .corr,
+.svg-container.editorial-active.static-score svg .supplied,
 .svg-container.editorial-active.static-score svg .reg {
   fill: var(--show-fill-color);
   pointer-events: auto;
@@ -74,8 +81,9 @@
 .svg-container.editorial-active.static-score svg .sic.bounding-box rect,
 .svg-container.editorial-active.static-score svg .choice.bounding-box rect,
 .svg-container.editorial-active.static-score svg .corr.bounding-box rect,
+.svg-container.editorial-active.static-score svg .supplied.bounding-box rect,
 .svg-container.editorial-active.static-score svg .reg.bounding-box rect {
-  fill-opacity: 0;
+  fill-opacity: 0.2;
   outline: 30px solid var(--show-outline-color);
   outline-offset: 120px;
 }
@@ -84,6 +92,7 @@
 .svg-container.editorial-active.static-score svg .sic:hover,
 .svg-container.editorial-active.static-score svg .choice:hover,
 .svg-container.editorial-active.static-score svg .corr:hover,
+.svg-container.editorial-active.static-score svg .supplied:hover,
 .svg-container.editorial-active.static-score svg .reg:hover {
   filter: url(#highlighting-hover);
 }
@@ -93,6 +102,7 @@
 .svg-container.editorial-active.static-score svg .sic:hover rect,
 .svg-container.editorial-active.static-score svg .choice:hover rect,
 .svg-container.editorial-active.static-score svg .corr:hover rect,
+.svg-container.editorial-active.static-score svg .supplied:hover rect,
 .svg-container.editorial-active.static-score svg .reg:hover rect {
   fill-opacity: 0.5;
   filter: hue-rotate(180deg);
