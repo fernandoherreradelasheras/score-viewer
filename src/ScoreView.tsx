@@ -183,10 +183,11 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
         let restoreAnchor;
         if (renderedSvgData && renderedSvgData?.scoreUrl == score?.url) {
-            if (renderedSvgData?.height &&
+            if (renderedSvgData?.height && renderedSvgData?.width &&
                 Math.abs(renderedSvgData.height - svgContainerHeight) < 100 &&
+                Math.abs(renderedSvgData.width - svgContainerWidth) < 100 &&
                 renderedSvgData?.page == currentPage &&
-                renderedSvgData?.scale == scale){
+                renderedSvgData?.scale == scale) {
                 return
             }
             if (renderedSvgData.anchorElement) {
@@ -203,7 +204,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             restorePositionForAchor: restoreAnchor
          });
         setPendingAction(action);
-    }, [verovio, svgContainerRef.current, svgContainerHeight]);
+    }, [verovio, svgContainerRef.current, svgContainerHeight, svgContainerWidth]);
 
 
     // Handle scale changes
