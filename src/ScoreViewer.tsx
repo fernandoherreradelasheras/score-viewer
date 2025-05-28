@@ -1,13 +1,13 @@
 import './App.css'
 import useStore from "./store";
-import React, { forwardRef, Ref, useEffect, useMemo, useState } from 'react';
+import { forwardRef, Ref, useEffect, useMemo, useRef, useState } from 'react';
 import useVerovio from './useVerovio';
 import { Context } from './Context';
 import { ConfigProvider, Select, Space, Tabs, TabsProps, theme, Typography } from 'antd'
-import { isMobile } from 'react-device-detect';
+import { isMobile, useMobileOrientation } from 'react-device-detect';
 import ErrorBoundary from './ErrorBoundary';
 import { LyricItem, PlayingState, ScoreProperties, VisualizationOptions } from './types';
-import ScoreViewContainer from './ScoreViewContainer';
+import ScoreViewContainer, { ScoreViewContainerRef } from './ScoreViewContainer';
 import { DefaultOptionType } from 'antd/es/select';
 import TextView from './TextView';
 import Icon, { FileImageOutlined, FileTextOutlined } from '@ant-design/icons';
@@ -20,7 +20,6 @@ import { useImperativeHandle } from 'react';
 
 
 export interface ScoreViewerProps {
-  ref?: React.Ref<unknown>
   config: ScoreViewerConfig
   width: string
   height: string
@@ -33,8 +32,6 @@ export interface ScoreViewerProps {
 export interface ScoreViewerRef {
   goToSection: (sectionId: string) => void
 }
-
-
 
 
 const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTextPartChanged, onVisualizationOptionsChanged }: ScoreViewerProps, ref: Ref<ScoreViewerRef>) => {
@@ -54,9 +51,12 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
 
   const goToSection = useStore.use.goToSection()
 
-  const [activeTab, setActiveTab] = useState<string>("music")
-
   const verovio = useVerovio()
+  const mobileOrientation = useMobileOrientation()
+
+  const [activeTab, setActiveTab] = useState<string>("music")
+  const scoreViewContainerRef = useRef<ScoreViewContainerRef>(null);
+
 
   useImperativeHandle(ref, () => ({
     goToSection: (section: string) => {
@@ -159,8 +159,8 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
 
   const scoreSelector = useMemo(() =>
     config.scores.length > 1 && config.settings.showScoreSelector ?
-      <Space direction='horizontal' style={{ marginBottom: "10px", textAlign: "start" }}>
-        <Typography.Text style={{ marginLeft: "10px" }}>Parte:</Typography.Text>
+      <Space direction='horizontal' style={{ marginBottom: "10px", textAlign: "start", flex: "0" }}>
+        <Typography.Text style={{ marginLeft: "10px" }}>Obra:</Typography.Text>
         <Select
           style={{ minWidth: "200px", marginRight: "10px" }}
           defaultValue={0}
@@ -170,13 +170,26 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
       : null
     , [config])
 
-  const scoreView = <ScoreViewContainer
+  // On mobile devices we give the controls + score the full height assigned
+  // to the component + scrolling  on the top element to maximize the space
+  // available for the score
+  const containerHeight = useMemo(() => isMobile && mobileOrientation.isLandscape ? height : "100%"
+    , [isMobile, mobileOrientation, height])
+
+  const overflow = useMemo(() =>
+    isMobile && mobileOrientation.isLandscape ? "scroll" : "hidden"
+    , [isMobile, mobileOrientation, height])
+
+
+  const scoreView = useMemo(() => <ScoreViewContainer
+    ref={scoreViewContainerRef}
     backgroundColor={config.settings.backgroundColor}
     showDownloadButton={config.settings.showDownloadButton}
-  />
+    height={containerHeight} />
+    , [config, containerHeight])
 
   const title = useMemo(() => config.settings.showTitle && score?.title ?
-    <Typography.Title level={3}>{score.title}</Typography.Title> : null
+    <Typography.Title style={{ flex: "0" }} level={3}>{score.title}</Typography.Title> : null
   , [config, score])
 
 
@@ -204,7 +217,7 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
           label: <Space direction='horizontal'> <FileImageOutlined />Facsimil</Space>,
           children: <FacsimileView path={config.settings.facsimileImagesPath} items={score.fascimileItems} />
         } : null
-      ].filter(t => t != null) : [], [config, score, textIntroduction, textLyrics, title])
+      ].filter(t => t != null) : [], [config, score, textIntroduction, textLyrics, title, scoreView])
 
 
   const tabs = useMemo(() =>
@@ -212,10 +225,18 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
                     defaultActiveKey="music"
                     activeKey={activeTab}
                     onChange={onTabChange}
-                    style={{ width: "100%", height: "100%" }} /> : null
+                    style={{ width: "100%", flex: "1" }} /> : null
   , [config, score, tabsItems, activeTab])
 
   const content = tabs && tabsItems.length > 1 ? tabs : scoreView
+
+  useEffect(() => {
+    if (isMobile && mobileOrientation.isLandscape && activeTab == "music") {
+      setTimeout(() => {
+        scoreViewContainerRef.current?.scrollIntoView()
+      }, 100)
+    }
+  }, [mobileOrientation.orientation])
 
   return (
     <ConfigProvider
@@ -227,8 +248,14 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
       }}>
       <Context.Provider value={{ verovio }}>
         <ErrorBoundary>
-          <div className="score-viewer" style={{ width: width, height: height }}>
-            <div style={{ width: "calc(100% - 12px)", height: "calc(100% - 12px)", padding: "6px" }}>
+          <div className="score-viewer-top-element" style={{ width: width, height: height, overflow: overflow }}>
+            <div style={{
+              width: "calc(100% - 12px)",
+              height: "calc(100% - 12px)",
+              padding: "6px",
+              display: "flex",
+              flexDirection: "column"
+            }}>
               {scoreSelector}
               {title}
               {content}
@@ -239,7 +266,6 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
     </ConfigProvider>
   )
 }
-
 
 
 export default forwardRef<ScoreViewerRef, ScoreViewerProps>(ScoreViewer)

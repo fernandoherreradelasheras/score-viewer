@@ -6,22 +6,27 @@ import ScoreView from './ScoreView';
 import ScoreViewAutoScroll from './ScoreViewAutoScroll';
 import useStore from "./store";
 import { TimeMapEvent, PlayingState } from './types';
-import { useEffect, useMemo, useRef } from 'react';
+import { forwardRef, Ref, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import { useIsVisible } from './hooks/useIsVisible';
 
 
 const getAudioDurationMillis = (timemap: TimeMapEvent[]) => {
     return timemap[timemap.length - 1]?.tstamp || 0;
-  };
+};
 
 
-  export interface ScoreViewContainerProps {
+export interface ScoreViewContainerProps {
     backgroundColor?: string | undefined;
     showDownloadButton?: boolean | undefined;
-  }
+    height: string;
+}
 
-function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps) {
-    const { backgroundColor } = scoreViewContainerProps;
+export interface ScoreViewContainerRef {
+  scrollIntoView: () => void
+}
+
+function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, ref: Ref<ScoreViewContainerRef>) {
+    const { backgroundColor, height } = scoreViewContainerProps;
 
     const score = useStore.use.score();
     const autoScroll = useStore.use.autoScroll();
@@ -30,8 +35,8 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps) {
     const playingState = useStore.use.playingState();
     const setPlayingState = useStore.use.setPlayingState();
     const currentPage = useStore.use.currentPage();
-    const goToNextPage = useStore.use.goToNextPage;
-    const goToPreviousPage = useStore.use.goToPreviousPage;
+    const goToNextPage = useStore.use.goToNextPage();
+    const goToPreviousPage = useStore.use.goToPreviousPage();
     const pageCount = useStore.use.pageCount();
     const resetPlayerPosition = useStore.use.resetPlayerPosition();
     const showEditorial = useStore.use.showEditorial();
@@ -40,6 +45,12 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps) {
     const scoreViewerRef = useRef<HTMLDivElement>(null);
 
     const isScoreVisible = useIsVisible(scoreViewerRef);
+
+    useImperativeHandle(ref, () => ({
+        scrollIntoView: () => {
+            scoreViewerRef.current?.scrollIntoView(true);
+        }
+      }));
 
 
     // Set up swipe handlers for page navigation
@@ -89,37 +100,44 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps) {
         }
     }, [playingState]);
 
+
+
     return (
         <div ref={scoreViewerRef}
-        className="score-viewer"
-        style={{
-            width: "100%",
-            height: "100%"
-        }}>
-
-        { scoreViewerRef.current ? <ScoreControls
-            fullScreenElement={scoreViewerRef.current}
-            showDownloadButton={scoreViewContainerProps.showDownloadButton ?? false}
-            audioDuration={audioDuration}/> : null }
-
-        <div className="score-container swipeable-container"
-            {...swipeHandlers}
+            className="score-viewer"
             style={{
-                backgroundColor: backgroundColor,
+                position: "relative",
                 width: "100%",
-                height: "100%",
+                height: height
             }}>
+            <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "100%" }}>
+                { scoreViewerRef.current ? <ScoreControls
+                    style={{ flex: "0" }}
+                    fullScreenElement={scoreViewerRef.current}
+                    showDownloadButton={scoreViewContainerProps.showDownloadButton ?? false}
+                    audioDuration={audioDuration}/> : null }
 
-            {autoScroll ? <ScoreViewAutoScroll backgroundColor={backgroundColor} />
-            : <ScoreView backgroundColor={backgroundColor} />}
+                <div className="score-container swipeable-container"
+                    {...swipeHandlers}
+                    style={{
+                        flex: "1",
+                        backgroundColor: backgroundColor,
+                        width: "100%",
+                        overflow: "hidden",
+                    }}>
 
+                    {autoScroll ? <ScoreViewAutoScroll backgroundColor={backgroundColor} />
+                    : <ScoreView backgroundColor={backgroundColor} />}
+
+                </div>
+            </div>
+
+            {audioUrl ? <AudioPlayer /> : null}
+
+            {showEditorial && renderedSvgData?.id ? <Editorials /> : null}
         </div>
-
-        {audioUrl ? <AudioPlayer /> : null}
-
-        {showEditorial && renderedSvgData?.id ? <Editorials /> : null}
-    </div>
     );
 }
 
-export default ScoreViewContainer;
+export default forwardRef<ScoreViewContainerRef, ScoreViewContainerProps>(ScoreViewContainer)
+

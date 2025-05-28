@@ -109,10 +109,6 @@
   background-color: var(--score-bg-color);
 }
 
-.score-container {
-  position: relative;
-}
-
 .score-spotlight-overlay {
   position: absolute;
   top: 0;

@@ -72,10 +72,11 @@ export function useScoreManager({
     (async () => {
       if (currentScoreIdx === null) return;
 
-      const scoreEntry = config.scores[currentScoreIdx];
-      if (!scoreEntry) return;
-
       const scoreDef = config.scores[currentScoreIdx];
+      if (!scoreDef) {
+        console.error(`No score definition found for index ${currentScoreIdx}`);
+        return;
+      }
       const path = config.settings.basePath + scoreDef.path + "/";
       const meiUrl = path + scoreDef.meiFile;
       const encodingProperties = scoreDef.encodingProperties;
@@ -104,12 +105,12 @@ export function useScoreManager({
         const editorialItems = analyzer.getEditorial();
         const newScore: Score = {
           url: meiUrl,
-          title: scoreEntry.title,
+          title: scoreDef.title,
           originalMei: originalMei,
           singleVerseMei: generateOneVerseMei(originalMei),
           properties: properties,
           editorialItems: editorialItems,
-          fascimileItems: scoreEntry.facsimileItems,
+          fascimileItems: scoreDef.facsimileItems,
         };
 
         setScoreCache(
