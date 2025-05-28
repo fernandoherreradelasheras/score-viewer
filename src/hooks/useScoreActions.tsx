@@ -41,7 +41,7 @@ const verovioBaseOptions: VerovioOptions = {
   lyricElision: "regular",
   lyricTopMinMargin: 4.0,
   lyricVerseCollapse: true,
-  smuflTextFont: "none"
+  smuflTextFont: "embedded"
 };
 
 // Helper to get the appropriate CSS class for a transition
