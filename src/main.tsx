@@ -13,6 +13,7 @@ const USE_TEST_CONFIG = true
 const defaultConfig: ScoreViewerConfig = {
   settings: {
     showDownloadButton: true,
+    showTitle: false,
     showIntroductionSection: true,
     showFacsimileSection: true,
     showTextSection: true,
@@ -43,38 +44,6 @@ const defaultConfig: ScoreViewerConfig = {
         { name: "Page 32", file: "page32.jpg" },
         { name: "Page 33", file: "page33.jpg" }
       ]
-    },
-    {
-      title: "Un imposible me mata",
-      path: "",
-      audioBaseFile: "test2.mp3",
-      meiFile: "test2.mei",
-      encodingProperties: { encodedTransposition: "" }
-    },
-    {
-      title: "test 3",
-      path: "",
-      meiFile: "test3.mei",
-      encodingProperties: { encodedTransposition: "" }
-    },
-    {
-      title: "test 4",
-      path: "",
-      meiFile: "test4.mei",
-      encodingProperties: { encodedTransposition: "" }
-    },
-    {
-      title: "test 5",
-      path: "",
-      meiFile: "test5.mei",
-      encodingProperties: { encodedTransposition: "" }
-    },
-    {
-      title: "test 6",
-      path: "",
-      audioBaseFile: "test6.mp3",
-      meiFile: "test6.mei",
-      encodingProperties: { encodedTransposition: "" }
     }
   ]
 };

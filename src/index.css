@@ -191,3 +191,22 @@
 .svg-container.static-score svg g[data-label*="llama_4_maverick_17B"] .rdg-recontruction-highlight {
     fill: #ad28a2;
 }
+
+
+/* Text viewer styles */
+
+/* Top container */
+.text-view {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+
+/* Poem */
+.text-view section:has(span.line-number) {
+  display: table;
+  min-width: 40vw;
+}
+.text-view section:has(span.line-number) p {
+  text-align: center;
+}

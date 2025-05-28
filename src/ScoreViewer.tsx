@@ -175,6 +175,9 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
     showDownloadButton={config.settings.showDownloadButton}
   />
 
+  const title = useMemo(() => config.settings.showTitle && score?.title ?
+    <Typography.Title level={3}>{score.title}</Typography.Title> : null
+  , [config, score])
 
 
   const tabsItems: TabsProps['items'] = useMemo(() =>
@@ -184,7 +187,7 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
         config.settings.showIntroductionSection && textIntroduction !== null ? {
           key: 'intro',
           label: <Space direction='horizontal'>Introducción</Space>,
-          children: <TextView title="Introducción" intro={textIntroduction} />
+          children: <TextView intro={textIntroduction} />
         } : null,
         {
           key: 'music',
@@ -194,14 +197,14 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
         config.settings.showTextSection && textLyrics !== null ? {
           key: 'text',
           label: <Space direction='horizontal'><FileTextOutlined />Texto</Space>,
-          children: <TextView title={score?.title || ""} items={textLyrics} comments={textComments} />
+          children: <TextView items={textLyrics} comments={textComments} />
         } : null,
         config.settings.showFacsimileSection && score?.fascimileItems?.length ? {
           key: 'facsimile',
           label: <Space direction='horizontal'> <FileImageOutlined />Facsimil</Space>,
           children: <FacsimileView path={config.settings.facsimileImagesPath} items={score.fascimileItems} />
         } : null
-      ].filter(t => t != null) : [], [config, score, textIntroduction, textLyrics])
+      ].filter(t => t != null) : [], [config, score, textIntroduction, textLyrics, title])
 
 
   const tabs = useMemo(() =>
@@ -227,6 +230,7 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
           <div className="score-viewer" style={{ width: width, height: height }}>
             <div style={{ width: "calc(100% - 12px)", height: "calc(100% - 12px)", padding: "6px" }}>
               {scoreSelector}
+              {title}
               {content}
             </div>
           </div>

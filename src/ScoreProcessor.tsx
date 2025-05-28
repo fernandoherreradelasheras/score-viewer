@@ -2,6 +2,10 @@ type FilterFunc = (doc: Document, params: any) => void
 
 type Filters = [FilterFunc, any][];
 
+const XPATH_RECONSTRUCTION_RDG_LABELS = '(//mei:measure[1])//mei:app[@type="voice_reconstruction"]/mei:rdg/@label'
+const XPATH_FIRST_MEASURE = '//mei:measure[1]'
+const XPATH_FICTA_ACCIDS = '//mei:accid[@func="edit"]'
+
 const nsResolver = (prefix: string | null) => { return { mei: "http://www.music-encoding.org/ns/mei", xml: "http://www.w3.org/XML/1998/namespace" }[prefix || ''] || null }
 
 
@@ -40,12 +44,12 @@ const AddSectionTitlesFilter: FilterFunc = (doc: Document, _: {}) => {
 }
 
 const AddReconstructionNamesFilter: FilterFunc = (doc: Document, _: {}) => {
-    let measure = doc?.evaluate('//mei:measure[1]', doc, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()
+    let measure = doc?.evaluate(XPATH_FIRST_MEASURE, doc, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()
     if (measure == null) {
         return
     }
 
-    let matches = doc?.evaluate('(//mei:measure[1])//mei:app[@type="voice_reconstruction"]/mei:rdg/@label', doc, nsResolver, XPathResult.ANY_TYPE, null)
+    let matches = doc?.evaluate(XPATH_RECONSTRUCTION_RDG_LABELS, doc, nsResolver, XPathResult.ANY_TYPE, null)
     const labels = []
     let node;
     while ((node = matches?.iterateNext())) {
@@ -112,7 +116,7 @@ const FilterToNVerses: FilterFunc = (doc: Document, params: {n: number}) => {
 
 
 const FilterNormalizeFicta: FilterFunc = (doc: Document, _: {}) => {
-    const fictacAccidIter = doc?.evaluate('//mei:accid[@func="edit"]', doc, nsResolver, XPathResult.ANY_TYPE, null)
+    const fictacAccidIter = doc?.evaluate(XPATH_FICTA_ACCIDS, doc, nsResolver, XPathResult.ANY_TYPE, null)
     if (fictacAccidIter == null) {
         return
     }

@@ -1,10 +1,11 @@
 {
     "settings": {
+        "showTitle": false,
         "showDownloadButton": true,
         "showIntroductionSection": true,
         "showFacsimileSection": true,
         "showTextSection": true,
-        "renderTitlesFromMEI": false,
+        "renderTitlesFromMEI": true,
         "showScoreSelector": true,
         "backgroundColor": "#f5f5f5",
         "basePath": "/tonos/",
