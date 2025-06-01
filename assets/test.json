@@ -111,14 +111,6 @@
         {
             "path": "03",
             "title": "Amariles yo no puedo",
-            "audioBaseFile": "03-render-base-20250511.mp3",
-            "audioOverlays": [
-                {
-                    "staff": "3",
-                    "appLabel": "reconstruction:3:IA:claude_sonet_3_7",
-                    "file": "03-render-claude-20250511.mp3"
-                }
-            ],
             "meiFile": "03_-_Amariles_yo_no_puedo-music-T.mei",
             "text": [
                 {

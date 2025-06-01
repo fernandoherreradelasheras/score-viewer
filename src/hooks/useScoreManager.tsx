@@ -80,7 +80,7 @@ export function useScoreManager({
       const path = config.settings.basePath + scoreDef.path + "/";
       const meiUrl = path + scoreDef.meiFile;
       const encodingProperties = scoreDef.encodingProperties;
-      const audioUrl = path + scoreDef.audioBaseFile;
+      const audioUrl = scoreDef.audioBaseFile  && scoreDef.audioBaseFile != "" ? path + scoreDef.audioBaseFile : undefined;
 
       if (scoreCache[meiUrl]) {
         const cachedScore = scoreCache[meiUrl];
