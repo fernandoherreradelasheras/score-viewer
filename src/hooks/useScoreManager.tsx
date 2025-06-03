@@ -9,7 +9,6 @@ interface UseScoreManagerProps {
   config: ScoreViewerConfig;
   currentScoreIdx: number | null;
   normalizeFicta: boolean | null;
-  activeTab: string | undefined;
   onScoreAnalyzed?: ((scoreIndex: number, properties: ScoreProperties) => void) | undefined;
 }
 
@@ -17,7 +16,6 @@ export function useScoreManager({
   config,
   currentScoreIdx,
   normalizeFicta,
-  //activeTab,
   onScoreAnalyzed
 }: UseScoreManagerProps) {
   const scoreCache = useStore.use.scoreCache();

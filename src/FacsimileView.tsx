@@ -1,8 +1,6 @@
-
-
 import { Button, Pagination, Space } from 'antd';
 import { FacsimileItem } from './types';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pan-pinch";
 import { ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 
@@ -13,7 +11,7 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [containerHeight, setContainerHeight] = useState<number>(0);
 
-  const Controls = ()  => {
+  const Controls = useCallback(()  => {
       const { zoomIn, zoomOut, resetTransform } = useControls();
 
       const handlePageClick = (page: number) => {
@@ -36,7 +34,7 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
                   simple={false}
                   onChange={handlePageClick} /> : null }
       </div>
-  }
+  }, [items, currentItem]);
 
 
   useEffect(() => {
@@ -46,6 +44,10 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
       setContainerHeight(height);
     }
   }, [container])
+
+  useEffect(() => {
+    setCurrentItem(0)
+  }, [items])
 
   return (
       <TransformWrapper initialScale={1}  >

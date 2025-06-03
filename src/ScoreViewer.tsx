@@ -1,6 +1,6 @@
 import './App.css'
 import useStore from "./store";
-import { forwardRef, Ref, useEffect, useMemo, useRef, useState } from 'react';
+import { forwardRef, Ref, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useVerovio from './useVerovio';
 import { Context } from './Context';
 import { ConfigProvider, Select, Space, Tabs, TabsProps, theme, Typography } from 'antd'
@@ -57,6 +57,10 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
   const [activeTab, setActiveTab] = useState<string>("music")
   const scoreViewContainerRef = useRef<ScoreViewContainerRef>(null);
 
+  const { textIntroduction, textLyrics, textComments } = useTextParts({ config, currentScoreIdx, onTextPartChanged })
+
+  useScoreManager({ config, currentScoreIdx, normalizeFicta, onScoreAnalyzed });
+
 
   useImperativeHandle(ref, () => ({
     goToSection: (section: string) => {
@@ -77,6 +81,17 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
   }, [config]);
 
 
+  const tabContentNotAvailable = useCallback(() => {
+    if (score && activeTab == "facsimile" && (!score.fascimileItems || score.fascimileItems.length === 0)) {
+      return true
+    } else if (score && activeTab == "text" && textLyrics  === null) {
+      return true
+    } else if (score && activeTab == "intro" && textIntroduction === null) {
+      return true
+    }
+    return false
+
+  }, [score, textIntroduction, textLyrics, activeTab])
 
   useEffect(() => {
     if (!score || currentScoreIdx == null) return;
@@ -86,22 +101,27 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
     }
 
     const currentScoreItem = config.scores[currentScoreIdx];
-    if (!currentScoreItem?.audioOverlays) return;
-
-    const path = config.settings.basePath + currentScoreItem.path + "/"
-    const selectedReconstructions = Object.values(showReconstructions);
-    const newAudioOverlayTracks = []
-    for (const overlay of currentScoreItem.audioOverlays) {
-      if (selectedReconstructions.includes(overlay.appLabel)) {
-        newAudioOverlayTracks.push({
-          id: `overlay-staff-${overlay.staff}`,
-          label: overlay.appLabel,
-          url: path + overlay.file,
-          volume: 1
-        });
+    if (currentScoreItem?.audioOverlays) {
+      const path = config.settings.basePath + currentScoreItem.path + "/"
+      const selectedReconstructions = Object.values(showReconstructions);
+      const newAudioOverlayTracks = []
+      for (const overlay of currentScoreItem.audioOverlays) {
+        if (selectedReconstructions.includes(overlay.appLabel)) {
+          newAudioOverlayTracks.push({
+            id: `overlay-staff-${overlay.staff}`,
+            label: overlay.appLabel,
+            url: path + overlay.file,
+            volume: 1
+          });
+        }
       }
+      setAudioOverlayTracks(newAudioOverlayTracks)
     }
-    setAudioOverlayTracks(newAudioOverlayTracks)
+
+    if (tabContentNotAvailable()) {
+      setActiveTab("music")
+    }
+
   }, [showReconstructions, score]);
 
 
@@ -131,15 +151,7 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
   }, [scoreIndex])
 
 
-  useScoreManager({
-    config,
-    currentScoreIdx,
-    normalizeFicta,
-    activeTab,
-    onScoreAnalyzed
-  });
 
-  const { textIntroduction, textLyrics, textComments } = useTextParts({ config, currentScoreIdx, onTextPartChanged })
 
 
   const onScoreChanged = (value: number) => {
@@ -154,7 +166,6 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
     label: score.title,
     value: index,
   })), [config])
-
 
 
   const scoreSelector = useMemo(() =>
@@ -225,7 +236,7 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
                     defaultActiveKey="music"
                     activeKey={activeTab}
                     onChange={onTabChange}
-                    style={{ width: "100%", flex: "1" , ...(activeTab != "music" ? {height: "100%"} : {}) }} /> : null
+                    style={{ width: "100%", flex: "1" , ...(activeTab == "text" || activeTab == "intro" ? {height: "100%"} : {}) }} /> : null
   , [config, score, tabsItems, activeTab])
 
   const content = tabs && tabsItems.length > 1 ? tabs : scoreView
