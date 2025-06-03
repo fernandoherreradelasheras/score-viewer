@@ -1,6 +1,6 @@
 import { Button, Pagination, Space } from 'antd';
 import { FacsimileItem } from './types';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pan-pinch";
 import { ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 
@@ -49,6 +49,12 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
     setCurrentItem(0)
   }, [items])
 
+  const imageFile = useMemo(() => path + items[currentItem].file
+  , [currentItem]);
+
+  const imageTitle = useMemo(() => items[currentItem].name
+  , [currentItem]);
+
   return (
       <TransformWrapper initialScale={1}  >
           <>
@@ -56,7 +62,7 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
             <TransformComponent
                 wrapperStyle={{ width: "100%", height: "100%" }}>
                 <div style={{ width: "100%", height: "100%", padding: "12px" }}  ref={(el: HTMLDivElement | null) => setContainer(el)}>
-                  <img src={path + items[currentItem].file} alt={items[currentItem].name} style={{height: `${containerHeight}px`, width: "auto" }}/>
+                  <img src={imageFile} alt={imageTitle} style={{height: `${containerHeight}px`, width: "auto" }}/>
                 </div>
             </TransformComponent>
           </>
