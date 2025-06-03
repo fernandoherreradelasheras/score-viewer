@@ -163,6 +163,10 @@
     fill: #ad28a2;
 }
 
+.score-viewer-top-element .ant-tabs .ant-tabs-content-holder {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
 
 /* Text viewer styles */
 

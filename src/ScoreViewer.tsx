@@ -225,7 +225,7 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
                     defaultActiveKey="music"
                     activeKey={activeTab}
                     onChange={onTabChange}
-                    style={{ width: "100%", flex: "1" }} /> : null
+                    style={{ width: "100%", flex: "1" , ...(activeTab != "music" ? {height: "100%"} : {}) }} /> : null
   , [config, score, tabsItems, activeTab])
 
   const content = tabs && tabsItems.length > 1 ? tabs : scoreView
