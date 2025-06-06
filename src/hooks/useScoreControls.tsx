@@ -13,7 +13,6 @@ export default function useScoreControls(
 ) {
   // Get state and actions from store
   const score = useStore.use.score()
-  const currentScoreIdx = useStore.use.currentScoreIdx();
   const playingState = useStore.use.playingState();
   const resetPlayerPosition = useStore.use.resetPlayerPosition();
   const scale = useStore.use.scale();
@@ -88,7 +87,6 @@ export default function useScoreControls(
 
   return {
     // State
-    currentScoreIdx,
     scoreUrl,
     currentPageNumber,
     pageCount,

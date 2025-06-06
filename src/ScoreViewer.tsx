@@ -6,7 +6,7 @@ import { Context } from './Context';
 import { ConfigProvider, Select, Space, Tabs, TabsProps, theme, Typography } from 'antd'
 import { isMobile, useMobileOrientation } from 'react-device-detect';
 import ErrorBoundary from './ErrorBoundary';
-import { LyricItem, PlayingState, ScoreProperties, VisualizationOptions } from './types';
+import { PlayingState, ScoreProperties, VisualizationOptions } from './types';
 import ScoreViewContainer, { ScoreViewContainerRef } from './ScoreViewContainer';
 import { DefaultOptionType } from 'antd/es/select';
 import TextView from './TextView';
@@ -23,27 +23,22 @@ export interface ScoreViewerProps {
   config: ScoreViewerConfig
   width: string
   height: string
-  scoreIndex?: number
   onScoreAnalyzed?: (scoreIndex: number, properties: ScoreProperties) => void
-  onVisualizationOptionsChanged?: (scoreIndex: number, options: VisualizationOptions) => void
-  onTextPartChanged?: (scoreIndex: number, partName: string, text: LyricItem[] | string | null | undefined) => void
+  onVisualizationOptionsChanged?: (options: VisualizationOptions) => void
 }
 
 export interface ScoreViewerRef {
   goToSection: (sectionId: string) => void
+  selectScore: (scoreIndex: number | null) => void
 }
 
 
-const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTextPartChanged, onVisualizationOptionsChanged }: ScoreViewerProps, ref: Ref<ScoreViewerRef>) => {
+const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOptionsChanged }: ScoreViewerProps, ref: Ref<ScoreViewerRef>) => {
 
-  const currentScoreIdx = useStore.use.currentScoreIdx()
-  const setCurrentScoreIdx = useStore.use.setCurrentScoreIdx()
   const score = useStore.use.score()
-  const setScore = useStore.use.setScore()
   const showReconstructions = useStore.use.showReconstructions()
   const setAudioOverlayTracks = useStore.use.setAudioOverlayTracks()
   const normalizeFicta = useStore.use.normalizeFicta()
-  const setAudioUrl = useStore.use.setAudioUrl()
   const showOriginalClefs = useStore.use.showOriginalClefs()
 
   const playingState = useStore.use.playingState()
@@ -57,50 +52,39 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
   const [activeTab, setActiveTab] = useState<string>("music")
   const scoreViewContainerRef = useRef<ScoreViewContainerRef>(null);
 
-  const { textIntroduction, textLyrics, textComments } = useTextParts({ config, currentScoreIdx, onTextPartChanged })
+  const { fetchTextParts, textIntroduction, textLyrics, textComments } = useTextParts({ config })
 
-  useScoreManager({ config, currentScoreIdx, normalizeFicta, onScoreAnalyzed });
+  const { fetchScore, unloadScore } = useScoreManager({ config, normalizeFicta, onScoreAnalyzed });
+
+  const loadAll = (scoreIndex: number) => {
+    fetchScore(scoreIndex);
+    fetchTextParts(scoreIndex);
+    updateAudioOverlayTracks(scoreIndex);
+  }
 
 
   useImperativeHandle(ref, () => ({
     goToSection: (section: string) => {
-        goToSection(section)
+      goToSection(section)
+    },
+    selectScore: (scoreIndex: number | null) => {
+      if (scoreIndex === null) {
+        unloadScore()
+      } else if (scoreIndex >= 0 && scoreIndex < config.scores.length) {
+        loadAll(scoreIndex);
+      }
     }
   }));
 
   useEffect(() => {
-    if (config.settings.showScoreSelector && config.scores.length > 0) {
-      setCurrentScoreIdx(0)
-    }
-
-    return () => {
-      setCurrentScoreIdx(null)
-      setAudioUrl(null)
-      setScore(null)
+    if (config.scores.length > 0 && config.settings.showScoreSelector) {
+      loadAll(0)
     }
   }, [config]);
 
 
-  const tabContentNotAvailable = useCallback(() => {
-    if (score && activeTab == "facsimile" && (!score.fascimileItems || score.fascimileItems.length === 0)) {
-      return true
-    } else if (score && activeTab == "text" && textLyrics  === null) {
-      return true
-    } else if (score && activeTab == "intro" && textIntroduction === null) {
-      return true
-    }
-    return false
-
-  }, [score, textIntroduction, textLyrics, activeTab])
-
-  useEffect(() => {
-    if (!score || currentScoreIdx == null) return;
-
-    if (playingState == PlayingState.PLAYING) {
-      setPlayingState(PlayingState.STOPPED)
-    }
-
-    const currentScoreItem = config.scores[currentScoreIdx];
+  const updateAudioOverlayTracks = useCallback((scoreIndex: number) => {
+      const currentScoreItem = config.scores[scoreIndex];
     if (currentScoreItem?.audioOverlays) {
       const path = config.settings.basePath + currentScoreItem.path + "/"
       const selectedReconstructions = Object.values(showReconstructions);
@@ -117,6 +101,26 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
       }
       setAudioOverlayTracks(newAudioOverlayTracks)
     }
+  }, [config, showReconstructions, setAudioOverlayTracks]);
+
+  const tabContentNotAvailable = useCallback(() => {
+    if (score && activeTab == "facsimile" && (!score.fascimileItems || score.fascimileItems.length === 0)) {
+      return true
+    } else if (score && activeTab == "text" && textLyrics  === null) {
+      return true
+    } else if (score && activeTab == "intro" && textIntroduction === null) {
+      return true
+    }
+    return false
+
+  }, [score, textIntroduction, textLyrics, activeTab])
+
+  useEffect(() => {
+    if (!score) return;
+
+    if (playingState == PlayingState.PLAYING) {
+      setPlayingState(PlayingState.STOPPED)
+    }
 
     if (tabContentNotAvailable()) {
       setActiveTab("music")
@@ -126,36 +130,20 @@ const ScoreViewer = ({ config, width, height, scoreIndex, onScoreAnalyzed, onTex
 
 
   useEffect(() => {
-    if (onVisualizationOptionsChanged && currentScoreIdx != null && showOriginalClefs != null) {
-      onVisualizationOptionsChanged(currentScoreIdx,
-        { showOriginalClefs })
+    if (onVisualizationOptionsChanged && showOriginalClefs != null) {
+      onVisualizationOptionsChanged({ showOriginalClefs })
     }
   }, [showOriginalClefs])
 
   useEffect(() => {
-    if (onVisualizationOptionsChanged && currentScoreIdx != null && Object.keys(showReconstructions).length > 0) {
-      onVisualizationOptionsChanged(currentScoreIdx,
-        { showReconstructions })
+    if (onVisualizationOptionsChanged && Object.keys(showReconstructions).length > 0) {
+      onVisualizationOptionsChanged({ showReconstructions })
     }
   }, [showReconstructions])
 
-  useEffect(() => {
-    if (config.settings.showScoreSelector) {
-      return
-    }
-
-    if (scoreIndex !== undefined && scoreIndex !== currentScoreIdx) {
-      setCurrentScoreIdx(scoreIndex)
-    }
-
-  }, [scoreIndex])
-
-
-
-
-
   const onScoreChanged = (value: number) => {
-    setCurrentScoreIdx(value);
+    fetchScore(value);
+    fetchTextParts(value);
   };
 
   const onTabChange = (key: string) => {

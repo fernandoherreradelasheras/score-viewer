@@ -31,7 +31,6 @@ const createRenderingStore = create<RenderingState>((set) => ({
 
 
 interface ScoreManagementState {
-    currentScoreIdx: number | null
     score: Score | null
     showingMei: string | null
     scoreCache: { [index: string]: Score }
@@ -40,7 +39,6 @@ interface ScoreManagementState {
     textIntroduction: string | null | undefined
     textLyrics: LyricItem[] | null | undefined
 
-    setCurrentScoreIdx: (idx: number | null) => void
     setScore: (score: Score | null) => void
 
     setShowingMei: (mei: string | null) => void
@@ -52,7 +50,6 @@ interface ScoreManagementState {
 }
 
 const createScoreManagementStore = create<ScoreManagementState>((set) => ({
-    currentScoreIdx: null,
     score: null,
     showingMei: null,
     scoreCache: {},
@@ -61,7 +58,6 @@ const createScoreManagementStore = create<ScoreManagementState>((set) => ({
     textIntroduction: undefined,
     textLyrics: undefined,
 
-    setCurrentScoreIdx: (idx: number | null) => set(() => ({ currentScoreIdx: idx })),
     setScore: (score: Score | null) => set(() => ({ score: score })),
     setShowingMei: (mei: string | null) => set(() => ({ showingMei: mei })),
     setScoreCache: (scoreCache: { [index: string]: Score }) => set((state) => ({
@@ -101,7 +97,6 @@ export const createScoreViewerStore = create<ScoreNavigationState>((set, get) =>
   sectionPageMap: { },
 
   setScoreLayout: ({ pageCount, sectionPageMap, currentPage }) => {
-    console.log(`setScoreLayout: pageCount: ${pageCount}, sectionPageMap: ${JSON.stringify(sectionPageMap)}, currentPage: ${currentPage}`);
     set({
       pageCount,
       sectionPageMap,
@@ -118,7 +113,6 @@ export const createScoreViewerStore = create<ScoreNavigationState>((set, get) =>
 
   goToSection: (sectionId) => {
     const page = get().sectionPageMap[sectionId];
-    console.log(`target page for section ${sectionId}: ${page}`);
     if (page) {
       set({
         navigationCommand: { type: 'section', target: sectionId },
@@ -277,7 +271,6 @@ class StoreApi {
         setPendingAction: createRenderingStoreWithSelectors.use.setPendingAction,
 
         // Score Management Store
-        currentScoreIdx: createScoreManagementStoreWithSelectors.use.currentScoreIdx,
         score: createScoreManagementStoreWithSelectors.use.score,
         showingMei: createScoreManagementStoreWithSelectors.use.showingMei,
         scoreCache: createScoreManagementStoreWithSelectors.use.scoreCache,
@@ -285,7 +278,6 @@ class StoreApi {
         textComments: createScoreManagementStoreWithSelectors.use.textComments,
         textIntroduction: createScoreManagementStoreWithSelectors.use.textIntroduction,
         textLyrics: createScoreManagementStoreWithSelectors.use.textLyrics,
-        setCurrentScoreIdx: createScoreManagementStoreWithSelectors.use.setCurrentScoreIdx,
         setScore: createScoreManagementStoreWithSelectors.use.setScore,
         setShowingMei: createScoreManagementStoreWithSelectors.use.setShowingMei,
         setScoreCache: createScoreManagementStoreWithSelectors.use.setScoreCache,

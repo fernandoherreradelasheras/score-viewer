@@ -287,6 +287,9 @@ export default function useScoreActions({
         return null;
       }
 
+      if (svgElement.classList.contains("transition-zero-end")) {
+        svgElement.classList.remove("transition-zero-end");
+      }
       if (transition != undefined) {
         svgElement.classList.add("with-transition", initialClassForTransition(transition));
         setTimeout(() => {

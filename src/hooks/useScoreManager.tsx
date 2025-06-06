@@ -1,25 +1,24 @@
-import { useEffect } from 'react';
 import { Score, ScoreProperties, Transposition } from '../types';
 import useStore from '../store';
 import ScoreProcessor from '../ScoreProcessor';
 import ScoreAnalyzer from '../ScoreAnalyzer';
 import { ScoreViewerConfig } from '../types/config';
+import { useCallback } from 'react';
 
 interface UseScoreManagerProps {
   config: ScoreViewerConfig;
-  currentScoreIdx: number | null;
   normalizeFicta: boolean | null;
   onScoreAnalyzed?: ((scoreIndex: number, properties: ScoreProperties) => void) | undefined;
 }
 
 export function useScoreManager({
   config,
-  currentScoreIdx,
   normalizeFicta,
   onScoreAnalyzed
 }: UseScoreManagerProps) {
   const scoreCache = useStore.use.scoreCache();
   const setScoreCache = useStore.use.setScoreCache();
+  const score = useStore.use.score();
   const setScore = useStore.use.setScore();
   const setAudioUrl = useStore.use.setAudioUrl();
   const setShowNVerses = useStore.use.setShowNVerses();
@@ -41,7 +40,7 @@ export function useScoreManager({
     return scoreProcessor.filterScore();
   };
 
-  const addFadeOutTransiton = () => {
+  const fadeOut = () => {
     const svgElement = document.querySelector(".svg-container svg") as SVGSVGElement | null;
     if (svgElement) {
       svgElement.classList.add("transition-zero-end");
@@ -49,8 +48,13 @@ export function useScoreManager({
   };
 
   const updateScore = (scoreIndex: number, newScore: Score, audioUrl?: string) => {
-    addFadeOutTransiton();
-
+    if (score) {
+      if (newScore == score) {
+        return;
+      } else {
+        fadeOut()
+      }
+    }
     // clear options that should not be persistent
     // TODO: define all these settings consistently
     setShowNVerses(null);
@@ -66,13 +70,13 @@ export function useScoreManager({
     }
   };
 
-  useEffect(() => {
+  const fetchScore = useCallback((scoreIndex: number) => {
     (async () => {
-      if (currentScoreIdx === null) return;
+      if (scoreIndex === null) return;
 
-      const scoreDef = config.scores[currentScoreIdx];
+      const scoreDef = config.scores[scoreIndex];
       if (!scoreDef) {
-        console.error(`No score definition found for index ${currentScoreIdx}`);
+        console.error(`No score definition found for index ${scoreIndex}`);
         return;
       }
       const path = config.settings.basePath + scoreDef.path + "/";
@@ -82,7 +86,7 @@ export function useScoreManager({
 
       if (scoreCache[meiUrl]) {
         const cachedScore = scoreCache[meiUrl];
-        updateScore(currentScoreIdx, cachedScore, audioUrl);
+        updateScore(scoreIndex, cachedScore, audioUrl);
       } else {
         const meiString = await fetchMei(meiUrl);
 
@@ -114,10 +118,16 @@ export function useScoreManager({
         setScoreCache(
           { [meiUrl]: newScore }
         );
-        updateScore(currentScoreIdx, newScore, audioUrl);
+        updateScore(scoreIndex, newScore, audioUrl);
       }
     })();
-  }, [currentScoreIdx]);
+  }, [config, scoreCache, setScore, setAudioUrl, setScoreCache, onScoreAnalyzed, normalizeFicta]);
 
-  return { updateScore };
+  const unloadScore = () => {
+    setScore(null);
+    setAudioUrl(null);
+  }
+
+
+  return { fetchScore, unloadScore };
 }

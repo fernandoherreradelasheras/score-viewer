@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback } from 'react';
 import { LyricItem, TextPartsCache } from '../types';
 import useStore from '../store';
 import { ScoreViewerConfig, ScoreViewerConfigScore, ScoreViewerConfigScoreText } from '../types/config';
@@ -29,14 +29,10 @@ const getTitleFromItem = (textItem: ScoreViewerConfigScoreText) => {
 
 interface UseTextPartsProps {
   config: ScoreViewerConfig;
-  currentScoreIdx: number | null;
-  onTextPartChanged?: ((scoreIndex: number, partName: string, part: LyricItem[] | string | null | undefined) => void) | undefined;
 }
 
 export function useTextParts({
   config,
-  currentScoreIdx,
-  onTextPartChanged
 }: UseTextPartsProps) {
   const textCache = useStore.use.textCache();
   const setTextCache = useStore.use.setTextCache();
@@ -48,17 +44,10 @@ export function useTextParts({
   const setTextLyrics = useStore.use.setTextLyrics();
 
 
-  const scoreDef = useMemo(() => {
-    if (currentScoreIdx === null || config === null) {
-      return null
-    } else {
-      return config.scores[currentScoreIdx]
-    }
-  }, [currentScoreIdx, config])
 
   const getPath = useCallback((scoreDef: ScoreViewerConfigScore, path: string) => {
     return config.settings.basePath + scoreDef.path + "/" + path
-  }, [currentScoreIdx, config])
+  }, [config])
 
   const hasSection = (section: string | undefined | ScoreViewerConfigScoreText[]) => section != undefined && section.length > 0
 
@@ -71,7 +60,7 @@ export function useTextParts({
     return { lyricsUrls, commentsUrl, introductionUrl }
   }, [getPath])
 
-  const getLyricItemsFromCache = useCallback(() => {
+  const getLyricItemsFromCache = useCallback((scoreDef: ScoreViewerConfigScore) => {
     const lyricItems: LyricItem[] = []
     scoreDef?.text?.forEach((textItem) => {
       const path = getPath(scoreDef, textItem.file)
@@ -81,13 +70,15 @@ export function useTextParts({
       }
     })
     return lyricItems
-  }, [textCache, scoreDef, getPath])
+  }, [textCache, getPath])
 
 
 
-  useEffect(() => {
+  const fetchTextParts = useCallback((scoreIndex: number) => {
 
-    if (!scoreDef || currentScoreIdx == null) return;
+    const scoreDef = config.scores[scoreIndex]
+
+    if (!scoreDef) return;
 
     const { lyricsUrls, commentsUrl, introductionUrl } = getUrlsForScore(scoreDef)
 
@@ -113,7 +104,7 @@ export function useTextParts({
       setTextIntroduction(null)
     }
     if (lyricsUrls) {
-      setTextLyrics(lyricsUrls.every(u => cachedUrls.includes(u)) ? getLyricItemsFromCache() : undefined, true)
+      setTextLyrics(lyricsUrls.every(u => cachedUrls.includes(u)) ? getLyricItemsFromCache(scoreDef) : undefined, true)
     } else {
       setTextLyrics(null, true)
     }
@@ -147,27 +138,7 @@ export function useTextParts({
         })
       })
     })
-  }, [scoreDef]);
+  }, [getPath, config, textCache, getLyricItemsFromCache, setTextCache, setTextComments, setTextIntroduction, setTextLyrics])
 
-  // Callback notifications for those consumers handling text parts on their own
-  useEffect(() => {
-    if (currentScoreIdx && onTextPartChanged) {
-      onTextPartChanged(currentScoreIdx, "introduction", textIntroduction)
-    }
-  }, [textIntroduction])
-
-  useEffect(() => {
-    if (currentScoreIdx && onTextPartChanged) {
-      onTextPartChanged(currentScoreIdx, "comments", textComments)
-    }
-  }, [textComments])
-
-    useEffect(() => {
-    if (currentScoreIdx && onTextPartChanged) {
-      onTextPartChanged(currentScoreIdx, "lyrics", textLyrics)
-    }
-  }, [textLyrics])
-
-
-  return { textIntroduction, textLyrics, textComments }
+  return { fetchTextParts, textIntroduction, textLyrics, textComments }
 }

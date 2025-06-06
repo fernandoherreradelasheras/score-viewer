@@ -1,4 +1,4 @@
-import { StrictMode, useRef, useState } from 'react'
+import { StrictMode, useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import ScoreViewer, { ScoreViewerRef } from './ScoreViewer'
@@ -63,14 +63,43 @@ function TestSections() {
 
   return (
     <div>
-      <Space direction="horizontal" size="large">
+      <Space direction="horizontal" size="large" style={{ height: "3vh" }}>
         {sections.map((section) => (
           <Button key={section.id} onClick={() => ref.current?.goToSection(section.id)}>
             {section.label}
           </Button>
         ))}
         </Space>
-      <ScoreViewer ref={ref} width="100%" height="95vh" config={config} onScoreAnalyzed={onScoreAnalyzed}/>
+      <ScoreViewer ref={ref} width="100%" height="89vh" config={config} onScoreAnalyzed={onScoreAnalyzed}/>
+    </div>
+  )
+}
+
+function TestExternalSelector() {
+  const customSelectorConfig = { ...config, settings: { ...config.settings, showScoreSelector: false } }
+
+  const ref = useRef<ScoreViewerRef>(null)
+
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.selectScore(0)
+    }
+  }, [ref.current])
+
+  return (
+    <div>
+      <Space direction="horizontal" size="large" style={{ height: "3vh" }}>
+          <Button onClick={() => ref.current?.selectScore(0)}>
+            Score 1
+          </Button>
+          <Button onClick={() => ref.current?.selectScore(1)}>
+            Score 2
+          </Button>
+          <Button onClick={() => ref.current?.selectScore(2)}>
+            Score 3
+          </Button>
+        </Space>
+      <ScoreViewer ref={ref} width="100%" height="89vh" config={customSelectorConfig} />
     </div>
   )
 }
@@ -78,15 +107,58 @@ function TestSections() {
 
 function TestBasic() {
   return (
-    <ScoreViewer width="100%" height="95vh" config={config} />
+    <ScoreViewer width="100%" height="92vh" config={config} />
   )
 }
 
-const testUi = false ? <TestSections /> : <TestBasic />
+function TestSelector() {
+  const [selectedTest, setSelectedTest] = useState<'basic' | 'sections' | 'external'>('basic')
 
+  const renderSelectedTest = () => {
+    switch (selectedTest) {
+      case 'basic':
+        return <TestBasic />
+      case 'sections':
+        return <TestSections />
+      case 'external':
+        return <TestExternalSelector />
+      default:
+        return <TestBasic />
+    }
+  }
+
+  return (
+    <div>
+      <div style={{  height: "4vh", padding: '20px', backgroundColor: '#f0f0f0', borderBottom: '1px solid #ddd' }}>
+        <Space>
+          <span>Select Test:</span>
+          <Button
+            type={selectedTest === 'basic' ? 'primary' : 'default'}
+            onClick={() => setSelectedTest('basic')}
+          >
+            Basic
+          </Button>
+          <Button
+            type={selectedTest === 'sections' ? 'primary' : 'default'}
+            onClick={() => setSelectedTest('sections')}
+          >
+            Sections
+          </Button>
+          <Button
+            type={selectedTest === 'external' ? 'primary' : 'default'}
+            onClick={() => setSelectedTest('external')}
+          >
+            External Selector
+          </Button>
+        </Space>
+      </div>
+      {renderSelectedTest()}
+    </div>
+  )
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
- { testUi  }
+    <TestSelector />
   </StrictMode>,
 )
