@@ -144,6 +144,7 @@ function Editorials() {
     return (
         <div>
 
+
             <Tooltip id="verovio-tooltip"
                             variant="info"
                             style={{ zIndex: 3 }}

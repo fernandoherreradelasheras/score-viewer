@@ -6,8 +6,9 @@ import ScoreView from './ScoreView';
 import ScoreViewAutoScroll from './ScoreViewAutoScroll';
 import useStore from "./store";
 import { TimeMapEvent, PlayingState } from './types';
-import { forwardRef, Ref, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
+import { forwardRef, Ref, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useIsVisible } from './hooks/useIsVisible';
+import MouseTracker from './MouseTracker';
 
 
 const getAudioDurationMillis = (timemap: TimeMapEvent[]) => {
@@ -41,6 +42,9 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
     const resetPlayerPosition = useStore.use.resetPlayerPosition();
     const showEditorial = useStore.use.showEditorial();
     const renderedSvgData = useStore.use.renderedSvgData();
+
+    const [mouseOver, setMouseOver] = useState(false);
+
 
     const scoreViewerRef = useRef<HTMLDivElement>(null);
 
@@ -105,6 +109,7 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
     return (
         <div ref={scoreViewerRef}
             className="score-viewer"
+            onMouseEnter={() => setMouseOver(true)} onMouseLeave={() => setMouseOver(false)}
             style={{
                 position: "relative",
                 width: "100%",
@@ -135,6 +140,15 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
             {audioUrl ? <AudioPlayer /> : null}
 
             {showEditorial && renderedSvgData?.id ? <Editorials /> : null}
+
+            {scoreViewerRef.current && mouseOver && <MouseTracker 
+                track={scoreViewerRef.current}
+                getContent={(e) => {
+                    const measure = (e.target as Element)?.closest('g.measure');
+                    const n = measure?.getAttribute('data-n');
+                    return n ? `Measure ${n}` : undefined;
+                }}
+            />}
         </div>
     );
 }
