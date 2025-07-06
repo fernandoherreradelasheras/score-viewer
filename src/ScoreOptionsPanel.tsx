@@ -11,6 +11,7 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
         showReconstructions,
         normalizeFicta,
         transposition,
+        showMusicAnalysis,
         score,
 
         // Derived state
@@ -30,7 +31,8 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
         onShowEditorialChange,
         onNormalizeFictaChange,
         onShowOriginalClefsChange,
-        onTranspositionChange
+        onTranspositionChange,
+        onShowMusicAnalysisChange
     } = useScoreOptions();
 
     const reconstructionRows = showReconstructionOptions ? voiceRecontructions?.map(voiceReconstruction =>
@@ -135,6 +137,27 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
                         />
                     </Col>
                 </Row>}
+
+
+                <Row align={"middle"}>
+                    <Col span={20}>
+                        <Space direction="vertical">
+                            <Typography.Text strong={true} {...(!transposition ? {type: 'secondary'} :{} )}>
+                                Análisis armónico
+                            </Typography.Text>
+                            <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!transposition ? {type: 'secondary'} :{} )} >
+                                Muestra quintas y octavas paralelas y clasificación de las disonancias de la partitura
+                            </Typography.Text>
+                        </Space>
+                    </Col>
+                    <Col span={4}>
+                        <Switch
+                            value={showMusicAnalysis}
+                            defaultValue={false}
+                            onChange={onShowMusicAnalysisChange}
+                        />
+                    </Col>
+                </Row>
 
                 {showVerseOptions &&
                 <Row align={"middle"}>

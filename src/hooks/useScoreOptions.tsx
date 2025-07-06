@@ -18,6 +18,8 @@ export default function useScoreOptions() {
   const setNormalizeFicta = useStore.use.setNormalizeFicta();
   const transposition = useStore.use.transposition();
   const setTransposition = useStore.use.setTransposition();
+  const showMusicAnalysis = useStore.use.showMusicAnalysis();
+  const setShowMusicAnalysis = useStore.use.setShowMusicAnalysis();
 
   const getReverseTransposition = (transposition?: string) => {
     if (transposition?.startsWith("-")) {
@@ -57,6 +59,10 @@ export default function useScoreOptions() {
       const reverseTransposition = getReverseTransposition(score?.properties?.encodedTransposition);
       setTransposition(reverseTransposition);
     }
+  };
+
+  const onShowMusicAnalysisChange = () => {
+    setShowMusicAnalysis(!showMusicAnalysis);
   };
 
   // Derived state
@@ -108,6 +114,7 @@ export default function useScoreOptions() {
     showOriginalClefs,
     normalizeFicta,
     transposition,
+    showMusicAnalysis,
     score,
 
     // Derived state
@@ -127,6 +134,7 @@ export default function useScoreOptions() {
     onShowEditorialChange,
     onShowOriginalClefsChange,
     onNormalizeFictaChange,
-    onTranspositionChange
+    onTranspositionChange,
+    onShowMusicAnalysisChange,
   };
 }

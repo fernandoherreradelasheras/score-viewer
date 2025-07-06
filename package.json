@@ -40,7 +40,7 @@
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
     "remark-sectionize": "^2.1.0",
-    "verovio": "^5.1.0",
+    "verovio": "~5.1.0",
     "vite-plugin-dts": "^4.5.3",
     "zustand": "^5.0.3"
   },

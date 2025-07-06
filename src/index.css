@@ -44,11 +44,11 @@
 }
 .reg {
   --show-fill-color: blue;
-  --show-outline-color: rgb(0, 89, 255);;
+  --show-outline-color: rgb(0, 89, 255);
 }
 .supplied {
   --show-fill-color: rgb(30, 30, 177);
-  --show-outline-color: rgb(28, 214, 22);;
+  --show-outline-color: rgb(28, 214, 22);
 }
 
 .svg-container.static-score:not(.editorial-active) svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg).bounding-box rect {
@@ -73,6 +73,21 @@
   filter: hue-rotate(180deg);
 }
 
+.svg-container.static-score svg .note.parallel-octave {
+  pointer-events: auto;
+  visibility: visible;
+  cursor: pointer;
+  outline: 30px solid rgb(212, 14, 169);
+  outline-offset: 30px;
+}
+
+.svg-container.static-score svg .note.parallel-fifth {
+  pointer-events: auto;
+  visibility: visible;
+  cursor: pointer;
+  outline: 30px solid rgb(92, 17, 4);
+  outline-offset: 30px;
+}
 
 .svg-container.static-score svg.with-transition  {
   transition-property: opacity, transform, scale;

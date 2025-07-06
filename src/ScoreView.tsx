@@ -22,7 +22,10 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const setIsLoading = useStore.use.setIsLoading();
     const pendingAction = useStore.use.pendingAction();
     const setPendingAction = useStore.use.setPendingAction();
+
     const score = useStore.use.score();
+    const musicAnalysis = useStore.use.musicAnalysis();
+
     const showingMei = useStore.use.showingMei();
     const setShowingMei = useStore.use.setShowingMei();
     const playingState = useStore.use.playingState();
@@ -43,6 +46,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const setRenderedSvgData = useStore.use.setRenderedSvgData();
     const showReconstructions = useStore.use.showReconstructions();
     const showOriginalClefs = useStore.use.showOriginalClefs();
+    const showMusicAnalysis = useStore.use.showMusicAnalysis();
 
     const { handleElementClick } = useEditorialHandler();
     const { ref: svgContainerRef, width: svgContainerWidth, height: svgContainerHeight } = useComponentSize();
@@ -86,35 +90,36 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                 setPendingAction(nextAction);
             } else {
                 setPendingAction(null);
+            }
 
+            if (pendingAction.type === "render" && result) {
                 // Handle the results of render actions
-                if (result) {
-                    if (pendingAction.type === "render") {
-                        const renderResult = result as RenderActionResult
-                        const { newSvg, scale: newScale } = renderResult;
-                        setRenderedSvgData(newSvg);
 
-                        // will only be visible when showingEditorial is true via css
-                        expandBBsForEditorialItems();
+                const renderResult = result as RenderActionResult
+                const { newSvg, scale: newScale } = renderResult;
+                setRenderedSvgData(newSvg);
 
-                        const showingReconstructiononsLabels = Object.values(showReconstructions).filter(label => label != "none")
-                        if (showingReconstructiononsLabels.length > 0) {
-                            expandBBsForRdgs(showingReconstructiononsLabels);
-                        }
+                // will only be visible when showingEditorial is true via css
+                expandBBsForEditorialItems();
 
-                        setIsLoading(false);
+                console.log(musicAnalysis)
 
-                        setScale(newScale);
-
-                        // Calculate max scale after transition completes
-                        setTimeout(() => {
-                            const newMaxScale = calculateEffectiveMaxScale(reachedEffectiveMaxScale);
-                            if (newMaxScale !== reachedEffectiveMaxScale) {
-                                setReachedEffectiveMaxScale(newMaxScale);
-                            }
-                        }, 400);
-                    }
+                const showingReconstructiononsLabels = Object.values(showReconstructions).filter(label => label != "none")
+                if (showingReconstructiononsLabels.length > 0) {
+                    expandBBsForRdgs(showingReconstructiononsLabels);
                 }
+
+                setIsLoading(false);
+
+                setScale(newScale);
+
+                // Calculate max scale after transition completes
+                setTimeout(() => {
+                    const newMaxScale = calculateEffectiveMaxScale(reachedEffectiveMaxScale);
+                    if (newMaxScale !== reachedEffectiveMaxScale) {
+                        setReachedEffectiveMaxScale(newMaxScale);
+                    }
+                }, 400);
             }
         } else {
             console.error("Action execution failed");
@@ -237,8 +242,9 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     // These changes requires reloading the currently built score
     useEffect(() => {
+        console.log(`Reloading score: showMusicAnalysis: ${showMusicAnalysis}`);
         reloadScore();
-    }, [appOptions, choiceOptions, transposition]);
+    }, [appOptions, choiceOptions, transposition, showMusicAnalysis]);
 
     useEffect(() => {
         if (showOriginalClefs == null) {
@@ -272,7 +278,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             loadedWidth: renderedSvgData.width || svgContainerWidth,
             loadedHeight: renderedSvgData.height || svgContainerHeight,
             scale,
-            loadedPagesCount: pageCount
+            loadedPagesCount: pageCount,
         });
         setPendingAction(action);
     }, [currentPage]);

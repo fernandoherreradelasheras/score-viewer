@@ -12,6 +12,7 @@ import {
     AudioTrack,
     TextPartsCache,
     LyricItem,
+    ParallelIntervalViolation,
 } from './types'
 
 import { RenderedData } from './hooks/useScoreRenderer'
@@ -32,6 +33,7 @@ const createRenderingStore = create<RenderingState>((set) => ({
 
 interface ScoreManagementState {
     score: Score | null
+    musicAnalysis: ParallelIntervalViolation[] | null
     showingMei: string | null
     scoreCache: { [index: string]: Score }
     textCache: TextPartsCache
@@ -40,6 +42,8 @@ interface ScoreManagementState {
     textLyrics: LyricItem[] | null | undefined
 
     setScore: (score: Score | null) => void
+
+    setMusicAnalysis: (musicAnalysis: ParallelIntervalViolation[] | null) => void
 
     setShowingMei: (mei: string | null) => void
     setScoreCache: (scoreCache: { [index: string]: Score }) => void
@@ -51,6 +55,7 @@ interface ScoreManagementState {
 
 const createScoreManagementStore = create<ScoreManagementState>((set) => ({
     score: null,
+    musicAnalysis: null,
     showingMei: null,
     scoreCache: {},
     textCache: {},
@@ -59,6 +64,9 @@ const createScoreManagementStore = create<ScoreManagementState>((set) => ({
     textLyrics: undefined,
 
     setScore: (score: Score | null) => set(() => ({ score: score })),
+
+    setMusicAnalysis: (musicAnalysis: ParallelIntervalViolation[] | null) => set(() => ({ musicAnalysis })),
+
     setShowingMei: (mei: string | null) => set(() => ({ showingMei: mei })),
     setScoreCache: (scoreCache: { [index: string]: Score }) => set((state) => ({
         scoreCache: { ...state.scoreCache, ...scoreCache }
@@ -212,6 +220,7 @@ interface EditorialState {
     appOptions: string[]
     choiceOptions: string[]
     transposition: string | null
+    showMusicAnalysis: boolean
 
     setShowNVerses: (n: number | null) => void
     setShowReconstructions: (reconstructions: { [staff: string]: string }, replace: boolean) => void
@@ -222,6 +231,7 @@ interface EditorialState {
     setAppOptions: (options: string[], replace: boolean) => void
     setChoiceOptions: (options: string[], replace: boolean) => void
     setTransposition: (transposition: string | null) => void
+    setShowMusicAnalysis: (showMusicAnalysis: boolean) => void
 }
 
 const createEditorialStore = create<EditorialState>((set) => ({
@@ -234,6 +244,7 @@ const createEditorialStore = create<EditorialState>((set) => ({
     appOptions: [],
     choiceOptions: [],
     transposition: null,
+    showMusicAnalysis: false,
 
     setShowNVerses: (n: number | null) => set(() => ({ showNVerses: n })),
     setShowReconstructions: (reconstructions: { [staff: string]: string }, replace: boolean) => set((state) => ({
@@ -250,6 +261,7 @@ const createEditorialStore = create<EditorialState>((set) => ({
         choiceOptions: replace ? options : [...state.choiceOptions, ...options]
     })),
     setTransposition: (transposition: string | null) => set(() => ({ transposition })),
+    setShowMusicAnalysis: (showMusicAnalysis: boolean) => set(() => ({ showMusicAnalysis })),
 }))
 
 
@@ -272,6 +284,7 @@ class StoreApi {
 
         // Score Management Store
         score: createScoreManagementStoreWithSelectors.use.score,
+        musicAnalysis: createScoreManagementStoreWithSelectors.use.musicAnalysis,
         showingMei: createScoreManagementStoreWithSelectors.use.showingMei,
         scoreCache: createScoreManagementStoreWithSelectors.use.scoreCache,
         textCache: createScoreManagementStoreWithSelectors.use.textCache,
@@ -279,6 +292,7 @@ class StoreApi {
         textIntroduction: createScoreManagementStoreWithSelectors.use.textIntroduction,
         textLyrics: createScoreManagementStoreWithSelectors.use.textLyrics,
         setScore: createScoreManagementStoreWithSelectors.use.setScore,
+        setMusicAnalysis: createScoreManagementStoreWithSelectors.use.setMusicAnalysis,
         setShowingMei: createScoreManagementStoreWithSelectors.use.setShowingMei,
         setScoreCache: createScoreManagementStoreWithSelectors.use.setScoreCache,
         setTextCache: createScoreManagementStoreWithSelectors.use.setTextCache,
@@ -311,6 +325,7 @@ class StoreApi {
         navigationCommand: createScoreViewerStoreWithSelectors.use.navigationCommand,
         clearNavigationCommand: createScoreViewerStoreWithSelectors.use.clearNavigationCommand,
 
+
         // Player Store
         audioUrl: createPlayerStoreWithSelectors.use.audioUrl,
         audioOverlayTracks: createPlayerStoreWithSelectors.use.audioOverlayTracks,
@@ -336,6 +351,7 @@ class StoreApi {
         appOptions: createEditorialStoreWithSelectors.use.appOptions,
         choiceOptions: createEditorialStoreWithSelectors.use.choiceOptions,
         transposition: createEditorialStoreWithSelectors.use.transposition,
+        showMusicAnalysis: createEditorialStoreWithSelectors.use.showMusicAnalysis,
         setShowNVerses: createEditorialStoreWithSelectors.use.setShowNVerses,
         setShowReconstructions: createEditorialStoreWithSelectors.use.setShowReconstructions,
         setShowEditorial: createEditorialStoreWithSelectors.use.setShowEditorial,
@@ -345,6 +361,7 @@ class StoreApi {
         setAppOptions: createEditorialStoreWithSelectors.use.setAppOptions,
         setChoiceOptions: createEditorialStoreWithSelectors.use.setChoiceOptions,
         setTransposition: createEditorialStoreWithSelectors.use.setTransposition,
+        setShowMusicAnalysis: createEditorialStoreWithSelectors.use.setShowMusicAnalysis,
 
         // Rendered SVG Store
         renderedSvgData: createRenderedSvgStoreWithSelectors.use.renderedSvgData,

@@ -12,6 +12,17 @@ export type ReconstructionItem = {
     reconstructionBy: string
 }
 
+export type ParallelIntervalViolation = {
+    partNames: string[]
+    measureNumbers: string[]
+    offsets: number[]
+    notes: {
+        first: Note[]
+        second: Note[]
+    }
+    intervalType: 'fifth' | 'octave'
+}
+
 export type Score = {
     url: string;
     title: string;
@@ -69,3 +80,11 @@ export type TextParts = {
     introduction: string | null;
 }
 
+export type Note = {
+    id: string;
+    pname: string;
+    oct: string;
+    dur: string
+    pitch: number;
+
+}
