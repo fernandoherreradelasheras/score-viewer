@@ -116,7 +116,7 @@ class PararellChecker {
                     const part2 = this.staves[k].label
                     const intervalType: "fifth" | "octave" = (intervalCheckFn === isPerfectFifth) ? 'fifth' : 'octave'
                     // We allow parallel octaves between Tenor and Guion
-                    if (part1 == "Tenor" && part2.normalize() == "Guión" && intervalType === 'octave') {
+                    if (part1.toLowerCase() == "tenor" && (part2.toLowerCase() == "guión" || part2.toLowerCase() == "guion") && intervalType === 'octave') {
                         continue
                     }
 
