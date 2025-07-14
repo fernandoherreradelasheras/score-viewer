@@ -115,12 +115,10 @@ class PararellChecker {
                     const part1 = this.staves[j].label
                     const part2 = this.staves[k].label
                     const intervalType: "fifth" | "octave" = (intervalCheckFn === isPerfectFifth) ? 'fifth' : 'octave'
-                    /*
                     // We allow parallel octaves between Tenor and Guion
-                    if (part1 == "Tenor" && part2 == "Guion" && intervalType === 'octave') {
+                    if (part1 == "Tenor" && part2.normalize() == "Guión" && intervalType === 'octave') {
                         continue
                     }
-                        */
 
                     const measure1 = this.getMeasureForElement(note1_t1.id) || "?";
                     const measure2 = this.getMeasureForElement(note2_t1.id) || "?";
