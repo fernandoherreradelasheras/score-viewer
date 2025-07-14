@@ -89,6 +89,13 @@
   outline-offset: 30px;
 }
 
+.svg-container.static-score svg .dissonant_analysis .harm tspan {
+  font-style: italic;
+  font-weight: bold;
+  font-stretch: condensed;
+}
+
+
 .svg-container.static-score svg.with-transition  {
   transition-property: opacity, transform, scale;
   transition-duration: 0.4s;
