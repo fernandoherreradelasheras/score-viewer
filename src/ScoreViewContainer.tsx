@@ -141,12 +141,13 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
 
             {showEditorial && renderedSvgData?.id ? <Editorials /> : null}
 
-            {scoreViewerRef.current && mouseOver && <MouseTracker 
+            {scoreViewerRef.current && mouseOver && <MouseTracker
                 track={scoreViewerRef.current}
                 getContent={(e) => {
+                    const staffBB = (e.target as Element)?.closest('g.staff.bounding-box');
                     const measure = (e.target as Element)?.closest('g.measure');
                     const n = measure?.getAttribute('data-n');
-                    return n ? `Measure ${n}` : undefined;
+                    return staffBB && n ? `Measure ${n}` : undefined;
                 }}
             />}
         </div>
