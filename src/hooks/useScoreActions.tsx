@@ -31,6 +31,7 @@ const verovioBaseOptions: VerovioOptions = {
   pageMarginTop: 0,
   pageMarginLeft: 16,
   pageMarginRight: 16,
+  bottomMarginHarm: 0.0,
   scaleToPageSize: true,
   shrinkToFit: true,
   spacingLinear: 0.25,
