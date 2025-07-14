@@ -101,7 +101,7 @@ interface ScoreActionsConfig {
       } as TimeMapEvent;
     });
 
-const buildAppOptions = (appOptions: string[], showReconstructions: { [staff: string] : string }, showOriginalClefs: boolean) => {
+const buildAppOptions = (appOptions: string[], showReconstructions: { [staff: string] : string }, showOriginalClefs: boolean, showMusicAnalysis: boolean) => {
   const voiceReconstructionSelectors = Object.values(showReconstructions).map(label =>
     `./*[contains(@label, '${label}')]`
   )
@@ -109,7 +109,8 @@ const buildAppOptions = (appOptions: string[], showReconstructions: { [staff: st
   return [
     ...appOptions,
     ...voiceReconstructionSelectors,
-    ...showOriginalClefs ? [`./rdg[contains(@label, 'app_clefs')]`] : []
+    ...showOriginalClefs ? [`./rdg[contains(@label, 'app_clefs')]`] : [],
+    ...showMusicAnalysis ? [`./rdg[contains(@type, 'dissonant_analysis')]`] : []
   ]
 }
 
@@ -199,7 +200,7 @@ export default function useScoreActions({
       adjustPageHeight: false,
       landscape: false,
       svgAdditionalAttribute: EXTRA_SVG_ATTRIBUTES,
-      appXPathQuery: buildAppOptions(appOptions, showReconstructions, showOriginalClefs || false),
+      appXPathQuery: buildAppOptions(appOptions, showReconstructions, showOriginalClefs || false, showMusicAnalysis),
       choiceXPathQuery: choiceOptions,
       pageHeight: loadedHeight,
       pageWidth: loadedWidth,
@@ -261,7 +262,7 @@ export default function useScoreActions({
       adjustPageHeight: true,
       svgViewBox: true,
       svgAdditionalAttribute: EXTRA_SVG_ATTRIBUTES,
-      appXPathQuery: buildAppOptions(appOptions, showReconstructions, showOriginalClefs || false),
+      appXPathQuery: buildAppOptions(appOptions, showReconstructions, showOriginalClefs || false, false),
       choiceXPathQuery: choiceOptions,
       pageHeight: height,
       pageWidth: AUTO_SCROLL_RENDERING_WIDTH_LIMIT,
