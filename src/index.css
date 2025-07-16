@@ -209,7 +209,7 @@
 }
 
 
-.mouse-tracker {  
+.mouse-tracker {
     transform-origin: center;
     position: fixed;
     pointer-events: none;
@@ -222,7 +222,14 @@
     font-size: 14px;
     font-weight: 500;
     white-space: nowrap;
-  
+
     z-index: 1000;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Enclose harmonic analysis letters in a circle */
+.svg-container.static-score svg g.dissonant_analysis g.harm.rdiss > text {
+  outline: 30px solid gray;
+  border-radius: 50%;
+  outline-offset: 10px;
 }
