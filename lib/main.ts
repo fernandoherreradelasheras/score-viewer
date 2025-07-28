@@ -1,3 +1,4 @@
+import './i18n';
 import ScoreViewer from '../src/ScoreViewer';
 import type { ScoreViewerProps } from '../src/ScoreViewer';
 import type { ScoreViewerRef } from '../src/ScoreViewer';

@@ -5,6 +5,7 @@ import { PlayingState } from './types';
 import ScoreOptionsPanel from './ScoreOptionsPanel';
 import PlayerControls from './PlayerControls';
 import useScoreControls from './hooks/useScoreControls';
+import { useTranslation } from 'react-i18next';
 
 export enum PlayerControlEventType {
     SEEK,
@@ -19,10 +20,13 @@ interface ScoreControlProps {
     style?: React.CSSProperties | undefined;
     fullScreenElement: HTMLElement | null;
     showDownloadButton?: boolean | undefined;
+    allowUserLanguageChange: boolean;
     audioDuration: number;
 }
 
-const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDuration }: ScoreControlProps) => {
+const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDuration, allowUserLanguageChange }: ScoreControlProps) => {
+    const { t } = useTranslation("common")
+
     // Use our custom hook for all score controls logic
     const {
         // State and derived state
@@ -56,13 +60,13 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDura
                 disabled={playingState === PlayingState.PLAYING} />
             <Button
                 onClick={showDrawer}
-                disabled={playingState === PlayingState.PLAYING}>Opciones</Button>
+                disabled={playingState === PlayingState.PLAYING}>{t('scoreControls.options')}</Button>
 
             {showDownloadButton ?
                 <Button type="default" icon={<DownloadOutlined />} download href={scoreUrl || ''}>MEI</Button> : null}
 
         </Space>
-    ), [canZoomIn, canZoomOut, playingState, isFullScreen, scoreUrl]);
+    ), [canZoomIn, canZoomOut, playingState, isFullScreen, scoreUrl, t]);
 
     const pagination = useMemo(() => (
         shouldShowPagination ?
@@ -90,7 +94,7 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDura
 
     return (
         <div className="score-controls" style={style} >
-            {openDrawer ? <ScoreOptionsPanel onClose={onDrawserClose} open={openDrawer} /> : null}
+            {openDrawer ? <ScoreOptionsPanel allowUserLanguageChange={allowUserLanguageChange} onClose={onDrawserClose} open={openDrawer} /> : null}
 
             {playingState === PlayingState.STOPPED ?
                 viewingControls : <PlayerControls audioDuration={audioDuration} />}

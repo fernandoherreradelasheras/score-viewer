@@ -1,0 +1,108 @@
+{
+  "Music": "Música",
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "Text": "Texto",
+  "Introduction": "Introducción",
+  "heading": {
+    "work": "Obra"
+  },
+  "tab": {
+    "introduction": "Introducción",
+    "music": "Música",
+    "text": "Texto",
+    "facsimile": "Facsimil"
+  },
+  "editorial": {
+    "preferredReading": "lectura preferida",
+    "alternativeReading": "lectura alternativa",
+    "regReading": "lectura regularizada",
+    "origReading": "lectura original",
+    "alternativeReadingNumber": "lectura alternativa nº",
+    "currentlyShowing": "Actualmente se muestra la {{what}}",
+    "availableOptions": "Opciones disponibles",
+    "reason": "Razón",
+    "resp": "Responsable",
+    "optionNumber": "Opción nº{{number}}",
+    "formatType": {
+      "corr": "Corrección aplicada",
+      "unclear": "Elemento poco claro en la fuente",
+      "choice": "Opciones disponibles",
+      "app": "Lecturas alternativas",
+      "lem": "lectura preferida",
+      "rdg": "otra lectura",
+      "sic": "error evidente",
+      "supplied": "parte añadida",
+      "reg": "Regularización",
+      "clefChange": "Cambio de clave",
+      "default": "tipo: {{type}}"
+    }
+  },
+  "error": {
+    "scoreViewerError": "Algo fue mal en el visor de partituras",
+    "tryAgain": "Intentar de nuevo"
+  },
+  "ok": "Ok",
+  "reset": "Reset",
+  "playerMode": {
+    "autoscroll": "auto scroll",
+    "normal": "normal"
+  },
+  "anonymous": "Anónimo",
+  "scoreControls": {
+    "options": "Opciones"
+  },
+  "scoreOptions": {
+    "title": "Opciones de visualizacion",
+    "reconstruction": "Reconstrucción {{voiceName}}",
+    "editorialNotes": {
+      "title": "Notas editoriales",
+      "description": "Muestra una capa con las notas críticas y elección de variantes variantes"
+    },
+    "normalizeFicta": {
+      "title": "Normalizar musica ficta",
+      "description": "Mostrar las alteraciones subintelectas de como las normales prececiendo a la nota"
+    },
+    "originalClefs": {
+      "title": "Claves originales",
+      "description": "Muestra las claves originales del manuscrito sin modernizar"
+    },
+    "noTransposition": {
+      "title": "Sin transposición",
+      "description": "Muestra la partitura deshaciendo la transposición desde claves altas ({{encodedTransposition}})"
+    },
+    "harmonicAnalysis": {
+      "title": "Análisis armónico",
+      "description": "Muestra quintas y octavas paralelas y clasificación de las disonancias de la partitura"
+    },
+    "limitVerses": {
+      "title": "Limitar estrofas",
+      "description": "Elige la cantidad de estrofas a mostrar en las coplas"
+    },
+    "verseAmmount_one": "1 estrofa",
+    "verseAmmount_other": "{{count}} estrofas",
+    "reconstructionNone": "ninguna",
+    "language": {
+      "title": "Idioma",
+      "description": "Idioma de la interfaz de usuario"
+    }
+  },
+  "scoreProcessor": {
+    "reconstructionByIA": "Reconstrucción por IA. Modelo {{name}}",
+    "reconstructionByHuman": "Reconstrucción por {{name}}"
+  },
+  "score": {
+    "measureNumber": "Compás {{number}}"
+  },
+  "textView": {
+    "intro": "Introducción",
+    "poeticText": "Texto poético",
+    "notes": "Notas al texto"
+  },
+  "test": {
+    "score1": "Obra 1",
+    "score2": "Obra 2",
+    "score3": "Obra 3",
+    "basic": "en esp test"
+  }
+}

@@ -40,6 +40,8 @@ export interface ScoreViewerConfigSettings {
     backgroundColor?: string | undefined;
     basePath: string;
     facsimileImagesPath: string;
+    language?: string | "autodetect";
+    allowUserLanguageChange: boolean;
 }
 
 export interface ScoreViewerConfig  {

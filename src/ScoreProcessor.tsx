@@ -1,3 +1,5 @@
+import i18next from "./i18n";
+
 type FilterFunc = (doc: Document, params: any) => void
 
 type Filters = [FilterFunc, any][];
@@ -74,7 +76,10 @@ const AddReconstructionNamesFilter: FilterFunc = (doc: Document, _: {}) => {
         const staff = label.split(":")[1]
         const type = label.split(":")[2]
         const name = label.split(":")[3]
-        const desc = type == "IA" ?`Reconstrucción por IA. Modelo ${name}` : `Reconstrucción por ${name}`
+        const desc = type == "IA" ?
+            i18next.t('scoreProcessor.reconstructionByIA', { "name": name }) :
+            i18next.t('scoreProcessor.reconstructionByHuman', { "name": name })
+
 
         const rdg = doc.createElement("rdg")
         rdg.setAttribute("label", label)

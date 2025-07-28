@@ -5,8 +5,11 @@ import HoverHighlighter from "./HoverHighlighter";
 import { Button, Modal, Radio } from "antd";
 import { Tooltip } from "react-tooltip";
 import { EditorialItem, Choice, Option } from "./types";
+import { useTranslation } from 'react-i18next';
+
 
 function Editorials() {
+    const { t } = useTranslation("common");
     const score = useStore.use.score();
     const showingEditorial = useStore.use.showingEditorial();
     const setShowingEditorial = useStore.use.setShowingEditorial();
@@ -40,20 +43,20 @@ function Editorials() {
     const getChoiceText = (type: string, subtype: string, options: Option[], index: number) => {
         if (type == "app") {
             if (subtype == "lem") {
-                return "lectura preferida";
+                return t("editorial.preferredReading");
             }
             const rdgs = options.filter(o => o.type == "rdg");
             if (rdgs.length == 1) {
-                return "lectura alternativa";
+                return t("editorial.alternativeReading");
             }
-            return `lectura alternativa nº${1 + rdgs.findIndex(r => r == options[index])}`;
+            return `${t("editorial.alternativeReadingNumber")}${1 + rdgs.findIndex(r => r == options[index])}`;
         } else if (type == "choice") {
             if (subtype == "reg") {
-                return "lectura regularizada";
+                return t("editorial.regReading");
             } else if (subtype == "orig") {
-                return "lectura original";
+                return t("editorial.origReading");
             } else {
-                return `opción ${1 + index}`;
+                return t('editorial.optionNumber', { 'number': 1 + index});
             }
         } else {
             return "";
@@ -128,8 +131,8 @@ function Editorials() {
         return (
             <div>
                 <br />
-                <p>Actualmente se muestra la {getChoiceText(type, subtype, choice.options, selectedOptionIdx)} </p>
-                <p>Opciones disponibles:</p>
+                <p>{t('editorial.currentlyShowing', { 'what': getChoiceText(type, subtype, choice.options, selectedOptionIdx)})} </p>
+                <p>$t('editorial.availableOptions'):</p>
                 {options}
             </div>
         );
@@ -161,11 +164,11 @@ function Editorials() {
                     open={showingEditorialItem != null && showingEditorialItem != undefined}
                     onCancel={() => setShowingEditorial(null)}
                     footer={
-                        <Button type="primary" onClick={() => setShowingEditorial(null)}>Ok</Button>
+                        <Button type="primary" onClick={() => setShowingEditorial(null)}>{t('ok')}</Button>
                     }>
 
-                    {showingEditorialItem!.reason != "" ? <p>{`Razon: ${showingEditorialItem!.reason}`}</p> : ""}
-                    {showingEditorialItem!.resp != "" ? <p>{`Responsable: ${showingEditorialItem!.resp}`}</p> : ""}
+                    {showingEditorialItem!.reason != "" ? <p>{`${t('editorial.reason')}: ${showingEditorialItem!.reason}`}</p> : ""}
+                    {showingEditorialItem!.resp != "" ? <p>{`${t('editorial.resp')}: ${showingEditorialItem!.resp}`}</p> : ""}
                     {getAnnotationText(showingEditorialItem!)}
                     {getChoices(showingEditorialItem!)}
                 </Modal>

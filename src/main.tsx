@@ -6,6 +6,8 @@ import testConfig from '../assets/test.json'
 import { ScoreViewerConfig } from './types/config'
 import { Button, Space } from 'antd'
 import { ScoreProperties } from './types'
+import { useTranslation } from 'react-i18next'
+
 
 const USE_TEST_CONFIG = true
 
@@ -22,6 +24,8 @@ const defaultConfig: ScoreViewerConfig = {
     backgroundColor: "#f6eee3",
     basePath: "/",
     facsimileImagesPath: "/",
+    language: "es",
+    allowUserLanguageChange: false
   },
   scores: [
     {
@@ -76,6 +80,7 @@ function TestSections() {
 }
 
 function TestExternalSelector() {
+  const { t } = useTranslation("common");
   const customSelectorConfig = { ...config, settings: { ...config.settings, showScoreSelector: false } }
 
   const ref = useRef<ScoreViewerRef>(null)
@@ -90,13 +95,13 @@ function TestExternalSelector() {
     <div>
       <Space direction="horizontal" size="large" style={{ height: "3vh" }}>
           <Button onClick={() => ref.current?.selectScore(0)}>
-            Score 1
+            {t('test.score1')}
           </Button>
           <Button onClick={() => ref.current?.selectScore(1)}>
-            Score 2
+            {t('test.score2')}
           </Button>
           <Button onClick={() => ref.current?.selectScore(2)}>
-            Score 3
+            {t('test.score3')}
           </Button>
         </Space>
       <ScoreViewer ref={ref} width="100%" height="89vh" config={customSelectorConfig} />
@@ -107,7 +112,7 @@ function TestExternalSelector() {
 
 function TestBasic() {
   return (
-    <ScoreViewer width="100%" height="92vh" config={config} />
+    <ScoreViewer width="100%" height="92vh" config={config}/>
   )
 }
 

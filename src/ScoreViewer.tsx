@@ -6,7 +6,7 @@ import { Context } from './Context';
 import { ConfigProvider, Select, Space, Tabs, TabsProps, theme, Typography } from 'antd'
 import { isMobile, useMobileOrientation } from 'react-device-detect';
 import ErrorBoundary from './ErrorBoundary';
-import { PlayingState, ScoreProperties, VisualizationOptions } from './types';
+import { LANGUAGE_SESSION_STORAGE_KEY, PlayingState, ScoreProperties, VisualizationOptions } from './types';
 import ScoreViewContainer, { ScoreViewContainerRef } from './ScoreViewContainer';
 import { DefaultOptionType } from 'antd/es/select';
 import TextView from './TextView';
@@ -17,6 +17,8 @@ import { ScoreViewerConfig } from './types/config';
 import { useScoreManager } from './hooks/useScoreManager';
 import { useTextParts } from './hooks/useTextParts';
 import { useImperativeHandle } from 'react';
+import { useTranslation } from 'react-i18next';
+
 
 
 export interface ScoreViewerProps {
@@ -32,9 +34,8 @@ export interface ScoreViewerRef {
   selectScore: (scoreIndex: number | null) => void
 }
 
-
 const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOptionsChanged }: ScoreViewerProps, ref: Ref<ScoreViewerRef>) => {
-
+  const { t, i18n } = useTranslation("common");
   const score = useStore.use.score()
   const showReconstructions = useStore.use.showReconstructions()
   const setAudioOverlayTracks = useStore.use.setAudioOverlayTracks()
@@ -75,6 +76,13 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
       }
     }
   }));
+
+
+  useEffect(() => {
+    if (config.settings.language && config.settings.language !== "autodetect" && sessionStorage.getItem(LANGUAGE_SESSION_STORAGE_KEY) == null) {
+      i18n.changeLanguage(config.settings.language);
+    }
+  }, [config]);
 
   useEffect(() => {
     if (config.scores.length > 0 && config.settings.showScoreSelector) {
@@ -159,7 +167,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   const scoreSelector = useMemo(() =>
     config.scores.length > 1 && config.settings.showScoreSelector ?
       <Space direction='horizontal' style={{ marginBottom: "10px", textAlign: "start", flex: "0" }}>
-        <Typography.Text style={{ marginLeft: "10px" }}>Obra:</Typography.Text>
+        <Typography.Text style={{ marginLeft: "10px" }}>{t('heading.work')}:</Typography.Text>
         <Select
           style={{ minWidth: "200px", marginRight: "10px" }}
           defaultValue={0}
@@ -167,7 +175,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
           onChange={onScoreChanged} />
       </Space>
       : null
-    , [config])
+    , [config, t])
 
   // On mobile devices we give the controls + score the full height assigned
   // to the component + scrolling  on the top element to maximize the space
@@ -184,6 +192,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     ref={scoreViewContainerRef}
     backgroundColor={config.settings.backgroundColor}
     showDownloadButton={config.settings.showDownloadButton}
+    allowUserLanguageChange={config.settings.allowUserLanguageChange}
     height={containerHeight} />
     , [config, containerHeight])
 
@@ -198,25 +207,25 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
       config.settings.showFacsimileSection ? [
         config.settings.showIntroductionSection && textIntroduction !== null ? {
           key: 'intro',
-          label: <Space direction='horizontal'>Introducción</Space>,
+          label: <Space direction='horizontal'>{t('tab.introduction')}</Space>,
           children: <TextView intro={textIntroduction} />
         } : null,
         {
           key: 'music',
-          label: <Space direction='horizontal'><Icon component={MusicSvg} />Musica</Space>,
+          label: <Space direction='horizontal'><Icon component={MusicSvg} />{t('tab.music')}</Space>,
           children: scoreView
         },
         config.settings.showTextSection && textLyrics !== null ? {
           key: 'text',
-          label: <Space direction='horizontal'><FileTextOutlined />Texto</Space>,
+          label: <Space direction='horizontal'><FileTextOutlined />{t('tab.text')}</Space>,
           children: <TextView items={textLyrics} comments={textComments} />
         } : null,
         config.settings.showFacsimileSection && score?.fascimileItems?.length ? {
           key: 'facsimile',
-          label: <Space direction='horizontal'> <FileImageOutlined />Facsimil</Space>,
+          label: <Space direction='horizontal'> <FileImageOutlined />{t('tab.facsimile')}</Space>,
           children: <FacsimileView path={config.settings.facsimileImagesPath} items={score.fascimileItems} />
         } : null
-      ].filter(t => t != null) : [], [config, score, textIntroduction, textLyrics, title, scoreView])
+      ].filter(t => t != null) : [], [config, score, textIntroduction, textLyrics, title, scoreView, t])
 
 
   const tabs = useMemo(() =>
@@ -265,6 +274,5 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     </ConfigProvider>
   )
 }
-
 
 export default forwardRef<ScoreViewerRef, ScoreViewerProps>(ScoreViewer)

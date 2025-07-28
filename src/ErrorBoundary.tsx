@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo } from 'react';
+import i18next from './i18n'
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -39,7 +40,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
           color: '#721c24',
           margin: '10px 0'
         }}>
-          <h3>Something went wrong in the score viewer.</h3>
+          <h3>{i18next.t('error.scoreViewerError')}</h3>
           <p>{this.state.error?.message}</p>
           <button
             onClick={() => this.setState({ hasError: false })}
@@ -52,7 +53,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
               cursor: 'pointer'
             }}
           >
-            Try again
+            {i18next.t('error.tryAgain')}
           </button>
         </div>
       );

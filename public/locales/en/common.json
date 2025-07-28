@@ -1,0 +1,108 @@
+{
+  "Music": "Música",
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "Text": "Texto",
+  "Introduction": "Introducción",
+  "heading": {
+    "work": "Work"
+  },
+  "tab": {
+    "introduction": "Introduction",
+    "music": "Music",
+    "text": "Text",
+    "facsimile": "Facsimile"
+  },
+  "editorial": {
+    "preferredReading": "preferred reading",
+    "alternativeReading": "alternative reading",
+    "regReading": "regularized reading",
+    "origReading": "original reading",
+    "alternativeReadingNumber": "alternative reading #",
+    "currentlyShowing": "Currently showing the {{what}}",
+    "availableOptions": "Available options",
+    "reason": "Reason",
+    "resp": "Responsible person",
+    "optionNumber": "Option #{{number}}",
+    "formatType": {
+      "corr": "Applied correction",
+      "unclear": "Unclear element in the source",
+      "choice": "Available options",
+      "app": "Alternative readings",
+      "lem": "preferred reading",
+      "rdg": "other reading",
+      "sic": "obvious error",
+      "supplied": "added part",
+      "reg": "Regularization",
+      "clefChange": "Clef change",
+      "default": "type: {{type}}"
+    }
+  },
+  "error": {
+    "scoreViewerError": "Something went wrong in the score viewer.",
+    "tryAgain": "Try again"
+  },
+  "ok": "Ok",
+  "reset": "Reset",
+  "playerMode": {
+    "autoscroll": "auto scroll",
+    "normal": "normal"
+  },
+  "anonymous": "Anonymous",
+  "scoreControls": {
+    "options": "Options"
+  },
+  "scoreOptions": {
+    "title": "Display options",
+    "reconstruction": "Reconstruction {{voiceName}}",
+    "editorialNotes": {
+      "title": "Editorial notes",
+      "description": "Shows a layer with critical notes and variant selection options"
+    },
+    "normalizeFicta": {
+      "title": "Normalize musica ficta",
+      "description": "Show the subsemitonium alterations as normal ones preceding the note"
+    },
+    "originalClefs": {
+      "title": "Original clefs",
+      "description": "Shows the original manuscript clefs without modernization"
+    },
+    "noTransposition": {
+      "title": "No transposition",
+      "description": "Shows the score undoing the transposition from high clefs ({{encodedTransposition}})"
+    },
+    "harmonicAnalysis": {
+      "title": "Harmonic analysis",
+      "description": "Shows parallel fifths and octaves and classification of score dissonances"
+    },
+    "limitVerses": {
+      "title": "Limit verses",
+      "description": "Choose the number of verses to show in the couplets"
+    },
+    "verseAmmount_one": "1 verse",
+    "verseAmmount_other": "{{count}} verses",
+    "reconstructionNone": "none",
+    "language": {
+      "title": "Language",
+      "description": "Language for the UI"
+    }
+  },
+  "scoreProcessor": {
+    "reconstructionByIA": "Reconstruction by AI. Model {{name}}",
+    "reconstructionByHuman": "Reconstruction by {{name}}"
+  },
+  "score": {
+    "measureNumber": "Measure {{number}}"
+  },
+  "textView": {
+    "intro": "Introduction",
+    "poeticText": "Poetical text",
+    "notes": "Notes to the text"
+  },
+  "test": {
+    "score1": "Score 1",
+    "score2": "Score 2",
+    "score3": "Score 3",
+    "basic": "translation test"
+  }
+}

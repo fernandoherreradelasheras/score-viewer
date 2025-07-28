@@ -15,6 +15,7 @@ export interface ScoreViewProps {
 
 
 function ScoreView(scoreViewProps: ScoreViewProps) {
+
     const { backgroundColor } = scoreViewProps;
     const { verovio } = useContext(Context);
 

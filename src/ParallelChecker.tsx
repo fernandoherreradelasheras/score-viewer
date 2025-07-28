@@ -8,12 +8,12 @@ const interval = (pitch1: number, pitch2: number): number => {
 
 const isPerfectFifth = (pitch1: number, pitch2: number): boolean => {
     const pitchInterval = interval(pitch1, pitch2);
-    return pitchInterval=== 7;
+    return pitchInterval === 7;
 }
 
 const isOctave = (pitch1: number, pitch2: number): boolean => {
     const pitchInterval = interval(pitch1, pitch2);
-    return pitchInterval === 12 || pitchInterval === 0;
+    return pitchInterval === 12;
 }
 
 const nsResolver = (prefix: string | null) => { return { mei: "http://www.music-encoding.org/ns/mei", xml: "http://www.w3.org/XML/1998/namespace" }[prefix || ''] || null }

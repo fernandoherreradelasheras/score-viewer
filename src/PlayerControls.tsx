@@ -4,6 +4,7 @@ import useStore from "./store";
 import Icon from "@ant-design/icons";
 import StaticPlayerSvg from "../assets/static-player.svg?react";
 import ScrollingPlayerSvg from "../assets/scrolling-player.svg?react";
+import { useTranslation } from "react-i18next";
 
 const str2padded = (n: number) => (Math.floor(n)).toString().padStart(2, '0')
 
@@ -22,6 +23,8 @@ export interface PlayerControlProps {
 
 
 function PlayerControls({ audioDuration = 0 }: PlayerControlProps) {
+    const { t } = useTranslation("common")
+
     const playingPosition = useStore.use.playingPosition()
     const setSeekPosition = useStore.use.setSeekPosition()
     const setAutoScroll = useStore.use.setAutoScroll()
@@ -91,8 +94,8 @@ function PlayerControls({ audioDuration = 0 }: PlayerControlProps) {
             onChange={onPlayerModeChange}
             value={playerMode}
             options={[
-                { value: 'scrolling', label: "auto scroll", icon: <Icon component={ScrollingPlayerSvg} /> },
-                { value: 'static', label: "normal", icon: <Icon component={StaticPlayerSvg} /> }
+                { value: 'scrolling', label: t('playerMode.autoscroll'), icon: <Icon component={ScrollingPlayerSvg} /> },
+                { value: 'static', label: t('playerMode.normal'), icon: <Icon component={StaticPlayerSvg} /> }
             ]} />
     )
 

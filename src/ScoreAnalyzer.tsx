@@ -1,4 +1,5 @@
 import { EditorialItem, Annotation, ReconstructionItem, ScoreProperties } from "./types";
+import i18next from './i18n'
 
 
 
@@ -60,12 +61,12 @@ class ScoreAnalyzer {
 
     getComposer() {
         let name = this.document.evaluate("//mei:composer/mei:persName[@role=\"composer\"][1]", this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
-        return name || "Anónimo"
+        return name || i18next.t("anonymous")
     }
 
     getLyricist() {
         let name = this.document.evaluate("//mei:lyricist/mei:persName[@role=\"lyricist\"][1]", this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
-        return name  || "Anónimo"
+        return name  || i18next.t("anonymous")
     }
 
     getReconstructionBy() {

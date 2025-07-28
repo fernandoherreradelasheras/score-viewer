@@ -1,7 +1,11 @@
 import { Drawer, Space, Row, Col, Typography, Switch, Select } from "antd"
+import { useTranslation } from 'react-i18next';
 import useScoreOptions from "./hooks/useScoreOptions";
+import { LANGUAGE_SESSION_STORAGE_KEY, SUPPORTED_LANGUAGES } from "./types/ui";
 
-function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean} ) {
+function ScoreOptionsPanel({allowUserLanguageChange, onClose, open} : {allowUserLanguageChange: boolean, onClose: () => void, open: boolean} ) {
+    const { t, i18n } = useTranslation("common")
+
     // Use our custom hook for all score options logic
     const {
         // State
@@ -40,7 +44,7 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
             <Col span={12}>
             <Space direction="vertical">
                 <Typography.Text strong={true} >
-                    { `Reconstrucción ${voiceReconstruction.voiceName}` }
+                    {t('scoreOptions.reconstruction', { voiceName: voiceReconstruction.voiceName })}
                 </Typography.Text>
             </Space>
         </Col>
@@ -57,9 +61,36 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
         </Row>
     ) : null
 
+    const onLanguageSelected = (value: string) => {
+        sessionStorage.setItem(LANGUAGE_SESSION_STORAGE_KEY, value)
+        i18n.changeLanguage(value);
+    }
+
+
+    const languageOptions = allowUserLanguageChange ? SUPPORTED_LANGUAGES.map(lang => ({ label: lang.label, value: lang.key })) : [];
+
+    const languageRow = allowUserLanguageChange ?
+                <Row align={"middle"}>
+                    <Col span={16}>
+                        <Space direction="vertical">
+                            <Typography.Text strong={true}  {...(!showEditorial ? {type: 'secondary'} :{} )}>
+                                {t('scoreOptions.language.title')}
+                            </Typography.Text>
+                            <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }}  {...(!showEditorial ? {type: 'secondary'} :{} )}>
+                                {t('scoreOptions.language.description')}
+                            </Typography.Text>
+                        </Space>
+                    </Col>
+                    <Col span={8}>
+                        <Select value={i18n.language} options={languageOptions} onSelect={onLanguageSelected} />
+                    </Col>
+                </Row> : null
+
     return (
-        <Drawer title="Opciones de visualizacion" open={open} onClose={onClose}>
+        <Drawer title={t('scoreOptions.title')} open={open} onClose={onClose}>
             <Space direction="vertical" size="large">
+
+                {languageRow}
 
                 {reconstructionRows}
 
@@ -67,10 +98,10 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
                     <Col span={20}>
                         <Space direction="vertical">
                             <Typography.Text strong={true}  {...(!showEditorial ? {type: 'secondary'} :{} )}>
-                                Notas editoriales
+                                {t('scoreOptions.editorialNotes.title')}
                             </Typography.Text>
                             <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }}  {...(!showEditorial ? {type: 'secondary'} :{} )}>
-                                Muestra una capa con las notas críticas y elección de variantes variantes
+                                {t('scoreOptions.editorialNotes.description')}
                             </Typography.Text>
                         </Space>
                     </Col>
@@ -82,10 +113,10 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
                     <Col span={20}>
                         <Space direction="vertical">
                             <Typography.Text strong={true}  {...(!normalizeFicta ? {type: 'secondary'} :{} )}>
-                                Normalizar musica ficta
+                                {t('scoreOptions.normalizeFicta.title')}
                             </Typography.Text>
                             <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!normalizeFicta ? {type: 'secondary'} :{} )}>
-                                Mostrar las alteraciones subintelectas de como las normales prececiendo a la nota
+                                {t('scoreOptions.normalizeFicta.description')}
                             </Typography.Text>
                         </Space>
                     </Col>
@@ -99,10 +130,10 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
                         <Col span={20}>
                             <Space direction="vertical">
                                 <Typography.Text strong={true} {...(!showOriginalClefs ? {type: 'secondary'} :{} )}>
-                                    Claves originales
+                                    {t('scoreOptions.originalClefs.title')}
                                 </Typography.Text>
                                 <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!showOriginalClefs ? {type: 'secondary'} :{} )} >
-                                    Muestra las claves originales del manuscrito sin modernizar
+                                    {t('scoreOptions.originalClefs.description')}
                                 </Typography.Text>
                             </Space>
                         </Col>
@@ -121,10 +152,10 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
                     <Col span={20}>
                         <Space direction="vertical">
                             <Typography.Text strong={true} {...(!transposition ? {type: 'secondary'} :{} )}>
-                                Sin transposición
+                                {t('scoreOptions.noTransposition.title')}
                             </Typography.Text>
                             <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!transposition ? {type: 'secondary'} :{} )} >
-                                Muestra la partitura deshaciendo la transposición desde claves altas ({score?.properties?.encodedTransposition})
+                                {t('scoreOptions.noTransposition.description', { encodedTransposition: score?.properties?.encodedTransposition })}
                             </Typography.Text>
                         </Space>
                     </Col>
@@ -143,10 +174,10 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
                     <Col span={20}>
                         <Space direction="vertical">
                             <Typography.Text strong={true} {...(!transposition ? {type: 'secondary'} :{} )}>
-                                Análisis armónico
+                                {t('scoreOptions.harmonicAnalysis.title')}
                             </Typography.Text>
                             <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!transposition ? {type: 'secondary'} :{} )} >
-                                Muestra quintas y octavas paralelas y clasificación de las disonancias de la partitura
+                                {t('scoreOptions.harmonicAnalysis.description')}
                             </Typography.Text>
                         </Space>
                     </Col>
@@ -164,10 +195,10 @@ function ScoreOptionsPanel({onClose, open} : {onClose: () => void, open: boolean
                     <Col span={16}>
                         <Space direction="vertical">
                             <Typography.Text strong={true} {...(!showNVerses ? {type: 'secondary'} :{} )}>
-                                Limitar versos
+                                {t('scoreOptions.limitVerses.title')}
                             </Typography.Text>
                             <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!showNVerses ? {type: 'secondary'} :{} )} >
-                                Elige la cantidad de versos a mostrar en las coplas
+                                {t('scoreOptions.limitVerses.description')}
                             </Typography.Text>
                         </Space>
                     </Col>

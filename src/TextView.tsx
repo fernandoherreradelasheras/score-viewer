@@ -4,6 +4,7 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from 'rehype-raw'
 import sectionize from 'remark-sectionize'
 import { LyricItem } from './types';
+import i18next from './i18n';
 
 
 
@@ -34,7 +35,7 @@ const formatPoemText = (text: string, initialLineNumber: number) => {
 }
 
 const renderIntro = (intro: string) => {
-    var introText = markdownSubtitle("Introducción")
+    var introText = markdownSubtitle(i18next.t("textView.intro"))
     introText += intro
     introText += "\n\n"
 
@@ -42,7 +43,7 @@ const renderIntro = (intro: string) => {
 }
 
 const renderPoem = (items: LyricItem[], comments?: string | null) => {
-    var poemText = markdownSubtitle("Texto poético")
+    var poemText = markdownSubtitle(i18next.t("textView.poeticText"))
 
     var lineNumber = 0
     for (let item of items) {
@@ -56,7 +57,7 @@ const renderPoem = (items: LyricItem[], comments?: string | null) => {
 
     if (comments) {
         poemText += "\n\n"
-        poemText += markdownSubtitle("Notas al texto")
+        poemText += markdownSubtitle(i18next.t("textView.notes"))
         poemText += comments + "\n\n"
     }
     return poemText

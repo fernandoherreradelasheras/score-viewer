@@ -3,9 +3,11 @@ import { FacsimileItem } from './types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pan-pinch";
 import { ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 
 function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }) {
+  const { t } = useTranslation("common");
 
   const [currentItem, setCurrentItem] = useState(0);
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
@@ -23,7 +25,7 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
         <Space direction="horizontal" size={12} style={{ flex: "0", marginLeft: "12px" }}>
           <Button icon={<ZoomInOutlined />} onClick={() => zoomIn()}/>
           <Button icon={<ZoomOutOutlined />} onClick={() => zoomOut()}/>
-          <Button onClick={() => resetTransform()}>Reset</Button>
+          <Button onClick={() => resetTransform()}>{t('reset')}</Button>
         </Space>
          { items.length > 1 ?  <Pagination
                   style={{ flex: "1", textAlign: "center" }}

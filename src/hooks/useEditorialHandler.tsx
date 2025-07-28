@@ -1,11 +1,16 @@
 import { useCallback } from 'react';
 import useStore from '../store';
 import { EditorialItem } from '../types';
+import { useTranslation } from 'react-i18next';
+
 
 const targets = ["note", "rest", "clef", "accid", "app", "choice", "corr", "sic", "unclear", "supplied", "reg", "measure"];
 
 
 export function useEditorialHandler() {
+
+  const { t } = useTranslation("common")
+
   const showEditorial = useStore.use.showEditorial();
   const setShowingEditorial = useStore.use.setShowingEditorial();
   const editorials = useStore.use.score()?.editorialItems;
@@ -56,19 +61,19 @@ export function useEditorialHandler() {
 
   const formatType = useCallback((type: string): string => {
     switch (type) {
-      case "corr": return "Corrección aplicada";
-      case "unclear": return "Elemento poco claro en la fuente";
-      case "choice": return "Opciones disponibles";
-      case "app": return "Lecturas alternativas";
-      case "lem": return "lectura preferida";
-      case "rdg": return "otra lectura";
-      case "sic": return "error evidente";
-      case "supplied": return "parte añadida";
-      case "reg": return "Regularización";
-      case "clef[data-corresp]": return "Cambio de clave";
-      default: return `tipo: ${type}`;
+      case "corr": return t('editorial.formatType.corr');
+      case "unclear": return t('editorial.formatType.unclear');
+      case "choice": return t('editorial.formatType.choice');
+      case "app": return t('editorial.formatType.app');
+      case "lem": return t('editorial.formatType.lem');
+      case "rdg": return t('editorial.formatType.rdg');
+      case "sic": return t('editorial.formatType.sic');
+      case "supplied": return t('editorial.formatType.supplied');
+      case "reg": return t('editorial.formatType.reg');
+      case "clef[data-corresp]": return t('editorial.formatType.clefChange');
+      default: return t('editorial.formatType.default', { type });
     }
-  }, []);
+  }, [t]);
 
   return {
     showEditorial,

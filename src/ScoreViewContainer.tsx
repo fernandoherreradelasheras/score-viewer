@@ -9,6 +9,7 @@ import { TimeMapEvent, PlayingState } from './types';
 import { forwardRef, Ref, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useIsVisible } from './hooks/useIsVisible';
 import MouseTracker from './MouseTracker';
+import { useTranslation } from 'react-i18next';
 
 
 const getAudioDurationMillis = (timemap: TimeMapEvent[]) => {
@@ -17,6 +18,7 @@ const getAudioDurationMillis = (timemap: TimeMapEvent[]) => {
 
 
 export interface ScoreViewContainerProps {
+    allowUserLanguageChange?: boolean;
     backgroundColor?: string | undefined;
     showDownloadButton?: boolean | undefined;
     height: string;
@@ -27,6 +29,8 @@ export interface ScoreViewContainerRef {
 }
 
 function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, ref: Ref<ScoreViewContainerRef>) {
+    const { t } = useTranslation("common")
+
     const { backgroundColor, height } = scoreViewContainerProps;
 
     const score = useStore.use.score();
@@ -120,6 +124,7 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
                     style={{ flex: "0" }}
                     fullScreenElement={scoreViewerRef.current}
                     showDownloadButton={scoreViewContainerProps.showDownloadButton ?? false}
+                    allowUserLanguageChange={scoreViewContainerProps.allowUserLanguageChange ?? false}
                     audioDuration={audioDuration}/> : null }
 
                 <div className="score-container swipeable-container"
@@ -147,7 +152,7 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
                     const staffBB = (e.target as Element)?.closest('g.staff.bounding-box');
                     const measure = (e.target as Element)?.closest('g.measure');
                     const n = measure?.getAttribute('data-n');
-                    return staffBB && n ? `Measure ${n}` : undefined;
+                    return staffBB && n ? t('score.measureNumber', { 'number': n }) : undefined;
                 }}
             />}
         </div>
