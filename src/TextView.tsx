@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from 'rehype-raw'
+import rehypeExternalLinks from 'rehype-external-links';
 import sectionize from 'remark-sectionize'
 import { FetchError, LyricItem } from './types';
 import ErrorView from './ErrorView';
@@ -131,7 +132,12 @@ function TextView(props: TextViewProps) {
             {errorView ? errorView : null}
             <div style={{ display: "flex", flexDirection: "row" }}>
                 <div className="text-view" style={{ textAlign: "left" }}>
-                    <Markdown remarkPlugins={[remarkGfm, sectionize]} rehypePlugins={[rehypeRaw]}>{markdownText}</Markdown>
+                    <Markdown
+                        remarkPlugins={[remarkGfm, sectionize]}
+                        rehypePlugins={[
+                            rehypeRaw,
+                            [rehypeExternalLinks, { target: "_blank", rel: "noopener noreferrer" }]
+                        ]}>{markdownText}</Markdown>
                 </div>
             </div>
         </div>

@@ -39,6 +39,7 @@
     "react-tooltip": "^5.28.1",
     "react-use-size": "^5.0.1",
     "react-zoom-pan-pinch": "^3.7.0",
+    "rehype-external-links": "^3.0.0",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
     "remark-sectionize": "^2.1.0",
