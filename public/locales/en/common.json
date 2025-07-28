@@ -103,6 +103,35 @@
     "score1": "Score 1",
     "score2": "Score 2",
     "score3": "Score 3",
-    "basic": "translation test"
+    "basic": "Basic",
+    "selectTest": "Select Test:",
+    "sections": "Sections"
+  },
+  "configValidation": {
+    "configRequired": "Configuration is required",
+    "settingsRequired": "Settings object is required",
+    "showScoreSelectorBoolean": "showScoreSelector must be a boolean",
+    "showTitleBoolean": "showTitle must be a boolean",
+    "showDownloadButtonBoolean": "showDownloadButton must be a boolean",
+    "showIntroductionSectionBoolean": "showIntroductionSection must be a boolean",
+    "showTextSectionBoolean": "showTextSection must be a boolean",
+    "showFacsimileSectionBoolean": "showFacsimileSection must be a boolean",
+    "renderTitlesFromMEIBoolean": "renderTitlesFromMEI must be a boolean",
+    "allowUserLanguageChangeBoolean": "allowUserLanguageChange must be a boolean",
+    "basePathRequired": "basePath is required and must be a string",
+    "facsimileImagesPathRequired": "facsimileImagesPath is required and must be a string",
+    "backgroundColorString": "backgroundColor must be a string if provided",
+    "languageString": "language must be a string if provided",
+    "scoresArray": "Scores must be an array",
+    "scoresNotEmpty": "At least one score is required",
+    "scoreTitleRequired": "Score title is required and must be a string",
+    "scorePathRequired": "Score path is required and must be a string",
+    "scoreMeiFileRequired": "Score meiFile is required and must be a string",
+    "scoreEncodingPropertiesRequired": "encodingProperties object is required",
+    "scoreAudioOverlaysArray": "audioOverlays must be an array if provided",
+    "scoreTextArray": "text must be an array if provided",
+    "scoreFacsimileItemsArray": "facsimileItems must be an array if provided",
+    "configurationError": "Configuration Error",
+    "configurationErrorDescription": "The ScoreViewer configuration contains errors:"
   }
 }

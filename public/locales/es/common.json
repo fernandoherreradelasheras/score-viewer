@@ -104,5 +104,32 @@
     "score2": "Obra 2",
     "score3": "Obra 3",
     "basic": "en esp test"
+  },
+  "configValidation": {
+    "configRequired": "La configuración es requerida",
+    "settingsRequired": "El objeto de configuración (settings) es requerido",
+    "showScoreSelectorBoolean": "showScoreSelector debe ser un booleano",
+    "showTitleBoolean": "showTitle debe ser un booleano",
+    "showDownloadButtonBoolean": "showDownloadButton debe ser un booleano",
+    "showIntroductionSectionBoolean": "showIntroductionSection debe ser un booleano",
+    "showTextSectionBoolean": "showTextSection debe ser un booleano",
+    "showFacsimileSectionBoolean": "showFacsimileSection debe ser un booleano",
+    "renderTitlesFromMEIBoolean": "renderTitlesFromMEI debe ser un booleano",
+    "allowUserLanguageChangeBoolean": "allowUserLanguageChange debe ser un booleano",
+    "basePathRequired": "basePath es requerido y debe ser una cadena de texto",
+    "facsimileImagesPathRequired": "facsimileImagesPath es requerido y debe ser una cadena de texto",
+    "backgroundColorString": "backgroundColor debe ser una cadena de texto si se proporciona",
+    "languageString": "language debe ser una cadena de texto si se proporciona",
+    "scoresArray": "Scores debe ser un array",
+    "scoresNotEmpty": "Se requiere al menos una partitura",
+    "scoreTitleRequired": "El título de la partitura es requerido y debe ser una cadena de texto",
+    "scorePathRequired": "La ruta de la partitura es requerida y debe ser una cadena de texto",
+    "scoreMeiFileRequired": "El archivo MEI de la partitura es requerido y debe ser una cadena de texto",
+    "scoreEncodingPropertiesRequired": "El objeto encodingProperties es requerido",
+    "scoreAudioOverlaysArray": "audioOverlays debe ser un array si se proporciona",
+    "scoreTextArray": "text debe ser un array si se proporciona",
+    "scoreFacsimileItemsArray": "facsimileItems debe ser un array si se proporciona",
+    "configurationError": "Error de Configuración",
+    "configurationErrorDescription": "La configuración del ScoreViewer contiene errores:"
   }
 }

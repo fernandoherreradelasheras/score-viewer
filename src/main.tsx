@@ -117,6 +117,7 @@ function TestBasic() {
 }
 
 function TestSelector() {
+  const { t } = useTranslation("common")
   const [selectedTest, setSelectedTest] = useState<'basic' | 'sections' | 'external'>('basic')
 
   const renderSelectedTest = () => {
@@ -136,18 +137,18 @@ function TestSelector() {
     <div>
       <div style={{  height: "4vh", padding: '20px', backgroundColor: '#f0f0f0', borderBottom: '1px solid #ddd' }}>
         <Space>
-          <span>Select Test:</span>
+          <span>{t('test.selectTest')}</span>
           <Button
             type={selectedTest === 'basic' ? 'primary' : 'default'}
             onClick={() => setSelectedTest('basic')}
           >
-            Basic
+            {t('test.basic')}
           </Button>
           <Button
             type={selectedTest === 'sections' ? 'primary' : 'default'}
             onClick={() => setSelectedTest('sections')}
           >
-            Sections
+            {t('test.sections')}
           </Button>
           <Button
             type={selectedTest === 'external' ? 'primary' : 'default'}

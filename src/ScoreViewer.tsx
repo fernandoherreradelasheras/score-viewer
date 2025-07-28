@@ -3,7 +3,7 @@ import useStore from "./store";
 import { forwardRef, Ref, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useVerovio from './useVerovio';
 import { Context } from './Context';
-import { ConfigProvider, Select, Space, Tabs, TabsProps, theme, Typography } from 'antd'
+import { Alert, ConfigProvider, Select, Space, Tabs, TabsProps, theme, Typography } from 'antd'
 import { isMobile, useMobileOrientation } from 'react-device-detect';
 import ErrorBoundary from './ErrorBoundary';
 import { LANGUAGE_SESSION_STORAGE_KEY, PlayingState, ScoreProperties, VisualizationOptions } from './types';
@@ -18,8 +18,7 @@ import { useScoreManager } from './hooks/useScoreManager';
 import { useTextParts } from './hooks/useTextParts';
 import { useImperativeHandle } from 'react';
 import { useTranslation } from 'react-i18next';
-
-
+import { useConfigValidation } from './hooks/useConfigValidation';
 
 export interface ScoreViewerProps {
   config: ScoreViewerConfig
@@ -36,6 +35,9 @@ export interface ScoreViewerRef {
 
 const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOptionsChanged }: ScoreViewerProps, ref: Ref<ScoreViewerRef>) => {
   const { t, i18n } = useTranslation("common");
+
+  const { configErrors, hasConfigErrors } = useConfigValidation(config);
+
   const score = useStore.use.score()
   const showReconstructions = useStore.use.showReconstructions()
   const setAudioOverlayTracks = useStore.use.setAudioOverlayTracks()
@@ -46,6 +48,48 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   const setPlayingState = useStore.use.setPlayingState()
 
   const goToSection = useStore.use.goToSection()
+
+  // If there are config validation errors, render error UI
+  if (hasConfigErrors) {
+    return (
+      <ConfigProvider
+        theme={{
+          algorithm: theme.defaultAlgorithm,
+          token: {
+            fontSize: isMobile ? 12 : 16
+          },
+        }}>
+        <div className="score-viewer-top-element" style={{ width: width, height: height, overflow: "hidden" }}>
+          <div style={{
+            width: "calc(100% - 12px)",
+            height: "calc(100% - 12px)",
+            padding: "6px",
+            display: "flex",
+            flexDirection: "column"
+          }}>
+            <Alert
+              message={t('configValidation.configurationError')}
+              description={
+                <div>
+                  <p>{t('configValidation.configurationErrorDescription')}</p>
+                  <ul>
+                    {configErrors.map((error, index) => (
+                      <li key={index}>
+                        <strong>{error.field}:</strong> {error.message}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              }
+              type="error"
+              showIcon
+              style={{ margin: "16px 0" }}
+            />
+          </div>
+        </div>
+      </ConfigProvider>
+    );
+  }
 
   const verovio = useVerovio()
   const mobileOrientation = useMobileOrientation()
