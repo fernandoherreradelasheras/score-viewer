@@ -1,12 +1,14 @@
 import { useMemo } from "react";
 import { SelectProps } from 'antd/es/select';
 import useStore from "../store";
-import i18next from '../i18n'
+import { useTranslation } from "react-i18next";
 
 
 
 
 export default function useScoreOptions() {
+  const { t } = useTranslation("common");
+
   const score = useStore.use.score();
   const showNVerses = useStore.use.showNVerses();
   const setShowNVerses = useStore.use.setShowNVerses();
@@ -75,10 +77,10 @@ export default function useScoreOptions() {
   const verseOptions: SelectProps['options'] = useMemo(() =>
     Array.from({ length: numVersesAvailable }, (_, key) => 1 + key).map(i => ({
       value: i,
-      label: i18next.t("scoreOptions.verseAmmount", { "count" : i})
+      label: t("scoreOptions.verseAmmount", { "count" : i})
     })),
-    [numVersesAvailable]
-  );
+    [numVersesAvailable, t]
+  )
 
 
   const voiceRecontructions: { staff: string, voiceName: string, selectOptions: SelectProps['options'] }[] = useMemo(() => {
@@ -93,13 +95,13 @@ export default function useScoreOptions() {
       const reconstructionsForVoice: SelectProps['options'] = []
       for (const reconstruction of voiceRecontructed.reconstructionsForVoice) {
         // Format is reconstruction:staff:type:name
-        const name = reconstruction.label != "none" ? reconstruction.label.split(":")[3] : i18next.t("scoreOptions.reconstructionNone");
+        const name = reconstruction.label != "none" ? reconstruction.label.split(":")[3] : t("scoreOptions.reconstructionNone");
         reconstructionsForVoice.push({ value: reconstruction.label, label: name })
       }
       reconstructions.push({ staff: voiceRecontructed.staff, voiceName: voiceRecontructed.voiceName, selectOptions: reconstructionsForVoice })
     }
     return reconstructions
-  }, [numReconstructionsAvailable])
+  }, [numReconstructionsAvailable, t])
 
 
   const editorialDisabled = score?.properties ? !score.properties.hasEditorial : true;

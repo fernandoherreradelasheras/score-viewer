@@ -46,7 +46,6 @@
       "details": "Error loading the score from the network: {{url}}"
     },
     "fetchIntroError": "Error fetching the introduction text",
-    "fetchTextError": "Error fetching the poetic text",
     "fetchErrorDescription": "The following errors occurred fetching items from the network",
     "fetchLyricsItemErrorWithSection": "Poetic text for section {{section}}",
     "fetchTextCommentsError": "Text comments",
