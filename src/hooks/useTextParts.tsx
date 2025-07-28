@@ -1,19 +1,23 @@
 import { useCallback } from 'react';
-import { LyricItem, TextPartsCache } from '../types';
+import { FetchError, LyricItem, TextPartsCache } from '../types';
 import useStore from '../store';
 import { ScoreViewerConfig, ScoreViewerConfigScore, ScoreViewerConfigScoreText } from '../types/config';
 import { unstable_batchedUpdates } from 'react-dom';
 
 const CACHE_UPDATING_MARK = "updating"
 
-const getText = async (url: string) => {
+const getText = async (url: string): Promise<string> => {
   return fetch(url).then((res) => {
     const contentType = res.headers.get('Content-Type')
-    if (contentType && (contentType.includes('text/markdown') || contentType.includes('text/plain'))) {
+    if (res.ok && contentType && (contentType.includes('text/markdown') || contentType.includes('text/plain'))) {
       return res.text()
     } else {
-      return null
+      const error = new FetchError("Content error", `Unsupported content type from url ${url} (${contentType})`);
+      return Promise.reject(error)
     }
+  }, (error) => {
+    console.error(`Error fetching text from ${url}:`, error);
+    return Promise.reject(new FetchError("Network error",`Failed to fetch text from url ${url} (${error.message})`))
   })
 }
 
@@ -119,10 +123,7 @@ export function useTextParts({
     setTextCache(updatingCache, false)
 
     urlsToUpdate.forEach((url) => {
-      getText(url).then((res) => {
-        if (!res) {
-          return
-        }
+      getText(url).then((res: string) => {
 
         unstable_batchedUpdates(() => {
           setTextCache({ [url]: res }, false)
@@ -134,6 +135,20 @@ export function useTextParts({
             const textItem = scoreDef.text?.find((textItem) => url == getPath(scoreDef, textItem.file))
             if (textItem)
               setTextLyrics([{ title: getTitleFromItem(textItem), text: res }], false)
+          }
+        })
+      }, (error: FetchError) => {
+        console.log(`${error.type}: ${error.message}`)
+         unstable_batchedUpdates(() => {
+          setTextCache({ [url]: error }, false)
+          if (commentsUrl && url == commentsUrl) {
+            setTextComments(error)
+          } else if (introductionUrl && url == introductionUrl) {
+            setTextIntroduction(error)
+          } else if (lyricsUrls && lyricsUrls.includes(url)) {
+            const textItem = scoreDef.text?.find((textItem) => url == getPath(scoreDef, textItem.file))
+            if (textItem)
+              setTextLyrics([{ title: getTitleFromItem(textItem), text: error }], false)
           }
         })
       })

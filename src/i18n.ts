@@ -25,7 +25,7 @@ i18n
     resources,
     ...i18nextOptions,
     fallbackLng: 'en',
-    debug: true,
+    debug: false,
     defaultNS: 'common',
     interpolation: {
       escapeValue: false

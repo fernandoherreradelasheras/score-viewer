@@ -103,6 +103,7 @@ export default function useWebAudioPlayer() {
 
     useEffect(() => {
         const loadAudio = async (audioUrl: string) => {
+            console.log(`Loading audio from URL: ${audioUrl}`);
             const context = getAudioContext();
             if (!context) {
                 return

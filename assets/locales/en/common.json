@@ -40,7 +40,17 @@
   },
   "error": {
     "scoreViewerError": "Something went wrong in the score viewer.",
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "fetchingScore": {
+      "title": "Error fetching the score",
+      "details": "Error loading the score from the network: {{url}}"
+    },
+    "fetchIntroError": "Error fetching the introduction text",
+    "fetchTextError": "Error fetching the poetic text",
+    "fetchErrorDescription": "The following errors occurred fetching items from the network",
+    "fetchLyricsItemErrorWithSection": "Poetic text for section {{section}}",
+    "fetchTextCommentsError": "Text comments",
+    "fetchTextSeeErrorAbove": "Error: see above for details"
   },
   "ok": "Ok",
   "reset": "Reset",

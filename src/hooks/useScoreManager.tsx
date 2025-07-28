@@ -9,12 +9,14 @@ interface UseScoreManagerProps {
   config: ScoreViewerConfig;
   normalizeFicta: boolean | null;
   onScoreAnalyzed?: ((scoreIndex: number, properties: ScoreProperties) => void) | undefined;
+  onFetchScoreError?: ((url: string, error: Error) => void) | undefined;
 }
 
 export function useScoreManager({
   config,
   normalizeFicta,
-  onScoreAnalyzed
+  onScoreAnalyzed,
+  onFetchScoreError
 }: UseScoreManagerProps) {
   const scoreCache = useStore.use.scoreCache();
   const setScoreCache = useStore.use.setScoreCache();
@@ -26,9 +28,32 @@ export function useScoreManager({
   const setShowReconstructions = useStore.use.setShowReconstructions();
   const setShowOriginalClefs = useStore.use.setShowOriginalClefs();
 
-  const fetchMei = async (meiUrl: string) => {
-    const res = await fetch(meiUrl);
-    return res.text();
+  const fetchMei = async (meiUrl: string): Promise<string> => {
+      const res = await fetch(meiUrl);
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch MEI file: ${res.status} ${res.statusText}`);
+    }
+
+    const meiContent = await res.text();
+
+
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(meiContent, 'text/xml');
+
+    // Check for parsing errors
+    const parseError = xmlDoc.querySelector('parsererror');
+    if (parseError) {
+      throw new Error(`Invalid XML content: ${parseError.textContent}`);
+    }
+
+    // Check if it has a root element
+    if (!xmlDoc.documentElement) {
+      throw new Error('Invalid XML: No root element found');
+    }
+
+
+    return meiContent;
   };
 
   const generateOneVerseMei = (mei: string) => {
@@ -70,6 +95,8 @@ export function useScoreManager({
     }
   };
 
+
+
   const fetchScore = useCallback((scoreIndex: number) => {
     (async () => {
       if (scoreIndex === null) return;
@@ -82,43 +109,49 @@ export function useScoreManager({
       const path = config.settings.basePath + scoreDef.path + "/";
       const meiUrl = path + scoreDef.meiFile;
       const encodingProperties = scoreDef.encodingProperties;
-      const audioUrl = scoreDef.audioBaseFile  && scoreDef.audioBaseFile != "" ? path + scoreDef.audioBaseFile : undefined;
+      const audioUrl = scoreDef.audioBaseFile && scoreDef.audioBaseFile != "" ? path + scoreDef.audioBaseFile : undefined;
 
       if (scoreCache[meiUrl]) {
         const cachedScore = scoreCache[meiUrl];
         updateScore(scoreIndex, cachedScore, audioUrl);
       } else {
-        const meiString = await fetchMei(meiUrl);
+        try {
+          const meiString = await fetchMei(meiUrl);
 
-        const scoreProcessor = new ScoreProcessor(meiString);
-        if (config.settings.renderTitlesFromMEI) {
-          scoreProcessor.addTitlesFilter();
-          scoreProcessor.addReonstructionNamesFilter();
+          const scoreProcessor = new ScoreProcessor(meiString);
+          if (config.settings.renderTitlesFromMEI) {
+            scoreProcessor.addTitlesFilter();
+            scoreProcessor.addReonstructionNamesFilter();
+          }
+          scoreProcessor.addEnsureMeasuresIdFilter();
+          scoreProcessor.addEnsureSectionsIdFilter();
+          const originalMei = scoreProcessor.filterScore();
+          const analyzer = new ScoreAnalyzer(0, originalMei);
+          const properties = {
+            ...analyzer.getScoreProperties(),
+            encodedTransposition: encodingProperties.encodedTransposition as Transposition ?? undefined,
+          }
+
+          const editorialItems = analyzer.getEditorial();
+          const newScore: Score = {
+            url: meiUrl,
+            title: scoreDef.title,
+            originalMei: originalMei,
+            singleVerseMei: generateOneVerseMei(originalMei),
+            properties: properties,
+            editorialItems: editorialItems,
+            fascimileItems: scoreDef.facsimileItems,
+          }
+
+          setScoreCache(
+            { [meiUrl]: newScore }
+          )
+          updateScore(scoreIndex, newScore, audioUrl);
+        } catch (error: Error | any) {
+          if (onFetchScoreError) {
+            onFetchScoreError(meiUrl, error);
+          }
         }
-        scoreProcessor.addEnsureMeasuresIdFilter();
-        scoreProcessor.addEnsureSectionsIdFilter();
-        const originalMei = scoreProcessor.filterScore();
-        const analyzer = new ScoreAnalyzer(0, originalMei);
-        const properties = {
-          ...analyzer.getScoreProperties(),
-          encodedTransposition: encodingProperties.encodedTransposition as Transposition ?? undefined,
-        };
-
-        const editorialItems = analyzer.getEditorial();
-        const newScore: Score = {
-          url: meiUrl,
-          title: scoreDef.title,
-          originalMei: originalMei,
-          singleVerseMei: generateOneVerseMei(originalMei),
-          properties: properties,
-          editorialItems: editorialItems,
-          fascimileItems: scoreDef.facsimileItems,
-        };
-
-        setScoreCache(
-          { [meiUrl]: newScore }
-        );
-        updateScore(scoreIndex, newScore, audioUrl);
       }
     })();
   }, [config, scoreCache, setScore, setAudioUrl, setScoreCache, onScoreAnalyzed, normalizeFicta]);

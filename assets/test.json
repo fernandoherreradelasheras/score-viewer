@@ -145,13 +145,18 @@
             "introductionFile": "03_-_Amariles_yo_no_puedo-intro.md",
             "textCommentsFile": "03_-_Amariles_yo_no_puedo-text-comments.md"
         },
-
-
-         {
+        {
             "path": ".",
             "title": "test mei",
             "meiFile": "test-anot.mei",
-
+            "encodingProperties": {
+                "encodedTransposition": "-P4"
+            }
+        },
+                {
+            "path": ".",
+            "title": "wrong url test mei",
+            "meiFile": "non-exixtent.mei",
             "encodingProperties": {
                 "encodedTransposition": "-P4"
             }

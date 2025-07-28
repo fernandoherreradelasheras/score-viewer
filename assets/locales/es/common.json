@@ -40,7 +40,17 @@
   },
   "error": {
     "scoreViewerError": "Algo fue mal en el visor de partituras",
-    "tryAgain": "Intentar de nuevo"
+    "tryAgain": "Intentar de nuevo",
+    "fetchingScore": {
+      "title": "Error al obtener la partitura",
+      "details": "Error al cargar la partitura de la red: {{url}}"
+    },
+    "fetchIntroError": "Error al obtener el texto de introducción",
+    "fetchLyricsItemError": "Error al obtener el texto poético",
+    "fetchTextCommentsError": "Comentarios del texto",
+    "fetchErrorDescription": "Se produjeron los siguientes errores al obtener elementos de la red",
+    "fetchLyricsItemErrorWithSection": "Texto poético para la sección {{section}}",
+    "fetchTextSeeErrorAbove": "Error: ver arriba para más detalles"
   },
   "ok": "Ok",
   "reset": "Reset",

@@ -3,7 +3,7 @@ import useStore from "./store";
 import { forwardRef, Ref, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useVerovio from './useVerovio';
 import { Context } from './Context';
-import { Alert, ConfigProvider, Select, Space, Tabs, TabsProps, theme, Typography } from 'antd'
+import { ConfigProvider, Select, Space, Tabs, TabsProps, theme, Typography } from 'antd'
 import { isMobile, useMobileOrientation } from 'react-device-detect';
 import ErrorBoundary from './ErrorBoundary';
 import { LANGUAGE_SESSION_STORAGE_KEY, PlayingState, ScoreProperties, VisualizationOptions } from './types';
@@ -17,8 +17,10 @@ import { ScoreViewerConfig } from './types/config';
 import { useScoreManager } from './hooks/useScoreManager';
 import { useTextParts } from './hooks/useTextParts';
 import { useImperativeHandle } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useConfigValidation } from './hooks/useConfigValidation';
+import { useTranslation } from 'react-i18next';
+import ErrorView from './ErrorView';
+
 
 export interface ScoreViewerProps {
   config: ScoreViewerConfig
@@ -32,6 +34,13 @@ export interface ScoreViewerRef {
   goToSection: (sectionId: string) => void
   selectScore: (scoreIndex: number | null) => void
 }
+
+
+type FetchError = {
+  url: string
+  error: Error;
+}
+
 
 const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOptionsChanged }: ScoreViewerProps, ref: Ref<ScoreViewerRef>) => {
   const { t, i18n } = useTranslation("common");
@@ -49,47 +58,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
 
   const goToSection = useStore.use.goToSection()
 
-  // If there are config validation errors, render error UI
-  if (hasConfigErrors) {
-    return (
-      <ConfigProvider
-        theme={{
-          algorithm: theme.defaultAlgorithm,
-          token: {
-            fontSize: isMobile ? 12 : 16
-          },
-        }}>
-        <div className="score-viewer-top-element" style={{ width: width, height: height, overflow: "hidden" }}>
-          <div style={{
-            width: "calc(100% - 12px)",
-            height: "calc(100% - 12px)",
-            padding: "6px",
-            display: "flex",
-            flexDirection: "column"
-          }}>
-            <Alert
-              message={t('configValidation.configurationError')}
-              description={
-                <div>
-                  <p>{t('configValidation.configurationErrorDescription')}</p>
-                  <ul>
-                    {configErrors.map((error, index) => (
-                      <li key={index}>
-                        <strong>{error.field}:</strong> {error.message}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              }
-              type="error"
-              showIcon
-              style={{ margin: "16px 0" }}
-            />
-          </div>
-        </div>
-      </ConfigProvider>
-    );
-  }
+  const [fetchScoreError, setFetchScoreError] = useState<FetchError|null>(null);
 
   const verovio = useVerovio()
   const mobileOrientation = useMobileOrientation()
@@ -97,11 +66,60 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   const [activeTab, setActiveTab] = useState<string>("music")
   const scoreViewContainerRef = useRef<ScoreViewContainerRef>(null);
 
+  const onFetchScoreError = (url: string, error: Error) => {
+    setFetchScoreError({ url, error });
+  }
+
+  const { fetchScore, unloadScore } = useScoreManager({ config, normalizeFicta, onScoreAnalyzed, onFetchScoreError });
+
   const { fetchTextParts, textIntroduction, textLyrics, textComments } = useTextParts({ config })
 
-  const { fetchScore, unloadScore } = useScoreManager({ config, normalizeFicta, onScoreAnalyzed });
+  const renderMainContent = (content: React.ReactNode) =>
+    <ConfigProvider
+      theme={{
+        algorithm: theme.defaultAlgorithm,
+        token: {
+          fontSize: isMobile ? 12 : 16
+        },
+      }}>
+      <Context.Provider value={{ verovio }}>
+        <ErrorBoundary>
+          <div className="score-viewer-top-element" style={{ width: width, height: height, overflow: overflow }}>
+            <div style={{
+              width: "calc(100% - 12px)",
+              height: "calc(100% - 12px)",
+              padding: "6px",
+              display: "flex",
+              flexDirection: "column"
+            }}>
+              {content}
+            </div>
+          </div>
+        </ErrorBoundary>
+      </Context.Provider>
+    </ConfigProvider>
+
+
+  if (hasConfigErrors) {
+    return renderMainContent(
+      <ErrorView message={t('error.configValidation')} description={
+        <div>
+          <p>{t('configValidation.configurationErrorDescription')}</p>
+          <ul>
+            {configErrors.map((error, index) => (
+              <li key={index}>
+                <strong>{error.field}:</strong> {error.message}
+              </li>
+            ))}
+          </ul>
+        </div>
+      } />
+    )
+  }
 
   const loadAll = (scoreIndex: number) => {
+    setFetchScoreError(null);
+
     fetchScore(scoreIndex);
     fetchTextParts(scoreIndex);
     updateAudioOverlayTracks(scoreIndex);
@@ -194,8 +212,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   }, [showReconstructions])
 
   const onScoreChanged = (value: number) => {
-    fetchScore(value);
-    fetchTextParts(value);
+    loadAll(value);
   };
 
   const onTabChange = (key: string) => {
@@ -232,13 +249,23 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     , [isMobile, mobileOrientation, height])
 
 
-  const scoreView = useMemo(() => <ScoreViewContainer
-    ref={scoreViewContainerRef}
-    backgroundColor={config.settings.backgroundColor}
-    showDownloadButton={config.settings.showDownloadButton}
-    allowUserLanguageChange={config.settings.allowUserLanguageChange}
-    height={containerHeight} />
-    , [config, containerHeight])
+  const scoreView = useMemo(() => {
+    if (fetchScoreError != null) {
+      return <ErrorView message={t('error.fetchingScore.title')} description={
+        <div>
+          <p>{t('error.fetchingScore.details', { url: fetchScoreError.url })}</p>
+          {fetchScoreError.error.message.split('\n').map((c, i) => { return ( <p key={i}> {c} </p>) })}
+        </div>
+      } />
+    } else {
+      return <ScoreViewContainer
+        ref={scoreViewContainerRef}
+        backgroundColor={config.settings.backgroundColor}
+        showDownloadButton={config.settings.showDownloadButton}
+        allowUserLanguageChange={config.settings.allowUserLanguageChange}
+        height={containerHeight} />
+    }
+  }, [config, containerHeight, fetchScoreError, t])
 
   const title = useMemo(() => config.settings.showTitle && score?.title ?
     <Typography.Title style={{ flex: "0" }} level={3}>{score.title}</Typography.Title> : null
@@ -280,6 +307,8 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
                     style={{ width: "100%", flex: "1" , ...(activeTab == "text" || activeTab == "intro" ? {height: "100%"} : {}) }} /> : null
   , [config, score, tabsItems, activeTab])
 
+
+
   const content = tabs && tabsItems.length > 1 ? tabs : scoreView
 
   useEffect(() => {
@@ -290,33 +319,14 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     }
   }, [mobileOrientation.orientation])
 
-  return (
-    <ConfigProvider
-      theme={{
-        algorithm: theme.defaultAlgorithm,
-        token: {
-          fontSize: isMobile ? 12 : 16
-        },
-      }}>
-      <Context.Provider value={{ verovio }}>
-        <ErrorBoundary>
-          <div className="score-viewer-top-element" style={{ width: width, height: height, overflow: overflow }}>
-            <div style={{
-              width: "calc(100% - 12px)",
-              height: "calc(100% - 12px)",
-              padding: "6px",
-              display: "flex",
-              flexDirection: "column"
-            }}>
-              {scoreSelector}
-              {title}
-              {content}
-            </div>
-          </div>
-        </ErrorBoundary>
-      </Context.Provider>
-    </ConfigProvider>
-  )
+
+
+
+  return renderMainContent(<>
+      {scoreSelector}
+      {title}
+      {content}
+    </>)
 }
 
 export default forwardRef<ScoreViewerRef, ScoreViewerProps>(ScoreViewer)

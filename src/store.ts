@@ -13,6 +13,7 @@ import {
     TextPartsCache,
     LyricItem,
     ParallelIntervalViolation,
+    FetchError,
 } from './types'
 
 import { RenderedData } from './hooks/useScoreRenderer'
@@ -37,8 +38,8 @@ interface ScoreManagementState {
     showingMei: string | null
     scoreCache: { [index: string]: Score }
     textCache: TextPartsCache
-    textComments: string | null | undefined
-    textIntroduction: string | null | undefined
+    textComments: string | FetchError | null | undefined
+    textIntroduction: string | FetchError | null | undefined
     textLyrics: LyricItem[] | null | undefined
 
     setScore: (score: Score | null) => void
@@ -48,8 +49,8 @@ interface ScoreManagementState {
     setShowingMei: (mei: string | null) => void
     setScoreCache: (scoreCache: { [index: string]: Score }) => void
     setTextCache: (textCache: TextPartsCache, replace:boolean ) => void
-    setTextComments: (textComments: string | null | undefined) => void
-    setTextIntroduction: (textIntroduction: string | null | undefined) => void
+    setTextComments: (textComments: string | FetchError | null | undefined) => void
+    setTextIntroduction: (textIntroduction: string | FetchError | null | undefined) => void
     setTextLyrics: (textLyrics: LyricItem[] | null | undefined, replace: boolean) => void
 }
 
@@ -74,8 +75,8 @@ const createScoreManagementStore = create<ScoreManagementState>((set) => ({
     setTextCache: (textCache: TextPartsCache, replace: boolean) => set((state) => ({
         textCache: replace ? textCache : { ...state.textCache, ...textCache }
     })),
-    setTextComments: (textComments: string | null | undefined) => set(() => ({ textComments })),
-    setTextIntroduction: (textIntroduction: string | null | undefined) => set(() => ({ textIntroduction })),
+    setTextComments: (textComments: string | FetchError | null | undefined) => set(() => ({ textComments })),
+    setTextIntroduction: (textIntroduction: string | FetchError |null | undefined) => set(() => ({ textIntroduction })),
     setTextLyrics: (textLyrics: LyricItem[] | null | undefined, replace: boolean) => set((state) => ({
         textLyrics: replace ? textLyrics : [...state.textLyrics || [],  ...(textLyrics || [])]}))
 }))

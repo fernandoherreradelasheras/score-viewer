@@ -34,7 +34,7 @@ export type Score = {
 }
 
 export type TextPartsCache = {
-    [url: string]: string | null
+    [url: string]: string | FetchError | null
 }
 
 export type Reconstruction = {
@@ -69,9 +69,19 @@ export type VisualizationOptions = {
     showReconstructions?: { [staff:string] : string } | undefined;
 }
 
+export class FetchError extends Error {
+    type: string;
+
+    constructor(type: string, message: string) {
+        super(message);
+        this.type = type;
+        Object.setPrototypeOf(this, FetchError.prototype);
+    }
+}
+
 export type LyricItem = {
     title: string
-    text: string
+    text: string | FetchError
 }
 
 export type TextParts = {
