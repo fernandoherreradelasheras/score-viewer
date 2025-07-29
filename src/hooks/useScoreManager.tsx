@@ -22,6 +22,7 @@ export function useScoreManager({
   const setScoreCache = useStore.use.setScoreCache();
   const score = useStore.use.score();
   const setScore = useStore.use.setScore();
+  const setMusicAnalysis = useStore.use.setMusicAnalysis();
   const setAudioUrl = useStore.use.setAudioUrl();
   const setShowNVerses = useStore.use.setShowNVerses();
   const setNormalizeFicta = useStore.use.setNormalizeFicta();
@@ -79,6 +80,10 @@ export function useScoreManager({
       } else {
         fadeOut()
       }
+    }
+
+    if (score?.url != newScore.url) {
+      setMusicAnalysis(null);
     }
     // clear options that should not be persistent
     // TODO: define all these settings consistently

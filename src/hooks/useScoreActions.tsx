@@ -12,10 +12,10 @@ import {
   RenderAutoScrollConfig,
   renderAction,
   renderAutoScrollAction,
-  Note
+  Note,
+  ParallelIntervalViolation
 } from '../types';
 import { RenderedData } from './useScoreRenderer';
-import useStore from "../store";
 import PararellChecker from '../ParallelChecker';
 
 
@@ -86,6 +86,10 @@ interface ScoreActionsConfig {
   transposition: string | null;
   showReconstructions: { [staff: string]: string };
   showOriginalClefs: boolean | null;
+  showMusicAnalysis: boolean;
+  setScoreLayout: (layout: { currentPage: number; pageCount: number; sectionPageMap: Record<string, number> }) => void;
+  musicAnalysis: ParallelIntervalViolation[] | null;
+  setMusicAnalysis: (analysis: ParallelIntervalViolation[] | null) => void;
 }
 
   /**
@@ -126,14 +130,12 @@ export default function useScoreActions({
   choiceOptions,
   transposition,
   showReconstructions,
-  showOriginalClefs
+  showOriginalClefs,
+  showMusicAnalysis,
+  setScoreLayout,
+  musicAnalysis,
+  setMusicAnalysis
 }: ScoreActionsConfig) {
-
-  const showMusicAnalysis = useStore.use.showMusicAnalysis()
-
-  const setScoreLayout = useStore.use.setScoreLayout()
-  const musicAnalysis = useStore.use.musicAnalysis()
-  const setMusicAnalysis = useStore.use.setMusicAnalysis()
 
 
   const getSectionMap = (scoreMei: string) => {
@@ -155,7 +157,6 @@ export default function useScoreActions({
       const notesByOffset : { [offset: string] : Note[] } = {}
 
       const timestaps = getAllTimestamsp(timemap);
-      console.log(timestaps)
       timestaps.forEach((offset) => {
         const elements: Note[] = []
         const ids = verovio.getElementsAtTime(offset + 1);
@@ -172,12 +173,14 @@ export default function useScoreActions({
       return notesByOffset
   }
 
-  const getMusicAnalysis = () => {
+  const getMusicAnalysis = () : ParallelIntervalViolation[] => {
+        var t = performance.now();
         const timemap = verovio.renderToTimemap({ includeMeasures: true, includeRests: true });
         const notesByOffset = getNotesByOffset(timemap);
         const loadedMei = verovio.getMEI()
         const parallelChecker = new PararellChecker(notesByOffset, loadedMei);
         const analysis = parallelChecker.analyzeParallelIntervals()
+        console.log(`Parallel intervals analysis done in ${performance.now() - t}ms`);
         return analysis
   }
 
@@ -209,11 +212,12 @@ export default function useScoreActions({
     };
 
     try {
-
+      const t = performance.now();
       verovio.setOptions(options);
       verovio.loadData(meiStr);
       const loadedPagesCount = verovio.getPageCount();
       const sectionMap = getSectionMap(meiStr)
+      console.log(`Score loaded in ${performance.now() - t}ms, page count: ${loadedPagesCount}`);
 
       let renderPage = undefined;
       if (restorePositionForAchor) {
@@ -228,7 +232,9 @@ export default function useScoreActions({
 
       setScoreLayout({ currentPage: renderPage, pageCount: loadedPagesCount, sectionPageMap: sectionMap })
 
-      setMusicAnalysis(showMusicAnalysis ? getMusicAnalysis() : null);
+      if (showMusicAnalysis && musicAnalysis == null) {
+        setMusicAnalysis(getMusicAnalysis());
+      }
 
       return renderAction({
         scoreUrl,
@@ -243,7 +249,20 @@ export default function useScoreActions({
       console.error("Error performing load action:", error);
       return null;
     }
-  }, [verovio, svgContainerWidth, svgContainerHeight, appOptions, choiceOptions, transposition, showReconstructions, showOriginalClefs, showMusicAnalysis]);
+  }, [
+      verovio,
+      svgContainerWidth,
+      svgContainerHeight,
+      appOptions,
+      choiceOptions,
+      transposition,
+      showReconstructions,
+      showOriginalClefs,
+      showMusicAnalysis,
+      musicAnalysis,
+      setMusicAnalysis,
+      setScoreLayout
+  ]);
 
   /**
    * Execute the load auto-scroll action - prepares Verovio for auto-scroll mode
@@ -327,12 +346,14 @@ export default function useScoreActions({
 
     const { transition, loadedHeight, loadedWidth, renderPage, scale, loadedPagesCount, scoreUrl } = config;
     console.log(`Rendering score: mode=normal page=${renderPage} scale=${scale} transition=${transition}`);
+    const t = performance.now();
 
     try {
       const timemap = verovio.renderToTimemap({ includeMeasures: true });
       const svgData = verovio.renderToSVG(renderPage)
         .replace(`width="${loadedWidth}px"`, 'width="100%"')
         .replace(`height="${loadedHeight}px"`, 'height="100%"');
+
 
 
       element.innerHTML = svgData;
@@ -377,7 +398,7 @@ export default function useScoreActions({
         height: loadedHeight,
         width: loadedWidth,
       };
-
+      console.log(`Rendering + post-processing took ${performance.now() - t}ms`);
       return { newSvg, loadedPagesCount, scale, renderPage } as RenderActionResult;
     } catch (error) {
       console.log(`Error rendering page: ${error}`);

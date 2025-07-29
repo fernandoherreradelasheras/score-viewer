@@ -67,7 +67,6 @@ const createScoreManagementStore = create<ScoreManagementState>((set) => ({
     setScore: (score: Score | null) => set(() => ({ score: score })),
 
     setMusicAnalysis: (musicAnalysis: ParallelIntervalViolation[] | null) => set(() => ({ musicAnalysis })),
-
     setShowingMei: (mei: string | null) => set(() => ({ showingMei: mei })),
     setScoreCache: (scoreCache: { [index: string]: Score }) => set((state) => ({
         scoreCache: { ...state.scoreCache, ...scoreCache }

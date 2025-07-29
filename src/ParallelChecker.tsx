@@ -25,14 +25,13 @@ class PararellChecker {
     staves: { n: string; label: string, elements: { [offset: string] : MeasureElement | undefined}} [];
 
     constructor(measureElements: { [offset: string] : MeasureElement[] }, score: string) {
-        console.log(measureElements)
         this.offsets = Object.keys(measureElements).map(offset => parseInt(offset)).sort((a, b) => a - b);
-        console.log(this.offsets)
-
         const parser = new DOMParser();
         this.mei = parser.parseFromString(score, "application/xml")
 
         const staffDefs = this.getStaffDefinitions()
+
+        // TODO: This is extremely slow. Do it properly.
         this.staves = staffDefs.map((staffDef) => {
             return {
                 n: staffDef.n,
@@ -42,7 +41,6 @@ class PararellChecker {
                 )
             }
         })
-        console.log(this.staves)
     }
 
 
@@ -88,7 +86,6 @@ class PararellChecker {
 
         const violations: ParallelIntervalViolation[] = [];
 
-
         for (let i = 0; i < this.offsets.length - 1; i++) {
             const offset_t1 = this.offsets[i];
             const offset_t2 = this.offsets[i+1];
@@ -132,7 +129,6 @@ class PararellChecker {
                         },
                         intervalType: intervalType
                     }
-                    console.log(violation)
                     violations.push(violation);
                 }
             }
@@ -145,9 +141,7 @@ class PararellChecker {
     analyzeParallelIntervals(): ParallelIntervalViolation[] {
         const fifthViolations = this.findParallelIntervals(isPerfectFifth);
         const octaveViolations = this.findParallelIntervals(isOctave);
-
         return [...fifthViolations, ...octaveViolations];
-
     }
 
 }

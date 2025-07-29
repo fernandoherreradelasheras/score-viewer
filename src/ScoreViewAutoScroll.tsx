@@ -14,6 +14,8 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
     const { backgroundColor } = scoreViewProps;
     const { verovio } = useContext(Context);
 
+    const setScoreLayout = useStore.use.setScoreLayout();
+
     const isLoading = useStore.use.isLoading();
     const setIsLoading = useStore.use.setIsLoading();
     const pendingAction = useStore.use.pendingAction();
@@ -70,7 +72,11 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
         choiceOptions,
         transposition,
         showReconstructions,
-        showOriginalClefs
+        showOriginalClefs,
+        setScoreLayout,
+        showMusicAnalysis: false,
+        musicAnalysis: null,
+        setMusicAnalysis: () => {},
     });
 
     const addLoadAction = (score: Score) => {
@@ -80,7 +86,6 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
         const action = loadAutoScrollAction({ height: svgContainerHeight, meiStr: score.singleVerseMei });
         setPendingAction(action);
     }
-
 
     useEffect(() => {
         if (!score || !verovio || svgContainerHeight <= 0) {

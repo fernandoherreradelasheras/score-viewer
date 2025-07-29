@@ -26,6 +26,11 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     const score = useStore.use.score();
 
+    const setScoreLayout = useStore.use.setScoreLayout();
+
+    const musicAnalysis = useStore.use.musicAnalysis();
+    const setMusicAnalysis = useStore.use.setMusicAnalysis();
+
     const showingMei = useStore.use.showingMei();
     const setShowingMei = useStore.use.setShowingMei();
     const playingState = useStore.use.playingState();
@@ -71,7 +76,11 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         choiceOptions,
         transposition,
         showReconstructions,
-        showOriginalClefs
+        showOriginalClefs,
+        showMusicAnalysis,
+        setScoreLayout,
+        musicAnalysis,
+        setMusicAnalysis
     });
 
     const isReady = () => (score && verovio && svgContainerWidth > 0 && svgContainerHeight > 0 && !pendingAction)
