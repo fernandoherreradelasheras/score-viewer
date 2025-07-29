@@ -48,6 +48,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   const { configErrors, hasConfigErrors } = useConfigValidation(config);
 
   const score = useStore.use.score()
+
   const showReconstructions = useStore.use.showReconstructions()
   const setAudioOverlayTracks = useStore.use.setAudioOverlayTracks()
   const normalizeFicta = useStore.use.normalizeFicta()
@@ -239,7 +240,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
           onChange={onScoreChanged} />
       </Space>
       : null
-    , [config, t])
+    , [config, onScoreChanged, t])
 
   // On mobile devices we give the controls + score the full height assigned
   // to the component + scrolling  on the top element to maximize the space

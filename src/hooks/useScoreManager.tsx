@@ -101,8 +101,8 @@ export function useScoreManager({
   };
 
 
-
   const fetchScore = useCallback((scoreIndex: number) => {
+    const t = performance.now();
     (async () => {
       if (scoreIndex === null) return;
 
@@ -115,10 +115,10 @@ export function useScoreManager({
       const meiUrl = path + scoreDef.meiFile;
       const encodingProperties = scoreDef.encodingProperties;
       const audioUrl = scoreDef.audioBaseFile && scoreDef.audioBaseFile != "" ? path + scoreDef.audioBaseFile : undefined;
-
       if (scoreCache[meiUrl]) {
         const cachedScore = scoreCache[meiUrl];
         updateScore(scoreIndex, cachedScore, audioUrl);
+        console.log(`Score fetched from cache: ${meiUrl} took ${performance.now() - t}ms`);
       } else {
         try {
           const meiString = await fetchMei(meiUrl);
@@ -151,6 +151,7 @@ export function useScoreManager({
             { [meiUrl]: newScore }
           )
           updateScore(scoreIndex, newScore, audioUrl);
+          console.log(`Score fetched from network: ${meiUrl} took ${performance.now() - t}ms`);
         } catch (error: Error | any) {
           if (onFetchScoreError) {
             onFetchScoreError(meiUrl, error);
@@ -158,7 +159,7 @@ export function useScoreManager({
         }
       }
     })();
-  }, [config, scoreCache, setScore, setAudioUrl, setScoreCache, onScoreAnalyzed, normalizeFicta]);
+  }, [config, scoreCache, score, setScore, setAudioUrl, setScoreCache, onScoreAnalyzed, normalizeFicta]);
 
   const unloadScore = () => {
     setScore(null);
