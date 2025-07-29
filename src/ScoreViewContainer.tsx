@@ -18,7 +18,6 @@ const getAudioDurationMillis = (timemap: TimeMapEvent[]) => {
 
 
 export interface ScoreViewContainerProps {
-    allowUserLanguageChange?: boolean;
     backgroundColor?: string | undefined;
     showDownloadButton?: boolean | undefined;
     height: string;
@@ -124,7 +123,6 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
                     style={{ flex: "0" }}
                     fullScreenElement={scoreViewerRef.current}
                     showDownloadButton={scoreViewContainerProps.showDownloadButton ?? false}
-                    allowUserLanguageChange={scoreViewContainerProps.allowUserLanguageChange ?? false}
                     audioDuration={audioDuration}/> : null }
 
                 <div className="score-container swipeable-container"

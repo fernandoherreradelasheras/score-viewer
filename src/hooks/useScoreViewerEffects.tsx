@@ -1,0 +1,82 @@
+import { useEffect, useRef } from 'react';
+import { isMobile, useMobileOrientation } from 'react-device-detect';
+import { ScoreViewContainerRef } from '../ScoreViewContainer';
+import { PlayingState, VisualizationOptions } from '../types';
+import { LANGUAGE_SESSION_STORAGE_KEY } from '../types';
+
+interface UseScoreViewerEffectsProps {
+  configLanguage?: string;
+  configScoresLength: number;
+  configShowScoreSelector: boolean;
+  playingState: PlayingState;
+  setPlayingState: (state: PlayingState) => void;
+  activeTab: string;
+  scoreViewContainerRef: React.RefObject<ScoreViewContainerRef | null>;
+  showOriginalClefs: boolean | null;
+  showReconstructions: { [staff: string]: string };
+  onVisualizationOptionsChanged?: (options: VisualizationOptions) => void;
+  i18n: any;
+  loadAll: (scoreIndex: number) => void;
+}
+
+export function useScoreViewerEffects({
+  configLanguage,
+  configScoresLength,
+  configShowScoreSelector,
+  playingState,
+  setPlayingState,
+  activeTab,
+  scoreViewContainerRef,
+  showOriginalClefs,
+  showReconstructions,
+  onVisualizationOptionsChanged,
+  i18n,
+  loadAll
+}: UseScoreViewerEffectsProps) {
+  const mobileOrientation = useMobileOrientation();
+  const hasInitiallyLoaded = useRef(false);
+
+  // Language initialization effect
+  useEffect(() => {
+    if (configLanguage && configLanguage !== "autodetect" && sessionStorage.getItem(LANGUAGE_SESSION_STORAGE_KEY) == null) {
+      i18n.changeLanguage(configLanguage);
+    }
+  }, [configLanguage, i18n]);
+
+  // Initial score loading effect
+  useEffect(() => {
+    if (configScoresLength > 0 && configShowScoreSelector && !hasInitiallyLoaded.current) {
+      hasInitiallyLoaded.current = true;
+      loadAll(0);
+    }
+  }, [configScoresLength, configShowScoreSelector, loadAll]);
+
+  // Visualization options change effects
+  useEffect(() => {
+    if (onVisualizationOptionsChanged && showOriginalClefs != null) {
+      onVisualizationOptionsChanged({ showOriginalClefs });
+    }
+  }, [showOriginalClefs, onVisualizationOptionsChanged]);
+
+  useEffect(() => {
+    if (onVisualizationOptionsChanged && Object.keys(showReconstructions).length > 0) {
+      onVisualizationOptionsChanged({ showReconstructions });
+    }
+  }, [showReconstructions, onVisualizationOptionsChanged]);
+
+  // Stop playing when certain changes occur
+  useEffect(() => {
+    if (playingState == PlayingState.PLAYING) {
+      setPlayingState(PlayingState.STOPPED);
+    }
+  }, [showReconstructions, playingState, setPlayingState]);
+
+  // Mobile landscape scrolling effect
+  useEffect(() => {
+    if (isMobile && mobileOrientation.isLandscape && activeTab == "music") {
+      setTimeout(() => {
+        scoreViewContainerRef.current?.scrollIntoView();
+      }, 100);
+    }
+  }, [mobileOrientation.orientation, activeTab, scoreViewContainerRef]);
+}

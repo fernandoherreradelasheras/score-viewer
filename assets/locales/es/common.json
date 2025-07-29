@@ -60,11 +60,17 @@
   },
   "anonymous": "Anónimo",
   "scoreControls": {
-    "options": "Opciones"
+    "settings": "Configuración"
   },
   "scoreOptions": {
     "title": "Opciones de visualizacion",
     "reconstruction": "Reconstrucción {{voiceName}}",
+    "uiSettings": {
+      "title": "Configuración de la interfaz de usuario"
+    },
+    "scoreSettings": {
+      "title": "Configuración del visor de partituras"
+    },
     "editorialNotes": {
       "title": "Notas editoriales",
       "description": "Muestra una capa con las notas críticas y elección de variantes variantes"
@@ -96,9 +102,9 @@
       "title": "Idioma",
       "description": "Idioma de la interfaz de usuario"
     },
-    "splitView": {
-      "title": "Vista dividida",
-      "description": "Muestra la partitura y el facsímil en una vista dividida"
+    "uiLayout": {
+      "title": "Diseño de la interfaz de usuario",
+      "description": "Define cómo se organizan los componentes en la pantalla"
     }
   },
   "scoreProcessor": {

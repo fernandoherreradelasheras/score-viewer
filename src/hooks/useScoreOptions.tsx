@@ -26,6 +26,8 @@ export default function useScoreOptions() {
   const setShowMusicAnalysis = useStore.use.setShowMusicAnalysis();
   const splitView = useStore.use.splitView();
   const setSplitView = useStore.use.setSplitView();
+  const splitViewOrientation = useStore.use.splitViewOrientation();
+  const setSplitViewOrientation = useStore.use.setSplitViewOrientation();
 
   const getReverseTransposition = (transposition?: string) => {
     if (transposition?.startsWith("-")) {
@@ -126,6 +128,7 @@ export default function useScoreOptions() {
     transposition,
     showMusicAnalysis,
     splitView,
+    splitViewOrientation,
     score,
 
     // Derived state
@@ -147,6 +150,7 @@ export default function useScoreOptions() {
     onNormalizeFictaChange,
     onTranspositionChange,
     onShowMusicAnalysisChange,
-    onSplitViewChange
+    onSplitViewChange,
+    setSplitViewOrientation
   };
 }

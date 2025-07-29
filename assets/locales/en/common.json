@@ -5,7 +5,8 @@
   "Text": "Texto",
   "Introduction": "Introducción",
   "heading": {
-    "work": "Work"
+    "work": "Work",
+    "splitViewSelector": "Right view content"
   },
   "tab": {
     "introduction": "Introduction",
@@ -59,11 +60,17 @@
   },
   "anonymous": "Anonymous",
   "scoreControls": {
-    "options": "Options"
+    "settings": "Settings"
   },
   "scoreOptions": {
     "title": "Display options",
     "reconstruction": "Reconstruction {{voiceName}}",
+    "uiSettings" : {
+      "title": "UI settings"
+    },
+    "scoreSettings": {
+      "title": "Score settings"
+    },
     "editorialNotes": {
       "title": "Editorial notes",
       "description": "Shows a layer with critical notes and variant selection options"
@@ -95,9 +102,9 @@
       "title": "Language",
       "description": "Language for the UI"
     },
-    "splitView": {
-      "title": "Split view",
-      "description": "Shows the score and the facsimile in a split view"
+    "uiLayout": {
+      "title": "UI Layout",
+      "description": "Define how components are arranged on the screen"
     }
   },
   "scoreProcessor": {

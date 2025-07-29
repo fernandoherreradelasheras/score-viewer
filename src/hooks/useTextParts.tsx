@@ -51,7 +51,7 @@ export function useTextParts({
 
   const getPath = useCallback((scoreDef: ScoreViewerConfigScore, path: string) => {
     return config.settings.basePath + scoreDef.path + "/" + path
-  }, [config])
+  }, [config.settings.basePath])
 
   const hasSection = (section: string | undefined | ScoreViewerConfigScoreText[]) => section != undefined && section.length > 0
 
@@ -153,7 +153,7 @@ export function useTextParts({
         })
       })
     })
-  }, [getPath, config, textCache, getLyricItemsFromCache, setTextCache, setTextComments, setTextIntroduction, setTextLyrics])
+  }, [getPath, config.scores, textCache, getLyricItemsFromCache, setTextCache, setTextComments, setTextIntroduction, setTextLyrics])
 
   return { fetchTextParts, textIntroduction, textLyrics, textComments }
 }

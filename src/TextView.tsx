@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from 'rehype-raw'
@@ -7,6 +7,9 @@ import sectionize from 'remark-sectionize'
 import { FetchError, LyricItem } from './types';
 import ErrorView from './ErrorView';
 import { useTranslation } from 'react-i18next';
+import { Button } from 'antd';
+import useStore from './store';
+import { CloseOutlined } from '@ant-design/icons';
 
 
 const markdownTitle = (title: string) => `# ${title}\n\n`
@@ -45,6 +48,8 @@ export interface TextViewProps {
 
 function TextView(props: TextViewProps) {
     const { t } = useTranslation("common");
+    const splitView = useStore.use.splitView();
+    const setSplitView = useStore.use.setSplitView();
     const { title, intro, items, comments } = props
     const [markdownText, setMarkdownText] = useState<string>("")
 
@@ -89,6 +94,10 @@ function TextView(props: TextViewProps) {
         return poemText
     }
 
+    const close = useCallback(() => {
+        setSplitView(false);
+    }, [splitView, setSplitView]);
+
     useEffect(() => {
         var text = title ? markdownTitle(title) : ""
         if (intro) {
@@ -129,8 +138,15 @@ function TextView(props: TextViewProps) {
 
     return (
         <div>
+            { splitView ?
+                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Button icon={<CloseOutlined />} onClick={() => close()}/>
+            </div>
+            : null }
+
             {errorView ? errorView : null}
             <div style={{ display: "flex", flexDirection: "row" }}>
+
                 <div className="text-view" style={{ textAlign: "left" }}>
                     <Markdown
                         remarkPlugins={[remarkGfm, sectionize]}

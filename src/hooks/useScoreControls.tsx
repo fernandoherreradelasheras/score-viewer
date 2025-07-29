@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import useStore from "../store";
 import { PlayingState, MIN_SCALE, MAX_SCALE } from '../types';
 
@@ -24,19 +23,19 @@ export default function useScoreControls(
   const currentPageNumber = useStore.use.currentPage();
   const goToPage = useStore.use.goToPage()
 
-  // Component state
-  const [openDrawer, setOpenDrawer] = useState(false);
 
   // Fullscreen functions
   const isFullScreen = () =>
     fullScreenElement != null &&
     (fullScreenElement.ownerDocument.fullscreenElement == fullScreenElement);
 
+    /*
   const exitFullScreen = () => {
     if (isFullScreen()) {
       document.exitFullscreen();
     }
   };
+  */
 
   const handleFullScreenToggle = () => {
     if (fullScreenElement && !isFullScreen()) {
@@ -46,15 +45,6 @@ export default function useScoreControls(
     }
   };
 
-  // Drawer control functions
-  const showDrawer = () => {
-    exitFullScreen();
-    setOpenDrawer(true);
-  };
-
-  const onDrawserClose = () => {
-    setOpenDrawer(false);
-  };
 
   // Zoom functions
   const zoomIn = () => {
@@ -92,7 +82,6 @@ export default function useScoreControls(
     pageCount,
     scale,
     playingState,
-    openDrawer,
 
     // Derived state
     isPlaying,
@@ -106,7 +95,5 @@ export default function useScoreControls(
     zoomIn,
     zoomOut,
     handleFullScreenToggle,
-    showDrawer,
-    onDrawserClose
   };
 }

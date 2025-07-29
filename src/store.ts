@@ -135,6 +135,7 @@ interface UILayoutState {
     scale: number
     reachedEffectiveMaxScale: boolean
     splitView: boolean
+    splitViewOrientation: 'horizontal' | 'vertical'
 
 
     setIsLoading: (isLoading: boolean) => void
@@ -144,6 +145,7 @@ interface UILayoutState {
     decreaseScale: () => void
     setReachedEffectiveMaxScale: (value: boolean) => void
     setSplitView: (splitView: boolean) => void
+    setSplitViewOrientation: (orientation: 'horizontal' | 'vertical') => void
 }
 
 const createUILayoutStore = create<UILayoutState>((set) => ({
@@ -152,6 +154,7 @@ const createUILayoutStore = create<UILayoutState>((set) => ({
     scale: DEFAULT_SCALE,
     reachedEffectiveMaxScale: false,
     splitView: false,
+    splitViewOrientation: 'horizontal',
 
 
     setIsLoading: (isLoading: boolean) => set(() => ({ isLoading })),
@@ -167,6 +170,7 @@ const createUILayoutStore = create<UILayoutState>((set) => ({
     })),
     setReachedEffectiveMaxScale: (value: boolean) => set(() => ({ reachedEffectiveMaxScale: value })),
     setSplitView: (splitView: boolean) => set(() => ({ splitView })),
+    setSplitViewOrientation: (orientation: 'horizontal' | 'vertical') => set(() => ({ splitViewOrientation: orientation })),
 }))
 
 
@@ -303,6 +307,7 @@ class StoreApi {
         scale: createUILayoutStoreWithSelectors.use.scale,
         reachedEffectiveMaxScale: createUILayoutStoreWithSelectors.use.reachedEffectiveMaxScale,
         splitView: createUILayoutStoreWithSelectors.use.splitView,
+        splitViewOrientation: createUILayoutStoreWithSelectors.use.splitViewOrientation,
         setIsLoading: createUILayoutStoreWithSelectors.use.setIsLoading,
         setScoreSvg: createUILayoutStoreWithSelectors.use.setScoreSvg,
         setScale: createUILayoutStoreWithSelectors.use.setScale,
@@ -310,6 +315,7 @@ class StoreApi {
         decreaseScale: createUILayoutStoreWithSelectors.use.decreaseScale,
         setReachedEffectiveMaxScale: createUILayoutStoreWithSelectors.use.setReachedEffectiveMaxScale,
         setSplitView: createUILayoutStoreWithSelectors.use.setSplitView,
+        setSplitViewOrientation: createUILayoutStoreWithSelectors.use.setSplitViewOrientation,
 
         // Score Navigation Store
         pageCount: createScoreViewerStoreWithSelectors.use.pageCount,

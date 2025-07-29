@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { Space, Pagination, Button, Col, Row } from 'antd';
 import { ZoomInOutlined, ZoomOutOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined } from '@ant-design/icons';
 import { PlayingState } from './types';
-import ScoreOptionsPanel from './ScoreOptionsPanel';
 import PlayerControls from './PlayerControls';
 import useScoreControls from './hooks/useScoreControls';
 import { useTranslation } from 'react-i18next';
@@ -21,11 +20,10 @@ interface ScoreControlProps {
     style?: React.CSSProperties | undefined;
     fullScreenElement: HTMLElement | null;
     showDownloadButton?: boolean | undefined;
-    allowUserLanguageChange: boolean;
     audioDuration: number;
 }
 
-const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDuration, allowUserLanguageChange }: ScoreControlProps) => {
+const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDuration }: ScoreControlProps) => {
     const { t } = useTranslation("common")
   const splitView = useStore.use.splitView();
 
@@ -36,7 +34,6 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDura
         scoreUrl,
         pageCount,
         playingState,
-        openDrawer,
         shouldShowPagination,
         isFullScreen,
         canZoomIn,
@@ -47,8 +44,6 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDura
         zoomIn,
         zoomOut,
         handleFullScreenToggle,
-        showDrawer,
-        onDrawserClose,
     } = useScoreControls(fullScreenElement);
 
 
@@ -60,9 +55,7 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDura
                 icon={isFullScreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
                 onClick={handleFullScreenToggle}
                 disabled={playingState === PlayingState.PLAYING} />
-            <Button
-                onClick={showDrawer}
-                disabled={playingState === PlayingState.PLAYING}>{t('scoreControls.options')}</Button>
+
 
             {showDownloadButton ?
                 <Button type="default" icon={<DownloadOutlined />} download href={scoreUrl || ''}>MEI</Button> : null}
@@ -96,7 +89,6 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDura
 
     return (
         <div className="score-controls" style={style} >
-            {openDrawer ? <ScoreOptionsPanel allowUserLanguageChange={allowUserLanguageChange} onClose={onDrawserClose} open={openDrawer} /> : null}
 
             {playingState === PlayingState.STOPPED ?
                 viewingControls : <PlayerControls audioDuration={audioDuration} />}

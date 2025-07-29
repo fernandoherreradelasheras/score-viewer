@@ -156,7 +156,7 @@ export function useScoreManager({
         }
       }
     })();
-  }, [config, scoreCache, score, setScore, setAudioUrl, setScoreCache, onScoreAnalyzed, normalizeFicta]);
+  }, [config.scores, config.settings.basePath, config.settings.renderTitlesFromMEI, scoreCache, score, setScore, setAudioUrl, setScoreCache, onScoreAnalyzed, normalizeFicta]);
 
   const unloadScore = () => {
     setScore(null);
