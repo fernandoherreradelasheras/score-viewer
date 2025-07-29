@@ -25,7 +25,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const setPendingAction = useStore.use.setPendingAction();
 
     const score = useStore.use.score();
-    const musicAnalysis = useStore.use.musicAnalysis();
 
     const showingMei = useStore.use.showingMei();
     const setShowingMei = useStore.use.setShowingMei();
