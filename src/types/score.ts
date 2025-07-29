@@ -30,6 +30,7 @@ export type Score = {
     singleVerseMei: string;
     properties: ScoreProperties;
     editorialItems: EditorialItem[];
+    musicAnalysis: ParallelIntervalViolation[] | null;
 }
 
 export type TextPartsCache = {

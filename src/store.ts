@@ -12,7 +12,6 @@ import {
     AudioTrack,
     TextPartsCache,
     LyricItem,
-    ParallelIntervalViolation,
     FetchError,
 } from './types'
 
@@ -34,7 +33,6 @@ const createRenderingStore = create<RenderingState>((set) => ({
 
 interface ScoreManagementState {
     score: Score | null
-    musicAnalysis: ParallelIntervalViolation[] | null
     showingMei: string | null
     scoreCache: { [index: string]: Score }
     textCache: TextPartsCache
@@ -43,8 +41,6 @@ interface ScoreManagementState {
     textLyrics: LyricItem[] | null | undefined
 
     setScore: (score: Score | null) => void
-
-    setMusicAnalysis: (musicAnalysis: ParallelIntervalViolation[] | null) => void
 
     setShowingMei: (mei: string | null) => void
     setScoreCache: (scoreCache: { [index: string]: Score }) => void
@@ -56,7 +52,6 @@ interface ScoreManagementState {
 
 const createScoreManagementStore = create<ScoreManagementState>((set) => ({
     score: null,
-    musicAnalysis: null,
     showingMei: null,
     scoreCache: {},
     textCache: {},
@@ -66,7 +61,6 @@ const createScoreManagementStore = create<ScoreManagementState>((set) => ({
 
     setScore: (score: Score | null) => set(() => ({ score: score })),
 
-    setMusicAnalysis: (musicAnalysis: ParallelIntervalViolation[] | null) => set(() => ({ musicAnalysis })),
     setShowingMei: (mei: string | null) => set(() => ({ showingMei: mei })),
     setScoreCache: (scoreCache: { [index: string]: Score }) => set((state) => ({
         scoreCache: { ...state.scoreCache, ...scoreCache }
@@ -288,7 +282,6 @@ class StoreApi {
 
         // Score Management Store
         score: createScoreManagementStoreWithSelectors.use.score,
-        musicAnalysis: createScoreManagementStoreWithSelectors.use.musicAnalysis,
         showingMei: createScoreManagementStoreWithSelectors.use.showingMei,
         scoreCache: createScoreManagementStoreWithSelectors.use.scoreCache,
         textCache: createScoreManagementStoreWithSelectors.use.textCache,
@@ -296,7 +289,6 @@ class StoreApi {
         textIntroduction: createScoreManagementStoreWithSelectors.use.textIntroduction,
         textLyrics: createScoreManagementStoreWithSelectors.use.textLyrics,
         setScore: createScoreManagementStoreWithSelectors.use.setScore,
-        setMusicAnalysis: createScoreManagementStoreWithSelectors.use.setMusicAnalysis,
         setShowingMei: createScoreManagementStoreWithSelectors.use.setShowingMei,
         setScoreCache: createScoreManagementStoreWithSelectors.use.setScoreCache,
         setTextCache: createScoreManagementStoreWithSelectors.use.setTextCache,

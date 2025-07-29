@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
 import useStore from "./store";
 import { Context } from './Context';
 import { useComponentSize } from "react-use-size";
@@ -7,7 +7,7 @@ import { useEditorialHandler } from './hooks/useEditorialHandler';
 import { expandBBsForEditorialItems, expandBBsForRdgs } from './SvgUtils';
 import useScoreActions, { RenderActionResult } from './hooks/useScoreActions';
 import useScoreRenderer from './hooks/useScoreRenderer';
-import { Transition, PlayingState, loadAction, renderAction } from './types';
+import { Transition, PlayingState, loadAction, renderAction, ParallelIntervalViolation } from './types';
 
 export interface ScoreViewProps {
     backgroundColor?: string | undefined;
@@ -25,11 +25,10 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const setPendingAction = useStore.use.setPendingAction();
 
     const score = useStore.use.score();
+    const setScore = useStore.use.setScore();
+    const setScoreCache = useStore.use.setScoreCache();
 
     const setScoreLayout = useStore.use.setScoreLayout();
-
-    const musicAnalysis = useStore.use.musicAnalysis();
-    const setMusicAnalysis = useStore.use.setMusicAnalysis();
 
     const showingMei = useStore.use.showingMei();
     const setShowingMei = useStore.use.setShowingMei();
@@ -56,6 +55,19 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const { handleElementClick } = useEditorialHandler();
     const { ref: svgContainerRef, width: svgContainerWidth, height: svgContainerHeight } = useComponentSize();
 
+    const setMusicAnalysis = useCallback((musicAnalysis: ParallelIntervalViolation[] | null) => {
+        if (score) {
+            const newScore = {
+                ...score,
+                musicAnalysis
+            }
+            setScore(newScore);
+                setScoreCache(
+                    { [newScore.url]: newScore }
+                );
+        }
+    }, [score, setScore, setScoreCache]);
+
     const {
         svgContainerClasses,
         calculateEffectiveMaxScale,
@@ -79,7 +91,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         showOriginalClefs,
         showMusicAnalysis,
         setScoreLayout,
-        musicAnalysis,
+        musicAnalysis : score?.musicAnalysis || null,
         setMusicAnalysis
     });
 

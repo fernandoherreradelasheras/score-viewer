@@ -22,7 +22,6 @@ export function useScoreManager({
   const setScoreCache = useStore.use.setScoreCache();
   const score = useStore.use.score();
   const setScore = useStore.use.setScore();
-  const setMusicAnalysis = useStore.use.setMusicAnalysis();
   const setAudioUrl = useStore.use.setAudioUrl();
   const setShowNVerses = useStore.use.setShowNVerses();
   const setNormalizeFicta = useStore.use.setNormalizeFicta();
@@ -82,9 +81,6 @@ export function useScoreManager({
       }
     }
 
-    if (score?.url != newScore.url) {
-      setMusicAnalysis(null);
-    }
     // clear options that should not be persistent
     // TODO: define all these settings consistently
     setShowNVerses(null);
@@ -145,6 +141,7 @@ export function useScoreManager({
             singleVerseMei: generateOneVerseMei(originalMei),
             properties: properties,
             editorialItems: editorialItems,
+            musicAnalysis: null // This can be done only after the score is loaded in verovio.
           }
 
           setScoreCache(
