@@ -16,6 +16,7 @@ function ScoreOptionsPanel({allowUserLanguageChange, onClose, open} : {allowUser
         normalizeFicta,
         transposition,
         showMusicAnalysis,
+        splitView,
         score,
 
         // Derived state
@@ -36,7 +37,8 @@ function ScoreOptionsPanel({allowUserLanguageChange, onClose, open} : {allowUser
         onNormalizeFictaChange,
         onShowOriginalClefsChange,
         onTranspositionChange,
-        onShowMusicAnalysisChange
+        onShowMusicAnalysisChange,
+        onSplitViewChange
     } = useScoreOptions();
 
     const reconstructionRows = showReconstructionOptions ? voiceRecontructions?.map(voiceReconstruction =>
@@ -173,10 +175,10 @@ function ScoreOptionsPanel({allowUserLanguageChange, onClose, open} : {allowUser
                 <Row align={"middle"}>
                     <Col span={20}>
                         <Space direction="vertical">
-                            <Typography.Text strong={true} {...(!transposition ? {type: 'secondary'} :{} )}>
+                            <Typography.Text strong={true} {...(!showMusicAnalysis ? {type: 'secondary'} :{} )}>
                                 {t('scoreOptions.harmonicAnalysis.title')}
                             </Typography.Text>
-                            <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!transposition ? {type: 'secondary'} :{} )} >
+                            <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!showMusicAnalysis ? {type: 'secondary'} :{} )} >
                                 {t('scoreOptions.harmonicAnalysis.description')}
                             </Typography.Text>
                         </Space>
@@ -186,6 +188,26 @@ function ScoreOptionsPanel({allowUserLanguageChange, onClose, open} : {allowUser
                             value={showMusicAnalysis}
                             defaultValue={false}
                             onChange={onShowMusicAnalysisChange}
+                        />
+                    </Col>
+                </Row>
+
+                <Row align={"middle"}>
+                    <Col span={20}>
+                        <Space direction="vertical">
+                            <Typography.Text strong={true} {...(!splitView ? {type: 'secondary'} :{} )}>
+                                {t('scoreOptions.splitView.title')}
+                            </Typography.Text>
+                            <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!splitView ? {type: 'secondary'} :{} )} >
+                                {t('scoreOptions.splitView.description')}
+                            </Typography.Text>
+                        </Space>
+                    </Col>
+                    <Col span={4}>
+                        <Switch
+                            value={splitView}
+                            defaultValue={false}
+                            onChange={onSplitViewChange}
                         />
                     </Col>
                 </Row>

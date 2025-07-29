@@ -1,13 +1,16 @@
 import { Button, Pagination, Space } from 'antd';
 import { FacsimileItem } from './types';
+import useStore from "./store";
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pan-pinch";
-import { ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
+import { CloseOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 
 function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }) {
   const { t } = useTranslation("common");
+  const splitView = useStore.use.splitView();
+  const setSplitView = useStore.use.setSplitView();
 
   const [currentItem, setCurrentItem] = useState(0);
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
@@ -21,7 +24,11 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
         resetTransform()
       };
 
-      return <div style={{ display: "flex", justifyContent: "space-between", padding: "12px" }}>
+      const close = useCallback(() => {
+        setSplitView(false);
+      }, [setSplitView]);
+
+      return <div style={{ display: "flex", justifyContent: "space-between" }}>
         <Space direction="horizontal" size={12} style={{ flex: "0", marginLeft: "12px" }}>
           <Button icon={<ZoomInOutlined />} onClick={() => zoomIn()}/>
           <Button icon={<ZoomOutOutlined />} onClick={() => zoomOut()}/>
@@ -35,8 +42,10 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
                   total={items.length}
                   simple={false}
                   onChange={handlePageClick} /> : null }
+          { splitView ? <Button icon={<CloseOutlined />} onClick={() => close()}/> : null }
+
       </div>
-  }, [items, currentItem]);
+  }, [items, currentItem, splitView, close]);
 
 
   useEffect(() => {

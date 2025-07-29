@@ -3,7 +3,7 @@ import useStore from "./store";
 import { forwardRef, Ref, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useVerovio from './useVerovio';
 import { Context } from './Context';
-import { ConfigProvider, Select, Space, Tabs, TabsProps, theme, Typography } from 'antd'
+import { ConfigProvider, Select, Space, Splitter, Tabs, TabsProps, theme, Typography } from 'antd'
 import { isMobile, useMobileOrientation } from 'react-device-detect';
 import ErrorBoundary from './ErrorBoundary';
 import { FacsimileItem, LANGUAGE_SESSION_STORAGE_KEY, PlayingState, ScoreProperties, VisualizationOptions } from './types';
@@ -52,6 +52,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   const setAudioOverlayTracks = useStore.use.setAudioOverlayTracks()
   const normalizeFicta = useStore.use.normalizeFicta()
   const showOriginalClefs = useStore.use.showOriginalClefs()
+  const splitView = useStore.use.splitView()
 
   const playingState = useStore.use.playingState()
   const setPlayingState = useStore.use.setPlayingState()
@@ -65,6 +66,8 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
 
   const [facsimileItems, setFacsimileItems] = useState<FacsimileItem[]>([]);
   const [activeTab, setActiveTab] = useState<string>("music")
+  const [sizes, setSizes] = useState<(number | string)[]>(['50%', '50%']);
+
   const scoreViewContainerRef = useRef<ScoreViewContainerRef>(null);
 
   const onFetchScoreError = (url: string, error: Error) => {
@@ -249,7 +252,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     , [isMobile, mobileOrientation, height])
 
 
-  const scoreView = useMemo(() => {
+  const scoreViewContainer = useMemo(() => {
     if (fetchScoreError != null) {
       return <ErrorView message={t('error.fetchingScore.title')} description={
         <div>
@@ -271,6 +274,32 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     <Typography.Title style={{ flex: "0" }} level={3}>{score.title}</Typography.Title> : null
   , [config, score])
 
+  const facsimileView = useMemo(() => {
+    if (config.settings.showFacsimileSection && facsimileItems?.length) {
+        return <FacsimileView path={config.settings.facsimileImagesPath} items={facsimileItems} />
+    } else {
+      return null
+    }
+  }, [config, score, facsimileItems, config.settings.facsimileImagesPath])
+
+
+  const scoreView = useMemo(() => {
+    if (splitView) {
+      return <Splitter
+        onResize={setSizes}
+        style={{ height: "100%", boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}
+      >
+        <Splitter.Panel size={sizes[0]} resizable={true} >
+          {scoreViewContainer}
+        </Splitter.Panel>
+        <Splitter.Panel size={sizes[1]}>
+          {facsimileView}
+        </Splitter.Panel>
+      </Splitter>
+    }
+    return scoreViewContainer
+  }, [scoreViewContainer, splitView, facsimileView])
+
 
   const tabsItems: TabsProps['items'] = useMemo(() =>
     config.settings.showIntroductionSection ||
@@ -291,12 +320,12 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
           label: <Space direction='horizontal'><FileTextOutlined />{t('tab.text')}</Space>,
           children: <TextView items={textLyrics} comments={textComments} />
         } : null,
-        config.settings.showFacsimileSection && facsimileItems?.length ? {
+        !splitView && facsimileView ? {
           key: 'facsimile',
           label: <Space direction='horizontal'> <FileImageOutlined />{t('tab.facsimile')}</Space>,
-          children: <FacsimileView path={config.settings.facsimileImagesPath} items={facsimileItems} />
+          children: facsimileView
         } : null
-      ].filter(tab => tab != null) : [], [config, score, textIntroduction, textLyrics, facsimileItems, title, scoreView, t])
+      ].filter(tab => tab != null) : [], [config, score, textIntroduction, textLyrics, facsimileView, title, scoreView, splitView, t])
 
 
   const tabs = useMemo(() =>

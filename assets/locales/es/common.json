@@ -95,6 +95,10 @@
     "language": {
       "title": "Idioma",
       "description": "Idioma de la interfaz de usuario"
+    },
+    "splitView": {
+      "title": "Vista dividida",
+      "description": "Muestra la partitura y el facsímil en una vista dividida"
     }
   },
   "scoreProcessor": {

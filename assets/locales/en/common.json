@@ -94,6 +94,10 @@
     "language": {
       "title": "Language",
       "description": "Language for the UI"
+    },
+    "splitView": {
+      "title": "Split view",
+      "description": "Shows the score and the facsimile in a split view"
     }
   },
   "scoreProcessor": {

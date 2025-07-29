@@ -6,6 +6,7 @@ import ScoreOptionsPanel from './ScoreOptionsPanel';
 import PlayerControls from './PlayerControls';
 import useScoreControls from './hooks/useScoreControls';
 import { useTranslation } from 'react-i18next';
+import useStore from './store';
 
 export enum PlayerControlEventType {
     SEEK,
@@ -26,6 +27,7 @@ interface ScoreControlProps {
 
 const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDuration, allowUserLanguageChange }: ScoreControlProps) => {
     const { t } = useTranslation("common")
+  const splitView = useStore.use.splitView();
 
     // Use our custom hook for all score controls logic
     const {
@@ -81,16 +83,16 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDura
             : null
     ), [shouldShowPagination, playingState, currentPageNumber, pageCount]);
 
-    const viewingControls = useMemo(() => (
-        <Row style={{ justifyContent: "left", backgroundColor: "white" }} gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-                <Col xxl={4} xl={6} lg={8} md={10} sm={12} xs={14} >
-                    {mainControls}
-                </Col>
-                <Col xxl={12} xl={12} lg={14} md={14} sm={20} xs={24} >
-                    {pagination}
-                </Col>
-            </Row>
-    ), [mainControls, pagination]);
+    const viewingControls = useMemo(() => {
+        return <Row style={{ justifyContent: "left", backgroundColor: "white" }} gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+            <Col xxl={8} xl={14} lg={8} md={10} sm={12} xs={14} >
+                {mainControls}
+            </Col>
+            <Col xxl={12} xl={10} lg={14} md={14} sm={20} xs={24} >
+                {pagination}
+            </Col>
+        </Row>
+    }, [mainControls, pagination, splitView]);
 
     return (
         <div className="score-controls" style={style} >

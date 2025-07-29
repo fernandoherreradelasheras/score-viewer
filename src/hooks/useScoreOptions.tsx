@@ -24,6 +24,8 @@ export default function useScoreOptions() {
   const setTransposition = useStore.use.setTransposition();
   const showMusicAnalysis = useStore.use.showMusicAnalysis();
   const setShowMusicAnalysis = useStore.use.setShowMusicAnalysis();
+  const splitView = useStore.use.splitView();
+  const setSplitView = useStore.use.setSplitView();
 
   const getReverseTransposition = (transposition?: string) => {
     if (transposition?.startsWith("-")) {
@@ -67,6 +69,10 @@ export default function useScoreOptions() {
 
   const onShowMusicAnalysisChange = () => {
     setShowMusicAnalysis(!showMusicAnalysis);
+  };
+
+  const onSplitViewChange = () => {
+    setSplitView(!splitView);
   };
 
   // Derived state
@@ -119,6 +125,7 @@ export default function useScoreOptions() {
     normalizeFicta,
     transposition,
     showMusicAnalysis,
+    splitView,
     score,
 
     // Derived state
@@ -140,5 +147,6 @@ export default function useScoreOptions() {
     onNormalizeFictaChange,
     onTranspositionChange,
     onShowMusicAnalysisChange,
+    onSplitViewChange
   };
 }

@@ -140,6 +140,7 @@ interface UILayoutState {
     scoreSvg: string | null
     scale: number
     reachedEffectiveMaxScale: boolean
+    splitView: boolean
 
 
     setIsLoading: (isLoading: boolean) => void
@@ -148,6 +149,7 @@ interface UILayoutState {
     increaseScale: () => void
     decreaseScale: () => void
     setReachedEffectiveMaxScale: (value: boolean) => void
+    setSplitView: (splitView: boolean) => void
 }
 
 const createUILayoutStore = create<UILayoutState>((set) => ({
@@ -155,6 +157,7 @@ const createUILayoutStore = create<UILayoutState>((set) => ({
     scoreSvg: null,
     scale: DEFAULT_SCALE,
     reachedEffectiveMaxScale: false,
+    splitView: false,
 
 
     setIsLoading: (isLoading: boolean) => set(() => ({ isLoading })),
@@ -169,6 +172,7 @@ const createUILayoutStore = create<UILayoutState>((set) => ({
         scale: Math.max(state.scale - 10, MIN_SCALE),
     })),
     setReachedEffectiveMaxScale: (value: boolean) => set(() => ({ reachedEffectiveMaxScale: value })),
+    setSplitView: (splitView: boolean) => set(() => ({ splitView })),
 }))
 
 
@@ -306,12 +310,14 @@ class StoreApi {
         scoreSvg: createUILayoutStoreWithSelectors.use.scoreSvg,
         scale: createUILayoutStoreWithSelectors.use.scale,
         reachedEffectiveMaxScale: createUILayoutStoreWithSelectors.use.reachedEffectiveMaxScale,
+        splitView: createUILayoutStoreWithSelectors.use.splitView,
         setIsLoading: createUILayoutStoreWithSelectors.use.setIsLoading,
         setScoreSvg: createUILayoutStoreWithSelectors.use.setScoreSvg,
         setScale: createUILayoutStoreWithSelectors.use.setScale,
         increaseScale: createUILayoutStoreWithSelectors.use.increaseScale,
         decreaseScale: createUILayoutStoreWithSelectors.use.decreaseScale,
         setReachedEffectiveMaxScale: createUILayoutStoreWithSelectors.use.setReachedEffectiveMaxScale,
+        setSplitView: createUILayoutStoreWithSelectors.use.setSplitView,
 
         // Score Navigation Store
         pageCount: createScoreViewerStoreWithSelectors.use.pageCount,
@@ -362,6 +368,7 @@ class StoreApi {
         setChoiceOptions: createEditorialStoreWithSelectors.use.setChoiceOptions,
         setTransposition: createEditorialStoreWithSelectors.use.setTransposition,
         setShowMusicAnalysis: createEditorialStoreWithSelectors.use.setShowMusicAnalysis,
+
 
         // Rendered SVG Store
         renderedSvgData: createRenderedSvgStoreWithSelectors.use.renderedSvgData,
