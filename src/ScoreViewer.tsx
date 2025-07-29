@@ -6,7 +6,7 @@ import { Context } from './Context';
 import { ConfigProvider, Select, Space, Tabs, TabsProps, theme, Typography } from 'antd'
 import { isMobile, useMobileOrientation } from 'react-device-detect';
 import ErrorBoundary from './ErrorBoundary';
-import { LANGUAGE_SESSION_STORAGE_KEY, PlayingState, ScoreProperties, VisualizationOptions } from './types';
+import { FacsimileItem, LANGUAGE_SESSION_STORAGE_KEY, PlayingState, ScoreProperties, VisualizationOptions } from './types';
 import ScoreViewContainer, { ScoreViewContainerRef } from './ScoreViewContainer';
 import { DefaultOptionType } from 'antd/es/select';
 import TextView from './TextView';
@@ -63,11 +63,13 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   const verovio = useVerovio()
   const mobileOrientation = useMobileOrientation()
 
+  const [facsimileItems, setFacsimileItems] = useState<FacsimileItem[]>([]);
   const [activeTab, setActiveTab] = useState<string>("music")
   const scoreViewContainerRef = useRef<ScoreViewContainerRef>(null);
 
   const onFetchScoreError = (url: string, error: Error) => {
     setFetchScoreError({ url, error });
+    unloadScore()
   }
 
   const { fetchScore, unloadScore } = useScoreManager({ config, normalizeFicta, onScoreAnalyzed, onFetchScoreError });
@@ -119,7 +121,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
 
   const loadAll = (scoreIndex: number) => {
     setFetchScoreError(null);
-
+    setFacsimileItems(config.scores[scoreIndex].facsimileItems || []);
     fetchScore(scoreIndex);
     fetchTextParts(scoreIndex);
     updateAudioOverlayTracks(scoreIndex);
@@ -138,6 +140,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
       }
     }
   }));
+
 
 
   useEffect(() => {
@@ -174,20 +177,18 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   }, [config, showReconstructions, setAudioOverlayTracks]);
 
   const tabContentNotAvailable = useCallback(() => {
-    if (score && activeTab == "facsimile" && (!score.fascimileItems || score.fascimileItems.length === 0)) {
+    if (activeTab == "facsimile" && (!facsimileItems || facsimileItems.length === 0)) {
       return true
-    } else if (score && activeTab == "text" && textLyrics  === null) {
+    } else if (activeTab == "text" && textLyrics  === null) {
       return true
-    } else if (score && activeTab == "intro" && textIntroduction === null) {
+    } else if (activeTab == "intro" && textIntroduction === null) {
       return true
     }
     return false
 
-  }, [score, textIntroduction, textLyrics, activeTab])
+  }, [score, textIntroduction, textLyrics, facsimileItems, activeTab])
 
   useEffect(() => {
-    if (!score) return;
-
     if (playingState == PlayingState.PLAYING) {
       setPlayingState(PlayingState.STOPPED)
     }
@@ -195,8 +196,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     if (tabContentNotAvailable()) {
       setActiveTab("music")
     }
-
-  }, [showReconstructions, score]);
+  }, [showReconstructions, score, textIntroduction, textLyrics, facsimileItems]);
 
 
   useEffect(() => {
@@ -291,12 +291,12 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
           label: <Space direction='horizontal'><FileTextOutlined />{t('tab.text')}</Space>,
           children: <TextView items={textLyrics} comments={textComments} />
         } : null,
-        config.settings.showFacsimileSection && score?.fascimileItems?.length ? {
+        config.settings.showFacsimileSection && facsimileItems?.length ? {
           key: 'facsimile',
           label: <Space direction='horizontal'> <FileImageOutlined />{t('tab.facsimile')}</Space>,
-          children: <FacsimileView path={config.settings.facsimileImagesPath} items={score.fascimileItems} />
+          children: <FacsimileView path={config.settings.facsimileImagesPath} items={facsimileItems} />
         } : null
-      ].filter(t => t != null) : [], [config, score, textIntroduction, textLyrics, title, scoreView, t])
+      ].filter(tab => tab != null) : [], [config, score, textIntroduction, textLyrics, facsimileItems, title, scoreView, t])
 
 
   const tabs = useMemo(() =>
@@ -308,7 +308,6 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   , [config, score, tabsItems, activeTab])
 
 
-
   const content = tabs && tabsItems.length > 1 ? tabs : scoreView
 
   useEffect(() => {
@@ -318,8 +317,6 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
       }, 100)
     }
   }, [mobileOrientation.orientation])
-
-
 
 
   return renderMainContent(<>

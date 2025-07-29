@@ -52,10 +52,10 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
   }, [items])
 
   const imageFile = useMemo(() => path + items[currentItem].file
-  , [currentItem]);
+  , [currentItem, items]);
 
   const imageTitle = useMemo(() => items[currentItem].name
-  , [currentItem]);
+  , [currentItem, items]);
 
   return (
       <TransformWrapper initialScale={1}  >

@@ -178,7 +178,6 @@ export default function useScoreActions({
         const loadedMei = verovio.getMEI()
         const parallelChecker = new PararellChecker(notesByOffset, loadedMei);
         const analysis = parallelChecker.analyzeParallelIntervals()
-        console.log(analysis)
         return analysis
   }
 

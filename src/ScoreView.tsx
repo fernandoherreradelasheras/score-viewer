@@ -103,8 +103,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                 // will only be visible when showingEditorial is true via css
                 expandBBsForEditorialItems();
 
-                console.log(musicAnalysis)
-
                 const showingReconstructiononsLabels = Object.values(showReconstructions).filter(label => label != "none")
                 if (showingReconstructiononsLabels.length > 0) {
                     expandBBsForRdgs(showingReconstructiononsLabels);
@@ -159,8 +157,10 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     // This group of changes require rebuilding the score and reloading it
     useEffect(() => {
-        fadeOutScore();
-        updateScore(false, true);
+        if (score) {
+            fadeOutScore();
+            updateScore(false, true);
+        }
     }, [score]);
 
     useEffect(() => {
@@ -243,7 +243,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     // These changes requires reloading the currently built score
     useEffect(() => {
-        console.log(`Reloading score: showMusicAnalysis: ${showMusicAnalysis}`);
         reloadScore();
     }, [appOptions, choiceOptions, transposition, showMusicAnalysis]);
 

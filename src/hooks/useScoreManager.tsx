@@ -140,7 +140,6 @@ export function useScoreManager({
             singleVerseMei: generateOneVerseMei(originalMei),
             properties: properties,
             editorialItems: editorialItems,
-            fascimileItems: scoreDef.facsimileItems,
           }
 
           setScoreCache(

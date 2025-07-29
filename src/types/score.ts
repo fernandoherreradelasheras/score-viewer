@@ -30,7 +30,6 @@ export type Score = {
     singleVerseMei: string;
     properties: ScoreProperties;
     editorialItems: EditorialItem[];
-    fascimileItems?: FacsimileItem[] | undefined;
 }
 
 export type TextPartsCache = {
