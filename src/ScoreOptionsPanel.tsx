@@ -1,5 +1,7 @@
 import { Drawer, Space, Row, Col, Typography, Switch, Select, Divider } from "antd"
 import { useTranslation } from 'react-i18next';
+import { isMobile } from 'react-device-detect';
+
 import useScoreOptions from "./hooks/useScoreOptions";
 import { LANGUAGE_SESSION_STORAGE_KEY, SUPPORTED_LANGUAGES } from "./types/ui";
 
@@ -89,7 +91,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
             </Col>
         </Row> : null
 
-    const iuLayoutRow = <Row align={"middle"}>
+    const iuLayoutRow = !isMobile ? <Row align={"middle"}>
         <Col span={16}>
             <Space direction="vertical">
                 <Typography.Text strong={true}>
@@ -128,7 +130,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
                 }}
             />
         </Col>
-    </Row>
+    </Row> : null
 
 
 
