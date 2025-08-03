@@ -37,7 +37,6 @@ export default function useWebAudioPlayer() {
 
     const [canPlay, setCanPlay] = useState(false);
     const [loadedTracks, setLoadedTracks] = useState<string[]>([]);
-    const [audioContextResumed, setAudioContextResumed] = useState(false);
     const needsUserInteractionRef = useRef(true);
 
     const getAudioContext = useCallback(() => {
@@ -71,7 +70,6 @@ export default function useWebAudioPlayer() {
         if (context.state === 'suspended') {
             try {
                 await context.resume();
-                setAudioContextResumed(true);
                 needsUserInteractionRef.current = false;
                 return true;
             } catch (error) {
@@ -81,7 +79,6 @@ export default function useWebAudioPlayer() {
         }
 
         if (context.state === 'running') {
-            setAudioContextResumed(true);
             needsUserInteractionRef.current = false;
             return true;
         }
@@ -340,25 +337,13 @@ export default function useWebAudioPlayer() {
         onAudioEnded();
     }, [playingState, setPlayingState, autoScroll, setAutoScroll, stopPlayback]);
 
-    const getAudioDuration = useCallback(() => {
-        const buffers = Array.from(audioBuffersRef.current.values());
-        if (buffers.length > 0) {
-            return buffers[0].duration * 1000; // Convert to milliseconds
-        }
-        return 0;
-    }, []);
 
     return {
         canPlay,
+        loadedTracks,
         playPauseTooltip,
         handlePlay,
         handlePlayPause,
-        handleStop,
-        loadedTracks,
-        audioContextResumed,
-        getAudioContext,
-        resumeAudioContext,
-        getAudioDuration,
-        onAudioEnded,
-    };
+        handleStop
+       };
 }

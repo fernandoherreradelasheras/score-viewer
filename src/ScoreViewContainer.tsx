@@ -85,6 +85,10 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
             getAudioDurationMillis(renderedSvgData.timemap) : 0;
     }, [renderedSvgData]);
 
+    const audioPlayer = useMemo(() =>
+        audioUrl ? <AudioPlayer /> : null
+    ,[audioUrl, playingState]);
+
 
     // Pause when not visible
     useEffect(() => {
@@ -140,7 +144,7 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
                 </div>
             </div>
 
-            {audioUrl ? <AudioPlayer /> : null}
+            {audioPlayer}
 
             {showEditorial && renderedSvgData?.id ? <Editorials /> : null}
 

@@ -36,7 +36,6 @@ export function useScoreViewerEffects({
   const mobileOrientation = useMobileOrientation();
   const hasInitiallyLoaded = useRef(false);
 
-  // Language initialization effect
   useEffect(() => {
     if (configLanguage && configLanguage !== "autodetect" && sessionStorage.getItem(LANGUAGE_SESSION_STORAGE_KEY) == null) {
       i18n.changeLanguage(configLanguage);
@@ -51,7 +50,6 @@ export function useScoreViewerEffects({
     }
   }, [configScoresLength, configShowScoreSelector, loadAll]);
 
-  // Visualization options change effects
   useEffect(() => {
     if (onVisualizationOptionsChanged && showOriginalClefs != null) {
       onVisualizationOptionsChanged({ showOriginalClefs });
@@ -64,14 +62,12 @@ export function useScoreViewerEffects({
     }
   }, [showReconstructions, onVisualizationOptionsChanged]);
 
-  // Stop playing when certain changes occur
   useEffect(() => {
     if (playingState == PlayingState.PLAYING) {
       setPlayingState(PlayingState.STOPPED);
     }
-  }, [showReconstructions, playingState, setPlayingState]);
+  }, [showReconstructions]);
 
-  // Mobile landscape scrolling effect
   useEffect(() => {
     if (isMobile && mobileOrientation.isLandscape && activeTab == "music") {
       setTimeout(() => {
