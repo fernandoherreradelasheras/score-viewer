@@ -35,7 +35,6 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
     const score = useStore.use.score();
     const autoScroll = useStore.use.autoScroll();
     const setAutoScroll = useStore.use.setAutoScroll();
-    const audioUrl = useStore.use.audioUrl();
     const playingState = useStore.use.playingState();
     const setPlayingState = useStore.use.setPlayingState();
     const currentPage = useStore.use.currentPage();
@@ -84,11 +83,6 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
         return renderedSvgData?.timemap && renderedSvgData.timemap.length > 0 ?
             getAudioDurationMillis(renderedSvgData.timemap) : 0;
     }, [renderedSvgData]);
-
-    const audioPlayer = useMemo(() =>
-        audioUrl ? <AudioPlayer /> : null
-    ,[audioUrl, playingState]);
-
 
     // Pause when not visible
     useEffect(() => {
@@ -144,7 +138,7 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
                 </div>
             </div>
 
-            {audioPlayer}
+            <AudioPlayer />
 
             {showEditorial && renderedSvgData?.id ? <Editorials /> : null}
 

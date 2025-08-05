@@ -21,7 +21,6 @@ import ErrorView from './ErrorView';
 import ScoreOptionsPanel from './ScoreOptionsPanel';
 import LayoutManager from './components/LayoutManager';
 import ScoreViewerHeader from './components/ScoreViewerHeader';
-import { useLayoutState } from './hooks/useLayoutState';
 import { useScoreViewerEffects } from './hooks/useScoreViewerEffects';
 
 
@@ -53,42 +52,28 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   const score = useStore.use.score()
 
   const showReconstructions = useStore.use.showReconstructions()
-  const setAudioOverlayTracks = useStore.use.setAudioOverlayTracks()
   const normalizeFicta = useStore.use.normalizeFicta()
   const showOriginalClefs = useStore.use.showOriginalClefs()
-  const splitView = useStore.use.splitView()
-  const splitViewOrientation = useStore.use.splitViewOrientation()
+  const activeTab = useStore.use.activeTab()
 
   const playingState = useStore.use.playingState()
   const setPlayingState = useStore.use.setPlayingState()
 
   const goToSection = useStore.use.goToSection()
 
-  const [fetchScoreError, setFetchScoreError] = useState<FetchError | null>(null);
-
   const verovio = useVerovio()
   const mobileOrientation = useMobileOrientation()
 
+  const [fetchScoreError, setFetchScoreError] = useState<FetchError | null>(null);
+
+
+
+  const [introAvailable, setIntroAvailable] = useState<boolean>(false);
+  const [textAvailable, setTextAvailable] = useState<boolean>(false);
   const [facsimileItems, setFacsimileItems] = useState<FacsimileItem[]>([]);
 
-  // Layout state management
-  const {
-    activeTab,
-    activeSplitView,
-    sizes,
-    openDrawer,
-    setActiveTab,
-    setActiveSplitView,
-    setSizes,
-    onTabChange,
-    onSplitViewSelectorChanged,
-    showDrawer,
-    onDrawerClose
-  } = useLayoutState();
-
   const scoreViewContainerRef = useRef<ScoreViewContainerRef>(null);
-
-  // Drawer control functions - moved to useLayoutState hook
+  const [openDrawer, setOpenDrawer] = useState(false);
 
 
   const onFetchScoreError = (url: string, error: Error) => {
@@ -96,7 +81,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     unloadScore()
   }
 
-  const { fetchScore, unloadScore } = useScoreManager({ config, normalizeFicta, onScoreAnalyzed, onFetchScoreError });
+  const { fetchScore, unloadScore, hasIntro, hasText } = useScoreManager({ config, normalizeFicta, onScoreAnalyzed, onFetchScoreError });
 
   const { fetchTextParts, textIntroduction, textLyrics, textComments } = useTextParts({ config })
 
@@ -143,33 +128,16 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     )
   }
 
-  const updateAudioOverlayTracks = useCallback((scoreIndex: number) => {
-    const currentScoreItem = config.scores[scoreIndex];
-    if (currentScoreItem?.audioOverlays) {
-      const path = config.settings.basePath + currentScoreItem.path + "/"
-      const selectedReconstructions = Object.values(showReconstructions);
-      const newAudioOverlayTracks = []
-      for (const overlay of currentScoreItem.audioOverlays) {
-        if (selectedReconstructions.includes(overlay.appLabel)) {
-          newAudioOverlayTracks.push({
-            id: `overlay-staff-${overlay.staff}`,
-            label: overlay.appLabel,
-            url: path + overlay.file,
-            volume: 1
-          });
-        }
-      }
-      setAudioOverlayTracks(newAudioOverlayTracks)
-    }
-  }, [config.scores, config.settings.basePath, showReconstructions, setAudioOverlayTracks]);
+
 
   const loadAll = useCallback((scoreIndex: number) => {
     setFetchScoreError(null);
+    setIntroAvailable(hasIntro(scoreIndex));
+    setTextAvailable(hasText(scoreIndex));
     setFacsimileItems(config.scores[scoreIndex].facsimileItems || []);
     fetchScore(scoreIndex);
     fetchTextParts(scoreIndex);
-    updateAudioOverlayTracks(scoreIndex);
-  }, [config.scores, fetchScore, fetchTextParts, updateAudioOverlayTracks]);
+  }, [config.scores, fetchScore, fetchTextParts]);
 
   useImperativeHandle(ref, () => ({
     goToSection: (section: string) => {
@@ -223,9 +191,9 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     , [isMobile, mobileOrientation, height])
 
   const introView = useMemo(() =>
-    config.settings.showIntroductionSection && textIntroduction ?
+    config.settings.showIntroductionSection && introAvailable ?
       <TextView intro={textIntroduction} /> : null
-    , [textIntroduction])
+    , [config.settings.showIntroductionSection, introAvailable, textIntroduction])
 
   const scoreView = useMemo(() => {
     if (fetchScoreError != null) {
@@ -245,74 +213,62 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   }, [config.settings.backgroundColor, config.settings.showDownloadButton, containerHeight, fetchScoreError, t])
 
   const textView = useMemo(() =>
-    config.settings.showTextSection && textLyrics !== null ?
+    config.settings.showTextSection && textAvailable ?
       <TextView items={textLyrics} comments={textComments} /> : null
-    , [config.settings.showTextSection, textLyrics, textComments])
+    , [config.settings.showTextSection, textAvailable, textLyrics, textComments])
 
   const title = useMemo(() => config.settings.showTitle && score?.title ?
     <Typography.Title style={{ flex: "0" }} level={3}>{score.title}</Typography.Title> : null
     , [config.settings.showTitle, score])
 
-  const facsimileView = useMemo(() => {
-    if (config.settings.showFacsimileSection && facsimileItems?.length) {
-      return <FacsimileView path={config.settings.facsimileImagesPath} items={facsimileItems} />
-    } else {
-      return null
-    }
-  }, [config.settings.showFacsimileSection, config.settings.facsimileImagesPath, facsimileItems])
+  const facsimileView = useMemo(() =>
+    config.settings.showFacsimileSection && facsimileItems?.length ?
+      <FacsimileView path={config.settings.facsimileImagesPath} items={facsimileItems} /> : null
+  , [config.settings.showFacsimileSection, config.settings.facsimileImagesPath, facsimileItems])
 
 
 
   const content = useMemo(() => (
     <LayoutManager
-      splitView={splitView}
-      splitViewOrientation={splitViewOrientation}
       scoreView={scoreView}
       textView={textView}
       introView={introView}
       facsimileView={facsimileView}
-      activeTab={activeTab}
-      onTabChange={onTabChange}
-      setActiveTab={setActiveTab}
       showIntroductionSection={config.settings.showIntroductionSection}
       showTextSection={config.settings.showTextSection}
       showFacsimileSection={config.settings.showFacsimileSection}
-      activeSplitView={activeSplitView}
-      onSplitViewSelectorChanged={onSplitViewSelectorChanged}
-      setActiveSplitView={setActiveSplitView}
-      sizes={sizes}
-      setSizes={setSizes}
     />
   ), [
-    splitView, splitViewOrientation, scoreView, textView, introView, facsimileView,
-    activeTab, onTabChange, setActiveTab,
+    scoreView, textView, introView, facsimileView,
     config.settings.showIntroductionSection, config.settings.showTextSection, config.settings.showFacsimileSection,
-    activeSplitView, onSplitViewSelectorChanged, setActiveSplitView,
-    sizes, setSizes
   ]);
+
+  const showDrawer = useCallback(() => {
+    setOpenDrawer(true);
+  }, []);
+
+  const onDrawerClose = useCallback(() => {
+    setOpenDrawer(false);
+  }, []);
 
   const drawer = useMemo(() =>
     openDrawer ? <ScoreOptionsPanel allowUserLanguageChange={config.settings.allowUserLanguageChange} onClose={onDrawerClose} open={openDrawer} /> : null
     , [openDrawer, config.settings.allowUserLanguageChange, onDrawerClose])
+
 
   const header = useMemo(() => (
     <ScoreViewerHeader
       showScoreSelector={config.scores.length > 1 && config.settings.showScoreSelector}
       scoreItems={scoreItems}
       onScoreChanged={onScoreChanged}
-      splitView={splitView}
-      activeSplitView={activeSplitView}
-      onSplitViewSelectorChanged={onSplitViewSelectorChanged}
       facsimileView={facsimileView}
       introView={introView}
       textView={textView}
-      playingState={playingState}
       onShowDrawer={showDrawer}
     />
   ), [
     config.scores.length, config.settings.showScoreSelector, scoreItems, onScoreChanged,
-    splitView, activeSplitView, onSplitViewSelectorChanged,
-    facsimileView, introView, textView, playingState, showDrawer
+    facsimileView, introView, textView, showDrawer
   ]);
 
   return renderMainContent(<>

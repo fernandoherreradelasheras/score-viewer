@@ -7,7 +7,7 @@ let sharedAudioContext: AudioContext | null = null;
 const MS_OVER_LAST_TIMESTAMP = 1000;
 
 
-export default function useWebAudioPlayer() {
+export default function useWebAudioPlayer(audioUrl: string | null, audioOverlayTracks: AudioTrack[]) {
     // Get state and base functionality from base hook
 
     const playingState = useStore.use.playingState();
@@ -23,9 +23,6 @@ export default function useWebAudioPlayer() {
     const renderedSvgData = useStore.use.renderedSvgData();
 
     const verovio = useVerovio();
-
-    const audioUrl = useStore.use.audioUrl();
-    const audioOverlayTracks = useStore.use.audioOverlayTracks();
 
     const audioContextRef = useRef<AudioContext | null>(null);
     const startTimeRef = useRef<number>(0);
@@ -138,11 +135,12 @@ export default function useWebAudioPlayer() {
             await Promise.all(audioOverlayTracks.map(async (track: AudioTrack) => {
                 if (!track.url) return;
                 try {
+                    console.log(`Loading audio overlay from URL: ${track.url}`);
                     const buffer = await fetchAudioBuffer(track.url, context);
                     audioBuffersRef.current.set(track.id, buffer);
                     setLoadedTracks(prev => [...prev, track.id]);
                 } catch (error) {
-                    console.error(`Failed to load track ${track.id}:`, error);
+                    console.error(`Failed to load track ${track.id} from ${track.url}`, error);
                 }
             }));
         }
@@ -244,6 +242,41 @@ export default function useWebAudioPlayer() {
         setSeekPosition(0);
     }, [setPlayingState, setSeekPosition]);
 
+    const getCurrentPosition = useCallback(() => {
+        const context = getAudioContext();
+        if (!context || startTimeRef.current === 0) return pausedPositionRef.current;
+
+        const positionSeconds = context.currentTime - startTimeRef.current;
+        return Math.max(0, positionSeconds * 1000);
+    }, [getAudioContext]);
+
+
+    const pausePlayback = useCallback(() => {
+        if (animationFrameRef.current) {
+            cancelAnimationFrame(animationFrameRef.current);
+            animationFrameRef.current = null;
+        }
+
+        const context = getAudioContext();
+        if (!context) return;
+
+        pausedPositionRef.current = getCurrentPosition();
+        sourceNodesRef.current.forEach(source => {
+            try {
+                source.stop();
+            } catch (e) {
+                // Ignore errors if source is already stopped
+            }
+        });
+        sourceNodesRef.current.clear();
+    }, [getAudioContext, getCurrentPosition]);
+
+    const stopPlayback = useCallback(() => {
+        pausePlayback();
+        pausedPositionRef.current = 0;
+        setPlayingPosition(0);
+    }, [pausePlayback]);
+
     const startPlayback = useCallback((startPosition: number) => {
         stopPlayback();
 
@@ -267,40 +300,8 @@ export default function useWebAudioPlayer() {
             });
             updatePlaybackPosition();
         });
-    }, [getAudioContext, audioOverlayTracks, resumeAudioContext, playingState]);
+    }, [stopPlayback, getAudioContext, resumeAudioContext, playingState]);
 
-    const pausePlayback = useCallback(() => {
-        if (animationFrameRef.current) {
-            cancelAnimationFrame(animationFrameRef.current);
-            animationFrameRef.current = null;
-        }
-
-        const context = getAudioContext();
-        if (!context) return;
-
-        pausedPositionRef.current = getCurrentPosition();
-        sourceNodesRef.current.forEach(source => {
-            try {
-                source.stop();
-            } catch (e) {
-                // Ignore errors if source is already stopped
-            }
-        });
-        sourceNodesRef.current.clear();
-    }, [getAudioContext]);
-
-    const stopPlayback = useCallback(() => {
-        pausePlayback();
-        pausedPositionRef.current = 0;
-    }, [pausePlayback]);
-
-    const getCurrentPosition = useCallback(() => {
-        const context = getAudioContext();
-        if (!context || startTimeRef.current === 0) return pausedPositionRef.current;
-
-        const positionSeconds = context.currentTime - startTimeRef.current;
-        return Math.max(0, positionSeconds * 1000);
-    }, [getAudioContext]);
 
     const timemap = useMemo(() => {
         if (renderedSvgData?.timemap) {

@@ -68,8 +68,12 @@
     "uiSettings": {
       "title": "Configuración de la interfaz de usuario"
     },
-    "scoreSettings": {
+
+    "scoreViewerSettings": {
       "title": "Configuración del visor de partituras"
+    },
+    "scoreSettings": {
+      "title": "Opciones de la partitura seleccionada"
     },
     "editorialNotes": {
       "title": "Notas editoriales",

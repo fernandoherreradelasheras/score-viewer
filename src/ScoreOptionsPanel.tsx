@@ -1,49 +1,142 @@
-import { Drawer, Space, Row, Col, Typography, Switch, Select, Divider } from "antd"
+import { Drawer, Space, Row, Col, Typography, Switch, Select, Divider, SelectProps } from "antd"
 import { useTranslation } from 'react-i18next';
 import { isMobile } from 'react-device-detect';
 
-import useScoreOptions from "./hooks/useScoreOptions";
 import { LANGUAGE_SESSION_STORAGE_KEY, SUPPORTED_LANGUAGES } from "./types/ui";
+import useStore from "./store";
+import { useCallback, useMemo } from "react";
+
+
+const getReverseTransposition = (transposition?: string) => {
+    if (transposition?.startsWith("-")) {
+        return "+" + transposition.substring(1);
+    } else if (transposition?.startsWith("+") || (transposition && transposition.length > 1)) {
+        return "-" + transposition.substring(1);
+    }
+    return "";
+};
+
 
 function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUserLanguageChange: boolean, onClose: () => void, open: boolean }) {
     const { t, i18n } = useTranslation("common")
 
-    // Use our custom hook for all score options logic
-    const {
-        // State
-        showNVerses,
-        showEditorial,
-        showOriginalClefs,
-        showReconstructions,
-        normalizeFicta,
-        transposition,
-        showMusicAnalysis,
-        splitView,
-        splitViewOrientation,
-        score,
+    const score = useStore.use.score();
+    const showNVerses = useStore.use.showNVerses();
+    const setShowNVerses = useStore.use.setShowNVerses();
+    const showOriginalClefs = useStore.use.showOriginalClefs();
+    const setShowOriginalClefs = useStore.use.setShowOriginalClefs();
+    const showReconstructions = useStore.use.showReconstructions();
+    const setShowReconstructions = useStore.use.setShowReconstructions();
+    const showEditorial = useStore.use.showEditorial();
+    const setShowEditorial = useStore.use.setShowEditorial();
+    const normalizeFicta = useStore.use.normalizeFicta();
+    const setNormalizeFicta = useStore.use.setNormalizeFicta();
+    const transposition = useStore.use.transposition();
+    const setTransposition = useStore.use.setTransposition();
+    const showMusicAnalysis = useStore.use.showMusicAnalysis();
+    const setShowMusicAnalysis = useStore.use.setShowMusicAnalysis();
+    const isSplitView = useStore.use.isSplitView();
+    const setIsSplitView = useStore.use.setIsSplitView();
+    const splitViewOrientation = useStore.use.splitViewOrientation();
+    const setSplitViewOrientation = useStore.use.setSplitViewOrientation();
 
-        // Derived state
-        numVersesAvailable,
-        originalClefsAvailable,
-        verseOptions,
-        showReconstructionOptions,
-        voiceRecontructions,
-        editorialDisabled,
-        fictaSwictchDisabled,
-        showTranspositionOption,
-        showVerseOptions,
+    const onVersesSelected = useCallback((value: number) => {
+        setShowNVerses(value);
+    }, [setShowNVerses]);
 
-        // Actions
-        onVersesSelected,
-        onReconstructionSelected,
-        onShowEditorialChange,
-        onNormalizeFictaChange,
-        onShowOriginalClefsChange,
-        onTranspositionChange,
-        onShowMusicAnalysisChange,
-        onSplitViewChange,
-        setSplitViewOrientation
-    } = useScoreOptions();
+    const onReconstructionSelected = useCallback((staff: string, reconstruction: string) => {
+        console.log(`Selected reconstruction for staff ${staff}:  ${reconstruction}`);
+        setShowReconstructions({ [staff]: reconstruction }, false);
+    }, [setShowReconstructions]);
+
+    const onShowEditorialChange = useCallback((value: boolean) => {
+        setShowEditorial(value);
+    }, [setShowEditorial]);
+
+    const onNormalizeFictaChange = useCallback((value: boolean) => {
+        setNormalizeFicta(value);
+    }, [setNormalizeFicta]);
+
+    const onShowOriginalClefsChange = useCallback(() => {
+        console.log(`Show original clefs: ${!showOriginalClefs}`);
+        setShowOriginalClefs(!showOriginalClefs);
+    }, [showOriginalClefs, setShowOriginalClefs]);
+
+    const onTranspositionChange = useCallback(() => {
+        if (transposition != null) {
+            setTransposition(null);
+        } else {
+            const reverseTransposition = getReverseTransposition(score?.properties?.encodedTransposition);
+            setTransposition(reverseTransposition);
+        }
+    }, [transposition, score?.properties?.encodedTransposition, setTransposition]);
+
+    const onShowMusicAnalysisChange = useCallback(() => {
+        setShowMusicAnalysis(!showMusicAnalysis);
+    }, [showMusicAnalysis, setShowMusicAnalysis]);
+
+    const numVersesAvailable = useMemo(() =>
+        score?.properties?.numVerses || 0
+        , [score?.properties?.numVerses]);
+
+    const numReconstructionsAvailable = useMemo(() =>
+        score?.properties ? Object.entries(score.properties.reconstructions).length : 0
+        , [score?.properties]);
+
+    const originalClefsAvailable = useMemo(() =>
+        score?.properties?.hasOriginalClefs || false
+        , [score?.properties?.hasOriginalClefs]);
+
+    const verseOptions: SelectProps['options'] = useMemo(() =>
+        Array.from({ length: numVersesAvailable }, (_, key) => 1 + key).map(i => ({
+            value: i,
+            label: t("scoreOptions.verseAmmount", { "count": i })
+        })),
+        [numVersesAvailable, t]
+    )
+
+
+    const voiceRecontructions: { staff: string, voiceName: string, selectOptions: SelectProps['options'] }[] = useMemo(() => {
+        if (score?.properties?.reconstructions === undefined) {
+            return []
+        }
+        const reconstructions: { staff: string, voiceName: string, selectOptions: SelectProps['options'] }[] = []
+        for (const voiceRecontructed of score?.properties?.reconstructions) {
+            if (voiceRecontructed.reconstructionsForVoice.length === 0) {
+                continue;
+            }
+            const reconstructionsForVoice: SelectProps['options'] = []
+            for (const reconstruction of voiceRecontructed.reconstructionsForVoice) {
+                // Format is reconstruction:staff:type:name
+                const name = reconstruction.label != "none" ? reconstruction.label.split(":")[3] : t("scoreOptions.reconstructionNone");
+                reconstructionsForVoice.push({ value: reconstruction.label, label: name })
+            }
+            reconstructions.push({ staff: voiceRecontructed.staff, voiceName: voiceRecontructed.voiceName, selectOptions: reconstructionsForVoice })
+        }
+        return reconstructions
+    }, [numReconstructionsAvailable, t])
+
+
+    const editorialDisabled = useMemo(() =>
+        score?.properties ? !score.properties.hasEditorial : true
+        , [score?.properties]);
+
+    const fictaSwictchDisabled = useMemo(() =>
+        score?.properties ? !score.properties.hasFicta : true
+        , [score?.properties]);
+
+    const showTranspositionOption = useMemo(() =>
+        score?.properties?.encodedTransposition !== undefined && score?.properties?.encodedTransposition !== ""
+        , [score?.properties]);
+
+    const showVerseOptions = useMemo(() =>
+        verseOptions.length > 0
+        , [score?.properties]);
+
+    const showReconstructionOptions = useMemo(() =>
+        numReconstructionsAvailable > 0
+        , [score?.properties]);
+
 
     const reconstructionRows = showReconstructionOptions ? voiceRecontructions?.map(voiceReconstruction =>
         <Row align={"middle"}>
@@ -58,8 +151,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
                 <Select
                     size="middle"
                     options={voiceReconstruction.selectOptions || []}
-                    value={showReconstructions?.[voiceReconstruction.staff] ?? "none"}
-                    defaultValue="none"
+                    defaultValue={showReconstructions?.[voiceReconstruction.staff] ?? "none"}
                     disabled={voiceReconstruction.selectOptions ? voiceReconstruction.selectOptions.length <= 1 : true}
                     onSelect={(value) => onReconstructionSelected(voiceReconstruction.staff, value)}
                 />
@@ -67,10 +159,30 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
         </Row>
     ) : null
 
-    const onLanguageSelected = (value: string) => {
+    const onLanguageSelected = useCallback((value: string) => {
         sessionStorage.setItem(LANGUAGE_SESSION_STORAGE_KEY, value)
         i18n.changeLanguage(value);
-    }
+    }, [i18n]);
+
+    const layoutOptions = [
+        { label: "Tabs", value: "tabs" },
+        { label: "Horizontal Split", value: "horizontal-split" },
+        { label: "Vertical Split", value: "vertical-split" }
+    ]
+
+
+    const onLayoutSelected = useCallback((value: string) => {
+        if (value === "tabs") {
+            setIsSplitView(false);
+        } else {
+            setIsSplitView(true);
+            if (value === "horizontal-split") {
+                setSplitViewOrientation('horizontal');
+            } else if (value === "vertical-split") {
+                setSplitViewOrientation('vertical');
+            }
+        }
+    }, [setIsSplitView, setSplitViewOrientation])
 
     const languageOptions = allowUserLanguageChange ? SUPPORTED_LANGUAGES.map(lang => ({ label: lang.label, value: lang.key })) : [];
 
@@ -91,46 +203,26 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
             </Col>
         </Row> : null
 
-    const iuLayoutRow = !isMobile ? <Row align={"middle"}>
-        <Col span={16}>
-            <Space direction="vertical">
-                <Typography.Text strong={true}>
-                    {t('scoreOptions.uiLayout.title')}
-                </Typography.Text>
-                <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }}>
-                    {t('scoreOptions.uiLayout.description')}
-                </Typography.Text>
-            </Space>
-        </Col>
-        <Col span={8}>
-            <Select
-                value={splitView ? `${splitViewOrientation}-split` : "tabs"}
-                defaultValue="tabs"
-                options={[
-                    { label: "Tabs", value: "tabs" },
-                    { label: "Horizontal Split", value: "horizontal-split" },
-                    { label: "Vertical Split", value: "vertical-split" }
-                ]}
-                onSelect={(value) => {
-                    if (value === "tabs") {
-                        if (splitView) {
-                            onSplitViewChange(); // Turn off split view
-                        }
-                    } else if (value === "horizontal-split") {
-                        if (!splitView) {
-                            onSplitViewChange(); // Turn on split view
-                        }
-                        setSplitViewOrientation('horizontal');
-                    } else if (value === "vertical-split") {
-                        if (!splitView) {
-                            onSplitViewChange(); // Turn on split view
-                        }
-                        setSplitViewOrientation('vertical');
-                    }
-                }}
-            />
-        </Col>
-    </Row> : null
+    const iuLayoutRow = !isMobile ?
+        <Row align={"middle"}>
+            <Col span={16}>
+                <Space direction="vertical">
+                    <Typography.Text strong={true}>
+                        {t('scoreOptions.uiLayout.title')}
+                    </Typography.Text>
+                    <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }}>
+                        {t('scoreOptions.uiLayout.description')}
+                    </Typography.Text>
+                </Space>
+            </Col>
+            <Col span={8}>
+                <Select
+                    defaultValue={isSplitView ? `${splitViewOrientation}-split` : "tabs"}
+                    options={layoutOptions}
+                    onSelect={onLayoutSelected}
+                />
+            </Col>
+        </Row> : null
 
 
 
@@ -139,7 +231,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
             <Space direction="vertical" size="large">
 
                 {/* UI Settings Section */}
-                {(languageRow || iuLayoutRow) && (
+                {(languageRow || iuLayoutRow) &&
                     <>
                         <Typography.Title level={5} style={{ margin: 0 }}>
                             {t('scoreOptions.uiSettings.title')}
@@ -150,15 +242,11 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
                         </Space>
                         <Divider />
                     </>
-                )}
-
-                {/* Score Options Section */}
+                }
                 <Typography.Title level={5} style={{ margin: 0 }}>
-                    {t('scoreOptions.scoreSettings.title')}
+                    {t('scoreOptions.scoreViewerSettings.title')}
                 </Typography.Title>
                 <Space direction="vertical" size="middle">
-                    {reconstructionRows}
-
                     <Row align={"middle"}>
                         <Col span={20}>
                             <Space direction="vertical">
@@ -174,6 +262,15 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
                             <Switch value={showEditorial || false} defaultValue={false} disabled={editorialDisabled} onChange={onShowEditorialChange} />
                         </Col>
                     </Row>
+                </Space>
+                <Divider />
+
+                <Typography.Title level={5} style={{ margin: 0 }}>
+                    {t('scoreOptions.scoreSettings.title')}
+                </Typography.Title>
+                <Space direction="vertical" size="middle">
+                    {reconstructionRows}
+
                     <Row align={"middle"}>
                         <Col span={20}>
                             <Space direction="vertical">
@@ -186,7 +283,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
                             </Space>
                         </Col>
                         <Col span={4}>
-                            <Switch value={normalizeFicta || false} defaultValue={false} disabled={fictaSwictchDisabled} onChange={onNormalizeFictaChange} />
+                            <Switch defaultValue={normalizeFicta || false} disabled={fictaSwictchDisabled} onChange={onNormalizeFictaChange} />
                         </Col>
                     </Row>
 
@@ -204,8 +301,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
                             </Col>
                             <Col span={4}>
                                 <Switch
-                                    value={showOriginalClefs || false}
-                                    defaultValue={false}
+                                    defaultValue={showOriginalClefs || false}
                                     disabled={!originalClefsAvailable}
                                     onChange={onShowOriginalClefsChange}
                                 />
@@ -226,8 +322,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
                             </Col>
                             <Col span={4}>
                                 <Switch
-                                    value={transposition != null}
-                                    defaultValue={false}
+                                    defaultValue={transposition != null}
                                     disabled={!score?.properties?.encodedTransposition}
                                     onChange={onTranspositionChange}
                                 />
@@ -248,8 +343,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
                         </Col>
                         <Col span={4}>
                             <Switch
-                                value={showMusicAnalysis}
-                                defaultValue={false}
+                                defaultValue={showMusicAnalysis}
                                 onChange={onShowMusicAnalysisChange}
                             />
                         </Col>
@@ -273,8 +367,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
                                     size="large"
                                     options={verseOptions}
                                     style={{ width: 120 }}
-                                    value={showNVerses ? showNVerses : numVersesAvailable}
-                                    defaultValue={numVersesAvailable}
+                                    defaultValue={showNVerses ? showNVerses : numVersesAvailable}
                                     disabled={numVersesAvailable <= 1}
                                     onSelect={onVersesSelected}
                                 />

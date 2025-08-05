@@ -9,9 +9,9 @@ import { useTranslation } from 'react-i18next';
 
 function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }) {
   const { t } = useTranslation("common");
-  const splitView = useStore.use.splitView();
+  const splitView = useStore.use.isSplitView();
   const splitViewOrientation = useStore.use.splitViewOrientation();
-  const setSplitView = useStore.use.setSplitView();
+  const setSplitView = useStore.use.setIsSplitView();
 
   const [currentItem, setCurrentItem] = useState(0);
   const [container, setContainer] = useState<HTMLDivElement | null>(null);

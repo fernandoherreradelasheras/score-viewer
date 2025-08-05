@@ -95,6 +95,8 @@ export function useTextParts({
 
     const cachedUrls = Object.keys(textCache).filter(url => textCache[url] != CACHE_UPDATING_MARK)
 
+    console.log(`Fetching text parts for score ${scoreIndex}: introductionUrl: ${introductionUrl}`)
+
     // null: when the score does not have the part
     // undefined: when score has it but is missing from the cache of being retrieved
     if (commentsUrl) {

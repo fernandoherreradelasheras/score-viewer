@@ -22,7 +22,6 @@ export function useScoreManager({
   const setScoreCache = useStore.use.setScoreCache();
   const score = useStore.use.score();
   const setScore = useStore.use.setScore();
-  const setAudioUrl = useStore.use.setAudioUrl();
   const setShowNVerses = useStore.use.setShowNVerses();
   const setNormalizeFicta = useStore.use.setNormalizeFicta();
   const setShowReconstructions = useStore.use.setShowReconstructions();
@@ -72,7 +71,7 @@ export function useScoreManager({
     }
   };
 
-  const updateScore = (scoreIndex: number, newScore: Score, audioUrl?: string) => {
+  const updateScore = (scoreIndex: number, newScore: Score) => {
     if (score) {
       if (newScore == score) {
         return;
@@ -89,12 +88,12 @@ export function useScoreManager({
     setShowOriginalClefs(null);
 
     setScore(newScore);
-    setAudioUrl(audioUrl || null);
 
     if (onScoreAnalyzed) {
       onScoreAnalyzed(scoreIndex, newScore.properties);
     }
   };
+
 
 
   const fetchScore = useCallback((scoreIndex: number) => {
@@ -110,10 +109,9 @@ export function useScoreManager({
       const path = config.settings.basePath + scoreDef.path + "/";
       const meiUrl = path + scoreDef.meiFile;
       const encodingProperties = scoreDef.encodingProperties;
-      const audioUrl = scoreDef.audioBaseFile && scoreDef.audioBaseFile != "" ? path + scoreDef.audioBaseFile : undefined;
       if (scoreCache[meiUrl]) {
         const cachedScore = scoreCache[meiUrl];
-        updateScore(scoreIndex, cachedScore, audioUrl);
+        updateScore(scoreIndex, cachedScore);
         console.log(`Score fetched from cache: ${meiUrl} took ${performance.now() - t}ms`);
       } else {
         try {
@@ -132,6 +130,19 @@ export function useScoreManager({
             ...analyzer.getScoreProperties(),
             encodedTransposition: encodingProperties.encodedTransposition as Transposition ?? undefined,
           }
+          const audioUrl = scoreDef.audioBaseFile && scoreDef.audioBaseFile != "" ? path + scoreDef.audioBaseFile : null
+          const audioOverlayTracks = []
+          if (scoreDef.audioOverlays) {
+            for (const overlay of scoreDef.audioOverlays) {
+              audioOverlayTracks.push({
+                id: `overlay-staff-${overlay.staff}`,
+                label: overlay.appLabel,
+                url: path + overlay.file,
+                volume: 1
+              });
+            }
+          }
+
 
           const editorialItems = analyzer.getEditorial();
           const newScore: Score = {
@@ -139,15 +150,17 @@ export function useScoreManager({
             title: scoreDef.title,
             originalMei: originalMei,
             singleVerseMei: generateOneVerseMei(originalMei),
-            properties: properties,
-            editorialItems: editorialItems,
+            properties,
+            editorialItems,
+            audioUrl,
+            audioOverlayTracks,
             musicAnalysis: null // This can be done only after the score is loaded in verovio.
           }
 
           setScoreCache(
             { [meiUrl]: newScore }
           )
-          updateScore(scoreIndex, newScore, audioUrl);
+          updateScore(scoreIndex, newScore);
           console.log(`Score fetched from network: ${meiUrl} took ${performance.now() - t}ms`);
         } catch (error: Error | any) {
           if (onFetchScoreError) {
@@ -156,13 +169,23 @@ export function useScoreManager({
         }
       }
     })();
-  }, [config.scores, config.settings.basePath, config.settings.renderTitlesFromMEI, scoreCache, score, setScore, setAudioUrl, setScoreCache, onScoreAnalyzed, normalizeFicta]);
+  }, [config.scores, config.settings.basePath, config.settings.renderTitlesFromMEI, scoreCache, score, setScore, setScoreCache, onScoreAnalyzed, normalizeFicta]);
 
   const unloadScore = () => {
     setScore(null);
-    setAudioUrl(null);
   }
 
+  const hasIntro = useCallback((scoreIndex: number) => {
+    const scoreDef = config.scores[scoreIndex];
+    console.log(`Checking if score ${scoreIndex} has introduction: ${scoreDef?.introductionFile}`);
+    return (scoreDef && scoreDef.introductionFile) ? true : false;
+  }, [config.scores]);
 
-  return { fetchScore, unloadScore };
+  const hasText = useCallback((scoreIndex: number) => {
+    const scoreDef = config.scores[scoreIndex];
+    return (scoreDef && scoreDef.text && scoreDef.text.length > 0) ? true : false;
+  }, [config.scores]);
+
+
+  return { fetchScore, unloadScore, hasIntro, hasText };
 }

@@ -1,15 +1,13 @@
 import { Splitter } from 'antd';
+import useStore from '../store';
 
 interface SplitViewLayoutProps {
   scoreView: React.ReactNode;
   textView: React.ReactNode | null;
   introView: React.ReactNode | null;
   facsimileView: React.ReactNode | null;
-  activeSplitView: string | null;
-  onSplitViewSelectorChanged: (key: string) => void;
   sizes: (number | string)[];
   setSizes: (sizes: (number | string)[]) => void;
-  orientation: 'horizontal' | 'vertical';
 }
 
 export default function SplitViewLayout({
@@ -17,12 +15,12 @@ export default function SplitViewLayout({
   textView,
   introView,
   facsimileView,
-  activeSplitView,
   sizes,
   setSizes,
-  orientation
 }: SplitViewLayoutProps) {
 
+  const activeSplitView = useStore.use.activeSplitView();
+  const orientation = useStore.use.splitViewOrientation();
 
   const getSecondaryView = (): React.ReactNode => {
     if (activeSplitView === "facsimile") {

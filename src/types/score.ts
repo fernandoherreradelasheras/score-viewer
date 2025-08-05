@@ -1,5 +1,6 @@
 // Score-related types
 import { EditorialItem } from './editorial';
+import { AudioTrack } from './player';
 
 export type FacsimileItem = {
     name: string
@@ -30,6 +31,8 @@ export type Score = {
     singleVerseMei: string;
     properties: ScoreProperties;
     editorialItems: EditorialItem[];
+    audioUrl: string | null;
+    audioOverlayTracks: AudioTrack[];
     musicAnalysis: ParallelIntervalViolation[] | null;
 }
 

@@ -17,9 +17,13 @@ export type PlayerEvent = {
 }
 
 function AudioPlayer() {
-    const audioSrc = useStore.use.audioUrl();
+    const score = useStore.use.score();
     const playingState = useStore.use.playingState();
     const renderedSvgData = useStore.use.renderedSvgData();
+    const showReconstructions = useStore.use.showReconstructions();
+    const audioOverlayTracks = useMemo(() => {
+        return score?.audioOverlayTracks.filter(track => Object.values(showReconstructions).includes(track.label)) || [];
+    }, [score, showReconstructions]);
 
     const {
         canPlay,
@@ -27,7 +31,7 @@ function AudioPlayer() {
         handlePlay,
         handlePlayPause,
         handleStop,
-    } = useWebAudioPlayer()
+    } = useWebAudioPlayer(score?.audioUrl || null, audioOverlayTracks);
 
 
     const playButton = useMemo(() =>
@@ -44,14 +48,14 @@ function AudioPlayer() {
 
     // Always show playControls if audioSrc is available, regardless of canPlay status
     const playControls = useMemo(() =>
-        audioSrc ?
+        score?.audioUrl ?
         <div style={{ position: "absolute", bottom: 0, right: 0, padding: "8px" }}>
             <Space direction="horizontal" size="small">
                 {playingState !== PlayingState.STOPPED ? stopButton : null}
                 {playingState === PlayingState.PLAYING ? pauseButton : playButton}
             </Space>
         </div> : null,
-    [audioSrc, playingState, playButton, stopButton, pauseButton]);
+    [score, playingState, playButton, stopButton, pauseButton]);
 
 
     return (

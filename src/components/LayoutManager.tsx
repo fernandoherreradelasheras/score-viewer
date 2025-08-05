@@ -1,50 +1,45 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import TabLayout from './TabLayout';
 import SplitViewLayout from './SplitViewLayout';
+import useStore from "../store";
+
 
 interface LayoutManagerProps {
-  splitView: boolean;
-  splitViewOrientation: 'horizontal' | 'vertical';
   scoreView: React.ReactNode;
   textView: React.ReactNode | null;
   introView: React.ReactNode | null;
   facsimileView: React.ReactNode | null;
 
-  // Tab layout props
-  activeTab: string;
-  onTabChange: (key: string) => void;
-  setActiveTab: (tab: string) => void;
   showIntroductionSection: boolean;
   showTextSection: boolean;
   showFacsimileSection: boolean;
-
-  // Split view props
-  activeSplitView: string | null;
-  onSplitViewSelectorChanged: (key: string) => void;
-  setActiveSplitView: (view: string | null) => void;
-  sizes: (number | string)[];
-  setSizes: (sizes: (number | string)[]) => void;
 }
 
 export default function LayoutManager({
-  splitView,
-  splitViewOrientation,
   scoreView,
   textView,
   introView,
   facsimileView,
-  activeTab,
-  onTabChange,
-  setActiveTab,
+
   showIntroductionSection,
   showTextSection,
   showFacsimileSection,
-  activeSplitView,
-  onSplitViewSelectorChanged,
-  setActiveSplitView,
-  sizes,
-  setSizes
 }: LayoutManagerProps) {
+
+  const isSplitView = useStore.use.isSplitView();
+  const splitViewOrientation = useStore.use.splitViewOrientation();
+  const activeSplitView = useStore.use.activeSplitView();
+  const setActiveSplitView = useStore.use.setActiveSplitView();
+  const activeTab = useStore.use.activeTab()
+  const setActiveTab = useStore.use.setActiveTab();
+
+
+  const [sizes, setSizes] = useState<(number | string)[]>(['50%', '50%']);
+
+  useEffect(() => {
+    setSizes(['50%', '50%']);
+  }, [isSplitView, splitViewOrientation]);
+
 
   const checkContentAvailable = useCallback((key: string | null) => {
     if (key === null) {
@@ -67,7 +62,7 @@ export default function LayoutManager({
     return !checkContentAvailable(activeSplitView);
   }, [checkContentAvailable, activeSplitView]);
 
-  const getAvailableOptions = useCallback(() => {
+  const getAvailableViews = useCallback(() => {
     const options = [];
     if (facsimileView) options.push('facsimile');
     if (introView) options.push('intro');
@@ -77,55 +72,48 @@ export default function LayoutManager({
 
   // Handle content availability changes
   useEffect(() => {
-    if (splitView && splitViewContentNotAvailable()) {
-      const availableOptions = getAvailableOptions();
-      if (availableOptions.length > 0) {
-        console.log(`Setting activeSplitView to ${availableOptions[0]}`);
-        setActiveSplitView(availableOptions[0]);
+    if (isSplitView && splitViewContentNotAvailable()) {
+      const availableViews = getAvailableViews();
+      if (availableViews.length > 0) {
+        setActiveSplitView(availableViews[0]);
       }
-    } else if (!splitView && tabContentNotAvailable()) {
+    } else if (!isSplitView && tabContentNotAvailable()) {
       setActiveTab("music");
     }
-  }, [splitView, splitViewContentNotAvailable, tabContentNotAvailable, getAvailableOptions, setActiveSplitView, setActiveTab]);
+  }, [isSplitView, facsimileView, introView, textView, splitViewContentNotAvailable, tabContentNotAvailable, getAvailableViews, setActiveSplitView, setActiveTab]);
 
   // Determine what to render
-  const shouldShowTabs = !splitView && (showIntroductionSection || showTextSection || showFacsimileSection);
+  const shouldShowTabs = !isSplitView && (showIntroductionSection || showTextSection || showFacsimileSection);
   const hasMultipleTabs = [introView, textView, facsimileView].filter(Boolean).length > 0;
 
-  if (splitView) {
+  if (isSplitView) {
     return (
       <SplitViewLayout
         scoreView={scoreView}
         textView={textView}
         introView={introView}
         facsimileView={facsimileView}
-        activeSplitView={activeSplitView}
-        onSplitViewSelectorChanged={onSplitViewSelectorChanged}
         sizes={sizes}
         setSizes={setSizes}
-        orientation={splitViewOrientation}
       />
     );
-  }
-
-  if (shouldShowTabs && hasMultipleTabs) {
+  } else if (shouldShowTabs && hasMultipleTabs) {
     return (
       <TabLayout
         scoreView={scoreView}
         textView={textView}
         introView={introView}
         facsimileView={facsimileView}
-        activeTab={activeTab}
-        onTabChange={onTabChange}
         showIntroductionSection={showIntroductionSection}
         showTextSection={showTextSection}
         showFacsimileSection={showFacsimileSection}
       />
     );
+  } else {
+    return (
+      scoreView
+    );
   }
-
-  // Single view (just score)
-  return <>{scoreView}</>;
 }
 
 export { type LayoutManagerProps };

@@ -68,8 +68,11 @@
     "uiSettings" : {
       "title": "UI settings"
     },
+    "scoreViewerSettings": {
+      "title": "Score viewer settings"
+    },
     "scoreSettings": {
-      "title": "Score settings"
+      "title": "Current score options"
     },
     "editorialNotes": {
       "title": "Editorial notes",

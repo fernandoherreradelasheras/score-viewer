@@ -25,7 +25,7 @@ interface ScoreControlProps {
 
 const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDuration }: ScoreControlProps) => {
     const { t } = useTranslation("common")
-  const splitView = useStore.use.splitView();
+  const splitView = useStore.use.isSplitView();
 
     // Use our custom hook for all score controls logic
     const {

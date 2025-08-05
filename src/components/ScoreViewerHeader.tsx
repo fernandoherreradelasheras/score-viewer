@@ -5,23 +5,17 @@ import { DefaultOptionType } from 'antd/es/select';
 import { useTranslation } from 'react-i18next';
 import { PlayingState } from '../types';
 import SplitViewSelector from './SplitViewSelector';
+import useStore from '../store';
 
 interface ScoreViewerHeaderProps {
-  // Score selector props
   showScoreSelector: boolean;
   scoreItems: DefaultOptionType[];
   onScoreChanged: (value: number) => void;
 
-  // Split view selector props
-  splitView: boolean;
-  activeSplitView: string | null;
-  onSplitViewSelectorChanged: (key: string) => void;
   facsimileView: React.ReactNode | null;
   introView: React.ReactNode | null;
   textView: React.ReactNode | null;
 
-  // Settings button props
-  playingState: PlayingState;
   onShowDrawer: () => void;
 }
 
@@ -29,16 +23,15 @@ export default function ScoreViewerHeader({
   showScoreSelector,
   scoreItems,
   onScoreChanged,
-  splitView,
-  activeSplitView,
-  onSplitViewSelectorChanged,
   facsimileView,
   introView,
   textView,
-  playingState,
   onShowDrawer
 }: ScoreViewerHeaderProps) {
   const { t } = useTranslation("common");
+  const isSplitView = useStore.use.isSplitView();
+  const playingState = useStore.use.playingState();
+
 
   const scoreSelector = useMemo(() =>
     showScoreSelector ?
@@ -53,18 +46,19 @@ export default function ScoreViewerHeader({
       : null
     , [showScoreSelector, scoreItems, onScoreChanged, t]);
 
-  const splitViewSelector = useMemo(() => splitView ?
+  const splitViewSelector = useMemo(() => isSplitView ?
     <SplitViewSelector
-      splitView={true}
-      activeSplitView={activeSplitView}
-      onSplitViewSelectorChanged={onSplitViewSelectorChanged}
       facsimileView={facsimileView}
       introView={introView}
       textView={textView}
-    /> : null, [splitView, activeSplitView, onSplitViewSelectorChanged, facsimileView, introView, textView]);
+    /> : null
+    , [isSplitView, facsimileView, introView, textView]);
 
   return (
-    <Space direction='horizontal' style={{ width: "100%", justifyContent: "space-between", alignItems: "center" }}>
+    <Space direction='horizontal' style={{
+        width: "100%",
+        justifyContent: scoreSelector || splitViewSelector ? "space-between" : "flex-end"  ,
+        alignItems: "center" }}>
       {scoreSelector}
       {splitViewSelector}
       <Button

@@ -1,17 +1,16 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Tabs, TabsProps, Space } from 'antd';
 import { FileTextOutlined, FileImageOutlined } from '@ant-design/icons';
 import Icon from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import MusicSvg from "../../assets/music.svg?react";
+import useStore from '../store';
 
 interface TabLayoutProps {
   scoreView: React.ReactNode;
   textView: React.ReactNode | null;
   introView: React.ReactNode | null;
   facsimileView: React.ReactNode | null;
-  activeTab: string;
-  onTabChange: (key: string) => void;
   showIntroductionSection: boolean;
   showTextSection: boolean;
   showFacsimileSection: boolean;
@@ -22,13 +21,13 @@ export default function TabLayout({
   textView,
   introView,
   facsimileView,
-  activeTab,
-  onTabChange,
   showIntroductionSection,
   showTextSection,
   showFacsimileSection
 }: TabLayoutProps) {
   const { t } = useTranslation("common");
+  const activeTab = useStore.use.activeTab()
+  const setActiveTab = useStore.use.setActiveTab();
 
   const tabsItems: TabsProps['items'] = useMemo(() =>
     showIntroductionSection || showTextSection || showFacsimileSection ? [
@@ -56,6 +55,10 @@ export default function TabLayout({
     [scoreView, textView, introView, facsimileView, showIntroductionSection, showTextSection, showFacsimileSection, t]
   );
 
+  const onTabChange = useCallback((key: string) => {
+    setActiveTab(key);
+  }, [setActiveTab]);
+
   const shouldShowTabs = tabsItems.length > 1;
 
   if (!shouldShowTabs) {
@@ -66,7 +69,6 @@ export default function TabLayout({
     <Tabs
       items={tabsItems}
       defaultActiveKey="music"
-      activeKey={activeTab}
       onChange={onTabChange}
       style={{
         width: "100%",

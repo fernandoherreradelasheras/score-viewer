@@ -41,15 +41,15 @@ const formatPoemText = (text: string, initialLineNumber: number) => {
 
 export interface TextViewProps {
     title?: string;
-    intro?: string | FetchError;
-    items?: LyricItem[];
+    intro?: string | FetchError | null;
+    items?: LyricItem[] | null;
     comments?: string | FetchError | null;
 }
 
 function TextView(props: TextViewProps) {
     const { t } = useTranslation("common");
-    const splitView = useStore.use.splitView();
-    const setSplitView = useStore.use.setSplitView();
+    const splitView = useStore.use.isSplitView();
+    const setSplitView = useStore.use.setIsSplitView();
     const { title, intro, items, comments } = props
     const [markdownText, setMarkdownText] = useState<string>("")
 

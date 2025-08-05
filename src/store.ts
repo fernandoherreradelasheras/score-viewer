@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 import { createSelectors } from './utils/zustand-utils'
 
-
 import {
     DEFAULT_SCALE,
     MIN_SCALE,
@@ -9,14 +8,12 @@ import {
     Action,
     Score,
     PlayingState,
-    AudioTrack,
     TextPartsCache,
     LyricItem,
     FetchError,
 } from './types'
 
 import { RenderedData } from './hooks/useScoreRenderer'
-
 
 
 interface RenderingState {
@@ -134,8 +131,10 @@ interface UILayoutState {
     scoreSvg: string | null
     scale: number
     reachedEffectiveMaxScale: boolean
-    splitView: boolean
+    isSplitView: boolean
+    activeSplitView: string
     splitViewOrientation: 'horizontal' | 'vertical'
+    activeTab: string
 
 
     setIsLoading: (isLoading: boolean) => void
@@ -144,8 +143,10 @@ interface UILayoutState {
     increaseScale: () => void
     decreaseScale: () => void
     setReachedEffectiveMaxScale: (value: boolean) => void
-    setSplitView: (splitView: boolean) => void
+    setIsSplitView: (splitView: boolean) => void
+    setActiveSplitView: (view: string) => void
     setSplitViewOrientation: (orientation: 'horizontal' | 'vertical') => void
+    setActiveTab: (tab: string) => void
 }
 
 const createUILayoutStore = create<UILayoutState>((set) => ({
@@ -153,8 +154,10 @@ const createUILayoutStore = create<UILayoutState>((set) => ({
     scoreSvg: null,
     scale: DEFAULT_SCALE,
     reachedEffectiveMaxScale: false,
-    splitView: false,
+    isSplitView: false,
+    activeSplitView: 'facsimile',
     splitViewOrientation: 'horizontal',
+    activeTab: 'music',
 
 
     setIsLoading: (isLoading: boolean) => set(() => ({ isLoading })),
@@ -169,21 +172,19 @@ const createUILayoutStore = create<UILayoutState>((set) => ({
         scale: Math.max(state.scale - 10, MIN_SCALE),
     })),
     setReachedEffectiveMaxScale: (value: boolean) => set(() => ({ reachedEffectiveMaxScale: value })),
-    setSplitView: (splitView: boolean) => set(() => ({ splitView })),
+    setIsSplitView: (splitView: boolean) => set(() => ({ isSplitView: splitView })),
+    setActiveSplitView: (view: string) => set(() => ({ activeSplitView: view })),
     setSplitViewOrientation: (orientation: 'horizontal' | 'vertical') => set(() => ({ splitViewOrientation: orientation })),
+    setActiveTab: (tab: string) => set(() => ({ activeTab: tab })),
 }))
 
 
 interface PlayerState {
-    audioUrl: string | null
-    audioOverlayTracks: AudioTrack[]
     playingState: PlayingState
     playingPosition: number
     seekPosition: number
     autoScroll: boolean
 
-    setAudioUrl: (audioUrl: string | null) => void
-    setAudioOverlayTracks: (tracks: AudioTrack[]) => void
     setPlayingState: (state: PlayingState) => void
     setPlayingPosition: (position: number) => void
     setSeekPosition: (position: number) => void
@@ -192,15 +193,11 @@ interface PlayerState {
 }
 
 const createPlayerStore = create<PlayerState>((set) => ({
-    audioUrl: null,
-    audioOverlayTracks:[],
     playingState: PlayingState.STOPPED,
     playingPosition: 0,
     seekPosition: -1,
     autoScroll: false,
 
-    setAudioUrl: (audioUrl: string | null) => set(() => ({ audioUrl })),
-    setAudioOverlayTracks: (audioOverlayTracks: AudioTrack[]) => set(() => ({ audioOverlayTracks })),
     setPlayingState: (playingState: PlayingState) => set(() => ({ playingState: playingState })),
     setPlayingPosition: (position: number) => set(() => ({ playingPosition: position })),
     setSeekPosition: (position: number) => set(() => ({ seekPosition: position })),
@@ -306,16 +303,20 @@ class StoreApi {
         scoreSvg: createUILayoutStoreWithSelectors.use.scoreSvg,
         scale: createUILayoutStoreWithSelectors.use.scale,
         reachedEffectiveMaxScale: createUILayoutStoreWithSelectors.use.reachedEffectiveMaxScale,
-        splitView: createUILayoutStoreWithSelectors.use.splitView,
+        isSplitView: createUILayoutStoreWithSelectors.use.isSplitView,
+        activeSplitView: createUILayoutStoreWithSelectors.use.activeSplitView,
         splitViewOrientation: createUILayoutStoreWithSelectors.use.splitViewOrientation,
+        activeTab: createUILayoutStoreWithSelectors.use.activeTab,
         setIsLoading: createUILayoutStoreWithSelectors.use.setIsLoading,
         setScoreSvg: createUILayoutStoreWithSelectors.use.setScoreSvg,
         setScale: createUILayoutStoreWithSelectors.use.setScale,
         increaseScale: createUILayoutStoreWithSelectors.use.increaseScale,
         decreaseScale: createUILayoutStoreWithSelectors.use.decreaseScale,
         setReachedEffectiveMaxScale: createUILayoutStoreWithSelectors.use.setReachedEffectiveMaxScale,
-        setSplitView: createUILayoutStoreWithSelectors.use.setSplitView,
+        setIsSplitView: createUILayoutStoreWithSelectors.use.setIsSplitView,
         setSplitViewOrientation: createUILayoutStoreWithSelectors.use.setSplitViewOrientation,
+        setActiveTab: createUILayoutStoreWithSelectors.use.setActiveTab,
+        setActiveSplitView: createUILayoutStoreWithSelectors.use.setActiveSplitView,
 
         // Score Navigation Store
         pageCount: createScoreViewerStoreWithSelectors.use.pageCount,
@@ -331,14 +332,10 @@ class StoreApi {
 
 
         // Player Store
-        audioUrl: createPlayerStoreWithSelectors.use.audioUrl,
-        audioOverlayTracks: createPlayerStoreWithSelectors.use.audioOverlayTracks,
         playingState: createPlayerStoreWithSelectors.use.playingState,
         playingPosition: createPlayerStoreWithSelectors.use.playingPosition,
         seekPosition: createPlayerStoreWithSelectors.use.seekPosition,
         autoScroll: createPlayerStoreWithSelectors.use.autoScroll,
-        setAudioUrl: createPlayerStoreWithSelectors.use.setAudioUrl,
-        setAudioOverlayTracks: createPlayerStoreWithSelectors.use.setAudioOverlayTracks,
         setPlayingState: createPlayerStoreWithSelectors.use.setPlayingState,
         setPlayingPosition: createPlayerStoreWithSelectors.use.setPlayingPosition,
         setSeekPosition: createPlayerStoreWithSelectors.use.setSeekPosition,
