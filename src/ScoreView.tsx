@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect } from 'react';
+import { useCallback, useContext, useEffect, useRef } from 'react';
 import useStore from "./store";
 import { Context } from './Context';
 import { useComponentSize } from "react-use-size";
@@ -55,6 +55,8 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const { handleElementClick } = useEditorialHandler();
     const { ref: svgContainerRef, width: svgContainerWidth, height: svgContainerHeight } = useComponentSize();
 
+    const lastRenderedUrl = useRef<string | undefined | null>(null);
+
     const setMusicAnalysis = useCallback((musicAnalysis: ParallelIntervalViolation[] | null) => {
         if (score) {
             setScore({
@@ -73,7 +75,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const {
         svgContainerClasses,
         calculateEffectiveMaxScale,
-        fadeOutScore,
     } = useScoreRenderer({
         autoScroll: false,
         showEditorial,
@@ -180,11 +181,11 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     useEffect(() => {
         if (score) {
             setTimeout(() => {
-                updateLoadedScore(false, true);
+                updateLoadedScore(false, lastRenderedUrl.current != score.url);
             });
         }
         return () => {
-            fadeOutScore();
+            lastRenderedUrl.current = score?.url
         }
     }, [score?.url]);
 

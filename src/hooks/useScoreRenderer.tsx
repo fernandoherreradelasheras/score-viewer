@@ -78,19 +78,6 @@ export default function useScoreRenderer({
     ...(showEditorial ? ["editorial-active"] : [])
   ], [showEditorial]);
 
-  /**
-   * Fade out the score (used when transitioning between scores)
-   */
-  const fadeOutScore = useCallback(() => {
-    if (!svgContainerRef.current) return;
-
-    const svgElement = svgContainerRef.current.querySelector(".svg-container svg") as HTMLDivElement | null;
-    if (svgElement) {
-      const classes = [...svgElement.classList];
-      classes.forEach(cls => svgElement.classList.remove(cls));
-      svgElement.classList.add('with-transition', 'zero-opacity');
-    }
-  }, [svgContainerRef]);
 
   /**
    * Get an element by ID from the current SVG
@@ -114,7 +101,6 @@ export default function useScoreRenderer({
     svgSingleSystem,
     calculateEffectiveMaxScale,
     svgContainerClasses,
-    fadeOutScore,
     getSvgElement,
     isSpotlightVisible,
   };

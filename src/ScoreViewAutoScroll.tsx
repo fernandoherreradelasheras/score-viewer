@@ -16,7 +16,6 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
 
     const setScoreLayout = useStore.use.setScoreLayout();
 
-    const isLoading = useStore.use.isLoading();
     const setIsLoading = useStore.use.setIsLoading();
     const pendingAction = useStore.use.pendingAction();
     const setPendingAction = useStore.use.setPendingAction();
@@ -45,7 +44,6 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
 
     const {
         svgContainerClasses,
-        fadeOutScore,
         isSpotlightVisible
     } = useScoreRenderer({
         autoScroll: true,
@@ -141,13 +139,6 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
             console.error("Action execution failed");
         }
     }, [pendingAction, verovio, showingMei]);
-
-
-    useEffect(() => {
-        if (isLoading) {
-            fadeOutScore();
-        }
-    }, [isLoading]);
 
 
     return (
