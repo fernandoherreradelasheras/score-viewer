@@ -177,7 +177,6 @@ export function useScoreManager({
 
   const hasIntro = useCallback((scoreIndex: number) => {
     const scoreDef = config.scores[scoreIndex];
-    console.log(`Checking if score ${scoreIndex} has introduction: ${scoreDef?.introductionFile}`);
     return (scoreDef && scoreDef.introductionFile) ? true : false;
   }, [config.scores]);
 

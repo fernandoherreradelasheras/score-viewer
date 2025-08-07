@@ -57,14 +57,16 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     const setMusicAnalysis = useCallback((musicAnalysis: ParallelIntervalViolation[] | null) => {
         if (score) {
-            const newScore = {
+            setScore({
                 ...score,
                 musicAnalysis
-            }
-            setScore(newScore);
-                setScoreCache(
-                    { [newScore.url]: newScore }
-                );
+            });
+            setScoreCache({
+                [score.url]: {
+                    ...score,
+                    musicAnalysis
+                }
+            });
         }
     }, [score, setScore, setScoreCache]);
 
@@ -146,7 +148,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     }, [pendingAction, svgContainerHeight]);
 
 
-    const generateShowingScore = () => {
+    const generateShowingScore = useCallback(() => {
         if (!score) return null;
 
         const scoreProcessor = new ScoreProcessor(score.originalMei);
@@ -157,12 +159,11 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             scoreProcessor.addNVersesFilter(showNVerses);
         }
         return scoreProcessor.filterScore();
-    };
+    }, [score, normalizeFicta, showNVerses]);
 
-    const updateScore = (restoreAnchor: boolean, fadeIn: boolean) => {
+    const updateLoadedScore = useCallback((restoreAnchor: boolean, fadeIn: boolean) => {
         const newShowingMei = generateShowingScore();
         if (!newShowingMei) return;
-
         const action = loadAction({
             scoreUrl: score?.url || "",
             postLoadTransition: fadeIn ? Transition.FADE_IN : undefined,
@@ -173,25 +174,29 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         });
         setPendingAction(action);
         setShowingMei(newShowingMei);
-    };
+    }, [score, renderedSvgData?.anchorElement, scale, generateShowingScore, setPendingAction, setShowingMei]);
 
     // This group of changes require rebuilding the score and reloading it
     useEffect(() => {
         if (score) {
-            fadeOutScore();
-            updateScore(false, true);
+            setTimeout(() => {
+                updateLoadedScore(false, true);
+            });
         }
-    }, [score]);
+        return () => {
+            fadeOutScore();
+        }
+    }, [score?.url]);
 
     useEffect(() => {
         if (showNVerses != null) {
-            updateScore(true, false);
+            updateLoadedScore(true, false);
         }
     }, [showNVerses]);
 
     useEffect(() => {
         if (normalizeFicta != null) {
-            updateScore(true, false);
+            updateLoadedScore(true, false);
         }
     }, [normalizeFicta]);
 

@@ -155,7 +155,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   // All effects moved to useScoreViewerEffects hook
   useScoreViewerEffects({
     configLanguage: config.settings.language,
-    configScoresLength: config.scores.length,
+    configScores: config.scores,
     configShowScoreSelector: config.settings.showScoreSelector,
     playingState,
     setPlayingState,
@@ -168,7 +168,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     loadAll
   });
 
-  const onScoreChanged = (value: number) => {
+  const onScoreSelectedChanged = (value: number) => {
     loadAll(value);
   };
 
@@ -260,14 +260,14 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     <ScoreViewerHeader
       showScoreSelector={config.scores.length > 1 && config.settings.showScoreSelector}
       scoreItems={scoreItems}
-      onScoreChanged={onScoreChanged}
+      onScoreSelectedChanged={onScoreSelectedChanged}
       facsimileView={facsimileView}
       introView={introView}
       textView={textView}
       onShowDrawer={showDrawer}
     />
   ), [
-    config.scores.length, config.settings.showScoreSelector, scoreItems, onScoreChanged,
+    config.scores.length, config.settings.showScoreSelector, scoreItems, onScoreSelectedChanged,
     facsimileView, introView, textView, showDrawer
   ]);
 

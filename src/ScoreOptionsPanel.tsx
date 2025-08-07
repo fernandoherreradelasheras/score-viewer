@@ -71,9 +71,9 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
         }
     }, [transposition, score?.properties?.encodedTransposition, setTransposition]);
 
-    const onShowMusicAnalysisChange = useCallback(() => {
-        setShowMusicAnalysis(!showMusicAnalysis);
-    }, [showMusicAnalysis, setShowMusicAnalysis]);
+    const onShowMusicAnalysisChange = useCallback((value: boolean) => {
+        setShowMusicAnalysis(value);
+    }, [setShowMusicAnalysis]);
 
     const numVersesAvailable = useMemo(() =>
         score?.properties?.numVerses || 0

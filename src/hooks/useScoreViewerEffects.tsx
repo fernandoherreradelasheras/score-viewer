@@ -3,10 +3,11 @@ import { isMobile, useMobileOrientation } from 'react-device-detect';
 import { ScoreViewContainerRef } from '../ScoreViewContainer';
 import { PlayingState, VisualizationOptions } from '../types';
 import { LANGUAGE_SESSION_STORAGE_KEY } from '../types';
+import { ScoreViewerConfigScore } from '../types/config';
 
 interface UseScoreViewerEffectsProps {
   configLanguage?: string;
-  configScoresLength: number;
+  configScores: ScoreViewerConfigScore[];
   configShowScoreSelector: boolean;
   playingState: PlayingState;
   setPlayingState: (state: PlayingState) => void;
@@ -21,7 +22,7 @@ interface UseScoreViewerEffectsProps {
 
 export function useScoreViewerEffects({
   configLanguage,
-  configScoresLength,
+  configScores,
   configShowScoreSelector,
   playingState,
   setPlayingState,
@@ -44,23 +45,23 @@ export function useScoreViewerEffects({
 
   // Initial score loading effect
   useEffect(() => {
-    if (configScoresLength > 0 && configShowScoreSelector && !hasInitiallyLoaded.current) {
+    if (configScores.length > 0 && configShowScoreSelector && !hasInitiallyLoaded.current) {
       hasInitiallyLoaded.current = true;
       loadAll(0);
     }
-  }, [configScoresLength, configShowScoreSelector, loadAll]);
+  }, []);
 
   useEffect(() => {
     if (onVisualizationOptionsChanged && showOriginalClefs != null) {
       onVisualizationOptionsChanged({ showOriginalClefs });
     }
-  }, [showOriginalClefs, onVisualizationOptionsChanged]);
+  }, [showOriginalClefs]);
 
   useEffect(() => {
     if (onVisualizationOptionsChanged && Object.keys(showReconstructions).length > 0) {
       onVisualizationOptionsChanged({ showReconstructions });
     }
-  }, [showReconstructions, onVisualizationOptionsChanged]);
+  }, [showReconstructions]);
 
   useEffect(() => {
     if (playingState == PlayingState.PLAYING) {

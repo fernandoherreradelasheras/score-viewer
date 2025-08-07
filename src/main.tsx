@@ -166,5 +166,5 @@ function TestSelector() {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <TestSelector />
-  </StrictMode>,
+  </StrictMode>
 )

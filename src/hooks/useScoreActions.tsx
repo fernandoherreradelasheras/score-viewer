@@ -506,10 +506,6 @@ export default function useScoreActions({
   ]);
 
   return {
-    executeAction,
-    performLoadAction,
-    performLoadAutoScrollAction,
-    performRenderAction,
-    performRenderAutoScrollAction
+    executeAction
   };
 }

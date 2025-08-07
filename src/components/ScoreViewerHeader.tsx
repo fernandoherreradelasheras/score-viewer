@@ -10,7 +10,7 @@ import useStore from '../store';
 interface ScoreViewerHeaderProps {
   showScoreSelector: boolean;
   scoreItems: DefaultOptionType[];
-  onScoreChanged: (value: number) => void;
+  onScoreSelectedChanged: (value: number) => void;
 
   facsimileView: React.ReactNode | null;
   introView: React.ReactNode | null;
@@ -22,7 +22,7 @@ interface ScoreViewerHeaderProps {
 export default function ScoreViewerHeader({
   showScoreSelector,
   scoreItems,
-  onScoreChanged,
+  onScoreSelectedChanged: onScoreChanged,
   facsimileView,
   introView,
   textView,
