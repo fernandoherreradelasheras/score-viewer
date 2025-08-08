@@ -112,7 +112,6 @@ export function useScoreManager({
       if (scoreCache[meiUrl]) {
         const cachedScore = scoreCache[meiUrl];
         updateScore(scoreIndex, cachedScore);
-        console.log(`Score fetched from cache: ${meiUrl} took ${performance.now() - t}ms`);
       } else {
         try {
           const meiString = await fetchMei(meiUrl);
@@ -154,7 +153,6 @@ export function useScoreManager({
             editorialItems,
             audioUrl,
             audioOverlayTracks,
-            musicAnalysis: null // This can be done only after the score is loaded in verovio.
           }
 
           setScoreCache(

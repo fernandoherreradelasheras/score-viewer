@@ -152,10 +152,26 @@
                 "encodedTransposition": "-P4"
             }
         },
-                {
+        {
             "path": ".",
             "title": "wrong url test mei",
             "meiFile": "non-exixtent.mei",
+            "encodingProperties": {
+                "encodedTransposition": "-P4"
+            }
+        },
+        {
+            "path": ".",
+            "title": "big MEI file",
+            "meiFile": "test-big.mei",
+            "encodingProperties": {
+                "encodedTransposition": "-P4"
+            }
+        },
+        {
+            "path": ".",
+            "title": "parallel fifths test",
+            "meiFile": "parallel.mei",
             "encodingProperties": {
                 "encodedTransposition": "-P4"
             }

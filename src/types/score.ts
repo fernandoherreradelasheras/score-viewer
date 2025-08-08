@@ -13,16 +13,6 @@ export type ReconstructionItem = {
     reconstructionBy: string
 }
 
-export type ParallelIntervalViolation = {
-    partNames: string[]
-    measureNumbers: string[]
-    offsets: number[]
-    notes: {
-        first: Note[]
-        second: Note[]
-    }
-    intervalType: 'fifth' | 'octave'
-}
 
 export type Score = {
     url: string;
@@ -33,7 +23,6 @@ export type Score = {
     editorialItems: EditorialItem[];
     audioUrl: string | null;
     audioOverlayTracks: AudioTrack[];
-    musicAnalysis: ParallelIntervalViolation[] | null;
 }
 
 export type TextPartsCache = {

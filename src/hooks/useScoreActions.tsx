@@ -12,11 +12,8 @@ import {
   RenderAutoScrollConfig,
   renderAction,
   renderAutoScrollAction,
-  Note,
-  ParallelIntervalViolation
 } from '../types';
 import { RenderedData } from './useScoreRenderer';
-import PararellChecker from '../ParallelChecker';
 
 
 // Constants moved from ScoreView
@@ -88,8 +85,6 @@ interface ScoreActionsConfig {
   showOriginalClefs: boolean | null;
   showMusicAnalysis: boolean;
   setScoreLayout: (layout: { currentPage: number; pageCount: number; sectionPageMap: Record<string, number> }) => void;
-  musicAnalysis: ParallelIntervalViolation[] | null;
-  setMusicAnalysis: (analysis: ParallelIntervalViolation[] | null) => void;
 }
 
   /**
@@ -133,8 +128,6 @@ export default function useScoreActions({
   showOriginalClefs,
   showMusicAnalysis,
   setScoreLayout,
-  musicAnalysis,
-  setMusicAnalysis
 }: ScoreActionsConfig) {
 
 
@@ -152,38 +145,6 @@ export default function useScoreActions({
     return sectionsMap
 
   }
-
-  const getNotesByOffset = (timemap: TimeMapEvent[]) => {
-      const notesByOffset : { [offset: string] : Note[] } = {}
-
-      const timestaps = getAllTimestamsp(timemap);
-      timestaps.forEach((offset) => {
-        const elements: Note[] = []
-        const ids = verovio.getElementsAtTime(offset + 1);
-        ids?.notes?.forEach((id: string) => {
-          const midiValues = verovio.getMIDIValuesForElement(id)
-          elements.push({ id: id, pitch: midiValues?.pitch, ...verovio.getElementAttr(id)} )
-        });
-        ids?.rests?.forEach((id: string) => {
-          elements.push({ id: id, pitch: 0, ...verovio.getElementAttr(id)} )
-        });
-        notesByOffset[offset] = elements;
-      })
-
-      return notesByOffset
-  }
-
-  const getMusicAnalysis = () : ParallelIntervalViolation[] => {
-        var t = performance.now();
-        const timemap = verovio.renderToTimemap({ includeMeasures: true, includeRests: true });
-        const notesByOffset = getNotesByOffset(timemap);
-        const loadedMei = verovio.getMEI()
-        const parallelChecker = new PararellChecker(notesByOffset, loadedMei);
-        const analysis = parallelChecker.analyzeParallelIntervals()
-        console.log(`Parallel intervals analysis done in ${performance.now() - t}ms`);
-        return analysis
-  }
-
 
   /**
    * Execute the load action - prepares Verovio with options and loads the MEI data
@@ -232,10 +193,6 @@ export default function useScoreActions({
 
       setScoreLayout({ currentPage: renderPage, pageCount: loadedPagesCount, sectionPageMap: sectionMap })
 
-      if (showMusicAnalysis && musicAnalysis == null) {
-        setMusicAnalysis(getMusicAnalysis());
-      }
-
       return renderAction({
         scoreUrl,
         transition: postLoadTransition,
@@ -259,8 +216,6 @@ export default function useScoreActions({
       showReconstructions,
       showOriginalClefs,
       showMusicAnalysis,
-      musicAnalysis,
-      setMusicAnalysis,
       setScoreLayout
   ]);
 
@@ -326,17 +281,6 @@ export default function useScoreActions({
   }
 
 
-  const getAllTimestamsp = (timemap: TimeMapEvent[]): number[] => {
-        // Extract unique time offsets from the timemap
-        const offsets = new Set<number>();
-        timemap.forEach(event => {
-            if (event.tstamp !== undefined) {
-                offsets.add(event.tstamp);
-            }
-        });
-        return Array.from(offsets).sort((a, b) => a - b);
-  }
-
 
   /**
    * Render the score as a standard page
@@ -362,18 +306,6 @@ export default function useScoreActions({
         console.log("Error rendering page: no svg element found");
         return null;
       }
-
-      musicAnalysis?.forEach((analysis) => {
-        const { intervalType, notes } = analysis;
-        const ids = [...notes.first.map(note => note.id), ...notes.second.map(note => note.id)];
-        ids.forEach(id => {
-          const noteElement = svgElement.querySelector(`g.note#${id}`);
-          if (noteElement) {
-            noteElement.classList.add(`parallel-${intervalType}`);
-          }
-        })
-      })
-
 
       if (svgElement.classList.contains("transition-zero-end")) {
         svgElement.classList.remove("transition-zero-end");
@@ -404,7 +336,7 @@ export default function useScoreActions({
       console.log(`Error rendering page: ${error}`);
       return null;
     }
-  }, [verovio, musicAnalysis]);
+  }, [verovio]);
 
   /**
    * Render the score for auto-scrolling

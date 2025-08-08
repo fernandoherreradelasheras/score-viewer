@@ -92,7 +92,7 @@
     },
     "harmonicAnalysis": {
       "title": "Harmonic analysis",
-      "description": "Shows parallel fifths and octaves and classification of score dissonances"
+      "description": "Shows classification dissonances present in the score"
     },
     "limitVerses": {
       "title": "Limit verses",

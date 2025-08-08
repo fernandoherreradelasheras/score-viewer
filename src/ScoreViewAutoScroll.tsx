@@ -73,8 +73,6 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
         showOriginalClefs,
         setScoreLayout,
         showMusicAnalysis: false,
-        musicAnalysis: null,
-        setMusicAnalysis: () => {},
     });
 
     const addLoadAction = (score: Score) => {

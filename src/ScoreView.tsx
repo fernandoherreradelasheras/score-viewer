@@ -7,7 +7,7 @@ import { useEditorialHandler } from './hooks/useEditorialHandler';
 import { expandBBsForEditorialItems, expandBBsForRdgs } from './SvgUtils';
 import useScoreActions, { RenderActionResult } from './hooks/useScoreActions';
 import useScoreRenderer from './hooks/useScoreRenderer';
-import { Transition, PlayingState, loadAction, renderAction, ParallelIntervalViolation } from './types';
+import { Transition, PlayingState, loadAction, renderAction } from './types';
 
 export interface ScoreViewProps {
     backgroundColor?: string | undefined;
@@ -25,8 +25,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const setPendingAction = useStore.use.setPendingAction();
 
     const score = useStore.use.score();
-    const setScore = useStore.use.setScore();
-    const setScoreCache = useStore.use.setScoreCache();
 
     const setScoreLayout = useStore.use.setScoreLayout();
 
@@ -57,21 +55,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     const lastRenderedUrl = useRef<string | undefined | null>(null);
 
-    const setMusicAnalysis = useCallback((musicAnalysis: ParallelIntervalViolation[] | null) => {
-        if (score) {
-            setScore({
-                ...score,
-                musicAnalysis
-            });
-            setScoreCache({
-                [score.url]: {
-                    ...score,
-                    musicAnalysis
-                }
-            });
-        }
-    }, [score, setScore, setScoreCache]);
-
     const {
         svgContainerClasses,
         calculateEffectiveMaxScale,
@@ -94,8 +77,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         showOriginalClefs,
         showMusicAnalysis,
         setScoreLayout,
-        musicAnalysis : score?.musicAnalysis || null,
-        setMusicAnalysis
     });
 
     const isReady = () => (score && verovio && svgContainerWidth > 0 && svgContainerHeight > 0 && !pendingAction)

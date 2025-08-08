@@ -93,7 +93,7 @@
     },
     "harmonicAnalysis": {
       "title": "Análisis armónico",
-      "description": "Muestra quintas y octavas paralelas y clasificación de las disonancias de la partitura"
+      "description": "Muestra la clasificación de las disonancias presentes en la partitura"
     },
     "limitVerses": {
       "title": "Limitar estrofas",
