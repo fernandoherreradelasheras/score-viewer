@@ -51,27 +51,35 @@
   --show-outline-color: rgb(28, 214, 22);
 }
 
-.svg-container.static-score:not(.editorial-active) svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg).bounding-box rect {
+.app.variant {
+  --show-fill-color: rgb(15, 15, 68);
+  --show-outline-color: rgb(0, 89, 255);
+}
+
+.svg-container.static-score:not(.editorial-active) svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg, .app.variant).bounding-box rect {
   fill: transparent;
 }
-.svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg) {
+.svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg, .app.variant).bounding-box rect {
   fill: var(--show-fill-color);
   pointer-events: auto;
   visibility: visible;
   cursor: pointer;
 }
-.svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg).bounding-box rect {
+.svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg, .app.variant).bounding-box rect {
   fill-opacity: 0.2;
   outline: 30px solid var(--show-outline-color);
   outline-offset: 120px;
 }
-.svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg):hover {
+.svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg, .app.variant):hover {
   filter: url(#highlighting-hover);
 }
-.svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg):hover rect {
+.svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg, .app.variant):hover rect {
   fill-opacity: 0.5;
   filter: hue-rotate(180deg);
 }
+
+
+
 
 .svg-container.static-score svg .note.parallel-octave {
   pointer-events: auto;

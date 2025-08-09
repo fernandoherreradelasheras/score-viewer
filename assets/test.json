@@ -175,6 +175,14 @@
             "encodingProperties": {
                 "encodedTransposition": "-P4"
             }
+        },
+        {
+            "path": ".",
+            "title": "variant test",
+            "meiFile": "variant.mei",
+            "encodingProperties": {
+                "encodedTransposition": "-P4"
+            }
         }
     ]
 }

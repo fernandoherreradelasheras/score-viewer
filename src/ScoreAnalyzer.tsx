@@ -5,6 +5,7 @@ import i18next from './i18n'
 
 const nsResolver = (prefix: string | null) => { return { mei: "http://www.music-encoding.org/ns/mei", xml: "http://www.w3.org/XML/1998/namespace" }[prefix || ''] || null }
 
+const APP_GLOBAL_TYPES = ["app_clefs", "voice_reconstruction" ]
 
 export interface Option {
     type: string
@@ -236,9 +237,11 @@ class ScoreAnalyzer {
         let node = matches.iterateNext()
         while (node != null) {
             const element = node as Element
-            // app elements with defined type are not considered editorial choices but
+            // app elements with global defined type are not considered editorial choices but
             // global choices and are handles on the options panel (e.g. voice reconstruction, original clefs, etc...)
-            if (element.getAttribute("type") == null) {
+            // app element with no type are also ignored (harm analysis, etc...)
+            const type = element.getAttribute("type")
+            if (type != null && !APP_GLOBAL_TYPES.includes(type)) {
                 const item = this.choiceNodeToEditorialItem(element, "app")
                 items.push(item)
             }

@@ -55,8 +55,12 @@ export function expandBBsForEditorialItems() {
         boundingBoxes.forEach(box => {
             if ((box as SVGAElement).childElementCount == 0) {
                 if (box.nextSibling) {
-                    const bbox = (box.nextElementSibling as SVGAElement)?.getBBox()
+                    var bbox = (box.nextElementSibling as SVGAElement)?.getBBox()
                     if (bbox) {
+                        if (bbox.width == 0 && bbox.height == 0 && elem == "app" && box.nextElementSibling?.nextElementSibling) {
+                            console.log("expanding app bounding box for the unselected")
+                            bbox = (box.nextElementSibling.nextElementSibling as SVGAElement)?.getBBox()
+                        }
                         const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
                         rect.setAttribute('x', bbox.x.toString());
                         rect.setAttribute('y', bbox.y.toString());
