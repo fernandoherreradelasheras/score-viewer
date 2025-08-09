@@ -26,6 +26,7 @@ export function useScoreManager({
   const setNormalizeFicta = useStore.use.setNormalizeFicta();
   const setShowReconstructions = useStore.use.setShowReconstructions();
   const setShowOriginalClefs = useStore.use.setShowOriginalClefs();
+  const setTransposition = useStore.use.setTransposition();
 
   const fetchMei = async (meiUrl: string): Promise<string> => {
       const res = await fetch(meiUrl);
@@ -86,6 +87,7 @@ export function useScoreManager({
     setNormalizeFicta(null);
     setShowReconstructions({}, true);
     setShowOriginalClefs(null);
+    setTransposition(null);
 
     setScore(newScore);
 
