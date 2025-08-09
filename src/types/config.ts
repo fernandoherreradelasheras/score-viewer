@@ -36,6 +36,8 @@ export interface ScoreViewerConfigSettings {
     showIntroductionSection: boolean;
     showTextSection: boolean;
     showFacsimileSection: boolean;
+    showOptions: boolean;
+    showMusicAnalysisByDefault: boolean;
     renderTitlesFromMEI: boolean;
     backgroundColor?: string | undefined;
     basePath: string;

@@ -17,7 +17,7 @@ const getReverseTransposition = (transposition?: string) => {
 };
 
 
-function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUserLanguageChange: boolean, onClose: () => void, open: boolean }) {
+function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault, onClose, open }: { allowUserLanguageChange: boolean, showMusicAnalysisByDefault: boolean, onClose: () => void, open: boolean }) {
     const { t, i18n } = useTranslation("common")
 
     const score = useStore.use.score();
@@ -343,7 +343,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
                         </Col>
                         <Col span={4}>
                             <Switch
-                                defaultValue={showMusicAnalysis}
+                                defaultValue={showMusicAnalysis || showMusicAnalysisByDefault}
                                 onChange={onShowMusicAnalysisChange}
                             />
                         </Col>

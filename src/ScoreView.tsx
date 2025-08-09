@@ -11,12 +11,13 @@ import { Transition, PlayingState, loadAction, renderAction } from './types';
 
 export interface ScoreViewProps {
     backgroundColor?: string | undefined;
+    showMusicAnalysisByDefault: boolean;
 }
 
 
 function ScoreView(scoreViewProps: ScoreViewProps) {
 
-    const { backgroundColor } = scoreViewProps;
+    const { backgroundColor, showMusicAnalysisByDefault } = scoreViewProps;
     const { verovio } = useContext(Context);
 
     // Store state management
@@ -76,6 +77,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         showReconstructions,
         showOriginalClefs,
         showMusicAnalysis,
+        showMusicAnalysisByDefault,
         setScoreLayout,
     });
 

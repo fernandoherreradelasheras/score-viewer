@@ -219,7 +219,7 @@ interface EditorialState {
     appOptions: string[]
     choiceOptions: string[]
     transposition: string | null
-    showMusicAnalysis: boolean
+    showMusicAnalysis: boolean | null
 
     setShowNVerses: (n: number | null) => void
     setShowReconstructions: (reconstructions: { [staff: string]: string }, replace: boolean) => void
@@ -243,7 +243,7 @@ const createEditorialStore = create<EditorialState>((set) => ({
     appOptions: [],
     choiceOptions: [],
     transposition: null,
-    showMusicAnalysis: false,
+    showMusicAnalysis: null,
 
     setShowNVerses: (n: number | null) => set(() => ({ showNVerses: n })),
     setShowReconstructions: (reconstructions: { [staff: string]: string }, replace: boolean) => set((state) => ({

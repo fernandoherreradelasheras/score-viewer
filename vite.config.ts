@@ -51,9 +51,16 @@ export default defineConfig(({ mode }) => {
       build: {
         ...config.build,
         outDir: 'dist/iframe',
+        target: 'es2015',
+        minify: isDev ? false : 'esbuild',
         rollupOptions: {
           input: {
             main: resolve(__dirname, 'iframe/index.html'),
+          },
+          output: {
+            manualChunks: undefined,
+            chunkFileNames: 'assets/[name]-[hash].js',
+            entryFileNames: 'assets/[name]-[hash].js',
           },
         },
       },

@@ -21,6 +21,8 @@ const defaultConfig: ScoreViewerConfig = {
     showTextSection: true,
     renderTitlesFromMEI: true,
     showScoreSelector: true,
+    showOptions: true,
+    showMusicAnalysisByDefault: false,
     backgroundColor: "#f6eee3",
     basePath: "/",
     facsimileImagesPath: "/",

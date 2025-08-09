@@ -9,6 +9,7 @@ import useStore from '../store';
 
 interface ScoreViewerHeaderProps {
   showScoreSelector: boolean;
+  showOptions: boolean;
   scoreItems: DefaultOptionType[];
   onScoreSelectedChanged: (value: number) => void;
 
@@ -21,6 +22,7 @@ interface ScoreViewerHeaderProps {
 
 export default function ScoreViewerHeader({
   showScoreSelector,
+  showOptions,
   scoreItems,
   onScoreSelectedChanged: onScoreChanged,
   facsimileView,
@@ -61,12 +63,12 @@ export default function ScoreViewerHeader({
         alignItems: "center" }}>
       {scoreSelector}
       {splitViewSelector}
-      <Button
-        icon={<Icon component={SettingOutlined} />}
-        onClick={onShowDrawer}
-        disabled={playingState === PlayingState.PLAYING}>
-        {t('scoreControls.settings')}
-      </Button>
+      { showOptions ? <Button
+          icon={<Icon component={SettingOutlined} />}
+          onClick={onShowDrawer}
+          disabled={playingState === PlayingState.PLAYING}>
+          {t('scoreControls.settings')}
+        </Button> : null}
     </Space>
   );
 }

@@ -78,29 +78,16 @@
   filter: hue-rotate(180deg);
 }
 
-
-
-
-.svg-container.static-score svg .note.parallel-octave {
-  pointer-events: auto;
-  visibility: visible;
-  cursor: pointer;
-  outline: 30px solid rgb(212, 14, 169);
-  outline-offset: 30px;
-}
-
-.svg-container.static-score svg .note.parallel-fifth {
-  pointer-events: auto;
-  visibility: visible;
-  cursor: pointer;
-  outline: 30px solid rgb(92, 17, 4);
-  outline-offset: 30px;
-}
-
-.svg-container.static-score svg .dissonant_analysis .harm tspan {
+.svg-container.static-score svg g.harm.rdiss tspan {
   font-style: italic;
   font-weight: bold;
   font-stretch: condensed;
+}
+
+.svg-container.static-score svg g.harm.rdiss > text {
+  outline: 30px solid gray;
+  border-radius: 50%;
+  outline-offset: 10px;
 }
 
 
@@ -235,9 +222,4 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Enclose harmonic analysis letters in a circle */
-.svg-container.static-score svg g.dissonant_analysis g.harm.rdiss > text {
-  outline: 30px solid gray;
-  border-radius: 50%;
-  outline-offset: 10px;
-}
+

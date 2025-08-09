@@ -85,6 +85,10 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
 
   const { fetchTextParts, textIntroduction, textLyrics, textComments } = useTextParts({ config })
 
+  const overflow = useMemo(() =>
+    isMobile && mobileOrientation.isLandscape ? "scroll" : "hidden"
+    , [isMobile, mobileOrientation, height])
+
   const renderMainContent = (content: React.ReactNode) =>
     <ConfigProvider
       theme={{
@@ -186,9 +190,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   const containerHeight = useMemo(() => isMobile && mobileOrientation.isLandscape ? height : "100%"
     , [isMobile, mobileOrientation, height])
 
-  const overflow = useMemo(() =>
-    isMobile && mobileOrientation.isLandscape ? "scroll" : "hidden"
-    , [isMobile, mobileOrientation, height])
+
 
   const introView = useMemo(() =>
     config.settings.showIntroductionSection && introAvailable ?
@@ -208,6 +210,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
         ref={scoreViewContainerRef}
         backgroundColor={config.settings.backgroundColor}
         showDownloadButton={config.settings.showDownloadButton}
+        showMusicAnalysisByDefault={config.settings.showMusicAnalysisByDefault}
         height={containerHeight} />
     }
   }, [config.settings.backgroundColor, config.settings.showDownloadButton, containerHeight, fetchScoreError, t])
@@ -252,13 +255,18 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   }, []);
 
   const drawer = useMemo(() =>
-    openDrawer ? <ScoreOptionsPanel allowUserLanguageChange={config.settings.allowUserLanguageChange} onClose={onDrawerClose} open={openDrawer} /> : null
+    openDrawer ? <ScoreOptionsPanel
+                    allowUserLanguageChange={config.settings.allowUserLanguageChange}
+                    showMusicAnalysisByDefault={config.settings.showMusicAnalysisByDefault}
+                    onClose={onDrawerClose}
+                    open={openDrawer} /> : null
     , [openDrawer, config.settings.allowUserLanguageChange, onDrawerClose])
 
 
   const header = useMemo(() => (
     <ScoreViewerHeader
       showScoreSelector={config.scores.length > 1 && config.settings.showScoreSelector}
+      showOptions={config.settings.showOptions}
       scoreItems={scoreItems}
       onScoreSelectedChanged={onScoreSelectedChanged}
       facsimileView={facsimileView}
