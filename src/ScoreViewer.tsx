@@ -81,7 +81,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     unloadScore()
   }
 
-  const { fetchScore, unloadScore, hasIntro, hasText } = useScoreManager({ config, normalizeFicta, onScoreAnalyzed, onFetchScoreError });
+  const { fetchScore, unloadScore, hasIntro, hasText } = useScoreManager({ t, config, normalizeFicta, onScoreAnalyzed, onFetchScoreError });
 
   const { fetchTextParts, textIntroduction, textLyrics, textComments } = useTextParts({ config })
 

@@ -8,6 +8,7 @@ import { expandBBsForEditorialItems, expandBBsForRdgs } from './SvgUtils';
 import useScoreActions, { RenderActionResult } from './hooks/useScoreActions';
 import useScoreRenderer from './hooks/useScoreRenderer';
 import { Transition, PlayingState, loadAction, renderAction } from './types';
+import { useTranslation } from 'react-i18next';
 
 export interface ScoreViewProps {
     backgroundColor?: string | undefined;
@@ -19,6 +20,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     const { backgroundColor, showMusicAnalysisByDefault } = scoreViewProps;
     const { verovio } = useContext(Context);
+    const { t } = useTranslation("common");
 
     // Store state management
     const setIsLoading = useStore.use.setIsLoading();
@@ -68,6 +70,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     });
 
     const { executeAction } = useScoreActions({
+        t,
         verovio,
         svgContainerWidth,
         svgContainerHeight,
@@ -212,12 +215,12 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
         const action = loadAction({
             scoreUrl: score?.url || "",
-            postLoadTransition: playingState == PlayingState.STOPPED  && !restoreAnchor ? Transition.FADE_IN : undefined,
+            postLoadTransition: playingState == PlayingState.STOPPED && !restoreAnchor ? Transition.FADE_IN : undefined,
             meiStr: showingMei,
             page: 1,
             scale,
             restorePositionForAchor: restoreAnchor
-         });
+        });
         setPendingAction(action);
     }, [verovio, svgContainerRef.current, svgContainerHeight, svgContainerWidth]);
 

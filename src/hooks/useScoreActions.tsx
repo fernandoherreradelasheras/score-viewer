@@ -47,18 +47,18 @@ const verovioBaseOptions: VerovioOptions = {
 // Helper to get the appropriate CSS class for a transition
 const initialClassForTransition = (transition: Transition) => {
   switch (transition) {
-      case Transition.GROW:
-          return "underscaled";
-      case Transition.NARROW:
-          return "overscaled";
-      case Transition.SLIDE_LEFT:
-          return "displaced-right";
-      case Transition.SLIDE_RIGHT:
-          return "displaced-left";
-      case Transition.FADE_OUT:
-          return "full-opacity";
-      case Transition.FADE_IN:
-          return "zero-opacity";
+    case Transition.GROW:
+      return "underscaled";
+    case Transition.NARROW:
+      return "overscaled";
+    case Transition.SLIDE_LEFT:
+      return "displaced-right";
+    case Transition.SLIDE_RIGHT:
+      return "displaced-left";
+    case Transition.FADE_OUT:
+      return "full-opacity";
+    case Transition.FADE_IN:
+      return "zero-opacity";
   }
 };
 
@@ -75,6 +75,7 @@ interface RenderAutoScrollResult {
 }
 
 interface ScoreActionsConfig {
+  t: any
   verovio: any; // Verovio toolkit instance
   svgContainerWidth: number;
   svgContainerHeight: number;
@@ -88,21 +89,21 @@ interface ScoreActionsConfig {
   setScoreLayout: (layout: { currentPage: number; pageCount: number; sectionPageMap: Record<string, number> }) => void;
 }
 
-  /**
-   * Transform a timemap with staff animation references
-   */
-  const resolveTimemapAnimations = (timemap: TimeMapEvent[]): TimeMapEvent[] =>
-    timemap.map(e => {
-      return {
-        ...e,
-        stavesOn: e.on?.map((id) => {
-          const staff = document.querySelector(`.staff:has(#${id})`)?.getAttribute("data-n");
-          return `#radius-${staff}-animation`;
-        })
-      } as TimeMapEvent;
-    });
+/**
+ * Transform a timemap with staff animation references
+ */
+const resolveTimemapAnimations = (timemap: TimeMapEvent[]): TimeMapEvent[] =>
+  timemap.map(e => {
+    return {
+      ...e,
+      stavesOn: e.on?.map((id) => {
+        const staff = document.querySelector(`.staff:has(#${id})`)?.getAttribute("data-n");
+        return `#radius-${staff}-animation`;
+      })
+    } as TimeMapEvent;
+  });
 
-const buildAppOptions = (appOptions: string[], showReconstructions: { [staff: string] : string }, showOriginalClefs: boolean, showMusicAnalysis: boolean) => {
+const buildAppOptions = (appOptions: string[], showReconstructions: { [staff: string]: string }, showOriginalClefs: boolean, showMusicAnalysis: boolean) => {
   const voiceReconstructionSelectors = Object.values(showReconstructions).map(label =>
     `./*[contains(@label, '${label}')]`
   )
@@ -119,6 +120,7 @@ const buildAppOptions = (appOptions: string[], showReconstructions: { [staff: st
  * Custom hook that manages score action execution
  */
 export default function useScoreActions({
+  t,
   verovio,
   svgContainerWidth,
   svgContainerHeight,
@@ -134,7 +136,7 @@ export default function useScoreActions({
 
 
   const getSectionMap = (scoreMei: string) => {
-    const analyzer = new ScoreAnalyzer(0, scoreMei);
+    const analyzer = new ScoreAnalyzer(t, 0, scoreMei);
     const sections = analyzer.getSections()
     const sectionsMap: Record<string, number> = {}
     sections.forEach((section) => {
@@ -209,16 +211,16 @@ export default function useScoreActions({
       return null;
     }
   }, [
-      verovio,
-      svgContainerWidth,
-      svgContainerHeight,
-      appOptions,
-      choiceOptions,
-      transposition,
-      showReconstructions,
-      showOriginalClefs,
-      showMusicAnalysis,
-      setScoreLayout
+    verovio,
+    svgContainerWidth,
+    svgContainerHeight,
+    appOptions,
+    choiceOptions,
+    transposition,
+    showReconstructions,
+    showOriginalClefs,
+    showMusicAnalysis,
+    setScoreLayout
   ]);
 
   /**
@@ -256,28 +258,28 @@ export default function useScoreActions({
     }
   }, [verovio, appOptions, choiceOptions, transposition, showReconstructions, showOriginalClefs]);
 
-  const mergeTimemapTies = (timemap: TimeMapEvent[], tiedNotes: {first: string; second: string;} []) => {
-      const newTimeMap = timemap.map(e => {return {...e} as TimeMapEvent});
-      for (const { first, second } of tiedNotes) {
-        const firstOnIndex = newTimeMap.findIndex(e => e.on != null && e.on.includes(first));
-        const firstOffIndex = newTimeMap.findIndex(e => e.off != null && e.off.includes(first));
-        const secondOnIndex = newTimeMap.findIndex(e => e.on != null && e.on.includes(second));
-        const secondOffIndex = newTimeMap.findIndex(e => e.off != null && e.off.includes(second));
-        if (firstOnIndex == -1 || firstOffIndex == -1 || secondOnIndex == -1 || secondOffIndex == -1) {
-          // ties could be for a reconstructed voice not selected
-          continue;
-        }
+  const mergeTimemapTies = (timemap: TimeMapEvent[], tiedNotes: { first: string; second: string; }[]) => {
+    const newTimeMap = timemap.map(e => { return { ...e } as TimeMapEvent });
+    for (const { first, second } of tiedNotes) {
+      const firstOnIndex = newTimeMap.findIndex(e => e.on != null && e.on.includes(first));
+      const firstOffIndex = newTimeMap.findIndex(e => e.off != null && e.off.includes(first));
+      const secondOnIndex = newTimeMap.findIndex(e => e.on != null && e.on.includes(second));
+      const secondOffIndex = newTimeMap.findIndex(e => e.off != null && e.off.includes(second));
+      if (firstOnIndex == -1 || firstOffIndex == -1 || secondOnIndex == -1 || secondOffIndex == -1) {
+        // ties could be for a reconstructed voice not selected
+        continue;
+      }
 
-        newTimeMap[firstOnIndex].on!.push(second)
-        newTimeMap[firstOffIndex].off = newTimeMap[firstOffIndex].off!.filter(id => id != first)
-        newTimeMap[secondOnIndex].on = newTimeMap[secondOnIndex].on!.filter(id => id != second)
-        newTimeMap[secondOffIndex].off!.push(first)
+      newTimeMap[firstOnIndex].on!.push(second)
+      newTimeMap[firstOffIndex].off = newTimeMap[firstOffIndex].off!.filter(id => id != first)
+      newTimeMap[secondOnIndex].on = newTimeMap[secondOnIndex].on!.filter(id => id != second)
+      newTimeMap[secondOffIndex].off!.push(first)
     }
     return newTimeMap
   }
 
   const resolveTimemap = (timemap: TimeMapEvent[]): TimeMapEvent[] => {
-    const analyzer = new ScoreAnalyzer(0, verovio.getMEI())
+    const analyzer = new ScoreAnalyzer(t, 0, verovio.getMEI())
     const timeMapWithTiesMerged = mergeTimemapTies(timemap, analyzer.getTiedNotes())
     return resolveTimemapAnimations(timeMapWithTiesMerged)
   }
@@ -319,10 +321,10 @@ export default function useScoreActions({
         }, 0);
       }
 
-      const analyzer = new ScoreAnalyzer(0, verovio.getMEI({ pageNo: renderPage }));
+      const analyzer = new ScoreAnalyzer(t, 0, verovio.getMEI({ pageNo: renderPage }));
       const firstMeasureId = analyzer.getFirstMeasureId();
 
-      const newSvg : RenderedData = {
+      const newSvg: RenderedData = {
         id: svgElement.id,
         scoreUrl: scoreUrl,
         scale: scale,
@@ -359,8 +361,8 @@ export default function useScoreActions({
       const renderedHeight = Math.round(height);
 
       element.innerHTML = svgData.replace("<svg", `<svg class="auto-scroll" style="will-change: transform; backface-visibility: hidden; overflow: collapse; width: ${renderedWidth}px; height: ${renderedHeight}px;" `)
-        //width="${renderedWidth}" height="${renderedHeight}" \
-//          .replace('<g class="page-margin" transform="translate(0, 0)">', '<g class="page-margin" transform="translate(0, 0)"><animateTransform attributeName="transform" attributeType="XML" begin="0s" dur="20s" type="translate"   from="0"    to="-16000"   />')
+      //width="${renderedWidth}" height="${renderedHeight}" \
+      //          .replace('<g class="page-margin" transform="translate(0, 0)">', '<g class="page-margin" transform="translate(0, 0)"><animateTransform attributeName="transform" attributeType="XML" begin="0s" dur="20s" type="translate"   from="0"    to="-16000"   />')
 
       element.style.height = `${renderedHeight}px`;
 

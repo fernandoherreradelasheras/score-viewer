@@ -14,6 +14,7 @@ export interface Option {
     type: string
     selector: string
     source: string | null
+    contentDescription: string | undefined
 }
 
 export interface Choice {

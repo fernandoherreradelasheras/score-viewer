@@ -7,12 +7,14 @@ import useScoreActions from './hooks/useScoreActions';
 import useScoreRenderer from './hooks/useScoreRenderer';
 import { PlayingState, Score, loadAutoScrollAction } from './types';
 import { ScoreViewProps } from './ScoreView';
+import { useTranslation } from 'react-i18next';
 
 
 
 function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
     const { backgroundColor } = scoreViewProps;
     const { verovio } = useContext(Context);
+    const { t } = useTranslation("common");
 
     const setScoreLayout = useStore.use.setScoreLayout();
 
@@ -63,6 +65,7 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
     });
 
     const { executeAction } = useScoreActions({
+        t,
         verovio,
         svgContainerWidth,
         svgContainerHeight,

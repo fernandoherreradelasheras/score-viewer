@@ -8,14 +8,97 @@ const nsResolver = (prefix: string | null) => { return { mei: "http://www.music-
 const APP_GLOBAL_TYPES = ["app_clefs", "voice_reconstruction"]
 
 
+const PITCH_NAMES: Record<string, { key: string; fallback: string }> = {
+    a: { key: "music.pitch.a", fallback: "A" },
+    b: { key: "music.pitch.b", fallback: "B" },
+    c: { key: "music.pitch.c", fallback: "C" },
+    d: { key: "music.pitch.d", fallback: "D" },
+    e: { key: "music.pitch.e", fallback: "E" },
+    f: { key: "music.pitch.f", fallback: "F" },
+    g: { key: "music.pitch.g", fallback: "G" },
+};
+
+const ACCIDENTALS: Record<string, { key: string; fallback: string; symbol: string }> = {
+    f: { key: "music.accidental.flat", fallback: "flat", symbol: "♭" },
+    s: { key: "music.accidental.sharp", fallback: "sharp", symbol: "♯" },
+    n: { key: "music.accidental.natural", fallback: "natural", symbol: "♮" },
+    ff: { key: "music.accidental.doubleFlat", fallback: "double flat", symbol: "𝄫" },
+    ss: { key: "music.accidental.doubleSharp", fallback: "double sharp", symbol: "𝄪" },
+};
+
+const MENSURAL_DURATIONS: Record<string, { key: string; fallback: string }> = {
+    "1": { key: "music.mensural.semibrevis", fallback: "semibrevis" },
+    "2": { key: "music.mensural.minima", fallback: "minima" },
+    "4": { key: "music.mensural.semiminima", fallback: "semiminima" },
+    "8": { key: "music.mensural.corchea", fallback: "corchea" },
+};
+
+
+
+
+
 class ScoreAnalyzer {
     document: Document
     tonoNumber: number
+    t: any
 
-    constructor(tonoNumber: number, score: string) {
+    constructor(t: any, tonoNumber: number, score: string) {
         const parser = new DOMParser();
         this.document = parser.parseFromString(score, "application/xml")
         this.tonoNumber = tonoNumber
+        this.t = t
+    }
+
+
+    describeMensuralDuration(dur?: string | null) {
+        if (!dur) {
+            return this.t("music.mensural.unknown", { duration: "", defaultValue: "unknown duration" });
+        }
+        const entry = MENSURAL_DURATIONS[dur];
+        if (!entry) {
+            return this.t("music.mensural.unknown", { duration: dur, defaultValue: `unknown duration (${dur})` });
+        }
+        return this.t(entry.key, { defaultValue: entry.fallback });
+    };
+
+    describeNoteElement(element: Element): string {
+        const pname = element.getAttribute("pname")?.toLowerCase() || "";
+        const pitchEntry = PITCH_NAMES[pname];
+        const pitchName = pitchEntry
+            ? this.t(pitchEntry.key, { defaultValue: pitchEntry.fallback })
+            : this.t("music.pitch.unknown", { pitch: pname, defaultValue: pname.toUpperCase() || "Unknown pitch" });
+
+        const accidCode = element.getAttribute("accid") || "";
+        const accidentalEntry = accidCode ? ACCIDENTALS[accidCode] : undefined;
+        const accidentalText = accidentalEntry
+            ? this.t(accidentalEntry.key, { defaultValue: accidentalEntry.fallback })
+            : "";
+
+        const pitchWithAccidental = accidentalEntry
+            ? this.t("music.pitch.withAccidental", {
+                pitch: pitchName,
+                accidental: accidentalText,
+                symbol: accidentalEntry.symbol,
+                defaultValue: `${pitchName} ${accidentalText}`,
+            })
+            : pitchName;
+
+        const durationText = this.describeMensuralDuration(element.getAttribute("dur"));
+
+        return this.t("music.note.description", {
+            pitch: pitchWithAccidental,
+            duration: durationText,
+            defaultValue: `${pitchWithAccidental}, ${durationText}`,
+        });
+    }
+
+    describeRestElement(element: Element): string {
+        const durationText = this.describeMensuralDuration(element.getAttribute("dur"));
+
+        return this.t("music.rest.description", {
+            duration: durationText,
+            defaultValue: `${durationText} rest`,
+        });
     }
 
     maxVerseNum() {
@@ -42,8 +125,9 @@ class ScoreAnalyzer {
     }
 
     hasEditorialElements() {
-        const it = this.document.evaluate('count(//mei:annot)', this.document, nsResolver, XPathResult.ANY_TYPE, null)?.numberValue
-        return it != null && it > 0
+        const annots = this.document.evaluate('count(//mei:annot)', this.document, nsResolver, XPathResult.ANY_TYPE, null)?.numberValue
+        const variants = this.document.evaluate('count(//mei:app[@type="variant"])', this.document, nsResolver, XPathResult.ANY_TYPE, null)?.numberValue
+        return (annots != null && annots > 0) || (variants != null && variants > 0)
     }
 
     getNumMeasures() {
@@ -234,10 +318,23 @@ class ScoreAnalyzer {
             const optionLabel = choiceElement.getAttribute("label")
             const optionSource = choiceElement.getAttribute("source")
             const nodeType = choiceElement.tagName
-            choice.options.push({ type: nodeType, selector: `./${nodeType}[@label='${optionLabel}']`, source: optionSource ? optionSource.slice(1) : null })
-        }
-        console.log(choice)
+            let contentDescription = ""
+            for (const child of choiceElement.childNodes) {
+                if (child instanceof Element && child.tagName === "note") {
+                    contentDescription += " " + this.describeNoteElement(child);
+                } else if (child instanceof Element && child.tagName === "rest") {
+                    contentDescription += " " + this.describeRestElement(child);
+                }
 
+            }
+            choice.options.push(
+                {
+                    type: nodeType,
+                    selector: `./${nodeType}[@label='${optionLabel}']`,
+                    source: optionSource ? optionSource.slice(1) : null,
+                    contentDescription: contentDescription !== "" ? contentDescription : undefined
+                })
+        }
         return { id: choiceId!!, type: type, resp: "", reason: "", choice: choice, annotations: new Set() }
     }
 

@@ -6,6 +6,7 @@ import { ScoreViewerConfig } from '../types/config';
 import { useCallback } from 'react';
 
 interface UseScoreManagerProps {
+  t: any;
   config: ScoreViewerConfig;
   normalizeFicta: boolean | null;
   onScoreAnalyzed?: ((scoreIndex: number, properties: ScoreProperties) => void) | undefined;
@@ -13,6 +14,7 @@ interface UseScoreManagerProps {
 }
 
 export function useScoreManager({
+  t,
   config,
   normalizeFicta,
   onScoreAnalyzed,
@@ -29,7 +31,7 @@ export function useScoreManager({
   const setTransposition = useStore.use.setTransposition();
 
   const fetchMei = async (meiUrl: string): Promise<string> => {
-      const res = await fetch(meiUrl);
+    const res = await fetch(meiUrl);
 
     if (!res.ok) {
       throw new Error(`Failed to fetch MEI file: ${res.status} ${res.statusText}`);
@@ -99,7 +101,7 @@ export function useScoreManager({
 
 
   const fetchScore = useCallback((scoreIndex: number) => {
-    const t = performance.now();
+    const timestamp = performance.now();
     (async () => {
       if (scoreIndex === null) return;
 
@@ -126,7 +128,7 @@ export function useScoreManager({
           scoreProcessor.addEnsureMeasuresIdFilter();
           scoreProcessor.addEnsureSectionsIdFilter();
           const originalMei = scoreProcessor.filterScore();
-          const analyzer = new ScoreAnalyzer(0, originalMei);
+          const analyzer = new ScoreAnalyzer(t, 0, originalMei);
           const properties = {
             ...analyzer.getScoreProperties(),
             encodedTransposition: encodingProperties.encodedTransposition as Transposition ?? undefined,
@@ -161,7 +163,7 @@ export function useScoreManager({
             { [meiUrl]: newScore }
           )
           updateScore(scoreIndex, newScore);
-          console.log(`Score fetched from network: ${meiUrl} took ${performance.now() - t}ms`);
+          console.log(`Score fetched from network: ${meiUrl} took ${performance.now() - timestamp}ms`);
         } catch (error: Error | any) {
           if (onFetchScoreError) {
             onFetchScoreError(meiUrl, error);

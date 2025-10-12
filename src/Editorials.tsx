@@ -39,19 +39,30 @@ function Editorials() {
         return annot != null ? <p>{annot.text}</p> : null;
     };
 
+    const getAppChoiceExtraText = (sourceTitle: string | null | undefined, contentDescription: string | null | undefined) => {
+        return `${sourceTitle ? sourceTitle : ''}${contentDescription ? ': ' + contentDescription : ''}`;
+    }
+
+    const getAppChoiceText = (subtype: string, options: Option[], option: Option) => {
+        const optionSource = option.source;
+        const sourceTitle = optionSource && score?.properties.sources[optionSource]?.title;
+        const contentDescription = option.contentDescription
+        const extraText = getAppChoiceExtraText(sourceTitle, contentDescription);
+        if (subtype == "lem") {
+            return `${t("editorial.preferredReading")} ${extraText}`;
+        }
+        const rdgs = options.filter(o => o.type == "rdg");
+        if (rdgs.length == 1) {
+            return `${t("editorial.alternativeReading")} ${extraText}`;
+        }
+        return `${t("editorial.alternativeReadingNumber")}${1 + rdgs.findIndex(r => r == option)} ${extraText}`;
+    }
+
 
     const getChoiceText = (type: string, subtype: string, options: Option[], index: number) => {
         if (type == "app") {
-            const optionSource = options[index].source;
-            const sourceTitle = optionSource && score?.properties.sources[optionSource]?.title;
-            if (subtype == "lem") {
-                return t("editorial.preferredReading") + (sourceTitle ? ` ${sourceTitle}` : '');
-            }
-            const rdgs = options.filter(o => o.type == "rdg");
-            if (rdgs.length == 1) {
-                return t("editorial.alternativeReading") + (sourceTitle ? ` ${sourceTitle}` : '');
-            }
-            return `${t("editorial.alternativeReadingNumber")}${1 + rdgs.findIndex(r => r == options[index])}`;
+            const text = getAppChoiceText(subtype, options, options[index]);
+            return text
         } else if (type == "choice") {
             if (subtype == "reg") {
                 return t("editorial.regReading");
