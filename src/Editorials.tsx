@@ -25,8 +25,8 @@ function Editorials() {
 
     const TOOLTIP_SELECTOR = useMemo(() =>
         ['corr', 'unclear', 'sic', 'app', 'choice', 'lem', 'reg', 'orig', 'supplied']
-        .map(e => `svg .${e}:not(.bounding-box)`).join(", ")
-    ,[])
+            .map(e => `svg .${e}:not(.bounding-box)`).join(", ")
+        , [])
 
     const showingEditorialItem = showingEditorial ? editorials?.find(e => e.id == showingEditorial) : null;
 
@@ -42,12 +42,14 @@ function Editorials() {
 
     const getChoiceText = (type: string, subtype: string, options: Option[], index: number) => {
         if (type == "app") {
+            const optionSource = options[index].source;
+            const sourceTitle = optionSource && score?.properties.sources[optionSource]?.title;
             if (subtype == "lem") {
-                return t("editorial.preferredReading");
+                return t("editorial.preferredReading") + (sourceTitle ? ` ${sourceTitle}` : '');
             }
             const rdgs = options.filter(o => o.type == "rdg");
             if (rdgs.length == 1) {
-                return t("editorial.alternativeReading");
+                return t("editorial.alternativeReading") + (sourceTitle ? ` ${sourceTitle}` : '');
             }
             return `${t("editorial.alternativeReadingNumber")}${1 + rdgs.findIndex(r => r == options[index])}`;
         } else if (type == "choice") {
@@ -56,7 +58,7 @@ function Editorials() {
             } else if (subtype == "orig") {
                 return t("editorial.origReading");
             } else {
-                return t('editorial.optionNumber', { 'number': 1 + index});
+                return t('editorial.optionNumber', { 'number': 1 + index });
             }
         } else {
             return "";
@@ -131,8 +133,8 @@ function Editorials() {
         return (
             <div>
                 <br />
-                <p>{t('editorial.currentlyShowing', { 'what': getChoiceText(type, subtype, choice.options, selectedOptionIdx)})} </p>
-                <p>$t('editorial.availableOptions'):</p>
+                <p>{t('editorial.currentlyShowing', { 'what': getChoiceText(type, subtype, choice.options, selectedOptionIdx) })} </p>
+                <p>{t('editorial.availableOptions')}:</p>
                 {options}
             </div>
         );
@@ -149,12 +151,12 @@ function Editorials() {
 
 
             <Tooltip id="verovio-tooltip"
-                            variant="info"
-                            style={{ zIndex: 3 }}
-                            offset={20}
-                            delayShow={500}
-                            anchorSelect={TOOLTIP_SELECTOR}
-                            render={getTooltipContent}/>
+                variant="info"
+                style={{ zIndex: 3 }}
+                offset={20}
+                delayShow={500}
+                anchorSelect={TOOLTIP_SELECTOR}
+                render={getTooltipContent} />
 
             {renderedSvgData?.id && <HoverHighlighter svgId={renderedSvgData.id} />}
 

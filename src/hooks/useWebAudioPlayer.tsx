@@ -6,8 +6,7 @@ import useVerovio from "../useVerovio";
 let sharedAudioContext: AudioContext | null = null;
 const MS_OVER_LAST_TIMESTAMP = 1000;
 
-
-export default function useWebAudioPlayer(audioUrl: string | null, audioOverlayTracks: AudioTrack[]) {
+export default function useWebAudioPlayer(audioUrl: string | null, audioOverlayTracks: AudioTrack[], originalMei: string | undefined) {
     // Get state and base functionality from base hook
 
     const playingState = useStore.use.playingState();
@@ -35,6 +34,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, audioOverlayT
     const [canPlay, setCanPlay] = useState(false);
     const [loadedTracks, setLoadedTracks] = useState<string[]>([]);
     const needsUserInteractionRef = useRef(true);
+
 
     const getAudioContext = useCallback(() => {
         if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
@@ -123,7 +123,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, audioOverlayT
         if (audioUrl) {
             loadAudio(audioUrl)
         }
-    }, [audioUrl]);
+    }, [audioUrl, originalMei]);
 
 
     useEffect(() => {

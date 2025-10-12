@@ -6,7 +6,7 @@ export interface AudioOverlay {
   file: string;
 }
 
-export interface ScoreViewerConfigScoreText  {
+export interface ScoreViewerConfigScoreText {
   file: string;
   append_to?: string | undefined;
   type?: string | undefined;
@@ -14,7 +14,7 @@ export interface ScoreViewerConfigScoreText  {
 }
 
 
-export interface ScoreViewerConfigScore  {
+export interface ScoreViewerConfigScore {
   title: string;
   path: string;
   audioBaseFile?: string | undefined;
@@ -30,23 +30,24 @@ export interface ScoreViewerConfigScore  {
 }
 
 export interface ScoreViewerConfigSettings {
-    showScoreSelector: boolean;
-    showTitle: boolean;
-    showDownloadButton: boolean;
-    showIntroductionSection: boolean;
-    showTextSection: boolean;
-    showFacsimileSection: boolean;
-    showOptions: boolean;
-    showMusicAnalysisByDefault: boolean;
-    renderTitlesFromMEI: boolean;
-    backgroundColor?: string | undefined;
-    basePath: string;
-    facsimileImagesPath: string;
-    language?: string | "autodetect";
-    allowUserLanguageChange: boolean;
+  showScoreSelector: boolean;
+  showTitle: boolean;
+  showDownloadButton: boolean;
+  showIntroductionSection: boolean;
+  showTextSection: boolean;
+  showFacsimileSection: boolean;
+  showOptions: boolean;
+  showMusicAnalysisByDefault: boolean;
+  renderTitlesFromMEI: boolean;
+  backgroundColor?: string | undefined;
+  basePath: string;
+  facsimileImagesPath: string;
+  language?: string | "autodetect";
+  allowUserLanguageChange: boolean;
+  selectorLabel?: string | "work" | "section";
 }
 
-export interface ScoreViewerConfig  {
+export interface ScoreViewerConfig {
   settings: ScoreViewerConfigSettings;
   scores: ScoreViewerConfigScore[];
 }

@@ -38,6 +38,8 @@ export type Reconstruction = {
 // just adding here those we might use. See verovio docs for explanation
 export type Transposition = "" | "P4" | "+P4" | "-P4" | "M3" | "+M3" | "-M3" | "P8" | "+P8" | "-P8"
 
+export type Sources = { [id: string]: { title: string } }
+
 
 export type ScoreProperties = {
     hasFicta: boolean;
@@ -48,7 +50,8 @@ export type ScoreProperties = {
     editor: string;
     reconstructions: Reconstruction[];
     reconstructionBy: string | null;
-    sections: {label: string; id: string}[];
+    sections: { label: string; id: string }[];
+    sources: Sources;
     notes: string[];
     hasEditorial: boolean;
     hasOriginalClefs: boolean;
@@ -58,7 +61,7 @@ export type ScoreProperties = {
 
 export type VisualizationOptions = {
     showOriginalClefs?: boolean | null | undefined;
-    showReconstructions?: { [staff:string] : string } | undefined;
+    showReconstructions?: { [staff: string]: string } | undefined;
 }
 
 export class FetchError extends Error {

@@ -6,6 +6,7 @@ import { PlayingState } from "./types";
 import useWebAudioPlayer from "./hooks/useWebAudioPlayer";
 import { useMemo } from "react";
 
+
 export enum PlayerEventType {
     ERROR,
     SEEK
@@ -15,6 +16,10 @@ export type PlayerEvent = {
     type: PlayerEventType,
     value?: any
 }
+
+
+
+
 
 function AudioPlayer() {
     const score = useStore.use.score();
@@ -31,7 +36,8 @@ function AudioPlayer() {
         handlePlay,
         handlePlayPause,
         handleStop,
-    } = useWebAudioPlayer(score?.audioUrl || null, audioOverlayTracks);
+    } = useWebAudioPlayer(score?.audioUrl || null, audioOverlayTracks, score?.originalMei);
+
 
 
     const playButton = useMemo(() =>

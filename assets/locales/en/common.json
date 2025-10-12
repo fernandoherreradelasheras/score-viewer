@@ -6,6 +6,7 @@
   "Introduction": "Introducción",
   "heading": {
     "work": "Work",
+    "section": "Section",
     "splitViewSelector": "Right view content"
   },
   "tab": {
@@ -65,7 +66,7 @@
   "scoreOptions": {
     "title": "Display options",
     "reconstruction": "Reconstruction {{voiceName}}",
-    "uiSettings" : {
+    "uiSettings": {
       "title": "UI settings"
     },
     "scoreViewerSettings": {

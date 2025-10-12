@@ -1,16 +1,12 @@
-import { EditorialItem, Annotation, ReconstructionItem, ScoreProperties } from "./types";
+import { EditorialItem, Annotation, ReconstructionItem, ScoreProperties, Option, Sources } from "./types";
 import i18next from './i18n'
 
 
 
 const nsResolver = (prefix: string | null) => { return { mei: "http://www.music-encoding.org/ns/mei", xml: "http://www.w3.org/XML/1998/namespace" }[prefix || ''] || null }
 
-const APP_GLOBAL_TYPES = ["app_clefs", "voice_reconstruction" ]
+const APP_GLOBAL_TYPES = ["app_clefs", "voice_reconstruction"]
 
-export interface Option {
-    type: string
-    selector: string
-}
 
 class ScoreAnalyzer {
     document: Document
@@ -67,7 +63,7 @@ class ScoreAnalyzer {
 
     getLyricist() {
         let name = this.document.evaluate("//mei:lyricist/mei:persName[@role=\"lyricist\"][1]", this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
-        return name  || i18next.t("anonymous")
+        return name || i18next.t("anonymous")
     }
 
     getReconstructionBy() {
@@ -99,6 +95,31 @@ class ScoreAnalyzer {
         return sections
     }
 
+    getSources() {
+        const sources: Sources = {};
+        let matches = this.document.evaluate(`//mei:sourceDesc/mei:source`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        var node = matches.iterateNext()
+        while (node != null) {
+            const source = node as Element
+            const id = source.getAttribute("xml:id")
+            if (id) {
+                let title: string | null = null;
+                for (const child of source.childNodes) {
+                    if (child instanceof Element && child.tagName === "bibl") {
+                        for (const subChild of child.childNodes) {
+                            if (subChild instanceof Element && subChild.tagName === "title") {
+                                title = subChild.textContent || "";
+                            }
+                        }
+                    }
+                }
+                sources[id] = { title: title || "" }
+            }
+            node = matches.iterateNext()
+        }
+        return sources
+    }
+
     getVoiceName(staff: string) {
         let voiceName = this.document.evaluate(`//mei:staffDef[@n="${staff}"]/mei:label`, this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
         return voiceName ? voiceName : null
@@ -106,7 +127,7 @@ class ScoreAnalyzer {
 
 
     getReconstructions() {
-        const reconstructions : { staff: string, voiceName: string, reconstructionsForVoice : ReconstructionItem[] }[] = []
+        const reconstructions: { staff: string, voiceName: string, reconstructionsForVoice: ReconstructionItem[] }[] = []
         let matches = this.document.evaluate(`//mei:app[@type="voice_reconstruction"]/mei:rdg`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
         var node = matches.iterateNext()
         while (node != null) {
@@ -126,7 +147,7 @@ class ScoreAnalyzer {
             var reconstructionsForVoice = reconstructions.find(r => r.voiceName == voiceName)?.reconstructionsForVoice
             if (!reconstructionsForVoice) {
                 reconstructionsForVoice = []
-                reconstructions.push({staff: staff, voiceName: voiceName, reconstructionsForVoice: reconstructionsForVoice})
+                reconstructions.push({ staff: staff, voiceName: voiceName, reconstructionsForVoice: reconstructionsForVoice })
             }
 
             if (reconstructionsForVoice.find(r => r.label == label)) {
@@ -134,7 +155,7 @@ class ScoreAnalyzer {
                 continue
             }
 
-            const reconstructionItem : ReconstructionItem = { label: label, voice: voiceName, reconstructionBy: "" }
+            const reconstructionItem: ReconstructionItem = { label: label, voice: voiceName, reconstructionBy: "" }
             reconstructionsForVoice.push(reconstructionItem)
             node = matches.iterateNext()
         }
@@ -164,6 +185,7 @@ class ScoreAnalyzer {
             reconstructions: this.getReconstructions(),
             notes: this.getMeiNotes(),
             sections: this.getSections(),
+            sources: this.getSources(),
             hasEditorial: this.hasEditorialElements(),
             hasOriginalClefs: this.hasOriginalClefs(),
             tiedNotes: this.getTiedNotes(),
@@ -202,7 +224,7 @@ class ScoreAnalyzer {
         return items
     }
 
-    choiceNodeToEditorialItem (node: Element, type: string) : EditorialItem {
+    choiceNodeToEditorialItem(node: Element, type: string): EditorialItem {
         const choiceId = node.getAttribute("xml:id")
         const options: Option[] = []
         const choice = { id: choiceId!!, options: options }
@@ -210,15 +232,17 @@ class ScoreAnalyzer {
         for (let child of [...node.childNodes?.values()].filter(n => n.nodeType == Node.ELEMENT_NODE)) {
             const choiceElement = child as Element
             const optionLabel = choiceElement.getAttribute("label")
+            const optionSource = choiceElement.getAttribute("source")
             const nodeType = choiceElement.tagName
-            choice.options.push({ type: nodeType, selector: `./${nodeType}[@label='${optionLabel}']` })
+            choice.options.push({ type: nodeType, selector: `./${nodeType}[@label='${optionLabel}']`, source: optionSource ? optionSource.slice(1) : null })
         }
+        console.log(choice)
 
         return { id: choiceId!!, type: type, resp: "", reason: "", choice: choice, annotations: new Set() }
     }
 
 
-    getChoiceNodes ()  {
+    getChoiceNodes() {
         const items: EditorialItem[] = []
         let matches = this.document.evaluate('//mei:choice', this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
@@ -231,7 +255,7 @@ class ScoreAnalyzer {
         return items
     }
 
-    getAppChoiceNodes ()  {
+    getAppChoiceNodes() {
         const items: EditorialItem[] = []
         let matches = this.document.evaluate(`//mei:app`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
@@ -250,7 +274,7 @@ class ScoreAnalyzer {
         return items
     }
 
-    getAnnotations()  {
+    getAnnotations() {
         const annotations: Annotation[] = []
         let matches = this.document.evaluate(`//mei:annot`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
@@ -266,7 +290,7 @@ class ScoreAnalyzer {
     }
 
     getTiedNotes() {
-        const tiedNotes: {first: string, second: string }[] = []
+        const tiedNotes: { first: string, second: string }[] = []
         let matches = this.document.evaluate(`//mei:tie`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
         while (node != null) {
@@ -285,7 +309,7 @@ class ScoreAnalyzer {
 
 
 
-    getEditorial() : EditorialItem[] {
+    getEditorial(): EditorialItem[] {
         const editorialElements: EditorialItem[] =
             this.getEditorialNodesOfType("unclear")
                 .concat(this.getEditorialNodesOfType("sic"))

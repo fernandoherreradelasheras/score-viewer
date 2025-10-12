@@ -13,6 +13,7 @@ export interface EditorialItem {
 export interface Option {
     type: string
     selector: string
+    source: string | null
 }
 
 export interface Choice {

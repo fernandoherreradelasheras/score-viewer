@@ -227,7 +227,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   const facsimileView = useMemo(() =>
     config.settings.showFacsimileSection && facsimileItems?.length ?
       <FacsimileView path={config.settings.facsimileImagesPath} items={facsimileItems} /> : null
-  , [config.settings.showFacsimileSection, config.settings.facsimileImagesPath, facsimileItems])
+    , [config.settings.showFacsimileSection, config.settings.facsimileImagesPath, facsimileItems])
 
 
 
@@ -256,10 +256,10 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
 
   const drawer = useMemo(() =>
     openDrawer ? <ScoreOptionsPanel
-                    allowUserLanguageChange={config.settings.allowUserLanguageChange}
-                    showMusicAnalysisByDefault={config.settings.showMusicAnalysisByDefault}
-                    onClose={onDrawerClose}
-                    open={openDrawer} /> : null
+      allowUserLanguageChange={config.settings.allowUserLanguageChange}
+      showMusicAnalysisByDefault={config.settings.showMusicAnalysisByDefault}
+      onClose={onDrawerClose}
+      open={openDrawer} /> : null
     , [openDrawer, config.settings.allowUserLanguageChange, onDrawerClose])
 
 
@@ -267,6 +267,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     <ScoreViewerHeader
       showScoreSelector={config.scores.length > 1 && config.settings.showScoreSelector}
       showOptions={config.settings.showOptions}
+      selectorLabel={config.settings.selectorLabel || "work"}
       scoreItems={scoreItems}
       onScoreSelectedChanged={onScoreSelectedChanged}
       facsimileView={facsimileView}

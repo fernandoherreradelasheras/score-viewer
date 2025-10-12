@@ -10,6 +10,7 @@ import useStore from '../store';
 interface ScoreViewerHeaderProps {
   showScoreSelector: boolean;
   showOptions: boolean;
+  selectorLabel: string | "work" | "section";
   scoreItems: DefaultOptionType[];
   onScoreSelectedChanged: (value: number) => void;
 
@@ -23,6 +24,7 @@ interface ScoreViewerHeaderProps {
 export default function ScoreViewerHeader({
   showScoreSelector,
   showOptions,
+  selectorLabel,
   scoreItems,
   onScoreSelectedChanged: onScoreChanged,
   facsimileView,
@@ -33,12 +35,13 @@ export default function ScoreViewerHeader({
   const { t } = useTranslation("common");
   const isSplitView = useStore.use.isSplitView();
   const playingState = useStore.use.playingState();
+  const label = selectorLabel === "work" ? t('heading.work') : t('heading.section');
 
 
   const scoreSelector = useMemo(() =>
     showScoreSelector ?
       <Space direction='horizontal' style={{ marginBottom: "10px", textAlign: "start", flex: "0" }}>
-        <Typography.Text style={{ marginLeft: "10px" }}>{t('heading.work')}:</Typography.Text>
+        <Typography.Text style={{ marginLeft: "10px" }}>{label}:</Typography.Text>
         <Select
           style={{ minWidth: "200px", marginRight: "10px" }}
           defaultValue={0}
@@ -58,17 +61,18 @@ export default function ScoreViewerHeader({
 
   return (
     <Space direction='horizontal' style={{
-        width: "100%",
-        justifyContent: scoreSelector || splitViewSelector ? "space-between" : "flex-end"  ,
-        alignItems: "center" }}>
+      width: "100%",
+      justifyContent: scoreSelector || splitViewSelector ? "space-between" : "flex-end",
+      alignItems: "center"
+    }}>
       {scoreSelector}
       {splitViewSelector}
-      { showOptions ? <Button
-          icon={<Icon component={SettingOutlined} />}
-          onClick={onShowDrawer}
-          disabled={playingState === PlayingState.PLAYING}>
-          {t('scoreControls.settings')}
-        </Button> : null}
+      {showOptions ? <Button
+        icon={<Icon component={SettingOutlined} />}
+        onClick={onShowDrawer}
+        disabled={playingState === PlayingState.PLAYING}>
+        {t('scoreControls.settings')}
+      </Button> : null}
     </Space>
   );
 }

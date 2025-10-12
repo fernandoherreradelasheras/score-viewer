@@ -5,7 +5,8 @@
   "Text": "Texto",
   "Introduction": "Introducción",
   "heading": {
-    "work": "Obra"
+    "work": "Obra",
+    "section": "Sección"
   },
   "tab": {
     "introduction": "Introducción",
@@ -68,7 +69,6 @@
     "uiSettings": {
       "title": "Configuración de la interfaz de usuario"
     },
-
     "scoreViewerSettings": {
       "title": "Configuración del visor de partituras"
     },

@@ -27,7 +27,8 @@ const defaultConfig: ScoreViewerConfig = {
     basePath: "/",
     facsimileImagesPath: "/",
     language: "es",
-    allowUserLanguageChange: false
+    allowUserLanguageChange: false,
+    selectorLabel: "work"
   },
   scores: [
     {
@@ -75,8 +76,8 @@ function TestSections() {
             {section.label}
           </Button>
         ))}
-        </Space>
-      <ScoreViewer ref={ref} width="100%" height="89vh" config={config} onScoreAnalyzed={onScoreAnalyzed}/>
+      </Space>
+      <ScoreViewer ref={ref} width="100%" height="89vh" config={config} onScoreAnalyzed={onScoreAnalyzed} />
     </div>
   )
 }
@@ -96,16 +97,16 @@ function TestExternalSelector() {
   return (
     <div>
       <Space direction="horizontal" size="large" style={{ height: "3vh" }}>
-          <Button onClick={() => ref.current?.selectScore(0)}>
-            {t('test.score1')}
-          </Button>
-          <Button onClick={() => ref.current?.selectScore(1)}>
-            {t('test.score2')}
-          </Button>
-          <Button onClick={() => ref.current?.selectScore(2)}>
-            {t('test.score3')}
-          </Button>
-        </Space>
+        <Button onClick={() => ref.current?.selectScore(0)}>
+          {t('test.score1')}
+        </Button>
+        <Button onClick={() => ref.current?.selectScore(1)}>
+          {t('test.score2')}
+        </Button>
+        <Button onClick={() => ref.current?.selectScore(2)}>
+          {t('test.score3')}
+        </Button>
+      </Space>
       <ScoreViewer ref={ref} width="100%" height="89vh" config={customSelectorConfig} />
     </div>
   )
@@ -114,7 +115,7 @@ function TestExternalSelector() {
 
 function TestBasic() {
   return (
-    <ScoreViewer width="100%" height="92vh" config={config}/>
+    <ScoreViewer width="100%" height="92vh" config={config} />
   )
 }
 
@@ -137,7 +138,7 @@ function TestSelector() {
 
   return (
     <div>
-      <div style={{  height: "4vh", padding: '20px', backgroundColor: '#f0f0f0', borderBottom: '1px solid #ddd' }}>
+      <div style={{ height: "4vh", padding: '20px', backgroundColor: '#f0f0f0', borderBottom: '1px solid #ddd' }}>
         <Space>
           <span>{t('test.selectTest')}</span>
           <Button

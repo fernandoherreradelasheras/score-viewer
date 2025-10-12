@@ -10,14 +10,15 @@
         "showOptions": true,
         "showMusicAnalysisByDefault": false,
         "backgroundColor": "#f5f5f5",
-        "basePath": "/tonos/",
+        "basePath": "./",
         "facsimileImagesPath": "/tonos/facsimile/",
         "language": "autodetect",
-        "allowUserLanguageChange": true
+        "allowUserLanguageChange": true,
+        "selectorLabel": "work"
     },
     "scores": [
         {
-            "path": "01",
+            "path": "tonos/01",
             "title": "Un imposible me mata",
             "audioBaseFile": "01-render-base-20250511.mp3",
             "audioOverlays": [
@@ -65,7 +66,7 @@
             "textCommentsFile": "01_-_Un_imposible_me_mata-text-comments.md"
         },
         {
-            "path": "02",
+            "path": "tonos/02",
             "title": "Querido imposible mío",
             "audioBaseFile": "02-render-base-20250511.mp3",
             "audioOverlays": [
@@ -113,7 +114,7 @@
             "textCommentsFile": "02_-_Querido_imposible_mio-text-comments.md"
         },
         {
-            "path": "03",
+            "path": "tonos/03",
             "title": "Amariles yo no puedo",
             "meiFile": "03_-_Amariles_yo_no_puedo-music-T.mei",
             "text": [
@@ -147,7 +148,7 @@
             "textCommentsFile": "03_-_Amariles_yo_no_puedo-text-comments.md"
         },
         {
-            "path": ".",
+            "path": "tonos",
             "title": "test mei",
             "meiFile": "test-anot.mei",
             "encodingProperties": {
@@ -155,7 +156,7 @@
             }
         },
         {
-            "path": ".",
+            "path": "tonos",
             "title": "wrong url test mei",
             "meiFile": "non-exixtent.mei",
             "encodingProperties": {
@@ -163,7 +164,7 @@
             }
         },
         {
-            "path": ".",
+            "path": "tonos",
             "title": "big MEI file",
             "meiFile": "test-big.mei",
             "encodingProperties": {
@@ -171,7 +172,7 @@
             }
         },
         {
-            "path": ".",
+            "path": "tonos",
             "title": "parallel fifths test",
             "meiFile": "parallel.mei",
             "encodingProperties": {
@@ -179,9 +180,54 @@
             }
         },
         {
-            "path": ".",
+            "path": "tonos",
             "title": "variant test",
             "meiFile": "variant.mei",
+            "encodingProperties": {
+                "encodedTransposition": "-P4"
+            }
+        },
+        {
+            "path": "tarasca",
+            "title": "Jacara",
+            "meiFile": "en la chozuela pajiza_mdiv1.mei",
+            "audioBaseFile": "en la chozuela pajiza 1.mp3",
+            "encodingProperties": {
+                "encodedTransposition": "-P4"
+            }
+        },
+        {
+            "path": "tarasca",
+            "title": "responsion",
+            "meiFile": "en la chozuela pajiza_mdiv2.mei",
+            "audioBaseFile": "en la chozuela pajiza 2.mp3",
+            "encodingProperties": {
+                "encodedTransposition": "-P4"
+            }
+        },
+        {
+            "path": "tarasca",
+            "title": "copla 1",
+            "meiFile": "en la chozuela pajiza_mdiv3.mei",
+            "audioBaseFile": "en la chozuela pajiza 3.mp3",
+            "encodingProperties": {
+                "encodedTransposition": "-P4"
+            }
+        },
+        {
+            "path": "tarasca",
+            "title": "copla 2",
+            "meiFile": "en la chozuela pajiza_mdiv4.mei",
+            "audioBaseFile": "en la chozuela pajiza 4.mp3",
+            "encodingProperties": {
+                "encodedTransposition": "-P4"
+            }
+        },
+        {
+            "path": "tarasca",
+            "title": "copla 3",
+            "meiFile": "en la chozuela pajiza_mdiv5.mei",
+            "audioBaseFile": "en la chozuela pajiza 5.mp3",
             "encodingProperties": {
                 "encodedTransposition": "-P4"
             }
