@@ -109,7 +109,15 @@
     "uiLayout": {
       "title": "UI Layout",
       "description": "Define how components are arranged on the screen"
-    }
+    },
+    "measureNumberInterval": {
+      "title": "Measure number",
+      "description": "Define how often measure numbers are shown in the score"
+    },
+    "measureIntervalPage": "At the beginning of the page",
+    "measureInterval10": "Every 10 measures",
+    "measureInterval5": "Every 5 measures",
+    "measureInterval1": "Every measure"
   },
   "scoreProcessor": {
     "reconstructionByIA": "Reconstruction by AI. Model {{name}}",

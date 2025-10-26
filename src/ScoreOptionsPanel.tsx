@@ -39,6 +39,8 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
     const setIsSplitView = useStore.use.setIsSplitView();
     const splitViewOrientation = useStore.use.splitViewOrientation();
     const setSplitViewOrientation = useStore.use.setSplitViewOrientation();
+    const measureNumberInterval = useStore.use.measureNumberInterval();
+    const setMeasureNumberInterval = useStore.use.setMeasureNumberInterval();
 
     const onVersesSelected = useCallback((value: number) => {
         setShowNVerses(value);
@@ -74,6 +76,10 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
     const onShowMusicAnalysisChange = useCallback((value: boolean) => {
         setShowMusicAnalysis(value);
     }, [setShowMusicAnalysis]);
+
+    const onMeasureNumberIntervalChange = useCallback((value: number | null) => {
+        setMeasureNumberInterval(value);
+    }, [setMeasureNumberInterval]);
 
     const numVersesAvailable = useMemo(() =>
         score?.properties?.numVerses || 0
@@ -373,6 +379,31 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
                                 />
                             </Col>
                         </Row>}
+
+                    <Row align={"middle"}>
+                        <Col span={12}>
+                            <Space direction="vertical">
+                                <Typography.Text strong={true}>
+                                    {t('scoreOptions.measureNumberInterval.title')}
+                                </Typography.Text>
+                                <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }}>
+                                    {t('scoreOptions.measureNumberInterval.description')}
+                                </Typography.Text>
+                            </Space>
+                        </Col>
+                        <Col span={12}>
+                            <Select<number>
+                                options={[
+                                    { label: t('scoreOptions.measureIntervalPage'), value: 0 },
+                                    { label: t('scoreOptions.measureInterval10'), value: 10 },
+                                    { label: t('scoreOptions.measureInterval5'), value: 5 },
+                                    { label: t('scoreOptions.measureInterval1'), value: 1 }]}
+                                defaultValue={measureNumberInterval != null ? measureNumberInterval : 10}
+                                onChange={onMeasureNumberIntervalChange}
+                            />
+                        </Col>
+                    </Row>
+
                 </Space>
             </Space>
         </Drawer>

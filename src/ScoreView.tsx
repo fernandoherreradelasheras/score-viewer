@@ -52,6 +52,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const showReconstructions = useStore.use.showReconstructions();
     const showOriginalClefs = useStore.use.showOriginalClefs();
     const showMusicAnalysis = useStore.use.showMusicAnalysis();
+    const measureNumberInterval = useStore.use.measureNumberInterval();
 
     const { handleElementClick } = useEditorialHandler();
     const { ref: svgContainerRef, width: svgContainerWidth, height: svgContainerHeight } = useComponentSize();
@@ -81,6 +82,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         showOriginalClefs,
         showMusicAnalysis,
         showMusicAnalysisByDefault,
+        measureNumberInterval,
         setScoreLayout,
     });
 
@@ -256,7 +258,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     // These changes requires reloading the currently built score
     useEffect(() => {
         reloadScore();
-    }, [appOptions, choiceOptions, transposition, showMusicAnalysis]);
+    }, [appOptions, choiceOptions, transposition, showMusicAnalysis, measureNumberInterval]);
 
     useEffect(() => {
         if (showOriginalClefs == null) {

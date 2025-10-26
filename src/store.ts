@@ -41,7 +41,7 @@ interface ScoreManagementState {
 
     setShowingMei: (mei: string | null) => void
     setScoreCache: (scoreCache: { [index: string]: Score }) => void
-    setTextCache: (textCache: TextPartsCache, replace:boolean ) => void
+    setTextCache: (textCache: TextPartsCache, replace: boolean) => void
     setTextComments: (textComments: string | FetchError | null | undefined) => void
     setTextIntroduction: (textIntroduction: string | FetchError | null | undefined) => void
     setTextLyrics: (textLyrics: LyricItem[] | null | undefined, replace: boolean) => void
@@ -66,9 +66,10 @@ const createScoreManagementStore = create<ScoreManagementState>((set) => ({
         textCache: replace ? textCache : { ...state.textCache, ...textCache }
     })),
     setTextComments: (textComments: string | FetchError | null | undefined) => set(() => ({ textComments })),
-    setTextIntroduction: (textIntroduction: string | FetchError |null | undefined) => set(() => ({ textIntroduction })),
+    setTextIntroduction: (textIntroduction: string | FetchError | null | undefined) => set(() => ({ textIntroduction })),
     setTextLyrics: (textLyrics: LyricItem[] | null | undefined, replace: boolean) => set((state) => ({
-        textLyrics: replace ? textLyrics : [...state.textLyrics || [],  ...(textLyrics || [])]}))
+        textLyrics: replace ? textLyrics : [...state.textLyrics || [], ...(textLyrics || [])]
+    }))
 }))
 
 
@@ -78,7 +79,7 @@ interface ScoreNavigationState {
 
     sectionPageMap: Record<string, number>
 
-    setScoreLayout : (layout: { pageCount: number, sectionPageMap: Record<string, number>, currentPage: number }) => void
+    setScoreLayout: (layout: { pageCount: number, sectionPageMap: Record<string, number>, currentPage: number }) => void
 
     goToPage: (page: number) => void
     goToNextPage: () => void
@@ -91,38 +92,38 @@ interface ScoreNavigationState {
 }
 
 export const createScoreViewerStore = create<ScoreNavigationState>((set, get) => ({
-  pageCount: 0,
-  currentPage: 1,
-  sectionPageMap: { },
+    pageCount: 0,
+    currentPage: 1,
+    sectionPageMap: {},
 
-  setScoreLayout: ({ pageCount, sectionPageMap, currentPage }) => {
-    set({
-      pageCount,
-      sectionPageMap,
-      currentPage,
-      navigationCommand: null
-    });
-  },
+    setScoreLayout: ({ pageCount, sectionPageMap, currentPage }) => {
+        set({
+            pageCount,
+            sectionPageMap,
+            currentPage,
+            navigationCommand: null
+        });
+    },
 
-  goToPage: (page) => set({
-    currentPage: Math.max(1, Math.min(page, get().pageCount))
-  }),
-  goToNextPage: () => get().goToPage(get().currentPage + 1),
-  goToPreviousPage: () => get().goToPage(get().currentPage - 1),
+    goToPage: (page) => set({
+        currentPage: Math.max(1, Math.min(page, get().pageCount))
+    }),
+    goToNextPage: () => get().goToPage(get().currentPage + 1),
+    goToPreviousPage: () => get().goToPage(get().currentPage - 1),
 
-  goToSection: (sectionId) => {
-    const page = get().sectionPageMap[sectionId];
-    if (page) {
-      set({
-        navigationCommand: { type: 'section', target: sectionId },
-        currentPage: page
-      });
-    }
-  },
+    goToSection: (sectionId) => {
+        const page = get().sectionPageMap[sectionId];
+        if (page) {
+            set({
+                navigationCommand: { type: 'section', target: sectionId },
+                currentPage: page
+            });
+        }
+    },
 
-  navigationCommand: null,
+    navigationCommand: null,
 
-  clearNavigationCommand: () => set({ navigationCommand: null }),
+    clearNavigationCommand: () => set({ navigationCommand: null }),
 }));
 
 
@@ -220,6 +221,7 @@ interface EditorialState {
     choiceOptions: string[]
     transposition: string | null
     showMusicAnalysis: boolean | null
+    measureNumberInterval: number | null
 
     setShowNVerses: (n: number | null) => void
     setShowReconstructions: (reconstructions: { [staff: string]: string }, replace: boolean) => void
@@ -231,6 +233,7 @@ interface EditorialState {
     setChoiceOptions: (options: string[], replace: boolean) => void
     setTransposition: (transposition: string | null) => void
     setShowMusicAnalysis: (showMusicAnalysis: boolean) => void
+    setMeasureNumberInterval: (interval: number | null) => void
 }
 
 const createEditorialStore = create<EditorialState>((set) => ({
@@ -244,11 +247,12 @@ const createEditorialStore = create<EditorialState>((set) => ({
     choiceOptions: [],
     transposition: null,
     showMusicAnalysis: null,
+    measureNumberInterval: null,
 
     setShowNVerses: (n: number | null) => set(() => ({ showNVerses: n })),
     setShowReconstructions: (reconstructions: { [staff: string]: string }, replace: boolean) => set((state) => ({
         showReconstructions: replace ? reconstructions : { ...state.showReconstructions, ...reconstructions }
-     })),
+    })),
     setShowEditorial: (showEditorial: boolean) => set(() => ({ showEditorial })),
     setShowOriginalClefs: (showOriginalClefs: boolean | null) => set(() => ({ showOriginalClefs })),
     setNormalizeFicta: (normalizeFicta: boolean | null) => set(() => ({ normalizeFicta })),
@@ -261,6 +265,7 @@ const createEditorialStore = create<EditorialState>((set) => ({
     })),
     setTransposition: (transposition: string | null) => set(() => ({ transposition })),
     setShowMusicAnalysis: (showMusicAnalysis: boolean) => set(() => ({ showMusicAnalysis })),
+    setMeasureNumberInterval: (interval: number | null) => set(() => ({ measureNumberInterval: interval })),
 }))
 
 
@@ -353,6 +358,7 @@ class StoreApi {
         choiceOptions: createEditorialStoreWithSelectors.use.choiceOptions,
         transposition: createEditorialStoreWithSelectors.use.transposition,
         showMusicAnalysis: createEditorialStoreWithSelectors.use.showMusicAnalysis,
+        measureNumberInterval: createEditorialStoreWithSelectors.use.measureNumberInterval,
         setShowNVerses: createEditorialStoreWithSelectors.use.setShowNVerses,
         setShowReconstructions: createEditorialStoreWithSelectors.use.setShowReconstructions,
         setShowEditorial: createEditorialStoreWithSelectors.use.setShowEditorial,
@@ -363,6 +369,7 @@ class StoreApi {
         setChoiceOptions: createEditorialStoreWithSelectors.use.setChoiceOptions,
         setTransposition: createEditorialStoreWithSelectors.use.setTransposition,
         setShowMusicAnalysis: createEditorialStoreWithSelectors.use.setShowMusicAnalysis,
+        setMeasureNumberInterval: createEditorialStoreWithSelectors.use.setMeasureNumberInterval,
 
 
         // Rendered SVG Store

@@ -109,7 +109,15 @@
     "uiLayout": {
       "title": "Diseño de la interfaz de usuario",
       "description": "Define cómo se organizan los componentes en la pantalla"
-    }
+    },
+    "measureNumberInterval": {
+      "title": "Número de compás",
+      "description": "Define con qué frecuencia se muestran los números de compás en la partitura"
+    },
+    "measureIntervalPage": "Al comienzo de la página",
+    "measureInterval10": "Cada 10 compases",
+    "measureInterval5": "Cada 5 compases",
+    "measureInterval1": "Cada compás"
   },
   "scoreProcessor": {
     "reconstructionByIA": "Reconstrucción por IA. Modelo {{name}}",

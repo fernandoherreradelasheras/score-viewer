@@ -86,6 +86,7 @@ interface ScoreActionsConfig {
   showOriginalClefs: boolean | null;
   showMusicAnalysis: boolean | null;
   showMusicAnalysisByDefault: boolean;
+  measureNumberInterval: number | null;
   setScoreLayout: (layout: { currentPage: number; pageCount: number; sectionPageMap: Record<string, number> }) => void;
 }
 
@@ -131,6 +132,7 @@ export default function useScoreActions({
   showOriginalClefs,
   showMusicAnalysis,
   showMusicAnalysisByDefault,
+  measureNumberInterval,
   setScoreLayout,
 }: ScoreActionsConfig) {
 
@@ -173,7 +175,8 @@ export default function useScoreActions({
       pageHeight: loadedHeight,
       pageWidth: loadedWidth,
       scale: scale,
-      transpose: transposition != null ? transposition : ""
+      transpose: transposition != null ? transposition : "",
+      mnumInterval: measureNumberInterval ?? 0
     };
 
     try {
@@ -220,6 +223,7 @@ export default function useScoreActions({
     showReconstructions,
     showOriginalClefs,
     showMusicAnalysis,
+    measureNumberInterval,
     setScoreLayout
   ]);
 
