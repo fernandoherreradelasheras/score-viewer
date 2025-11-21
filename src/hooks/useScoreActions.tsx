@@ -98,7 +98,13 @@ const resolveTimemapAnimations = (timemap: TimeMapEvent[]): TimeMapEvent[] =>
     return {
       ...e,
       stavesOn: e.on?.map((id) => {
-        const staff = document.querySelector(`.staff:has(#${id})`)?.getAttribute("data-n");
+        const escapedId = CSS.escape(id);
+        const staff = document.querySelector(`.staff:has(#${escapedId})`)?.getAttribute("data-n");
+        return `#radius-${staff}-animation`;
+      }),
+      stavesOff: e.off?.map((id) => {
+        const escapedId = CSS.escape(id);
+        const staff = document.querySelector(`.staff:has(#${escapedId})`)?.getAttribute("data-n");
         return `#radius-${staff}-animation`;
       })
     } as TimeMapEvent;

@@ -84,7 +84,8 @@ export default function useScoreRenderer({
    */
   const getSvgElement = useCallback((elementId: string): Element | null => {
     if (!svgContainerRef.current) return null;
-    return svgContainerRef.current.querySelector(`#${elementId}`);
+    const escapedId = CSS.escape(elementId);
+    return svgContainerRef.current.querySelector(`#${escapedId}`);
   }, [svgContainerRef]);
 
   /**

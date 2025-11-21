@@ -24,7 +24,7 @@ export default function useScoreAnimation({
 
 
   const generateKeyframes = (renderedSvgData: RenderedData) => {
-    if (!svgContainerRef.current){
+    if (!svgContainerRef.current) {
       return [];
     }
 
@@ -43,16 +43,19 @@ export default function useScoreAnimation({
     const keyframes: Keyframe[] = [];
 
     measuresOn.forEach((measure) => {
-      const measureElement = svgContainerRef.current?.querySelector(`#${measure.id}`);
-      if (measureElement) {
-        const bb = measureElement.getBoundingClientRect();
-        const xPosition = initialX - Math.floor(bb.left);
-        const offset = measure.ts / audioDuration;
+      if (measure.id) {
+        const escapedId = CSS.escape(measure.id);
+        const measureElement = svgContainerRef.current?.querySelector(`#${escapedId}`);
+        if (measureElement) {
+          const bb = measureElement.getBoundingClientRect();
+          const xPosition = initialX - Math.floor(bb.left);
+          const offset = measure.ts / audioDuration;
 
-        keyframes.push({
-          transform: `translateX(${xPosition}px)`,
-          offset: offset
-        });
+          keyframes.push({
+            transform: `translateX(${xPosition}px)`,
+            offset: offset
+          });
+        }
       }
     });
 
@@ -66,7 +69,7 @@ export default function useScoreAnimation({
   /**
    * Create and start the animation for auto-scrolling
    */
-  const startAnimation = ( renderedSvgData: RenderedData, initialPosition: number, shouldPause: boolean) => {
+  const startAnimation = (renderedSvgData: RenderedData, initialPosition: number, shouldPause: boolean) => {
     if (
       !svgContainerRef.current ||
       !renderedSvgData ||
