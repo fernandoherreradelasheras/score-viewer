@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import useStore from "./store";
 import { Context } from './Context';
 import { useComponentSize } from "react-use-size";
@@ -8,6 +8,7 @@ import useScoreRenderer from './hooks/useScoreRenderer';
 import { PlayingState, Score, loadAutoScrollAction } from './types';
 import { ScoreViewProps } from './ScoreView';
 import { useTranslation } from 'react-i18next';
+import LoadingSpinner from './components/LoadingSpinner';
 
 
 
@@ -41,6 +42,8 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
 
     const renderedSvgData = useStore.use.renderedSvgData();
     const setRenderedSvgData = useStore.use.setRenderedSvgData();
+
+    const [showSpinner, setShowSpinner] = useState(false);
 
     const { ref: svgContainerRef, width: svgContainerWidth, height: svgContainerHeight } = useComponentSize();
 
@@ -78,7 +81,7 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
         setScoreLayout,
         showMusicAnalysis: false,
         measureNumberInterval,
-        showMusicAnalysisByDefault: false
+        showMusicAnalysisByDefault: false,
     });
 
     const addLoadAction = (score: Score) => {
@@ -112,41 +115,51 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
             return;
         }
 
-        const { success, nextAction, result } = executeAction(pendingAction, svgContainerRef.current);
+        (async () => {
+            const { success, nextAction, result, showSpinner: shouldShowSpinner } = await executeAction(pendingAction, svgContainerRef.current!);
 
-        if (success) {
-            if (nextAction) {
-                setPendingAction(nextAction);
-            } else {
-                setPendingAction(null);
+            // Show spinner for heavy operations
+            if (shouldShowSpinner) {
+                setShowSpinner(true);
+            }
 
-                // Handle the results of render actions
-                if (result) {
-                    if (pendingAction.type === "renderAutoScroll") {
-                        const autoScrollResult = result as { newSvg: any };
-                        const { newSvg } = autoScrollResult;
-                        setRenderedSvgData(newSvg);
-                        setIsLoading(false);
-                        setupAutoScrollLayout();
-                        if (playingState == PlayingState.PLAYING) {
-                            startAnimation(newSvg, playingPosition, false);
-                        } else if (playingState == PlayingState.PAUSED) {
-                            startAnimation(newSvg, playingPosition, true);
-                        } else {
-                            startAnimation(newSvg, 0, false);
-                            setPlayingState(PlayingState.PLAYING);
+            if (success) {
+                if (nextAction) {
+                    setPendingAction(nextAction);
+                } else {
+                    setPendingAction(null);
+                    // Hide spinner when all actions complete
+                    setShowSpinner(false);
+
+                    // Handle the results of render actions
+                    if (result) {
+                        if (pendingAction.type === "renderAutoScroll") {
+                            const autoScrollResult = result as { newSvg: any };
+                            const { newSvg } = autoScrollResult;
+                            setRenderedSvgData(newSvg);
+                            setIsLoading(false);
+                            setupAutoScrollLayout();
+                            if (playingState == PlayingState.PLAYING) {
+                                startAnimation(newSvg, playingPosition, false);
+                            } else if (playingState == PlayingState.PAUSED) {
+                                startAnimation(newSvg, playingPosition, true);
+                            } else {
+                                startAnimation(newSvg, 0, false);
+                                setPlayingState(PlayingState.PLAYING);
+                            }
                         }
                     }
                 }
+            } else {
+                console.error("Action execution failed");
+                setShowSpinner(false);
             }
-        } else {
-            console.error("Action execution failed");
-        }
+        })();
     }, [pendingAction, verovio, showingMei]);
 
 
     return (
-        <>
+        <div style={{ width: "100%", height: "100%", position: "relative" }}>
             <div ref={svgContainerRef}
                 className={"scrolling-score " + svgContainerClasses.join(" ")}
                 style={{
@@ -159,8 +172,9 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
                     "--score-bg-color": backgroundColor
                 } as React.CSSProperties} />
 
+            <LoadingSpinner visible={showSpinner} />
             <div className={`score-spotlight-overlay ${isSpotlightVisible ? 'visible' : ''}`} />
-        </>
+        </div>
 
     );
 }

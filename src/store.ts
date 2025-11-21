@@ -271,12 +271,40 @@ const createEditorialStore = create<EditorialState>((set) => ({
 
 interface RenderedSvgState {
     renderedSvgData: RenderedData | null;
+    pageCache: Map<number, RenderedData>;
     setRenderedSvgData: (data: RenderedData) => void;
+    setCachedPage: (page: number, data: RenderedData) => void;
+    getCachedPage: (page: number) => RenderedData | null;
+    clearPageCache: () => void;
 }
 
-const createRenderedSvgStore = create<RenderedSvgState>((set) => ({
+const createRenderedSvgStore = create<RenderedSvgState>((set, get) => ({
     renderedSvgData: null,
+    pageCache: new Map(),
+
     setRenderedSvgData: (data: RenderedData) => set(() => ({ renderedSvgData: data })),
+
+    setCachedPage: (page: number, data: RenderedData) => {
+        const cache = new Map(get().pageCache);
+        const MAX_CACHE_SIZE = 3;
+
+        // If cache is full and we're adding a new page, remove oldest
+        if (cache.size >= MAX_CACHE_SIZE && !cache.has(page)) {
+            const firstKey = cache.keys().next().value;
+            if (firstKey !== undefined) {
+                cache.delete(firstKey);
+            }
+        }
+
+        cache.set(page, data);
+        set({ pageCache: cache });
+    },
+
+    getCachedPage: (page: number) => {
+        return get().pageCache.get(page) || null;
+    },
+
+    clearPageCache: () => set({ pageCache: new Map() }),
 }))
 
 
@@ -375,6 +403,10 @@ class StoreApi {
         // Rendered SVG Store
         renderedSvgData: createRenderedSvgStoreWithSelectors.use.renderedSvgData,
         setRenderedSvgData: createRenderedSvgStoreWithSelectors.use.setRenderedSvgData,
+        pageCache: createRenderedSvgStoreWithSelectors.use.pageCache,
+        setCachedPage: createRenderedSvgStoreWithSelectors.use.setCachedPage,
+        getCachedPage: createRenderedSvgStoreWithSelectors.use.getCachedPage,
+        clearPageCache: createRenderedSvgStoreWithSelectors.use.clearPageCache,
     }
 }
 

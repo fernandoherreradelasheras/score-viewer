@@ -173,9 +173,9 @@ export default function useWebAudioPlayer(audioUrl: string | null, audioOverlayT
         return await context.decodeAudioData(arrayBuffer);
     }, []);
 
-    const checkPageForPosition = (position: number) => {
+    const checkPageForPosition = async (position: number) => {
         if (!autoScroll && playingState !== PlayingState.STOPPED) {
-            const playingAtPosition = verovio?.getElementsAtTime(position);
+            const playingAtPosition = await verovio?.getElementsAtTime(position);
             const playingPage = playingAtPosition?.page;
             if (playingPage && playingPage !== currentPage) {
                 goToPage(playingPage);
@@ -346,5 +346,5 @@ export default function useWebAudioPlayer(audioUrl: string | null, audioOverlayT
         handlePlay,
         handlePlayPause,
         handleStop
-       };
+    };
 }

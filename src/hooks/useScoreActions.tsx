@@ -47,14 +47,6 @@ const verovioBaseOptions: VerovioOptions = {
 // Helper to get the appropriate CSS class for a transition
 const initialClassForTransition = (transition: Transition) => {
   switch (transition) {
-    case Transition.GROW:
-      return "underscaled";
-    case Transition.NARROW:
-      return "overscaled";
-    case Transition.SLIDE_LEFT:
-      return "displaced-right";
-    case Transition.SLIDE_RIGHT:
-      return "displaced-left";
     case Transition.FADE_OUT:
       return "full-opacity";
     case Transition.FADE_IN:
@@ -143,17 +135,17 @@ export default function useScoreActions({
 }: ScoreActionsConfig) {
 
 
-  const getSectionMap = (scoreMei: string) => {
+  const getSectionMap = async (scoreMei: string) => {
     const analyzer = new ScoreAnalyzer(t, 0, scoreMei);
     const sections = analyzer.getSections()
     const sectionsMap: Record<string, number> = {}
-    sections.forEach((section) => {
+    for (const section of sections) {
       const sectionId = section.id;
-      const sectionPage = verovio.getPageWithElement(sectionId);
+      const sectionPage = await verovio.getPageWithElement(sectionId);
       if (sectionId && sectionPage) {
         sectionsMap[sectionId] = sectionPage
       }
-    })
+    }
     return sectionsMap
 
   }
@@ -161,7 +153,7 @@ export default function useScoreActions({
   /**
    * Execute the load action - prepares Verovio with options and loads the MEI data
    */
-  const performLoadAction = useCallback((config: LoadConfig) => {
+  const performLoadAction = useCallback(async (config: LoadConfig) => {
     if (!verovio) return null;
 
     const { postLoadTransition, meiStr, page, scale, restorePositionForAchor, scoreUrl } = config;
@@ -186,16 +178,28 @@ export default function useScoreActions({
     };
 
     try {
-      const t = performance.now();
-      verovio.setOptions(options);
-      verovio.loadData(meiStr);
-      const loadedPagesCount = verovio.getPageCount();
-      const sectionMap = getSectionMap(meiStr)
-      console.log(`Score loaded in ${performance.now() - t}ms, page count: ${loadedPagesCount}`);
+      const startTime = performance.now();
+      console.log(`[useScoreActions] performLoadAction started`);
+
+      const optionsStart = performance.now();
+      await verovio.setOptions(options);
+      console.log(`[useScoreActions] setOptions took ${(performance.now() - optionsStart).toFixed(2)}ms`);
+
+      const loadStart = performance.now();
+      await verovio.loadData(meiStr);
+      console.log(`[useScoreActions] loadData took ${(performance.now() - loadStart).toFixed(2)}ms`);
+
+      const countStart = performance.now();
+      const loadedPagesCount = await verovio.getPageCount();
+      console.log(`[useScoreActions] getPageCount took ${(performance.now() - countStart).toFixed(2)}ms`);
+
+      const sectionMap = await getSectionMap(meiStr)
+      console.log(`Score loaded in ${(performance.now() - startTime).toFixed(0)}ms, page count: ${loadedPagesCount}`);
+      console.log(`[useScoreActions] performLoadAction completed in ${(performance.now() - startTime).toFixed(2)}ms`);
 
       let renderPage = undefined;
       if (restorePositionForAchor) {
-        let pageForMeasureOnView = verovio?.getPageWithElement(restorePositionForAchor);
+        let pageForMeasureOnView = await verovio?.getPageWithElement(restorePositionForAchor);
         if (pageForMeasureOnView != null && pageForMeasureOnView > 0) {
           renderPage = pageForMeasureOnView;
         }
@@ -236,7 +240,7 @@ export default function useScoreActions({
   /**
    * Execute the load auto-scroll action - prepares Verovio for auto-scroll mode
    */
-  const performLoadAutoScrollAction = useCallback((config: LoadAutoScrollConfig) => {
+  const performLoadAutoScrollAction = useCallback(async (config: LoadAutoScrollConfig) => {
     if (!verovio) return null;
 
     const { height, meiStr } = config;
@@ -259,8 +263,8 @@ export default function useScoreActions({
     };
 
     try {
-      verovio.setOptions(options);
-      verovio.loadData(meiStr);
+      await verovio.setOptions(options);
+      await verovio.loadData(meiStr);
       return renderAutoScrollAction({ height });
     } catch (error) {
       console.error("Error performing auto-scroll load action:", error);
@@ -288,8 +292,9 @@ export default function useScoreActions({
     return newTimeMap
   }
 
-  const resolveTimemap = (timemap: TimeMapEvent[]): TimeMapEvent[] => {
-    const analyzer = new ScoreAnalyzer(t, 0, verovio.getMEI())
+  const resolveTimemap = async (timemap: TimeMapEvent[]): Promise<TimeMapEvent[]> => {
+    const mei = await verovio.getMEI()
+    const analyzer = new ScoreAnalyzer(t, 0, mei)
     const timeMapWithTiesMerged = mergeTimemapTies(timemap, analyzer.getTiedNotes())
     return resolveTimemapAnimations(timeMapWithTiesMerged)
   }
@@ -299,27 +304,36 @@ export default function useScoreActions({
   /**
    * Render the score as a standard page
    */
-  const performRenderAction = useCallback((config: RenderConfig, element: HTMLDivElement): RenderActionResult | null => {
+  const performRenderAction = useCallback(async (config: RenderConfig, element: HTMLDivElement): Promise<RenderActionResult | null> => {
     if (!verovio || !element) return null;
 
     const { transition, loadedHeight, loadedWidth, renderPage, scale, loadedPagesCount, scoreUrl } = config;
     console.log(`Rendering score: mode=normal page=${renderPage} scale=${scale} transition=${transition}`);
-    const t = performance.now();
+    const startTime = performance.now();
+    console.log(`[useScoreActions] performRenderAction started`);
 
     try {
-      const timemap = verovio.renderToTimemap({ includeMeasures: true });
-      const svgData = verovio.renderToSVG(renderPage)
+      const timemapStart = performance.now();
+      const timemap = await verovio.renderToTimemap({ includeMeasures: true });
+      console.log(`[useScoreActions] renderToTimemap took ${(performance.now() - timemapStart).toFixed(2)}ms`);
+
+      const svgStart = performance.now();
+      const svgData = (await verovio.renderToSVG(renderPage))
         .replace(`width="${loadedWidth}px"`, 'width="100%"')
         .replace(`height="${loadedHeight}px"`, 'height="100%"');
+      console.log(`[useScoreActions] renderToSVG took ${(performance.now() - svgStart).toFixed(2)}ms`);
 
 
-
+      const domStart = performance.now();
       element.innerHTML = svgData;
       const svgElement = element.querySelector("svg") as SVGSVGElement | null;
       if (!svgElement) {
         console.log("Error rendering page: no svg element found");
         return null;
       }
+
+      // Set initial opacity to 0 for fade-in animation (will be animated in ScoreView)
+      svgElement.style.opacity = '0';
 
       if (svgElement.classList.contains("transition-zero-end")) {
         svgElement.classList.remove("transition-zero-end");
@@ -330,32 +344,40 @@ export default function useScoreActions({
           svgElement.classList.add("transition-end");
         }, 0);
       }
+      console.log(`[useScoreActions] DOM manipulation took ${(performance.now() - domStart).toFixed(2)}ms`);
 
-      const analyzer = new ScoreAnalyzer(t, 0, verovio.getMEI({ pageNo: renderPage }));
+      const meiStart = performance.now();
+      const mei = await verovio.getMEI({ pageNo: renderPage });
+      const analyzer = new ScoreAnalyzer(t, 0, mei);
       const firstMeasureId = analyzer.getFirstMeasureId();
+      console.log(`[useScoreActions] getMEI + analysis took ${(performance.now() - meiStart).toFixed(2)}ms`);
 
       const newSvg: RenderedData = {
         id: svgElement.id,
         scoreUrl: scoreUrl,
         scale: scale,
-        timemap: resolveTimemap(timemap),
+        timemap: await resolveTimemap(timemap),
         anchorElement: firstMeasureId,
         page: renderPage,
         height: loadedHeight,
         width: loadedWidth,
       };
-      console.log(`Rendering + post-processing took ${performance.now() - t}ms`);
+
+      const duration = performance.now() - startTime;
+      console.log(`[useScoreActions] Rendering + post-processing took ${duration.toFixed(0)}ms`);
+      console.log(`[useScoreActions] performRenderAction completed in ${duration.toFixed(2)}ms`);
+
       return { newSvg, loadedPagesCount, scale, renderPage } as RenderActionResult;
     } catch (error) {
       console.log(`Error rendering page: ${error}`);
       return null;
     }
-  }, [verovio]);
+  }, [verovio, t, resolveTimemap]);
 
   /**
    * Render the score for auto-scrolling
    */
-  const performRenderAutoScrollAction = useCallback((config: RenderAutoScrollConfig, element: HTMLDivElement): RenderAutoScrollResult | null => {
+  const performRenderAutoScrollAction = useCallback(async (config: RenderAutoScrollConfig, element: HTMLDivElement): Promise<RenderAutoScrollResult | null> => {
     if (!verovio || !element) return null;
 
     const { height } = config;
@@ -363,8 +385,8 @@ export default function useScoreActions({
 
 
     try {
-      const timemap = verovio.renderToTimemap({ includeMeasures: true });
-      const svgData = verovio.renderToSVG(1);
+      const timemap = await verovio.renderToTimemap({ includeMeasures: true });
+      const svgData = await verovio.renderToSVG(1);
 
       const match = svgData.match(/svg viewBox="0 0 (\d+) \d+"/);
       const renderedWidth = match ? Math.round(parseInt(match[1])) : AUTO_SCROLL_RENDERING_WIDTH_LIMIT;
@@ -380,7 +402,7 @@ export default function useScoreActions({
         id: "svg-auto-scrolling",
         scale: 100, // Auto-scroll uses fixed scale
         scoreUrl: "",
-        timemap: resolveTimemap(timemap),
+        timemap: await resolveTimemap(timemap),
         width: renderedWidth,
         height: renderedHeight,
         anchorElement: null,
@@ -395,53 +417,76 @@ export default function useScoreActions({
   }, [verovio]);
 
   /**
+   * Determine if spinner should be shown for this action
+   */
+  const shouldShowSpinner = (action: Action): boolean => {
+    const config = action.config as any;
+    const transition = config.transition || config.postLoadTransition;
+
+    // Always show for operations without transitions
+    if (!transition) {
+      return true;
+    }
+
+
+    // Don't show for other transitions (SLIDE, FADE)
+    return false;
+  };
+
+  /**
    * Execute an action based on its type
    */
-  const executeAction = useCallback((action: Action, svgContainerElement: HTMLDivElement) => {
+  const executeAction = useCallback(async (action: Action, svgContainerElement: HTMLDivElement) => {
     if (!verovio || !svgContainerElement) {
       console.log("Cannot execute action - verovio or container not ready");
-      return { success: false, nextAction: null, result: null };
+      return { success: false, nextAction: null, result: null, showSpinner: false };
     }
+
+    const showSpinner = shouldShowSpinner(action);
 
     try {
       if (action.type === "load") {
-        const nextAction = performLoadAction(action.config as LoadConfig);
+        const nextAction = await performLoadAction(action.config as LoadConfig);
         return {
           success: nextAction !== null,
           nextAction,
-          result: null
+          result: null,
+          showSpinner
         };
       }
       else if (action.type === "loadAutoScroll") {
-        const nextAction = performLoadAutoScrollAction(action.config as LoadAutoScrollConfig);
+        const nextAction = await performLoadAutoScrollAction(action.config as LoadAutoScrollConfig);
         return {
           success: nextAction !== null,
           nextAction,
-          result: null
+          result: null,
+          showSpinner
         };
       }
       else if (action.type === "render") {
-        const result = performRenderAction(action.config as RenderConfig, svgContainerElement);
+        const result = await performRenderAction(action.config as RenderConfig, svgContainerElement);
         return {
           success: result !== null,
           nextAction: null,
-          result
+          result,
+          showSpinner
         };
       }
       else if (action.type === "renderAutoScroll") {
-        const result = performRenderAutoScrollAction(action.config as RenderAutoScrollConfig, svgContainerElement);
+        const result = await performRenderAutoScrollAction(action.config as RenderAutoScrollConfig, svgContainerElement);
         return {
           success: result !== null,
           nextAction: null,
-          result
+          result,
+          showSpinner
         };
       }
 
       console.warn(`Unknown action type: ${action.type}`);
-      return { success: false, nextAction: null, result: null };
+      return { success: false, nextAction: null, result: null, showSpinner: false };
     } catch (error) {
       console.error(`Error executing action ${action.type}:`, error);
-      return { success: false, nextAction: null, result: null };
+      return { success: false, nextAction: null, result: null, showSpinner: false };
     }
   }, [
     verovio,

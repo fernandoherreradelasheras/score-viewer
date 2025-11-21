@@ -18,6 +18,7 @@ export interface RenderedData {
   anchorElement: string | null;
   width?: number;
   height?: number;
+  svgHTML?: string;  // Cached SVG HTML for instant display
 }
 
 /**
