@@ -37,6 +37,7 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
     const showReconstructions = useStore.use.showReconstructions();
 
     const showOriginalClefs = useStore.use.showOriginalClefs();
+    const measureNumberInterval = useStore.use.measureNumberInterval();
 
     const renderedSvgData = useStore.use.renderedSvgData();
     const setRenderedSvgData = useStore.use.setRenderedSvgData();
@@ -76,6 +77,7 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
         showOriginalClefs,
         setScoreLayout,
         showMusicAnalysis: false,
+        measureNumberInterval,
         showMusicAnalysisByDefault: false
     });
 
