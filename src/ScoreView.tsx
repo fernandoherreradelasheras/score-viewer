@@ -7,7 +7,7 @@ import { useEditorialHandler } from './hooks/useEditorialHandler';
 import { expandBBsForEditorialItems, expandBBsForRdgs } from './SvgUtils';
 import useScoreActions, { RenderActionResult } from './hooks/useScoreActions';
 import useScoreRenderer from './hooks/useScoreRenderer';
-import { Transition, PlayingState, loadAction, renderAction } from './types';
+import { Transition, loadAction, renderAction } from './types';
 import { useTranslation } from 'react-i18next';
 import LoadingSpinner from './components/LoadingSpinner';
 import useIdleCallback from './hooks/useIdleCallback';
@@ -136,7 +136,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
                     // Apply fade-in animation for non-cached pages
                     const svgElement = svgContainerRef.current?.querySelector("svg") as SVGSVGElement | null;
-                    if (svgElement && playingState !== PlayingState.PLAYING) {
+                    if (svgElement) {
                         svgElement.style.opacity = '0';
                         svgElement.style.transition = 'opacity 300ms ease-in';
                         setTimeout(() => {
@@ -296,7 +296,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
         const action = loadAction({
             scoreUrl: score?.url || "",
-            postLoadTransition: playingState == PlayingState.STOPPED && !restoreAnchor ? Transition.FADE_IN : undefined,
+            postLoadTransition: Transition.FADE_IN,
             meiStr: showingMei,
             page: 1,
             scale,
@@ -430,7 +430,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         // Not in cache, start fade out and render
         const currentSvg = svgContainerRef.current?.querySelector("svg") as SVGSVGElement | null;
 
-        if (currentSvg && playingState != PlayingState.PLAYING) {
+        if (currentSvg) {
             // Start fade out immediately for responsive feel
             fadeOutTransition();
         }
@@ -445,7 +445,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             loadedPagesCount: pageCount,
         });
         setPendingAction(action);
-    }, [currentPage, getCachedPage, setRenderedSvgData, setIsLoading, playingState]);
+    }, [currentPage, getCachedPage, setRenderedSvgData, setIsLoading]);
 
     // Pre-render adjacent pages when idle
     useIdleCallback(() => {
