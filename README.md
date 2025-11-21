@@ -99,6 +99,21 @@ function App() {
 }
 ```
 
+### Usage with Vite
+
+If you are using Vite, you must exclude `score-viewer` from dependency optimization to ensure the Verovio worker is loaded correctly. Add this to your `vite.config.ts`:
+
+```typescript
+export default defineConfig({
+  // ...
+  optimizeDeps: {
+    exclude: ['score-viewer']
+  }
+})
+```
+
+This is necessary because `score-viewer` uses a web worker that references external assets, which can be mishandled by Vite's dependency pre-bundling. Excluding it from optimization ensures the worker is loaded correctly without impacting performance.
+
 ### As an Iframe in Hugo or other static sites
 
 You can embed the Score Viewer in any static site using an iframe. This is perfect for Hugo sites or any non-React web environment.
