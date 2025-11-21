@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { VerovioWorkerProxy, VerovioWorkerRequest, VerovioWorkerResponse, VerovioWorkerInitMessage } from './types/verovio-worker';
 
+import VerovioWorker from './workers/verovio.worker?worker';
+
 // Shared worker instance across all components
 let sharedWorker: Worker | null = null;
 let workerReady = false;
@@ -27,10 +29,7 @@ function initializeWorker(): Worker {
     }
 
     console.log('[useVerovio] Creating Verovio worker...');
-    sharedWorker = new Worker(
-        new URL('./workers/verovio.worker.ts', import.meta.url),
-        { type: 'module' }
-    );
+    sharedWorker = new VerovioWorker();
 
     // Create initialization promise
     initializationPromise = new Promise((resolve, reject) => {
@@ -67,7 +66,7 @@ function initializeWorker(): Worker {
         };
     });
 
-    return sharedWorker;
+    return sharedWorker!;
 }
 
 /**

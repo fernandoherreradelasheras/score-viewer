@@ -69,6 +69,7 @@ export default defineConfig(({ mode }) => {
     // Build configuration for library mode
     return {
       ...config,
+      base: './',
       build: {
         ...config.build,
         lib: {
