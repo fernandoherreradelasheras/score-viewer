@@ -227,7 +227,6 @@ const createPlayerStore = create<PlayerState>((set) => ({
 
 interface EditorialState {
     showNVerses: number | null
-    showReconstructions: { [staff: string]: string }
     showEditorial: boolean | null
     showOriginalClefs: boolean | null
     normalizeFicta: boolean | null
@@ -240,7 +239,6 @@ interface EditorialState {
     measureNumberInterval: number | null
 
     setShowNVerses: (n: number | null) => void
-    setShowReconstructions: (reconstructions: { [staff: string]: string }, replace: boolean) => void
     setShowEditorial: (showEditorial: boolean) => void
     setShowOriginalClefs: (showOriginalClefs: boolean | null) => void
     setNormalizeFicta: (normalizeFicta: boolean | null) => void
@@ -256,7 +254,6 @@ interface EditorialState {
 
 const DEFAULT_EDITORIAL_STATE = {
     showNVerses: null,
-    showReconstructions: {},
     showEditorial: false,
     showOriginalClefs: null,
     normalizeFicta: null,
@@ -273,9 +270,6 @@ const createEditorialStore = create<EditorialState>()(persist((set) => ({
     ...DEFAULT_EDITORIAL_STATE,
 
     setShowNVerses: (n: number | null) => set(() => ({ showNVerses: n })),
-    setShowReconstructions: (reconstructions: { [staff: string]: string }, replace: boolean) => set((state) => ({
-        showReconstructions: replace ? reconstructions : { ...state.showReconstructions, ...reconstructions }
-    })),
     setShowEditorial: (showEditorial: boolean) => set(() => ({ showEditorial })),
     setShowOriginalClefs: (showOriginalClefs: boolean | null) => set(() => ({ showOriginalClefs })),
     setNormalizeFicta: (normalizeFicta: boolean | null) => set(() => ({ normalizeFicta })),
@@ -335,7 +329,7 @@ const createRenderedSvgStore = create<RenderedSvgState>((set, get) => ({
 }))
 
 
-class StoreApi {
+class ScoreViewerStoreApi {
     public use = {
         // Rendering Store
         pendingAction: createRenderingStoreWithSelectors.use.pendingAction,
@@ -405,7 +399,6 @@ class StoreApi {
 
         // Editorial Store
         showNVerses: createEditorialStoreWithSelectors.use.showNVerses,
-        showReconstructions: createEditorialStoreWithSelectors.use.showReconstructions,
         showEditorial: createEditorialStoreWithSelectors.use.showEditorial,
         showOriginalClefs: createEditorialStoreWithSelectors.use.showOriginalClefs,
         normalizeFicta: createEditorialStoreWithSelectors.use.normalizeFicta,
@@ -417,7 +410,6 @@ class StoreApi {
         showMusicAnalysis: createEditorialStoreWithSelectors.use.showMusicAnalysis,
         measureNumberInterval: createEditorialStoreWithSelectors.use.measureNumberInterval,
         setShowNVerses: createEditorialStoreWithSelectors.use.setShowNVerses,
-        setShowReconstructions: createEditorialStoreWithSelectors.use.setShowReconstructions,
         setShowEditorial: createEditorialStoreWithSelectors.use.setShowEditorial,
         setShowOriginalClefs: createEditorialStoreWithSelectors.use.setShowOriginalClefs,
         setNormalizeFicta: createEditorialStoreWithSelectors.use.setNormalizeFicta,
@@ -450,7 +442,6 @@ const createPlayerStoreWithSelectors = createSelectors(createPlayerStore);
 const createEditorialStoreWithSelectors = createSelectors(createEditorialStore);
 const createRenderedSvgStoreWithSelectors = createSelectors(createRenderedSvgStore);
 
-const useStore = new StoreApi();
+const useStore = new ScoreViewerStoreApi();
 
 export default useStore;
-

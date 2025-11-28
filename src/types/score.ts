@@ -29,11 +29,7 @@ export type TextPartsCache = {
     [url: string]: string | FetchError | null
 }
 
-export type Reconstruction = {
-    staff: string;
-    voiceName: string;
-    reconstructionsForVoice: ReconstructionItem[];
-}
+
 
 // just adding here those we might use. See verovio docs for explanation
 export type Transposition = "" | "P4" | "+P4" | "-P4" | "M3" | "+M3" | "-M3" | "P8" | "+P8" | "-P8"
@@ -48,7 +44,6 @@ export type ScoreProperties = {
     composer: string;
     lyricist: string;
     editor: string;
-    reconstructions: Reconstruction[];
     reconstructionBy: string | null;
     sections: { label: string; id: string }[];
     sources: Sources;
@@ -61,7 +56,6 @@ export type ScoreProperties = {
 
 export type VisualizationOptions = {
     showOriginalClefs?: boolean | null | undefined;
-    showReconstructions?: { [staff: string]: string } | undefined;
 }
 
 export class FetchError extends Error {

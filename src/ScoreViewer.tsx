@@ -51,13 +51,9 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
 
   const score = useStore.use.score()
 
-  const showReconstructions = useStore.use.showReconstructions()
   const normalizeFicta = useStore.use.normalizeFicta()
   const showOriginalClefs = useStore.use.showOriginalClefs()
   const activeTab = useStore.use.activeTab()
-
-  const playingState = useStore.use.playingState()
-  const setPlayingState = useStore.use.setPlayingState()
 
   const goToSection = useStore.use.goToSection()
 
@@ -161,12 +157,9 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     configLanguage: config.settings.language,
     configScores: config.scores,
     configShowScoreSelector: config.settings.showScoreSelector,
-    playingState,
-    setPlayingState,
     activeTab,
     scoreViewContainerRef,
     showOriginalClefs,
-    showReconstructions,
     onVisualizationOptionsChanged,
     i18n,
     loadAll

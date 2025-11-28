@@ -1,4 +1,4 @@
-import { EditorialItem, Annotation, ReconstructionItem, ScoreProperties, Option, Sources } from "./types";
+import { EditorialItem, Annotation, ScoreProperties, Option, Sources } from "./types";
 import i18next from './i18n'
 
 
@@ -210,52 +210,6 @@ class ScoreAnalyzer {
     }
 
 
-    getReconstructions() {
-        const reconstructions: { staff: string, voiceName: string, reconstructionsForVoice: ReconstructionItem[] }[] = []
-        let matches = this.document.evaluate(`//mei:app[@type="voice_reconstruction"]/mei:rdg`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
-        var node = matches.iterateNext()
-        while (node != null) {
-            const reconstruction = node as Element
-            const label = reconstruction.getAttribute("label")
-            const staff = reconstruction.parentElement?.parentElement?.tagName == "staff" ? reconstruction.parentElement.parentElement.getAttribute("n") : null
-            if (!label || !staff) {
-                node = matches.iterateNext()
-                continue
-            }
-            const voiceName = this.getVoiceName(staff)
-            if (!voiceName) {
-                node = matches.iterateNext()
-                continue
-            }
-
-            var reconstructionsForVoice = reconstructions.find(r => r.voiceName == voiceName)?.reconstructionsForVoice
-            if (!reconstructionsForVoice) {
-                reconstructionsForVoice = []
-                reconstructions.push({ staff: staff, voiceName: voiceName, reconstructionsForVoice: reconstructionsForVoice })
-            }
-
-            if (reconstructionsForVoice.find(r => r.label == label)) {
-                node = matches.iterateNext()
-                continue
-            }
-
-            const reconstructionItem: ReconstructionItem = { label: label, voice: voiceName, reconstructionBy: "" }
-            reconstructionsForVoice.push(reconstructionItem)
-            node = matches.iterateNext()
-        }
-
-        return reconstructions.length > 0 ? reconstructions.map(r => {
-            return {
-                staff: r.staff,
-                voiceName: r.voiceName,
-                reconstructionsForVoice:
-                    [...r.reconstructionsForVoice,
-                    { label: "none", voice: r.voiceName, reconstructionBy: "" }],
-
-            }
-        }) : []
-    }
-
 
     getScoreProperties(): ScoreProperties {
         return {
@@ -266,7 +220,6 @@ class ScoreAnalyzer {
             lyricist: this.getLyricist(),
             editor: this.getEditor(),
             reconstructionBy: this.getReconstructionBy(),
-            reconstructions: this.getReconstructions(),
             notes: this.getMeiNotes(),
             sections: this.getSections(),
             sources: this.getSources(),

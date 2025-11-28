@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { isMobile, useMobileOrientation } from 'react-device-detect';
 import { ScoreViewContainerRef } from '../ScoreViewContainer';
-import { PlayingState, VisualizationOptions } from '../types';
+import { VisualizationOptions } from '../types';
 import { LANGUAGE_SESSION_STORAGE_KEY } from '../types';
 import { ScoreViewerConfigScore } from '../types/config';
 
@@ -9,12 +9,9 @@ interface UseScoreViewerEffectsProps {
   configLanguage?: string;
   configScores: ScoreViewerConfigScore[];
   configShowScoreSelector: boolean;
-  playingState: PlayingState;
-  setPlayingState: (state: PlayingState) => void;
   activeTab: string;
   scoreViewContainerRef: React.RefObject<ScoreViewContainerRef | null>;
   showOriginalClefs: boolean | null;
-  showReconstructions: { [staff: string]: string };
   onVisualizationOptionsChanged?: (options: VisualizationOptions) => void;
   i18n: any;
   loadAll: (scoreIndex: number) => void;
@@ -24,12 +21,9 @@ export function useScoreViewerEffects({
   configLanguage,
   configScores,
   configShowScoreSelector,
-  playingState,
-  setPlayingState,
   activeTab,
   scoreViewContainerRef,
   showOriginalClefs,
-  showReconstructions,
   onVisualizationOptionsChanged,
   i18n,
   loadAll
@@ -57,17 +51,6 @@ export function useScoreViewerEffects({
     }
   }, [showOriginalClefs]);
 
-  useEffect(() => {
-    if (onVisualizationOptionsChanged && Object.keys(showReconstructions).length > 0) {
-      onVisualizationOptionsChanged({ showReconstructions });
-    }
-  }, [showReconstructions]);
-
-  useEffect(() => {
-    if (playingState == PlayingState.PLAYING) {
-      setPlayingState(PlayingState.STOPPED);
-    }
-  }, [showReconstructions]);
 
   useEffect(() => {
     if (isMobile && mobileOrientation.isLandscape && activeTab == "music") {

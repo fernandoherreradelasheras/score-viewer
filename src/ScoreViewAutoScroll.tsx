@@ -35,8 +35,6 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
 
     const transposition = useStore.use.transposition();
 
-    const showReconstructions = useStore.use.showReconstructions();
-
     const showOriginalClefs = useStore.use.showOriginalClefs();
     const measureNumberInterval = useStore.use.measureNumberInterval();
 
@@ -76,7 +74,6 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
         appOptions,
         choiceOptions,
         transposition,
-        showReconstructions,
         showOriginalClefs,
         setScoreLayout,
         showMusicAnalysis: false,

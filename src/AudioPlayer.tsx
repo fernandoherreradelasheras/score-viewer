@@ -25,10 +25,6 @@ function AudioPlayer() {
     const score = useStore.use.score();
     const playingState = useStore.use.playingState();
     const renderedSvgData = useStore.use.renderedSvgData();
-    const showReconstructions = useStore.use.showReconstructions();
-    const audioOverlayTracks = useMemo(() => {
-        return score?.audioOverlayTracks.filter(track => Object.values(showReconstructions).includes(track.label)) || [];
-    }, [score, showReconstructions]);
 
     const {
         canPlay,
@@ -36,32 +32,32 @@ function AudioPlayer() {
         handlePlay,
         handlePlayPause,
         handleStop,
-    } = useWebAudioPlayer(score?.audioUrl || null, audioOverlayTracks, score?.originalMei);
+    } = useWebAudioPlayer(score?.audioUrl || null, [], score?.originalMei);
 
 
 
     const playButton = useMemo(() =>
-        <Tooltip title="Play"><Button icon={ <PlayCircleTwoTone style={{ fontSize: '36px' }} /> } onClick={handlePlay} disabled={!canPlay}/></Tooltip>
-    , [canPlay, handlePlay]);
+        <Tooltip title="Play"><Button icon={<PlayCircleTwoTone style={{ fontSize: '36px' }} />} onClick={handlePlay} disabled={!canPlay} /></Tooltip>
+        , [canPlay, handlePlay]);
 
     const stopButton = useMemo(() =>
-        <Tooltip title="Stop"><Button icon={ <CloseCircleTwoTone style={{ fontSize: '36px' }} /> } onClick={handleStop}/></Tooltip>
-    , [handleStop]);
+        <Tooltip title="Stop"><Button icon={<CloseCircleTwoTone style={{ fontSize: '36px' }} />} onClick={handleStop} /></Tooltip>
+        , [handleStop]);
 
     const pauseButton = useMemo(() =>
-        <Tooltip title={playPauseTooltip()}><Button icon={ <PauseCircleTwoTone style={{ fontSize: '36px' }} /> } onClick={handlePlayPause} /></Tooltip>
-    , [playPauseTooltip, handlePlayPause]);
+        <Tooltip title={playPauseTooltip()}><Button icon={<PauseCircleTwoTone style={{ fontSize: '36px' }} />} onClick={handlePlayPause} /></Tooltip>
+        , [playPauseTooltip, handlePlayPause]);
 
     // Always show playControls if audioSrc is available, regardless of canPlay status
     const playControls = useMemo(() =>
         score?.audioUrl ?
-        <div style={{ position: "absolute", bottom: 0, right: 0, padding: "8px" }}>
-            <Space direction="horizontal" size="small">
-                {playingState !== PlayingState.STOPPED ? stopButton : null}
-                {playingState === PlayingState.PLAYING ? pauseButton : playButton}
-            </Space>
-        </div> : null,
-    [score, playingState, playButton, stopButton, pauseButton]);
+            <div style={{ position: "absolute", bottom: 0, right: 0, padding: "8px" }}>
+                <Space direction="horizontal" size="small">
+                    {playingState !== PlayingState.STOPPED ? stopButton : null}
+                    {playingState === PlayingState.PLAYING ? pauseButton : playButton}
+                </Space>
+            </div> : null,
+        [score, playingState, playButton, stopButton, pauseButton]);
 
 
     return (

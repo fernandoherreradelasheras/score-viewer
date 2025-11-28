@@ -6,7 +6,7 @@ import ScoreView from '../src/ScoreView';
 import useStore from '../src/store';
 import { Context } from '../src/Context';
 import '../src/style.css';
-import { Reconstruction, ScoreProperties, VisualizationOptions, LyricItem, Score, TextParts } from '../src/types';
+import { ScoreProperties, VisualizationOptions, LyricItem, Score, TextParts } from '../src/types';
 import { ScoreViewerConfig, ScoreViewerConfigSettings, ScoreViewerConfigScore, ScoreViewerConfigScoreText, AudioOverlay } from '../src/types/config';
 import { useScoreManager } from '../src/hooks/useScoreManager';
 import { useTextParts } from '../src/hooks/useTextParts';
@@ -26,7 +26,6 @@ export type {
   AudioOverlay,
   Score,
   ScoreProperties,
-  Reconstruction,
   VisualizationOptions,
   LyricItem,
   TextParts

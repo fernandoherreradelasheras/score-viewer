@@ -4,7 +4,7 @@ import { Context } from './Context';
 import { useComponentSize } from "react-use-size";
 import ScoreProcessor from './ScoreProcessor';
 import { useEditorialHandler } from './hooks/useEditorialHandler';
-import { expandBBsForEditorialItems, expandBBsForRdgs } from './SvgUtils';
+import { expandBBsForEditorialItems } from './SvgUtils';
 import useScoreActions, { RenderActionResult } from './hooks/useScoreActions';
 import useScoreRenderer from './hooks/useScoreRenderer';
 import { Transition, loadAction, renderAction } from './types';
@@ -51,7 +51,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const transposition = useStore.use.transposition();
     const renderedSvgData = useStore.use.renderedSvgData();
     const setRenderedSvgData = useStore.use.setRenderedSvgData();
-    const showReconstructions = useStore.use.showReconstructions();
     const showOriginalClefs = useStore.use.showOriginalClefs();
     const getCachedPage = useStore.use.getCachedPage();
     const setCachedPage = useStore.use.setCachedPage();
@@ -85,7 +84,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         appOptions,
         choiceOptions,
         transposition,
-        showReconstructions,
         showOriginalClefs,
         showMusicAnalysis,
         showMusicAnalysisByDefault,
@@ -146,11 +144,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
                     // will only be visible when showingEditorial is true via css
                     expandBBsForEditorialItems();
-
-                    const showingReconstructiononsLabels = Object.values(showReconstructions).filter(label => label != "none")
-                    if (showingReconstructiononsLabels.length > 0) {
-                        expandBBsForRdgs(showingReconstructiononsLabels);
-                    }
 
                     setIsLoading(false);
 
@@ -267,7 +260,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             console.log('[ScoreView] Clearing page cache due to option/score change');
             clearPageCache();
         }
-    }, [scale, transposition, showNVerses, normalizeFicta, showReconstructions,
+    }, [scale, transposition, showNVerses, normalizeFicta,
         showOriginalClefs, showMusicAnalysis, measureNumberInterval, clearPageCache, score]);
 
 
@@ -353,12 +346,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         reloadScore()
     }, [showOriginalClefs]);
 
-    useEffect(() => {
-        if (Object.keys(showReconstructions).length <= 0) {
-            return
-        }
-        reloadScore()
-    }, [showReconstructions]);
 
     useEffect(() => {
         if (!isReady() || !showingMei || !renderedSvgData) return;

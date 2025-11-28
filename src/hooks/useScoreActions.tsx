@@ -74,7 +74,6 @@ interface ScoreActionsConfig {
   appOptions: string[];
   choiceOptions: string[];
   transposition: string | null;
-  showReconstructions: { [staff: string]: string };
   showOriginalClefs: boolean | null;
   showMusicAnalysis: boolean | null;
   showMusicAnalysisByDefault: boolean;
@@ -102,14 +101,10 @@ const resolveTimemapAnimations = (timemap: TimeMapEvent[]): TimeMapEvent[] =>
     } as TimeMapEvent;
   });
 
-const buildAppOptions = (appOptions: string[], showReconstructions: { [staff: string]: string }, showOriginalClefs: boolean, showMusicAnalysis: boolean) => {
-  const voiceReconstructionSelectors = Object.values(showReconstructions).map(label =>
-    `./*[contains(@label, '${label}')]`
-  )
+const buildAppOptions = (appOptions: string[], showOriginalClefs: boolean, showMusicAnalysis: boolean) => {
 
   return [
     ...appOptions,
-    ...voiceReconstructionSelectors,
     ...showOriginalClefs ? [`./rdg[contains(@label, 'app_clefs')]`] : [],
     ...showMusicAnalysis ? [`./rdg[contains(@type, 'dissonant_analysis')]`] : []
   ]
@@ -126,7 +121,6 @@ export default function useScoreActions({
   appOptions,
   choiceOptions,
   transposition,
-  showReconstructions,
   showOriginalClefs,
   showMusicAnalysis,
   showMusicAnalysisByDefault,
@@ -168,7 +162,7 @@ export default function useScoreActions({
       adjustPageHeight: false,
       landscape: false,
       svgAdditionalAttribute: EXTRA_SVG_ATTRIBUTES,
-      appXPathQuery: buildAppOptions(appOptions, showReconstructions, showOriginalClefs || false, showMusicAnalysis || showMusicAnalysisByDefault),
+      appXPathQuery: buildAppOptions(appOptions, showOriginalClefs || false, showMusicAnalysis || showMusicAnalysisByDefault),
       choiceXPathQuery: choiceOptions,
       pageHeight: loadedHeight,
       pageWidth: loadedWidth,
@@ -230,7 +224,6 @@ export default function useScoreActions({
     appOptions,
     choiceOptions,
     transposition,
-    showReconstructions,
     showOriginalClefs,
     showMusicAnalysis,
     measureNumberInterval,
@@ -254,7 +247,7 @@ export default function useScoreActions({
       adjustPageHeight: true,
       svgViewBox: true,
       svgAdditionalAttribute: EXTRA_SVG_ATTRIBUTES,
-      appXPathQuery: buildAppOptions(appOptions, showReconstructions, showOriginalClefs || false, false),
+      appXPathQuery: buildAppOptions(appOptions, showOriginalClefs || false, false),
       choiceXPathQuery: choiceOptions,
       pageHeight: height,
       pageWidth: AUTO_SCROLL_RENDERING_WIDTH_LIMIT,
@@ -270,7 +263,7 @@ export default function useScoreActions({
       console.error("Error performing auto-scroll load action:", error);
       return null;
     }
-  }, [verovio, appOptions, choiceOptions, transposition, showReconstructions, showOriginalClefs]);
+  }, [verovio, appOptions, choiceOptions, transposition, showOriginalClefs]);
 
   const mergeTimemapTies = (timemap: TimeMapEvent[], tiedNotes: { first: string; second: string; }[]) => {
     const newTimeMap = timemap.map(e => { return { ...e } as TimeMapEvent });

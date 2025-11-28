@@ -24,7 +24,6 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
     const setNormalizeFicta = useStore.use.setNormalizeFicta();
     const withoutTransposition = useStore.use.withoutTransposition();
     const setWithoutTransposition = useStore.use.setWithoutTransposition();
-    const transposition = useStore.use.transposition();
     const setTransposition = useStore.use.setTransposition();
     const showMusicAnalysis = useStore.use.showMusicAnalysis();
     const setShowMusicAnalysis = useStore.use.setShowMusicAnalysis();

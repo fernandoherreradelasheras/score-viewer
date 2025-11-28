@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import useStore from "./store";
 import { svgFilter } from "./SvgUtils";
 import { TimeMapEvent, PlayingState } from "./types";
@@ -40,9 +40,8 @@ const svgHighlightFilters =
     </svg>
 
 
-const getSvgStyleRules = (ignoreStaffs: Set<string>) =>
+const getSvgStyleRules = () =>
     [1, 2, 3, 4, 5, 6, 7, 8]
-        .filter(i => !ignoreStaffs.has(`${i}`))
         .map(i => `.staff[data-n="${i}"] { \
         --high: url(#highlighting-${i}); \
         --verseFontWeight: bold; \
@@ -56,8 +55,6 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
     const playingState = useStore.use.playingState()
     const playingPosition = useStore.use.playingPosition()
     const seekPosition = useStore.use.seekPosition()
-    const showReconstructions = useStore.use.showReconstructions()
-    const score = useStore.use.score()
 
 
     const renderedSvgData = useStore.use.renderedSvgData()
@@ -149,20 +146,6 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
         })
     }
 
-    const ignoreStaffs = useMemo(() => {
-        const staffsWithoutAudio = new Set<string>()
-        const labelsWithAudio = score?.audioOverlayTracks.map(t => t.label)
-        for (let [staff, label] of Object.entries(showReconstructions)) {
-            if (!labelsWithAudio?.includes(label)) {
-                staffsWithoutAudio.add(staff)
-            }
-        }
-        return staffsWithoutAudio
-    }, [score, showReconstructions])
-
-    const svgStyleRules = useMemo(() => {
-        return getSvgStyleRules(ignoreStaffs)
-    }, [ignoreStaffs])
 
 
     useEffect(() => {
@@ -243,7 +226,7 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
 
             <style>
                 {`
-                    ${svgStyleRules}
+                    ${getSvgStyleRules()}
                     ${noteHighlightStyle}
                 `}
             </style>
