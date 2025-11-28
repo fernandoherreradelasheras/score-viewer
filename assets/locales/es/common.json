@@ -117,7 +117,8 @@
     "measureIntervalPage": "Al comienzo de la página",
     "measureInterval10": "Cada 10 compases",
     "measureInterval5": "Cada 5 compases",
-    "measureInterval1": "Cada compás"
+    "measureInterval1": "Cada compás",
+    "resetSettings": "Restablecer configuración por defecto"
   },
   "scoreProcessor": {
     "reconstructionByIA": "Reconstrucción por IA. Modelo {{name}}",

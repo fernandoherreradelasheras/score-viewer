@@ -11,6 +11,7 @@ import { Transition, loadAction, renderAction } from './types';
 import { useTranslation } from 'react-i18next';
 import LoadingSpinner from './components/LoadingSpinner';
 import useIdleCallback from './hooks/useIdleCallback';
+import { getReverseTransposition } from './utils/score-utils';
 
 export interface ScoreViewProps {
     backgroundColor?: string | undefined;
@@ -48,7 +49,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const showEditorial = useStore.use.showEditorial();
     const appOptions = useStore.use.appOptions();
     const choiceOptions = useStore.use.choiceOptions();
-    const transposition = useStore.use.transposition();
+    const withoutTransposition = useStore.use.withoutTransposition();
     const renderedSvgData = useStore.use.renderedSvgData();
     const setRenderedSvgData = useStore.use.setRenderedSvgData();
     const showOriginalClefs = useStore.use.showOriginalClefs();
@@ -83,7 +84,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         svgContainerHeight,
         appOptions,
         choiceOptions,
-        transposition,
         showOriginalClefs,
         showMusicAnalysis,
         showMusicAnalysisByDefault,
@@ -200,6 +200,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             meiStr: newShowingMei,
             page: 1,
             scale,
+            transposition: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null,
             restorePositionForAchor: restoreAnchor && renderedSvgData?.anchorElement ? renderedSvgData.anchorElement : undefined
         });
         setPendingAction(action);
@@ -241,18 +242,13 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
 
     useEffect(() => {
-        if (showNVerses != null) {
-            // TODO: skip the update if the current loaded score has only 1 verse 
-            updateLoadedScore(true, false);
-        }
-    }, [showNVerses]);
+        // TODO: skip the update if the current loaded score has only 1 verse 
+        // TODO: skip the update if the current loaded score doesn't have any ficta
+        console.log("[ScoreView] Updating loaded score due to option/score change", showNVerses, normalizeFicta);
+        updateLoadedScore(true, false);
+    }, [showNVerses, normalizeFicta]);
 
-    useEffect(() => {
-        if (normalizeFicta != null) {
-            // TODO: skip the update if the current loaded score doesn't have any ficta
-            updateLoadedScore(true, false);
-        }
-    }, [normalizeFicta]);
+
 
     // Clear page cache when options change that affect rendering
     useEffect(() => {
@@ -260,7 +256,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             console.log('[ScoreView] Clearing page cache due to option/score change');
             clearPageCache();
         }
-    }, [scale, transposition, showNVerses, normalizeFicta,
+    }, [scale, showNVerses, normalizeFicta, withoutTransposition,
         showOriginalClefs, showMusicAnalysis, measureNumberInterval, clearPageCache, score]);
 
 
@@ -297,6 +293,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             meiStr: showingMei,
             page: 1,
             scale,
+            transposition: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null,
             restorePositionForAchor: restoreAnchor
         });
         setPendingAction(action);
@@ -320,6 +317,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             meiStr: showingMei,
             page: currentPage,
             scale,
+            transposition: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null,
             restorePositionForAchor: anchorElement
         });
         setPendingAction(action);
@@ -330,21 +328,29 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
         const page = currentPage > 0 ? currentPage : 1;
         const anchor = renderedSvgData?.anchorElement || undefined;
-        const action = loadAction({ scoreUrl: score?.url || "", meiStr: showingMei, page: page, scale, restorePositionForAchor: anchor });
+        const action = loadAction(
+            {
+                scoreUrl: score?.url || "",
+                meiStr: showingMei,
+                page: page,
+                scale,
+                transposition: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null,
+                restorePositionForAchor: anchor
+            });
         setPendingAction(action);
     }
 
     // These changes requires reloading the currently built score
     useEffect(() => {
         reloadScore();
-    }, [appOptions, choiceOptions, transposition, showMusicAnalysis, measureNumberInterval]);
+    }, [appOptions, choiceOptions, withoutTransposition, showMusicAnalysis, measureNumberInterval]);
 
     useEffect(() => {
-        if (showOriginalClefs == null) {
-            return
-        }
         reloadScore()
     }, [showOriginalClefs]);
+
+
+
 
 
     useEffect(() => {

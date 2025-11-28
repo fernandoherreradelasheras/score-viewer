@@ -159,6 +159,7 @@ const DEFAULT_UI_LAYOUT_STATE = {
     activeTab: 'music',
 }
 
+
 const createUILayoutStore = create<UILayoutState>()(persist((set) => ({
     isLoading: true,
     scoreSvg: null,
@@ -225,68 +226,64 @@ const createPlayerStore = create<PlayerState>((set) => ({
 }))
 
 
-interface EditorialState {
-    showNVerses: number | null
-    showEditorial: boolean | null
-    showOriginalClefs: boolean | null
-    normalizeFicta: boolean | null
-    showingEditorial: string | null
+interface ScoreSettings {
+    showNVerses: number
+    showEditorial: boolean
+    showOriginalClefs: boolean
+    normalizeFicta: boolean
+    showingEditorial: string
     appOptions: string[]
     choiceOptions: string[]
-    withoutTransposition: boolean | null
-    transposition: string | null
-    showMusicAnalysis: boolean | null
-    measureNumberInterval: number | null
+    withoutTransposition: boolean
+    showMusicAnalysis: boolean
+    measureNumberInterval: number
 
-    setShowNVerses: (n: number | null) => void
+    setShowNVerses: (n: number) => void
     setShowEditorial: (showEditorial: boolean) => void
-    setShowOriginalClefs: (showOriginalClefs: boolean | null) => void
-    setNormalizeFicta: (normalizeFicta: boolean | null) => void
-    setShowingEditorial: (editorial: string | null) => void
+    setShowOriginalClefs: (showOriginalClefs: boolean) => void
+    setNormalizeFicta: (normalizeFicta: boolean) => void
+    setShowingEditorial: (editorial: string) => void
     setAppOptions: (options: string[], replace: boolean) => void
     setChoiceOptions: (options: string[], replace: boolean) => void
-    setWithoutTransposition: (withoutTransposition: boolean | null) => void
-    setTransposition: (transposition: string | null) => void
+    setWithoutTransposition: (withoutTransposition: boolean) => void
     setShowMusicAnalysis: (showMusicAnalysis: boolean) => void
-    setMeasureNumberInterval: (interval: number | null) => void
-    reset: () => void
+    setMeasureNumberInterval: (interval: number) => void
+    resetScoreSettings: () => void
 }
 
-const DEFAULT_EDITORIAL_STATE = {
-    showNVerses: null,
+const DEFAULT_SCORE_SETTINGS = {
+    showNVerses: 8,
     showEditorial: false,
-    showOriginalClefs: null,
-    normalizeFicta: null,
-    showingEditorial: null,
+    showOriginalClefs: false,
+    normalizeFicta: false,
+    showingEditorial: '',
     appOptions: [],
     choiceOptions: [],
-    withoutTransposition: null,
-    showMusicAnalysis: null,
-    measureNumberInterval: null,
+    withoutTransposition: false,
+    showMusicAnalysis: false,
+    measureNumberInterval: 0,
 }
 
-const createEditorialStore = create<EditorialState>()(persist((set) => ({
-    transposition: null, // We don't persist the transposition value as it is score-dependant
-    ...DEFAULT_EDITORIAL_STATE,
+const createScoreSettingsStore = create<ScoreSettings>()(persist((set) => ({
+    ...DEFAULT_SCORE_SETTINGS,
 
-    setShowNVerses: (n: number | null) => set(() => ({ showNVerses: n })),
+    setShowNVerses: (n: number) => set(() => ({ showNVerses: n })),
     setShowEditorial: (showEditorial: boolean) => set(() => ({ showEditorial })),
-    setShowOriginalClefs: (showOriginalClefs: boolean | null) => set(() => ({ showOriginalClefs })),
-    setNormalizeFicta: (normalizeFicta: boolean | null) => set(() => ({ normalizeFicta })),
-    setShowingEditorial: (editorial: string | null) => set(() => ({ showingEditorial: editorial })),
+    setShowOriginalClefs: (showOriginalClefs: boolean) => set(() => ({ showOriginalClefs })),
+    setNormalizeFicta: (normalizeFicta: boolean) => set(() => ({ normalizeFicta })),
+    setShowingEditorial: (editorial: string) => set(() => ({ showingEditorial: editorial })),
     setAppOptions: (options: string[], replace: boolean) => set((state) => ({
         appOptions: replace ? options : [...state.appOptions, ...options]
     })),
     setChoiceOptions: (options: string[], replace: boolean) => set((state) => ({
         choiceOptions: replace ? options : [...state.choiceOptions, ...options]
     })),
-    setWithoutTransposition: (withoutTransposition: boolean | null) => set(() => ({ withoutTransposition })),
-    setTransposition: (transposition: string | null) => set(() => ({ transposition })),
+    setWithoutTransposition: (withoutTransposition: boolean) => set(() => ({ withoutTransposition })),
     setShowMusicAnalysis: (showMusicAnalysis: boolean) => set(() => ({ showMusicAnalysis })),
-    setMeasureNumberInterval: (interval: number | null) => set(() => ({ measureNumberInterval: interval })),
-    reset: () => set(DEFAULT_EDITORIAL_STATE),
+    setMeasureNumberInterval: (interval: number) => set(() => ({ measureNumberInterval: interval })),
+    resetScoreSettings: () => set({ ...DEFAULT_SCORE_SETTINGS }),
 }), {
-    name: 'editorial-store',
+    name: 'score-settings-store'
 }))
 
 
@@ -397,30 +394,28 @@ class ScoreViewerStoreApi {
         setAutoScroll: createPlayerStoreWithSelectors.use.setAutoScroll,
         resetPlayerPosition: createPlayerStoreWithSelectors.use.resetPlayerPosition,
 
-        // Editorial Store
-        showNVerses: createEditorialStoreWithSelectors.use.showNVerses,
-        showEditorial: createEditorialStoreWithSelectors.use.showEditorial,
-        showOriginalClefs: createEditorialStoreWithSelectors.use.showOriginalClefs,
-        normalizeFicta: createEditorialStoreWithSelectors.use.normalizeFicta,
-        showingEditorial: createEditorialStoreWithSelectors.use.showingEditorial,
-        appOptions: createEditorialStoreWithSelectors.use.appOptions,
-        choiceOptions: createEditorialStoreWithSelectors.use.choiceOptions,
-        withoutTransposition: createEditorialStoreWithSelectors.use.withoutTransposition,
-        transposition: createEditorialStoreWithSelectors.use.transposition,
-        showMusicAnalysis: createEditorialStoreWithSelectors.use.showMusicAnalysis,
-        measureNumberInterval: createEditorialStoreWithSelectors.use.measureNumberInterval,
-        setShowNVerses: createEditorialStoreWithSelectors.use.setShowNVerses,
-        setShowEditorial: createEditorialStoreWithSelectors.use.setShowEditorial,
-        setShowOriginalClefs: createEditorialStoreWithSelectors.use.setShowOriginalClefs,
-        setNormalizeFicta: createEditorialStoreWithSelectors.use.setNormalizeFicta,
-        setShowingEditorial: createEditorialStoreWithSelectors.use.setShowingEditorial,
-        setAppOptions: createEditorialStoreWithSelectors.use.setAppOptions,
-        setChoiceOptions: createEditorialStoreWithSelectors.use.setChoiceOptions,
-        setWithoutTransposition: createEditorialStoreWithSelectors.use.setWithoutTransposition,
-        setTransposition: createEditorialStoreWithSelectors.use.setTransposition,
-        setShowMusicAnalysis: createEditorialStoreWithSelectors.use.setShowMusicAnalysis,
-        setMeasureNumberInterval: createEditorialStoreWithSelectors.use.setMeasureNumberInterval,
-        resetEditorial: createEditorialStoreWithSelectors.use.reset,
+        // Score Settings Store
+        showNVerses: createScoreSettingsStoreWithSelectors.use.showNVerses,
+        showEditorial: createScoreSettingsStoreWithSelectors.use.showEditorial,
+        showOriginalClefs: createScoreSettingsStoreWithSelectors.use.showOriginalClefs,
+        normalizeFicta: createScoreSettingsStoreWithSelectors.use.normalizeFicta,
+        showingEditorial: createScoreSettingsStoreWithSelectors.use.showingEditorial,
+        appOptions: createScoreSettingsStoreWithSelectors.use.appOptions,
+        choiceOptions: createScoreSettingsStoreWithSelectors.use.choiceOptions,
+        withoutTransposition: createScoreSettingsStoreWithSelectors.use.withoutTransposition,
+        showMusicAnalysis: createScoreSettingsStoreWithSelectors.use.showMusicAnalysis,
+        measureNumberInterval: createScoreSettingsStoreWithSelectors.use.measureNumberInterval,
+        setShowNVerses: createScoreSettingsStoreWithSelectors.use.setShowNVerses,
+        setShowEditorial: createScoreSettingsStoreWithSelectors.use.setShowEditorial,
+        setShowOriginalClefs: createScoreSettingsStoreWithSelectors.use.setShowOriginalClefs,
+        setNormalizeFicta: createScoreSettingsStoreWithSelectors.use.setNormalizeFicta,
+        setShowingEditorial: createScoreSettingsStoreWithSelectors.use.setShowingEditorial,
+        setAppOptions: createScoreSettingsStoreWithSelectors.use.setAppOptions,
+        setChoiceOptions: createScoreSettingsStoreWithSelectors.use.setChoiceOptions,
+        setWithoutTransposition: createScoreSettingsStoreWithSelectors.use.setWithoutTransposition,
+        setShowMusicAnalysis: createScoreSettingsStoreWithSelectors.use.setShowMusicAnalysis,
+        setMeasureNumberInterval: createScoreSettingsStoreWithSelectors.use.setMeasureNumberInterval,
+        resetScoreSettings: createScoreSettingsStoreWithSelectors.use.resetScoreSettings,
 
 
         // Rendered SVG Store
@@ -439,7 +434,7 @@ const createScoreViewerStoreWithSelectors = createSelectors(createScoreViewerSto
 
 const createUILayoutStoreWithSelectors = createSelectors(createUILayoutStore);
 const createPlayerStoreWithSelectors = createSelectors(createPlayerStore);
-const createEditorialStoreWithSelectors = createSelectors(createEditorialStore);
+const createScoreSettingsStoreWithSelectors = createSelectors(createScoreSettingsStore);
 const createRenderedSvgStoreWithSelectors = createSelectors(createRenderedSvgStore);
 
 const useStore = new ScoreViewerStoreApi();

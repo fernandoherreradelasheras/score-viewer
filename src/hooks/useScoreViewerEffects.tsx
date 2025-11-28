@@ -46,8 +46,8 @@ export function useScoreViewerEffects({
   }, []);
 
   useEffect(() => {
-    if (onVisualizationOptionsChanged && showOriginalClefs != null) {
-      onVisualizationOptionsChanged({ showOriginalClefs });
+    if (onVisualizationOptionsChanged) {
+      onVisualizationOptionsChanged({ showOriginalClefs: showOriginalClefs ?? false });
     }
   }, [showOriginalClefs]);
 

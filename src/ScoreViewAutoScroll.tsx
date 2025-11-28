@@ -9,6 +9,7 @@ import { PlayingState, Score, loadAutoScrollAction } from './types';
 import { ScoreViewProps } from './ScoreView';
 import { useTranslation } from 'react-i18next';
 import LoadingSpinner from './components/LoadingSpinner';
+import { getReverseTransposition } from './utils/score-utils';
 
 
 
@@ -32,8 +33,7 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
     const setShowEditorial = useStore.use.setShowEditorial();
     const appOptions = useStore.use.appOptions();
     const choiceOptions = useStore.use.choiceOptions();
-
-    const transposition = useStore.use.transposition();
+    const withoutTransposition = useStore.use.withoutTransposition();
 
     const showOriginalClefs = useStore.use.showOriginalClefs();
     const measureNumberInterval = useStore.use.measureNumberInterval();
@@ -73,7 +73,6 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
         svgContainerHeight,
         appOptions,
         choiceOptions,
-        transposition,
         showOriginalClefs,
         setScoreLayout,
         showMusicAnalysis: false,
@@ -85,7 +84,8 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
         if (showEditorial) {
             setShowEditorial(false);
         }
-        const action = loadAutoScrollAction({ height: svgContainerHeight, meiStr: score.singleVerseMei });
+        const transposition = withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null;
+        const action = loadAutoScrollAction({ height: svgContainerHeight, meiStr: score.singleVerseMei, transposition });
         setPendingAction(action);
     }
 

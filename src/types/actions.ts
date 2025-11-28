@@ -7,12 +7,14 @@ export type LoadConfig = {
     meiStr: string;
     page?: number | undefined;
     scale: number;
+    transposition: string | null;
     restorePositionForAchor?: string | undefined;
 }
 
 export type LoadAutoScrollConfig = {
     height: number
     meiStr: string
+    transposition: string | null;
 }
 
 export type RenderConfig = {
@@ -35,7 +37,7 @@ export type Action = {
 }
 
 
-export const loadAction = (config: LoadConfig): Action => ({type: "load", config})
-export const loadAutoScrollAction = (config: LoadAutoScrollConfig): Action => ({type: "loadAutoScroll", config})
-export const renderAction = (config: RenderConfig): Action => ({type: "render", config})
-export const renderAutoScrollAction = (config: RenderAutoScrollConfig): Action => ({type: "renderAutoScroll", config})
+export const loadAction = (config: LoadConfig): Action => ({ type: "load", config })
+export const loadAutoScrollAction = (config: LoadAutoScrollConfig): Action => ({ type: "loadAutoScroll", config })
+export const renderAction = (config: RenderConfig): Action => ({ type: "render", config })
+export const renderAutoScrollAction = (config: RenderAutoScrollConfig): Action => ({ type: "renderAutoScroll", config })

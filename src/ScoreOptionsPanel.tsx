@@ -5,12 +5,11 @@ import { isMobile } from 'react-device-detect';
 import { LANGUAGE_SESSION_STORAGE_KEY, SUPPORTED_LANGUAGES } from "./types/ui";
 import useStore from "./store";
 import { useCallback, useMemo } from "react";
-import { getReverseTransposition } from "./utils/score-utils";
 
 
 
 
-function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault, onClose, open }: { allowUserLanguageChange: boolean, showMusicAnalysisByDefault: boolean, onClose: () => void, open: boolean }) {
+function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUserLanguageChange: boolean, onClose: () => void, open: boolean }) {
     const { t, i18n } = useTranslation("common")
 
     const score = useStore.use.score();
@@ -24,7 +23,6 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
     const setNormalizeFicta = useStore.use.setNormalizeFicta();
     const withoutTransposition = useStore.use.withoutTransposition();
     const setWithoutTransposition = useStore.use.setWithoutTransposition();
-    const setTransposition = useStore.use.setTransposition();
     const showMusicAnalysis = useStore.use.showMusicAnalysis();
     const setShowMusicAnalysis = useStore.use.setShowMusicAnalysis();
     const isSplitView = useStore.use.isSplitView();
@@ -33,7 +31,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
     const setSplitViewOrientation = useStore.use.setSplitViewOrientation();
     const measureNumberInterval = useStore.use.measureNumberInterval();
     const setMeasureNumberInterval = useStore.use.setMeasureNumberInterval();
-    const resetEditorial = useStore.use.resetEditorial();
+    const resetScoreSettings = useStore.use.resetScoreSettings();
     const resetUILayout = useStore.use.resetUILayout();
 
     const onVersesSelected = useCallback((value: number) => {
@@ -54,21 +52,13 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
 
     const onWithoutTranspositionChange = useCallback((value: boolean) => {
         setWithoutTransposition(value);
-        if (score?.properties?.encodedTransposition) {
-            if (value) {
-                const reverseTransposition = getReverseTransposition(score?.properties?.encodedTransposition);
-                setTransposition(reverseTransposition);
-            } else {
-                setTransposition(null);
-            }
-        }
-    }, [setTransposition, setWithoutTransposition]);
+    }, [setWithoutTransposition]);
 
     const onShowMusicAnalysisChange = useCallback((value: boolean) => {
         setShowMusicAnalysis(value);
     }, [setShowMusicAnalysis]);
 
-    const onMeasureNumberIntervalChange = useCallback((value: number | null) => {
+    const onMeasureNumberIntervalChange = useCallback((value: number) => {
         setMeasureNumberInterval(value);
     }, [setMeasureNumberInterval]);
 
@@ -81,10 +71,6 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
         })),
         [numVersesAvailable, t]
     )
-
-
-
-
 
     const onLanguageSelected = useCallback((value: string) => {
         sessionStorage.setItem(LANGUAGE_SESSION_STORAGE_KEY, value)
@@ -153,9 +139,9 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
 
 
     const onReset = useCallback(() => {
-        resetEditorial();
+        resetScoreSettings();
         resetUILayout();
-    }, [resetEditorial, resetUILayout]);
+    }, [resetScoreSettings, resetUILayout]);
 
 
 
@@ -195,13 +181,6 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
                             <Switch value={showEditorial || false} defaultValue={false} onChange={onShowEditorialChange} />
                         </Col>
                     </Row>
-                </Space>
-                <Divider />
-
-                <Typography.Title level={5} style={{ margin: 0 }}>
-                    {t('scoreOptions.scoreSettings.title')}
-                </Typography.Title>
-                <Space direction="vertical" size="middle">
 
                     <Row align={"middle"}>
                         <Col span={20}>
@@ -251,7 +230,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
                         </Col>
                         <Col span={4}>
                             <Switch
-                                defaultValue={withoutTransposition || false}
+                                value={withoutTransposition}
                                 onChange={onWithoutTranspositionChange}
                             />
                         </Col>
@@ -271,7 +250,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
                         </Col>
                         <Col span={4}>
                             <Switch
-                                defaultValue={showMusicAnalysis || showMusicAnalysisByDefault}
+                                value={showMusicAnalysis}
                                 onChange={onShowMusicAnalysisChange}
                             />
                         </Col>
@@ -294,8 +273,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
                                 size="large"
                                 options={verseOptions}
                                 style={{ width: 120 }}
-                                defaultValue={showNVerses ? showNVerses : numVersesAvailable}
-                                disabled={numVersesAvailable <= 1}
+                                value={showNVerses}
                                 onSelect={onVersesSelected}
                             />
                         </Col>
@@ -319,7 +297,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
                                     { label: t('scoreOptions.measureInterval10'), value: 10 },
                                     { label: t('scoreOptions.measureInterval5'), value: 5 },
                                     { label: t('scoreOptions.measureInterval1'), value: 1 }]}
-                                defaultValue={measureNumberInterval != null ? measureNumberInterval : 10}
+                                value={measureNumberInterval}
                                 onChange={onMeasureNumberIntervalChange}
                             />
                         </Col>

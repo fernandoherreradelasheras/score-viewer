@@ -117,7 +117,8 @@
     "measureIntervalPage": "At the beginning of the page",
     "measureInterval10": "Every 10 measures",
     "measureInterval5": "Every 5 measures",
-    "measureInterval1": "Every measure"
+    "measureInterval1": "Every measure",
+    "resetSettings": "Reset settings to default"
   },
   "scoreProcessor": {
     "reconstructionByIA": "Reconstruction by AI. Model {{name}}",

@@ -73,7 +73,6 @@ interface ScoreActionsConfig {
   svgContainerHeight: number;
   appOptions: string[];
   choiceOptions: string[];
-  transposition: string | null;
   showOriginalClefs: boolean | null;
   showMusicAnalysis: boolean | null;
   showMusicAnalysisByDefault: boolean;
@@ -120,7 +119,6 @@ export default function useScoreActions({
   svgContainerHeight,
   appOptions,
   choiceOptions,
-  transposition,
   showOriginalClefs,
   showMusicAnalysis,
   showMusicAnalysisByDefault,
@@ -167,7 +165,7 @@ export default function useScoreActions({
       pageHeight: loadedHeight,
       pageWidth: loadedWidth,
       scale: scale,
-      transpose: transposition != null ? transposition : "",
+      transpose: config.transposition != null ? config.transposition : "",
       mnumInterval: measureNumberInterval ?? 0
     };
 
@@ -223,7 +221,6 @@ export default function useScoreActions({
     svgContainerHeight,
     appOptions,
     choiceOptions,
-    transposition,
     showOriginalClefs,
     showMusicAnalysis,
     measureNumberInterval,
@@ -252,7 +249,7 @@ export default function useScoreActions({
       pageHeight: height,
       pageWidth: AUTO_SCROLL_RENDERING_WIDTH_LIMIT,
       scale: 100,
-      transpose: transposition != null ? transposition : ""
+      transpose: config.transposition != null ? config.transposition : ""
     };
 
     try {
@@ -263,7 +260,7 @@ export default function useScoreActions({
       console.error("Error performing auto-scroll load action:", error);
       return null;
     }
-  }, [verovio, appOptions, choiceOptions, transposition, showOriginalClefs]);
+  }, [verovio, appOptions, choiceOptions, showOriginalClefs]);
 
   const mergeTimemapTies = (timemap: TimeMapEvent[], tiedNotes: { first: string; second: string; }[]) => {
     const newTimeMap = timemap.map(e => { return { ...e } as TimeMapEvent });

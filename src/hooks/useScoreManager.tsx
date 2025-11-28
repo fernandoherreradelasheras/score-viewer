@@ -4,7 +4,6 @@ import ScoreProcessor from '../ScoreProcessor';
 import ScoreAnalyzer from '../ScoreAnalyzer';
 import { ScoreViewerConfig } from '../types/config';
 import { useCallback } from 'react';
-import { getReverseTransposition } from '../utils/score-utils';
 
 interface UseScoreManagerProps {
   t: any;
@@ -25,8 +24,6 @@ export function useScoreManager({
   const setScoreCache = useStore.use.setScoreCache();
   const score = useStore.use.score();
   const setScore = useStore.use.setScore();
-  const withoutTransposition = useStore.use.withoutTransposition();
-  const setTransposition = useStore.use.setTransposition();
 
   const fetchMei = async (meiUrl: string): Promise<string> => {
     const res = await fetch(meiUrl);
@@ -81,12 +78,6 @@ export function useScoreManager({
       }
     }
 
-    if (withoutTransposition) {
-      const reverseTransposition = getReverseTransposition(newScore.properties.encodedTransposition);
-      setTransposition(reverseTransposition);
-    } else {
-      setTransposition(null);
-    }
     setScore(newScore);
 
     if (onScoreAnalyzed) {
