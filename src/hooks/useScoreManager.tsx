@@ -4,6 +4,7 @@ import ScoreProcessor from '../ScoreProcessor';
 import ScoreAnalyzer from '../ScoreAnalyzer';
 import { ScoreViewerConfig } from '../types/config';
 import { useCallback } from 'react';
+import { getReverseTransposition } from '../utils/score-utils';
 
 interface UseScoreManagerProps {
   t: any;
@@ -24,10 +25,7 @@ export function useScoreManager({
   const setScoreCache = useStore.use.setScoreCache();
   const score = useStore.use.score();
   const setScore = useStore.use.setScore();
-  const setShowNVerses = useStore.use.setShowNVerses();
-  const setNormalizeFicta = useStore.use.setNormalizeFicta();
-  const setShowReconstructions = useStore.use.setShowReconstructions();
-  const setShowOriginalClefs = useStore.use.setShowOriginalClefs();
+  const withoutTransposition = useStore.use.withoutTransposition();
   const setTransposition = useStore.use.setTransposition();
 
   const fetchMei = async (meiUrl: string): Promise<string> => {
@@ -83,14 +81,12 @@ export function useScoreManager({
       }
     }
 
-    // clear options that should not be persistent
-    // TODO: define all these settings consistently
-    setShowNVerses(null);
-    setNormalizeFicta(null);
-    setShowReconstructions({}, true);
-    setShowOriginalClefs(null);
-    setTransposition(null);
-
+    if (withoutTransposition) {
+      const reverseTransposition = getReverseTransposition(newScore.properties.encodedTransposition);
+      setTransposition(reverseTransposition);
+    } else {
+      setTransposition(null);
+    }
     setScore(newScore);
 
     if (onScoreAnalyzed) {

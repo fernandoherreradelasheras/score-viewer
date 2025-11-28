@@ -233,6 +233,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         }
     }, [setShowSpinner, currentPage, getCachedPage]);
 
+
     // This group of changes require rebuilding the score and reloading it
     useEffect(() => {
         if (score) {
@@ -245,14 +246,17 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         }
     }, [score?.url]);
 
+
     useEffect(() => {
         if (showNVerses != null) {
+            // TODO: skip the update if the current loaded score has only 1 verse 
             updateLoadedScore(true, false);
         }
     }, [showNVerses]);
 
     useEffect(() => {
         if (normalizeFicta != null) {
+            // TODO: skip the update if the current loaded score doesn't have any ficta
             updateLoadedScore(true, false);
         }
     }, [normalizeFicta]);

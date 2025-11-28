@@ -1,20 +1,13 @@
-import { Drawer, Space, Row, Col, Typography, Switch, Select, Divider, SelectProps } from "antd"
+import { Drawer, Space, Row, Col, Typography, Switch, Select, Divider, SelectProps, Button } from "antd"
 import { useTranslation } from 'react-i18next';
 import { isMobile } from 'react-device-detect';
 
 import { LANGUAGE_SESSION_STORAGE_KEY, SUPPORTED_LANGUAGES } from "./types/ui";
 import useStore from "./store";
 import { useCallback, useMemo } from "react";
+import { getReverseTransposition } from "./utils/score-utils";
 
 
-const getReverseTransposition = (transposition?: string) => {
-    if (transposition?.startsWith("-")) {
-        return "+" + transposition.substring(1);
-    } else if (transposition?.startsWith("+") || (transposition && transposition.length > 1)) {
-        return "-" + transposition.substring(1);
-    }
-    return "";
-};
 
 
 function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault, onClose, open }: { allowUserLanguageChange: boolean, showMusicAnalysisByDefault: boolean, onClose: () => void, open: boolean }) {
@@ -25,12 +18,12 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
     const setShowNVerses = useStore.use.setShowNVerses();
     const showOriginalClefs = useStore.use.showOriginalClefs();
     const setShowOriginalClefs = useStore.use.setShowOriginalClefs();
-    const showReconstructions = useStore.use.showReconstructions();
-    const setShowReconstructions = useStore.use.setShowReconstructions();
     const showEditorial = useStore.use.showEditorial();
     const setShowEditorial = useStore.use.setShowEditorial();
     const normalizeFicta = useStore.use.normalizeFicta();
     const setNormalizeFicta = useStore.use.setNormalizeFicta();
+    const withoutTransposition = useStore.use.withoutTransposition();
+    const setWithoutTransposition = useStore.use.setWithoutTransposition();
     const transposition = useStore.use.transposition();
     const setTransposition = useStore.use.setTransposition();
     const showMusicAnalysis = useStore.use.showMusicAnalysis();
@@ -41,15 +34,12 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
     const setSplitViewOrientation = useStore.use.setSplitViewOrientation();
     const measureNumberInterval = useStore.use.measureNumberInterval();
     const setMeasureNumberInterval = useStore.use.setMeasureNumberInterval();
+    const resetEditorial = useStore.use.resetEditorial();
+    const resetUILayout = useStore.use.resetUILayout();
 
     const onVersesSelected = useCallback((value: number) => {
         setShowNVerses(value);
     }, [setShowNVerses]);
-
-    const onReconstructionSelected = useCallback((staff: string, reconstruction: string) => {
-        console.log(`Selected reconstruction for staff ${staff}:  ${reconstruction}`);
-        setShowReconstructions({ [staff]: reconstruction }, false);
-    }, [setShowReconstructions]);
 
     const onShowEditorialChange = useCallback((value: boolean) => {
         setShowEditorial(value);
@@ -59,19 +49,21 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
         setNormalizeFicta(value);
     }, [setNormalizeFicta]);
 
-    const onShowOriginalClefsChange = useCallback(() => {
-        console.log(`Show original clefs: ${!showOriginalClefs}`);
-        setShowOriginalClefs(!showOriginalClefs);
-    }, [showOriginalClefs, setShowOriginalClefs]);
+    const onShowOriginalClefsChange = useCallback((value: boolean) => {
+        setShowOriginalClefs(value);
+    }, [setShowOriginalClefs]);
 
-    const onTranspositionChange = useCallback(() => {
-        if (transposition != null) {
-            setTransposition(null);
-        } else {
-            const reverseTransposition = getReverseTransposition(score?.properties?.encodedTransposition);
-            setTransposition(reverseTransposition);
+    const onWithoutTranspositionChange = useCallback((value: boolean) => {
+        setWithoutTransposition(value);
+        if (score?.properties?.encodedTransposition) {
+            if (value) {
+                const reverseTransposition = getReverseTransposition(score?.properties?.encodedTransposition);
+                setTransposition(reverseTransposition);
+            } else {
+                setTransposition(null);
+            }
         }
-    }, [transposition, score?.properties?.encodedTransposition, setTransposition]);
+    }, [setTransposition, setWithoutTransposition]);
 
     const onShowMusicAnalysisChange = useCallback((value: boolean) => {
         setShowMusicAnalysis(value);
@@ -81,18 +73,8 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
         setMeasureNumberInterval(value);
     }, [setMeasureNumberInterval]);
 
-    const numVersesAvailable = useMemo(() =>
-        score?.properties?.numVerses || 0
-        , [score?.properties?.numVerses]);
 
-    const numReconstructionsAvailable = useMemo(() =>
-        score?.properties ? Object.entries(score.properties.reconstructions).length : 0
-        , [score?.properties]);
-
-    const originalClefsAvailable = useMemo(() =>
-        score?.properties?.hasOriginalClefs || false
-        , [score?.properties?.hasOriginalClefs]);
-
+    const numVersesAvailable = 8;
     const verseOptions: SelectProps['options'] = useMemo(() =>
         Array.from({ length: numVersesAvailable }, (_, key) => 1 + key).map(i => ({
             value: i,
@@ -102,68 +84,8 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
     )
 
 
-    const voiceRecontructions: { staff: string, voiceName: string, selectOptions: SelectProps['options'] }[] = useMemo(() => {
-        if (score?.properties?.reconstructions === undefined) {
-            return []
-        }
-        const reconstructions: { staff: string, voiceName: string, selectOptions: SelectProps['options'] }[] = []
-        for (const voiceRecontructed of score?.properties?.reconstructions) {
-            if (voiceRecontructed.reconstructionsForVoice.length === 0) {
-                continue;
-            }
-            const reconstructionsForVoice: SelectProps['options'] = []
-            for (const reconstruction of voiceRecontructed.reconstructionsForVoice) {
-                // Format is reconstruction:staff:type:name
-                const name = reconstruction.label != "none" ? reconstruction.label.split(":")[3] : t("scoreOptions.reconstructionNone");
-                reconstructionsForVoice.push({ value: reconstruction.label, label: name })
-            }
-            reconstructions.push({ staff: voiceRecontructed.staff, voiceName: voiceRecontructed.voiceName, selectOptions: reconstructionsForVoice })
-        }
-        return reconstructions
-    }, [numReconstructionsAvailable, t])
 
 
-    const editorialDisabled = useMemo(() =>
-        score?.properties ? !score.properties.hasEditorial : true
-        , [score?.properties]);
-
-    const fictaSwictchDisabled = useMemo(() =>
-        score?.properties ? !score.properties.hasFicta : true
-        , [score?.properties]);
-
-    const showTranspositionOption = useMemo(() =>
-        score?.properties?.encodedTransposition !== undefined && score?.properties?.encodedTransposition !== ""
-        , [score?.properties]);
-
-    const showVerseOptions = useMemo(() =>
-        verseOptions.length > 0
-        , [score?.properties]);
-
-    const showReconstructionOptions = useMemo(() =>
-        numReconstructionsAvailable > 0
-        , [score?.properties]);
-
-
-    const reconstructionRows = showReconstructionOptions ? voiceRecontructions?.map(voiceReconstruction =>
-        <Row align={"middle"}>
-            <Col span={12}>
-                <Space direction="vertical">
-                    <Typography.Text strong={true} >
-                        {t('scoreOptions.reconstruction', { voiceName: voiceReconstruction.voiceName })}
-                    </Typography.Text>
-                </Space>
-            </Col>
-            <Col span={10}>
-                <Select
-                    size="middle"
-                    options={voiceReconstruction.selectOptions || []}
-                    defaultValue={showReconstructions?.[voiceReconstruction.staff] ?? "none"}
-                    disabled={voiceReconstruction.selectOptions ? voiceReconstruction.selectOptions.length <= 1 : true}
-                    onSelect={(value) => onReconstructionSelected(voiceReconstruction.staff, value)}
-                />
-            </Col>
-        </Row>
-    ) : null
 
     const onLanguageSelected = useCallback((value: string) => {
         sessionStorage.setItem(LANGUAGE_SESSION_STORAGE_KEY, value)
@@ -231,6 +153,12 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
         </Row> : null
 
 
+    const onReset = useCallback(() => {
+        resetEditorial();
+        resetUILayout();
+    }, [resetEditorial, resetUILayout]);
+
+
 
     return (
         <Drawer title={t('scoreOptions.title')} open={open} onClose={onClose}>
@@ -265,7 +193,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
                             </Space>
                         </Col>
                         <Col span={4}>
-                            <Switch value={showEditorial || false} defaultValue={false} disabled={editorialDisabled} onChange={onShowEditorialChange} />
+                            <Switch value={showEditorial || false} defaultValue={false} onChange={onShowEditorialChange} />
                         </Col>
                     </Row>
                 </Space>
@@ -275,7 +203,6 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
                     {t('scoreOptions.scoreSettings.title')}
                 </Typography.Title>
                 <Space direction="vertical" size="middle">
-                    {reconstructionRows}
 
                     <Row align={"middle"}>
                         <Col span={20}>
@@ -289,51 +216,47 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
                             </Space>
                         </Col>
                         <Col span={4}>
-                            <Switch defaultValue={normalizeFicta || false} disabled={fictaSwictchDisabled} onChange={onNormalizeFictaChange} />
+                            <Switch defaultValue={normalizeFicta || false} onChange={onNormalizeFictaChange} />
                         </Col>
                     </Row>
 
-                    {originalClefsAvailable &&
-                        <Row align={"middle"}>
-                            <Col span={20}>
-                                <Space direction="vertical">
-                                    <Typography.Text strong={true} {...(!showOriginalClefs ? { type: 'secondary' } : {})}>
-                                        {t('scoreOptions.originalClefs.title')}
-                                    </Typography.Text>
-                                    <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!showOriginalClefs ? { type: 'secondary' } : {})} >
-                                        {t('scoreOptions.originalClefs.description')}
-                                    </Typography.Text>
-                                </Space>
-                            </Col>
-                            <Col span={4}>
-                                <Switch
-                                    defaultValue={showOriginalClefs || false}
-                                    disabled={!originalClefsAvailable}
-                                    onChange={onShowOriginalClefsChange}
-                                />
-                            </Col>
-                        </Row>}
+                    <Row align={"middle"}>
+                        <Col span={20}>
+                            <Space direction="vertical">
+                                <Typography.Text strong={true} {...(!showOriginalClefs ? { type: 'secondary' } : {})}>
+                                    {t('scoreOptions.originalClefs.title')}
+                                </Typography.Text>
+                                <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!showOriginalClefs ? { type: 'secondary' } : {})} >
+                                    {t('scoreOptions.originalClefs.description')}
+                                </Typography.Text>
+                            </Space>
+                        </Col>
+                        <Col span={4}>
+                            <Switch
+                                defaultValue={showOriginalClefs || false}
+                                onChange={onShowOriginalClefsChange}
+                            />
+                        </Col>
+                    </Row>
 
-                    {showTranspositionOption &&
-                        <Row align={"middle"}>
-                            <Col span={20}>
-                                <Space direction="vertical">
-                                    <Typography.Text strong={true} {...(!transposition ? { type: 'secondary' } : {})}>
-                                        {t('scoreOptions.noTransposition.title')}
-                                    </Typography.Text>
-                                    <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!transposition ? { type: 'secondary' } : {})} >
-                                        {t('scoreOptions.noTransposition.description', { encodedTransposition: score?.properties?.encodedTransposition })}
-                                    </Typography.Text>
-                                </Space>
-                            </Col>
-                            <Col span={4}>
-                                <Switch
-                                    defaultValue={transposition != null}
-                                    disabled={!score?.properties?.encodedTransposition}
-                                    onChange={onTranspositionChange}
-                                />
-                            </Col>
-                        </Row>}
+                    <Row align={"middle"}>
+                        <Col span={20}>
+                            <Space direction="vertical">
+                                <Typography.Text strong={true} {...(!withoutTransposition ? { type: 'secondary' } : {})}>
+                                    {t('scoreOptions.noTransposition.title')}
+                                </Typography.Text>
+                                <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!withoutTransposition ? { type: 'secondary' } : {})} >
+                                    {t('scoreOptions.noTransposition.description', { encodedTransposition: score?.properties?.encodedTransposition })}
+                                </Typography.Text>
+                            </Space>
+                        </Col>
+                        <Col span={4}>
+                            <Switch
+                                defaultValue={withoutTransposition || false}
+                                onChange={onWithoutTranspositionChange}
+                            />
+                        </Col>
+                    </Row>
 
 
                     <Row align={"middle"}>
@@ -356,29 +279,28 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
                     </Row>
 
 
-                    {showVerseOptions &&
-                        <Row align={"middle"}>
-                            <Col span={16}>
-                                <Space direction="vertical">
-                                    <Typography.Text strong={true} {...(!showNVerses ? { type: 'secondary' } : {})}>
-                                        {t('scoreOptions.limitVerses.title')}
-                                    </Typography.Text>
-                                    <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!showNVerses ? { type: 'secondary' } : {})} >
-                                        {t('scoreOptions.limitVerses.description')}
-                                    </Typography.Text>
-                                </Space>
-                            </Col>
-                            <Col span={8}>
-                                <Select
-                                    size="large"
-                                    options={verseOptions}
-                                    style={{ width: 120 }}
-                                    defaultValue={showNVerses ? showNVerses : numVersesAvailable}
-                                    disabled={numVersesAvailable <= 1}
-                                    onSelect={onVersesSelected}
-                                />
-                            </Col>
-                        </Row>}
+                    <Row align={"middle"}>
+                        <Col span={16}>
+                            <Space direction="vertical">
+                                <Typography.Text strong={true} {...(!showNVerses ? { type: 'secondary' } : {})}>
+                                    {t('scoreOptions.limitVerses.title')}
+                                </Typography.Text>
+                                <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!showNVerses ? { type: 'secondary' } : {})} >
+                                    {t('scoreOptions.limitVerses.description')}
+                                </Typography.Text>
+                            </Space>
+                        </Col>
+                        <Col span={8}>
+                            <Select
+                                size="large"
+                                options={verseOptions}
+                                style={{ width: 120 }}
+                                defaultValue={showNVerses ? showNVerses : numVersesAvailable}
+                                disabled={numVersesAvailable <= 1}
+                                onSelect={onVersesSelected}
+                            />
+                        </Col>
+                    </Row>
 
                     <Row align={"middle"}>
                         <Col span={12}>
@@ -405,6 +327,10 @@ function ScoreOptionsPanel({ allowUserLanguageChange, showMusicAnalysisByDefault
                     </Row>
 
                 </Space>
+                <Divider />
+                <Button danger block onClick={onReset}>
+                    {t('scoreOptions.resetSettings')}
+                </Button>
             </Space>
         </Drawer>
     );

@@ -173,6 +173,22 @@
         },
         {
             "path": "tonos",
+            "title": "no clefs",
+            "meiFile": "no-clefs.mei",
+            "encodingProperties": {
+                "encodedTransposition": "-P4"
+            }
+        },
+        {
+            "path": "tonos",
+            "title": "no clefs and no transposition",
+            "meiFile": "no-clefsnt.mei",
+            "encodingProperties": {
+                "encodedTransposition": ""
+            }
+        },
+        {
+            "path": "tonos",
             "title": "parallel fifths test",
             "meiFile": "parallel.mei",
             "encodingProperties": {

@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { createSelectors } from './utils/zustand-utils'
 
 import {
@@ -148,17 +149,22 @@ interface UILayoutState {
     setActiveSplitView: (view: string) => void
     setSplitViewOrientation: (orientation: 'horizontal' | 'vertical') => void
     setActiveTab: (tab: string) => void
+    reset: () => void
 }
 
-const createUILayoutStore = create<UILayoutState>((set) => ({
+const DEFAULT_UI_LAYOUT_STATE = {
+    isSplitView: false,
+    activeSplitView: 'facsimile',
+    splitViewOrientation: 'horizontal' as const,
+    activeTab: 'music',
+}
+
+const createUILayoutStore = create<UILayoutState>()(persist((set) => ({
     isLoading: true,
     scoreSvg: null,
     scale: DEFAULT_SCALE,
     reachedEffectiveMaxScale: false,
-    isSplitView: false,
-    activeSplitView: 'facsimile',
-    splitViewOrientation: 'horizontal',
-    activeTab: 'music',
+    ...DEFAULT_UI_LAYOUT_STATE,
 
 
     setIsLoading: (isLoading: boolean) => set(() => ({ isLoading })),
@@ -177,6 +183,15 @@ const createUILayoutStore = create<UILayoutState>((set) => ({
     setActiveSplitView: (view: string) => set(() => ({ activeSplitView: view })),
     setSplitViewOrientation: (orientation: 'horizontal' | 'vertical') => set(() => ({ splitViewOrientation: orientation })),
     setActiveTab: (tab: string) => set(() => ({ activeTab: tab })),
+    reset: () => set(DEFAULT_UI_LAYOUT_STATE),
+}), {
+    name: 'ui-layout-store',
+    partialize: (state) => ({
+        isSplitView: state.isSplitView,
+        activeSplitView: state.activeSplitView,
+        splitViewOrientation: state.splitViewOrientation,
+        activeTab: state.activeTab,
+    }),
 }))
 
 
@@ -219,6 +234,7 @@ interface EditorialState {
     showingEditorial: string | null
     appOptions: string[]
     choiceOptions: string[]
+    withoutTransposition: boolean | null
     transposition: string | null
     showMusicAnalysis: boolean | null
     measureNumberInterval: number | null
@@ -231,12 +247,14 @@ interface EditorialState {
     setShowingEditorial: (editorial: string | null) => void
     setAppOptions: (options: string[], replace: boolean) => void
     setChoiceOptions: (options: string[], replace: boolean) => void
+    setWithoutTransposition: (withoutTransposition: boolean | null) => void
     setTransposition: (transposition: string | null) => void
     setShowMusicAnalysis: (showMusicAnalysis: boolean) => void
     setMeasureNumberInterval: (interval: number | null) => void
+    reset: () => void
 }
 
-const createEditorialStore = create<EditorialState>((set) => ({
+const DEFAULT_EDITORIAL_STATE = {
     showNVerses: null,
     showReconstructions: {},
     showEditorial: false,
@@ -245,9 +263,14 @@ const createEditorialStore = create<EditorialState>((set) => ({
     showingEditorial: null,
     appOptions: [],
     choiceOptions: [],
-    transposition: null,
+    withoutTransposition: null,
     showMusicAnalysis: null,
     measureNumberInterval: null,
+}
+
+const createEditorialStore = create<EditorialState>()(persist((set) => ({
+    transposition: null, // We don't persist the transposition value as it is score-dependant
+    ...DEFAULT_EDITORIAL_STATE,
 
     setShowNVerses: (n: number | null) => set(() => ({ showNVerses: n })),
     setShowReconstructions: (reconstructions: { [staff: string]: string }, replace: boolean) => set((state) => ({
@@ -263,9 +286,13 @@ const createEditorialStore = create<EditorialState>((set) => ({
     setChoiceOptions: (options: string[], replace: boolean) => set((state) => ({
         choiceOptions: replace ? options : [...state.choiceOptions, ...options]
     })),
+    setWithoutTransposition: (withoutTransposition: boolean | null) => set(() => ({ withoutTransposition })),
     setTransposition: (transposition: string | null) => set(() => ({ transposition })),
     setShowMusicAnalysis: (showMusicAnalysis: boolean) => set(() => ({ showMusicAnalysis })),
     setMeasureNumberInterval: (interval: number | null) => set(() => ({ measureNumberInterval: interval })),
+    reset: () => set(DEFAULT_EDITORIAL_STATE),
+}), {
+    name: 'editorial-store',
 }))
 
 
@@ -350,6 +377,7 @@ class StoreApi {
         setSplitViewOrientation: createUILayoutStoreWithSelectors.use.setSplitViewOrientation,
         setActiveTab: createUILayoutStoreWithSelectors.use.setActiveTab,
         setActiveSplitView: createUILayoutStoreWithSelectors.use.setActiveSplitView,
+        resetUILayout: createUILayoutStoreWithSelectors.use.reset,
 
         // Score Navigation Store
         pageCount: createScoreViewerStoreWithSelectors.use.pageCount,
@@ -384,6 +412,7 @@ class StoreApi {
         showingEditorial: createEditorialStoreWithSelectors.use.showingEditorial,
         appOptions: createEditorialStoreWithSelectors.use.appOptions,
         choiceOptions: createEditorialStoreWithSelectors.use.choiceOptions,
+        withoutTransposition: createEditorialStoreWithSelectors.use.withoutTransposition,
         transposition: createEditorialStoreWithSelectors.use.transposition,
         showMusicAnalysis: createEditorialStoreWithSelectors.use.showMusicAnalysis,
         measureNumberInterval: createEditorialStoreWithSelectors.use.measureNumberInterval,
@@ -395,9 +424,11 @@ class StoreApi {
         setShowingEditorial: createEditorialStoreWithSelectors.use.setShowingEditorial,
         setAppOptions: createEditorialStoreWithSelectors.use.setAppOptions,
         setChoiceOptions: createEditorialStoreWithSelectors.use.setChoiceOptions,
+        setWithoutTransposition: createEditorialStoreWithSelectors.use.setWithoutTransposition,
         setTransposition: createEditorialStoreWithSelectors.use.setTransposition,
         setShowMusicAnalysis: createEditorialStoreWithSelectors.use.setShowMusicAnalysis,
         setMeasureNumberInterval: createEditorialStoreWithSelectors.use.setMeasureNumberInterval,
+        resetEditorial: createEditorialStoreWithSelectors.use.reset,
 
 
         // Rendered SVG Store
