@@ -20,18 +20,17 @@ const getAudioDurationMillis = (timemap: TimeMapEvent[]) => {
 export interface ScoreViewContainerProps {
     backgroundColor?: string | undefined;
     showDownloadButton?: boolean | undefined;
-    showMusicAnalysisByDefault: boolean;
     height: string;
 }
 
 export interface ScoreViewContainerRef {
-  scrollIntoView: () => void
+    scrollIntoView: () => void
 }
 
 function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, ref: Ref<ScoreViewContainerRef>) {
     const { t } = useTranslation("common")
 
-    const { backgroundColor, height, showMusicAnalysisByDefault } = scoreViewContainerProps;
+    const { backgroundColor, height } = scoreViewContainerProps;
 
     const score = useStore.use.score();
     const autoScroll = useStore.use.autoScroll();
@@ -57,7 +56,7 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
         scrollIntoView: () => {
             scoreViewerRef.current?.scrollIntoView(true);
         }
-      }));
+    }));
 
 
     // Set up swipe handlers for page navigation
@@ -118,11 +117,11 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
                 height: height
             }}>
             <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "100%" }}>
-                { scoreViewerRef.current ? <ScoreControls
+                {scoreViewerRef.current ? <ScoreControls
                     style={{ flex: "0" }}
                     fullScreenElement={scoreViewerRef.current}
                     showDownloadButton={scoreViewContainerProps.showDownloadButton ?? false}
-                    audioDuration={audioDuration}/> : null }
+                    audioDuration={audioDuration} /> : null}
 
                 <div className="score-container swipeable-container"
                     {...swipeHandlers}
@@ -133,8 +132,8 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
                         overflow: "hidden",
                     }}>
 
-                    {autoScroll ? <ScoreViewAutoScroll backgroundColor={backgroundColor} showMusicAnalysisByDefault={showMusicAnalysisByDefault} />
-                    : <ScoreView backgroundColor={backgroundColor} showMusicAnalysisByDefault={showMusicAnalysisByDefault} />}
+                    {autoScroll ? <ScoreViewAutoScroll backgroundColor={backgroundColor} />
+                        : <ScoreView backgroundColor={backgroundColor} />}
 
                 </div>
             </div>

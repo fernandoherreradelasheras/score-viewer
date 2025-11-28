@@ -203,7 +203,6 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
         ref={scoreViewContainerRef}
         backgroundColor={config.settings.backgroundColor}
         showDownloadButton={config.settings.showDownloadButton}
-        showMusicAnalysisByDefault={config.settings.showMusicAnalysisByDefault}
         height={containerHeight} />
     }
   }, [config.settings.backgroundColor, config.settings.showDownloadButton, containerHeight, fetchScoreError, t])
@@ -250,7 +249,6 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   const drawer = useMemo(() =>
     openDrawer ? <ScoreOptionsPanel
       allowUserLanguageChange={config.settings.allowUserLanguageChange}
-      showMusicAnalysisByDefault={config.settings.showMusicAnalysisByDefault}
       onClose={onDrawerClose}
       open={openDrawer} /> : null
     , [openDrawer, config.settings.allowUserLanguageChange, onDrawerClose])

@@ -15,13 +15,12 @@ import { getReverseTransposition } from './utils/score-utils';
 
 export interface ScoreViewProps {
     backgroundColor?: string | undefined;
-    showMusicAnalysisByDefault: boolean;
 }
 
 
 function ScoreView(scoreViewProps: ScoreViewProps) {
 
-    const { backgroundColor, showMusicAnalysisByDefault } = scoreViewProps;
+    const { backgroundColor } = scoreViewProps;
     const { verovio } = useContext(Context);
     const { t } = useTranslation("common");
 
@@ -29,6 +28,8 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const setIsLoading = useStore.use.setIsLoading();
     const pendingAction = useStore.use.pendingAction();
     const setPendingAction = useStore.use.setPendingAction();
+    const queuedAction = useStore.use.queuedAction();
+    const setQueuedAction = useStore.use.setQueuedAction();
 
     const score = useStore.use.score();
 
@@ -86,7 +87,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         choiceOptions,
         showOriginalClefs,
         showMusicAnalysis,
-        showMusicAnalysisByDefault,
         measureNumberInterval,
         setScoreLayout,
     });
@@ -96,7 +96,14 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     // Process pending actions
     useEffect(() => {
-        if (!pendingAction || !verovio || !showingMei || !svgContainerRef.current || svgContainerHeight <= 0) {
+        if (!pendingAction || !verovio || !showingMei || !svgContainerRef.current) {
+            return;
+        }
+
+        if (svgContainerHeight <= 0 && pendingAction.type === "render") {
+            console.log("svgContainer not visible, queuing pending action")
+            setQueuedAction(pendingAction);
+            setPendingAction(null);
             return;
         }
 
@@ -260,13 +267,21 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         showOriginalClefs, showMusicAnalysis, measureNumberInterval, clearPageCache, score]);
 
 
-    // Handle the initial load when verovio has been initialized and when the container is ready.
+    // Handle the initial load when verovio has been initialized and when the container is ready
+    // and queued render actions because the container was not visible (when shoing only text tab, for example).
     // As the component might have been removed from the tree (svgContainerHeight = 0),
     // we check if we have loaded and rendered the same score. Page is also checked because
     // whe might support keep the player going when the component is not visible (switching to text tab,
     // for example).
     useEffect(() => {
         if (!isReady() || !showingMei) {
+            return;
+        }
+
+        if (queuedAction && queuedAction.type == "render") {
+            console.log("Score got visible with queued render action, executing it now")
+            setPendingAction(queuedAction);
+            setQueuedAction(null);
             return;
         }
 

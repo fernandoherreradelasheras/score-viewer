@@ -74,8 +74,7 @@ interface ScoreActionsConfig {
   appOptions: string[];
   choiceOptions: string[];
   showOriginalClefs: boolean | null;
-  showMusicAnalysis: boolean | null;
-  showMusicAnalysisByDefault: boolean;
+  showMusicAnalysis: boolean;
   measureNumberInterval: number | null;
   setScoreLayout: (layout: { currentPage: number; pageCount: number; sectionPageMap: Record<string, number> }) => void;
 }
@@ -121,7 +120,6 @@ export default function useScoreActions({
   choiceOptions,
   showOriginalClefs,
   showMusicAnalysis,
-  showMusicAnalysisByDefault,
   measureNumberInterval,
   setScoreLayout,
 }: ScoreActionsConfig) {
@@ -160,7 +158,7 @@ export default function useScoreActions({
       adjustPageHeight: false,
       landscape: false,
       svgAdditionalAttribute: EXTRA_SVG_ATTRIBUTES,
-      appXPathQuery: buildAppOptions(appOptions, showOriginalClefs || false, showMusicAnalysis || showMusicAnalysisByDefault),
+      appXPathQuery: buildAppOptions(appOptions, showOriginalClefs || false, showMusicAnalysis),
       choiceXPathQuery: choiceOptions,
       pageHeight: loadedHeight,
       pageWidth: loadedWidth,

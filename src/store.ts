@@ -19,12 +19,16 @@ import { RenderedData } from './hooks/useScoreRenderer'
 
 interface RenderingState {
     pendingAction: Action | null
+    queuedAction: Action | null
     setPendingAction: (action: Action | null) => void
+    setQueuedAction: (action: Action | null) => void
 }
 
 const createRenderingStore = create<RenderingState>((set) => ({
     pendingAction: null,
+    queuedAction: null,
     setPendingAction: (action: Action | null) => set(() => ({ pendingAction: action })),
+    setQueuedAction: (action: Action | null) => set(() => ({ queuedAction: action })),
 }))
 
 
@@ -231,7 +235,7 @@ interface ScoreSettings {
     showEditorial: boolean
     showOriginalClefs: boolean
     normalizeFicta: boolean
-    showingEditorial: string
+    showingEditorial: string | null
     appOptions: string[]
     choiceOptions: string[]
     withoutTransposition: boolean
@@ -242,7 +246,7 @@ interface ScoreSettings {
     setShowEditorial: (showEditorial: boolean) => void
     setShowOriginalClefs: (showOriginalClefs: boolean) => void
     setNormalizeFicta: (normalizeFicta: boolean) => void
-    setShowingEditorial: (editorial: string) => void
+    setShowingEditorial: (editorial: string | null) => void
     setAppOptions: (options: string[], replace: boolean) => void
     setChoiceOptions: (options: string[], replace: boolean) => void
     setWithoutTransposition: (withoutTransposition: boolean) => void
@@ -256,7 +260,7 @@ const DEFAULT_SCORE_SETTINGS = {
     showEditorial: false,
     showOriginalClefs: false,
     normalizeFicta: false,
-    showingEditorial: '',
+    showingEditorial: null,
     appOptions: [],
     choiceOptions: [],
     withoutTransposition: false,
@@ -271,7 +275,7 @@ const createScoreSettingsStore = create<ScoreSettings>()(persist((set) => ({
     setShowEditorial: (showEditorial: boolean) => set(() => ({ showEditorial })),
     setShowOriginalClefs: (showOriginalClefs: boolean) => set(() => ({ showOriginalClefs })),
     setNormalizeFicta: (normalizeFicta: boolean) => set(() => ({ normalizeFicta })),
-    setShowingEditorial: (editorial: string) => set(() => ({ showingEditorial: editorial })),
+    setShowingEditorial: (editorial: string | null) => set(() => ({ showingEditorial: editorial })),
     setAppOptions: (options: string[], replace: boolean) => set((state) => ({
         appOptions: replace ? options : [...state.appOptions, ...options]
     })),
@@ -329,6 +333,8 @@ const createRenderedSvgStore = create<RenderedSvgState>((set, get) => ({
 class ScoreViewerStoreApi {
     public use = {
         // Rendering Store
+        queuedAction: createRenderingStoreWithSelectors.use.queuedAction,
+        setQueuedAction: createRenderingStoreWithSelectors.use.setQueuedAction,
         pendingAction: createRenderingStoreWithSelectors.use.pendingAction,
         setPendingAction: createRenderingStoreWithSelectors.use.setPendingAction,
 
