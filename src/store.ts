@@ -241,6 +241,7 @@ interface ScoreSettings {
     withoutTransposition: boolean
     showMusicAnalysis: boolean
     measureNumberInterval: number
+    showColoredNotes: boolean
 
     setShowNVerses: (n: number) => void
     setShowEditorial: (showEditorial: boolean) => void
@@ -252,6 +253,7 @@ interface ScoreSettings {
     setWithoutTransposition: (withoutTransposition: boolean) => void
     setShowMusicAnalysis: (showMusicAnalysis: boolean) => void
     setMeasureNumberInterval: (interval: number) => void
+    setShowColoredNotes: (showColoredNotes: boolean) => void
     resetScoreSettings: () => void
 }
 
@@ -266,6 +268,7 @@ const DEFAULT_SCORE_SETTINGS = {
     withoutTransposition: false,
     showMusicAnalysis: false,
     measureNumberInterval: 0,
+    showColoredNotes: false,
 }
 
 const createScoreSettingsStore = create<ScoreSettings>()(persist((set) => ({
@@ -285,6 +288,7 @@ const createScoreSettingsStore = create<ScoreSettings>()(persist((set) => ({
     setWithoutTransposition: (withoutTransposition: boolean) => set(() => ({ withoutTransposition })),
     setShowMusicAnalysis: (showMusicAnalysis: boolean) => set(() => ({ showMusicAnalysis })),
     setMeasureNumberInterval: (interval: number) => set(() => ({ measureNumberInterval: interval })),
+    setShowColoredNotes: (showColoredNotes: boolean) => set(() => ({ showColoredNotes })),
     resetScoreSettings: () => set({ ...DEFAULT_SCORE_SETTINGS }),
 }), {
     name: 'score-settings-store'
@@ -411,6 +415,7 @@ class ScoreViewerStoreApi {
         withoutTransposition: createScoreSettingsStoreWithSelectors.use.withoutTransposition,
         showMusicAnalysis: createScoreSettingsStoreWithSelectors.use.showMusicAnalysis,
         measureNumberInterval: createScoreSettingsStoreWithSelectors.use.measureNumberInterval,
+        showColoredNotes: createScoreSettingsStoreWithSelectors.use.showColoredNotes,
         setShowNVerses: createScoreSettingsStoreWithSelectors.use.setShowNVerses,
         setShowEditorial: createScoreSettingsStoreWithSelectors.use.setShowEditorial,
         setShowOriginalClefs: createScoreSettingsStoreWithSelectors.use.setShowOriginalClefs,
@@ -421,6 +426,7 @@ class ScoreViewerStoreApi {
         setWithoutTransposition: createScoreSettingsStoreWithSelectors.use.setWithoutTransposition,
         setShowMusicAnalysis: createScoreSettingsStoreWithSelectors.use.setShowMusicAnalysis,
         setMeasureNumberInterval: createScoreSettingsStoreWithSelectors.use.setMeasureNumberInterval,
+        setShowColoredNotes: createScoreSettingsStoreWithSelectors.use.setShowColoredNotes,
         resetScoreSettings: createScoreSettingsStoreWithSelectors.use.resetScoreSettings,
 
 

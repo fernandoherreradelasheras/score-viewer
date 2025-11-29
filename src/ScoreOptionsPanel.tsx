@@ -31,6 +31,8 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
     const setSplitViewOrientation = useStore.use.setSplitViewOrientation();
     const measureNumberInterval = useStore.use.measureNumberInterval();
     const setMeasureNumberInterval = useStore.use.setMeasureNumberInterval();
+    const showColoredNotes = useStore.use.showColoredNotes();
+    const setShowColoredNotes = useStore.use.setShowColoredNotes();
     const resetScoreSettings = useStore.use.resetScoreSettings();
     const resetUILayout = useStore.use.resetUILayout();
 
@@ -62,6 +64,10 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
         setMeasureNumberInterval(value);
     }, [setMeasureNumberInterval]);
 
+
+    const onShowColoredNotesChange = useCallback((value: boolean) => {
+        setShowColoredNotes(value);
+    }, [setShowColoredNotes]);
 
     const numVersesAvailable = 8;
     const verseOptions: SelectProps['options'] = useMemo(() =>
@@ -195,6 +201,25 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
                         </Col>
                         <Col span={4}>
                             <Switch defaultValue={normalizeFicta || false} onChange={onNormalizeFictaChange} />
+                        </Col>
+                    </Row>
+
+                    <Row align={"middle"}>
+                        <Col span={20}>
+                            <Space direction="vertical">
+                                <Typography.Text strong={true} {...(!showColoredNotes ? { type: 'secondary' } : {})}>
+                                    {t('scoreOptions.coloredNotes.title')}
+                                </Typography.Text>
+                                <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!showColoredNotes ? { type: 'secondary' } : {})} >
+                                    {t('scoreOptions.coloredNotes.description')}
+                                </Typography.Text>
+                            </Space>
+                        </Col>
+                        <Col span={4}>
+                            <Switch
+                                value={showColoredNotes}
+                                onChange={onShowColoredNotesChange}
+                            />
                         </Col>
                     </Row>
 

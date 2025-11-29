@@ -118,6 +118,10 @@
     "measureInterval10": "Cada 10 compases",
     "measureInterval5": "Cada 5 compases",
     "measureInterval1": "Cada compás",
+    "coloredNotes": {
+      "title": "Notas ennegrecidas",
+      "description": "Señalar las notas ennegrecidas con corchetes superiores"
+    },
     "resetSettings": "Restablecer configuración por defecto"
   },
   "scoreProcessor": {

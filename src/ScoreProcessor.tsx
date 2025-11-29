@@ -55,7 +55,7 @@ const AddReconstructionNamesFilter: FilterFunc = (doc: Document, _: {}) => {
     const labels = []
     let node;
     while ((node = matches?.iterateNext())) {
-        if (node.nodeValue != null ) {
+        if (node.nodeValue != null) {
             labels.push(node.nodeValue)
         }
     }
@@ -104,7 +104,7 @@ const AddReconstructionNamesFilter: FilterFunc = (doc: Document, _: {}) => {
 
 }
 
-const FilterToNVerses: FilterFunc = (doc: Document, params: {n: number}) => {
+const FilterToNVerses: FilterFunc = (doc: Document, params: { n: number }) => {
     const numVerses = params.n
     let matches = doc?.evaluate(`//mei:verse[@n > "${numVerses}"]`, doc, nsResolver, XPathResult.ANY_TYPE, null)
     if (matches == null) {
@@ -138,6 +138,20 @@ const FilterNormalizeFicta: FilterFunc = (doc: Document, _: {}) => {
         n.removeAttribute("enclose")
     })
 
+}
+
+const FilterRemoveBracketSpan: FilterFunc = (doc: Document, _: {}) => {
+    let matches = doc?.evaluate(`//mei:bracketSpan[@func="coloration"]`, doc, nsResolver, XPathResult.ANY_TYPE, null)
+    if (matches == null) {
+        return
+    }
+    const nodes = []
+    var node = matches.iterateNext()
+    while (node != null) {
+        nodes.push(node)
+        node = matches.iterateNext()
+    }
+    nodes.forEach(n => n.parentElement?.removeChild(n))
 }
 
 const EnsureElementIdFilter = (doc: Document, element: string, prefix: string) => {
@@ -181,7 +195,7 @@ class ScoreProcessor {
         this.filters.push([AddReconstructionNamesFilter, {}])
     }
     addNVersesFilter(numVerses: number) {
-        this.filters.push([FilterToNVerses, { n: numVerses}])
+        this.filters.push([FilterToNVerses, { n: numVerses }])
     }
     addNormalizeFictaFilter() {
         this.filters.push([FilterNormalizeFicta, {}])
@@ -191,6 +205,9 @@ class ScoreProcessor {
     }
     addEnsureSectionsIdFilter() {
         this.filters.push([EnsureSectionsIdFilter, {}])
+    }
+    addRemoveBracketSpanFilter() {
+        this.filters.push([FilterRemoveBracketSpan, {}])
     }
 
     filterScore(): string {

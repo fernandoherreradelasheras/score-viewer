@@ -54,6 +54,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const renderedSvgData = useStore.use.renderedSvgData();
     const setRenderedSvgData = useStore.use.setRenderedSvgData();
     const showOriginalClefs = useStore.use.showOriginalClefs();
+    const showColoredNotes = useStore.use.showColoredNotes();
     const getCachedPage = useStore.use.getCachedPage();
     const setCachedPage = useStore.use.setCachedPage();
     const clearPageCache = useStore.use.clearPageCache();
@@ -182,8 +183,11 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         if (showNVerses != null && showNVerses != score.properties?.numVerses) {
             scoreProcessor.addNVersesFilter(showNVerses);
         }
+        if (!showColoredNotes) {
+            scoreProcessor.addRemoveBracketSpanFilter();
+        }
         return scoreProcessor.filterScore();
-    }, [score, normalizeFicta, showNVerses]);
+    }, [score, normalizeFicta, showNVerses, showColoredNotes]);
 
     const updateLoadedScore = useCallback((restoreAnchor: boolean, fadeIn: boolean) => {
         const startTime = performance.now();
@@ -249,11 +253,11 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
 
     useEffect(() => {
-        // TODO: skip the update if the current loaded score has only 1 verse 
+        // TODO: skip the update if the current loaded score has only 1 verse
         // TODO: skip the update if the current loaded score doesn't have any ficta
-        console.log("[ScoreView] Updating loaded score due to option/score change", showNVerses, normalizeFicta);
+        console.log("[ScoreView] Updating loaded score due to option/score change", showNVerses, normalizeFicta, showColoredNotes);
         updateLoadedScore(true, false);
-    }, [showNVerses, normalizeFicta]);
+    }, [showNVerses, normalizeFicta, showColoredNotes]);
 
 
 
@@ -263,7 +267,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             console.log('[ScoreView] Clearing page cache due to option/score change');
             clearPageCache();
         }
-    }, [scale, showNVerses, normalizeFicta, withoutTransposition,
+    }, [scale, showNVerses, normalizeFicta, withoutTransposition, showColoredNotes,
         showOriginalClefs, showMusicAnalysis, measureNumberInterval, clearPageCache, score]);
 
 

@@ -118,6 +118,10 @@
     "measureInterval10": "Every 10 measures",
     "measureInterval5": "Every 5 measures",
     "measureInterval1": "Every measure",
+    "coloredNotes": {
+      "title": "Colored notes",
+      "description": "Mark colored notes with brackets on top of them"
+    },
     "resetSettings": "Reset settings to default"
   },
   "scoreProcessor": {
