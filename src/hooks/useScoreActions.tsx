@@ -25,7 +25,7 @@ const verovioBaseOptions: VerovioOptions = {
   footer: 'none',
   header: 'none',
   pageMarginBottom: 0,
-  pageMarginTop: 0,
+  pageMarginTop: 16,
   pageMarginLeft: 16,
   pageMarginRight: 16,
   bottomMarginHarm: 0.0,
