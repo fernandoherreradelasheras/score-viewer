@@ -42,6 +42,9 @@ export const SVG_EDITORIAL_FILTERS =
         </defs>
     </svg>
 
+
+//TODO: This won't be needed once we get a verovio release with this fix:
+//      https://github.com/rism-digital/verovio/commit/08fc8db30d4a70b311f6aa1d7681bab0e95c8b5f
 export function expandBBsForEditorialItems() {
 
     const svgContainer = document.querySelector('.svg-container') as SVGSVGElement | null
@@ -58,7 +61,6 @@ export function expandBBsForEditorialItems() {
                     var bbox = (box.nextElementSibling as SVGAElement)?.getBBox()
                     if (bbox) {
                         if (bbox.width == 0 && bbox.height == 0 && elem == "app" && box.nextElementSibling?.nextElementSibling) {
-                            console.log("expanding app bounding box for the unselected")
                             bbox = (box.nextElementSibling.nextElementSibling as SVGAElement)?.getBBox()
                         }
                         const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");

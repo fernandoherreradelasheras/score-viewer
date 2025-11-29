@@ -425,6 +425,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                         }
                     }
                     setRenderedSvgData(cachedPage);
+                    expandBBsForEditorialItems()
                     setIsLoading(false);
                 }, 220); // Slightly longer than animation
             } else {
@@ -437,6 +438,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                     }
                 }
                 setRenderedSvgData(cachedPage);
+                expandBBsForEditorialItems();
                 setIsLoading(false);
             }
 
