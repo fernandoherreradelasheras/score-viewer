@@ -7,7 +7,7 @@ import { useEditorialHandler } from './hooks/useEditorialHandler';
 import { expandBBsForEditorialItems } from './SvgUtils';
 import useScoreActions, { RenderActionResult } from './hooks/useScoreActions';
 import useScoreRenderer from './hooks/useScoreRenderer';
-import { Transition, loadAction, renderAction } from './types';
+import { Action, Transition, loadAction, renderAction } from './types';
 import { useTranslation } from 'react-i18next';
 import LoadingSpinner from './components/LoadingSpinner';
 import useIdleCallback from './hooks/useIdleCallback';
@@ -25,15 +25,15 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const { t } = useTranslation("common");
 
     // Store state management
+    const targetHeight = useStore.use.targetHeight();
+    const targetWidth = useStore.use.targetWidth();
+    const setTargetWidth = useStore.use.setTargetWidth();
+    const setTargetHeight = useStore.use.setTargetHeight();
     const setIsLoading = useStore.use.setIsLoading();
     const pendingAction = useStore.use.pendingAction();
     const setPendingAction = useStore.use.setPendingAction();
-    const queuedAction = useStore.use.queuedAction();
-    const setQueuedAction = useStore.use.setQueuedAction();
 
     const score = useStore.use.score();
-
-    const setScoreLayout = useStore.use.setScoreLayout();
 
     const showingMei = useStore.use.showingMei();
     const setShowingMei = useStore.use.setShowingMei();
@@ -82,95 +82,110 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const { executeAction } = useScoreActions({
         t,
         verovio,
-        svgContainerWidth,
-        svgContainerHeight,
-        appOptions,
-        choiceOptions,
-        showOriginalClefs,
-        showMusicAnalysis,
-        measureNumberInterval,
-        setScoreLayout,
     });
 
     const isReady = () => (score && verovio && svgContainerWidth > 0 && svgContainerHeight > 0 && !pendingAction)
 
+    const processPendingAction = useCallback(async (action: Action) => {
+
+        const { success, nextAction, result, showSpinner: shouldShowSpinner } = await executeAction(action, svgContainerRef.current!);
+
+        // Show spinner for heavy operations
+        if (shouldShowSpinner) {
+            setShowSpinner(true);
+        }
+
+        if (success) {
+            if (nextAction) {
+                setPendingAction(nextAction);
+            } else {
+                setPendingAction(null);
+                // Hide spinner when all actions complete
+                setShowSpinner(false);
+            }
+
+            if (action.type === "render" && result) {
+                // Handle the results of render actions
+
+                const renderResult = result as RenderActionResult
+                const { newSvg, scale: newScale } = renderResult;
+
+                // Capture the SVG HTML for caching
+                const svgHTML = svgContainerRef.current?.innerHTML || '';
+                const svgDataWithHTML = { ...newSvg, svgHTML };
+
+                setRenderedSvgData(svgDataWithHTML);
+
+                // Cache the current page for instant back navigation
+                setCachedPage(svgDataWithHTML.page, svgDataWithHTML);
+
+                // Apply fade-in animation for non-cached pages
+                const svgElement = svgContainerRef.current?.querySelector("svg") as SVGSVGElement | null;
+                if (svgElement) {
+                    svgElement.style.opacity = '0';
+                    svgElement.style.transition = 'opacity 300ms ease-in';
+                    setTimeout(() => {
+                        svgElement.style.opacity = '1';
+                    }, 10);
+                }
+
+                // will only be visible when showingEditorial is true via css
+                expandBBsForEditorialItems();
+
+                setIsLoading(false);
+
+                setScale(newScale);
+
+                // Calculate max scale after transition completes
+                setTimeout(() => {
+                    const newMaxScale = calculateEffectiveMaxScale(reachedEffectiveMaxScale);
+                    if (newMaxScale !== reachedEffectiveMaxScale) {
+                        setReachedEffectiveMaxScale(newMaxScale);
+                    }
+                }, 400);
+            }
+        } else {
+            console.error("Action execution failed");
+            setShowSpinner(false);
+        }
+    }, [executeAction, svgContainerRef, setPendingAction, setRenderedSvgData, setCachedPage, setIsLoading, setScale, calculateEffectiveMaxScale, reachedEffectiveMaxScale, setReachedEffectiveMaxScale]);
+
 
     // Process pending actions
     useEffect(() => {
-        if (!pendingAction || !verovio || !showingMei || !svgContainerRef.current) {
+        if (!pendingAction || !verovio || !svgContainerRef.current) {
             return;
         }
 
-        if (svgContainerHeight <= 0 && pendingAction.type === "render") {
-            console.log("svgContainer not visible, queuing pending action")
-            setQueuedAction(pendingAction);
+        if (targetHeight <= 0) {
             setPendingAction(null);
             return;
         }
 
         (async () => {
-            const { success, nextAction, result, showSpinner: shouldShowSpinner } = await executeAction(pendingAction, svgContainerRef.current!);
-
-            // Show spinner for heavy operations
-            if (shouldShowSpinner) {
-                setShowSpinner(true);
-            }
-
-            if (success) {
-                if (nextAction) {
-                    setPendingAction(nextAction);
-                } else {
-                    setPendingAction(null);
-                    // Hide spinner when all actions complete
-                    setShowSpinner(false);
-                }
-
-                if (pendingAction.type === "render" && result) {
-                    // Handle the results of render actions
-
-                    const renderResult = result as RenderActionResult
-                    const { newSvg, scale: newScale } = renderResult;
-
-                    // Capture the SVG HTML for caching
-                    const svgHTML = svgContainerRef.current?.innerHTML || '';
-                    const svgDataWithHTML = { ...newSvg, svgHTML };
-
-                    setRenderedSvgData(svgDataWithHTML);
-
-                    // Cache the current page for instant back navigation
-                    setCachedPage(svgDataWithHTML.page, svgDataWithHTML);
-
-                    // Apply fade-in animation for non-cached pages
-                    const svgElement = svgContainerRef.current?.querySelector("svg") as SVGSVGElement | null;
-                    if (svgElement) {
-                        svgElement.style.opacity = '0';
-                        svgElement.style.transition = 'opacity 300ms ease-in';
-                        setTimeout(() => {
-                            svgElement.style.opacity = '1';
-                        }, 10);
-                    }
-
-                    // will only be visible when showingEditorial is true via css
-                    expandBBsForEditorialItems();
-
-                    setIsLoading(false);
-
-                    setScale(newScale);
-
-                    // Calculate max scale after transition completes
-                    setTimeout(() => {
-                        const newMaxScale = calculateEffectiveMaxScale(reachedEffectiveMaxScale);
-                        if (newMaxScale !== reachedEffectiveMaxScale) {
-                            setReachedEffectiveMaxScale(newMaxScale);
-                        }
-                    }, 400);
-                }
-            } else {
-                console.error("Action execution failed");
-                setShowSpinner(false);
-            }
-        })();
+            await processPendingAction(pendingAction);
+        }
+        )();
     }, [pendingAction]);
+
+    useEffect(() => {
+        if (!verovio || !showingMei || !renderedSvgData || !score || pendingAction) {
+            return
+        }
+
+        const anchor = (renderedSvgData.scoreUrl == score.url && renderedSvgData.anchorElement) ? renderedSvgData.anchorElement : undefined
+        const action = loadAction({
+            scoreUrl: score.url,
+            postLoadTransition: Transition.FADE_IN,
+            meiStr: showingMei,
+            page: 1,
+            scale,
+            transposition: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null,
+            restorePositionForAchor: anchor
+        });
+        setPendingAction(action);
+
+    }, [targetHeight, targetWidth]);
 
 
     const generateShowingScore = useCallback(() => {
@@ -191,8 +206,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     const updateLoadedScore = useCallback((restoreAnchor: boolean, fadeIn: boolean) => {
         const startTime = performance.now();
-        console.log(`[ScoreView] updateLoadedScore called at ${Date.now()}`);
-
 
         setShowSpinner(true);  // Show spinner immediately
 
@@ -201,6 +214,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         console.log(`[ScoreView] generateShowingScore took ${preprocessTime.toFixed(2)}ms`);
 
         if (!newShowingMei) {
+            console.log(`Error generating showing MEI`);
             setShowSpinner(false);
             return;
         }
@@ -221,14 +235,12 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const fadeOutTransition = useCallback(() => {
         const currentSvg = svgContainerRef.current?.querySelector("svg") as SVGSVGElement | null;
         if (currentSvg) {
-            console.log("[ScoreView] Starting fade out transition");
             currentSvg.style.transition = 'opacity 300ms ease-out';
             currentSvg.style.opacity = '0';
 
             // Show spinner if page takes longer than fade out
             setTimeout(() => {
                 if (!getCachedPage(currentPage)) {
-                    console.log("[ScoreView] Showing spinner because page is not cached after fade out ended");
                     setShowSpinner(true);
                 }
             }, 300);
@@ -239,23 +251,22 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     }, [setShowSpinner, currentPage, getCachedPage]);
 
 
-    // This group of changes require rebuilding the score and reloading it
+
     useEffect(() => {
-        if (score) {
-            setTimeout(() => {
-                updateLoadedScore(false, lastRenderedUrl.current != score.url);
-            });
-        }
+        if (!score) return;
+
+        updateLoadedScore(false, lastRenderedUrl.current != score.url);
         return () => {
             lastRenderedUrl.current = score?.url
         }
-    }, [score?.url]);
+    }, [score]);
 
 
+    // This group of changes require rebuilding the score and reloading it
     useEffect(() => {
+        if (!score) return;
         // TODO: skip the update if the current loaded score has only 1 verse
         // TODO: skip the update if the current loaded score doesn't have any ficta
-        console.log("[ScoreView] Updating loaded score due to option/score change", showNVerses, normalizeFicta, showColoredNotes);
         updateLoadedScore(true, false);
     }, [showNVerses, normalizeFicta, showColoredNotes]);
 
@@ -282,30 +293,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             return;
         }
 
-        if (queuedAction && queuedAction.type == "render") {
-            console.log("Score got visible with queued render action, executing it now")
-            setPendingAction(queuedAction);
-            setQueuedAction(null);
-            return;
-        }
-
-        let restoreAnchor;
-        if (renderedSvgData && renderedSvgData?.scoreUrl == score?.url) {
-            if (renderedSvgData?.height && renderedSvgData?.width &&
-                Math.abs(renderedSvgData.height - svgContainerHeight) < 100 &&
-                Math.abs(renderedSvgData.width - svgContainerWidth) < 100 &&
-                renderedSvgData?.page == currentPage &&
-                renderedSvgData?.scale == scale) {
-                return
-            }
-            if (renderedSvgData.anchorElement) {
-                restoreAnchor = renderedSvgData.anchorElement
-            }
-            clearPageCache();
-            // As we have rendered data, fade out
-            fadeOutTransition();
-        }
-
         const action = loadAction({
             scoreUrl: score?.url || "",
             postLoadTransition: Transition.FADE_IN,
@@ -313,12 +300,35 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             page: 1,
             scale,
             transposition: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null,
-            restorePositionForAchor: restoreAnchor
         });
         setPendingAction(action);
 
 
-    }, [verovio, svgContainerRef.current, svgContainerHeight, svgContainerWidth]);
+    }, [verovio, svgContainerRef.current]);
+
+
+    useEffect(() => {
+        if (svgContainerHeight <= 0 || svgContainerWidth <= 0) {
+            return;
+        }
+        if (renderedSvgData && renderedSvgData?.scoreUrl == score?.url) {
+            if (pendingAction) {
+                return;
+            }
+            if (renderedSvgData?.height && renderedSvgData?.width &&
+                Math.abs(renderedSvgData.height - svgContainerHeight) < 100 &&
+                Math.abs(renderedSvgData.width - svgContainerWidth) < 100 &&
+                renderedSvgData?.page == currentPage &&
+                renderedSvgData?.scale == scale) {
+                return
+            }
+            clearPageCache();
+            // As we have rendered data, fade out
+            fadeOutTransition();
+        }
+        setTargetHeight(svgContainerHeight);
+        setTargetWidth(svgContainerWidth);
+    }, [svgContainerHeight, svgContainerWidth]);
 
 
     // Handle scale changes
@@ -367,9 +377,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     useEffect(() => {
         reloadScore()
     }, [showOriginalClefs]);
-
-
-
 
 
     useEffect(() => {
@@ -461,6 +468,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             loadedHeight: renderedSvgData.height || svgContainerHeight,
             scale,
             loadedPagesCount: pageCount,
+            timemap: renderedSvgData.timemap
         });
         setPendingAction(action);
     }, [currentPage, getCachedPage, setRenderedSvgData, setIsLoading]);
@@ -503,10 +511,11 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                 scoreUrl: renderedSvgData.scoreUrl,
                 transition: undefined,  // No transition for pre-render
                 renderPage: page,
-                loadedWidth: renderedSvgData.width || svgContainerWidth,
-                loadedHeight: renderedSvgData.height || svgContainerHeight,
+                loadedWidth: renderedSvgData.width || targetWidth,
+                loadedHeight: renderedSvgData.height || targetHeight,
                 scale: renderedSvgData.scale,
                 loadedPagesCount: pageCount,
+                timemap: renderedSvgData.timemap
             });
 
             const result = await executeAction(action, tempContainer);

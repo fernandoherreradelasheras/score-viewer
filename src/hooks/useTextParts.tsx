@@ -17,7 +17,7 @@ const getText = async (url: string): Promise<string> => {
     }
   }, (error) => {
     console.error(`Error fetching text from ${url}:`, error);
-    return Promise.reject(new FetchError("Network error",`Failed to fetch text from url ${url} (${error.message})`))
+    return Promise.reject(new FetchError("Network error", `Failed to fetch text from url ${url} (${error.message})`))
   })
 }
 
@@ -78,7 +78,7 @@ export function useTextParts({
 
 
 
-  const fetchTextParts = useCallback((scoreIndex: number) => {
+  const fetchTextParts = useCallback(async (scoreIndex: number) => {
 
     const scoreDef = config.scores[scoreIndex]
 
@@ -124,9 +124,9 @@ export function useTextParts({
     })
     setTextCache(updatingCache, false)
 
-    urlsToUpdate.forEach((url) => {
-      getText(url).then((res: string) => {
-
+    await urlsToUpdate.forEach(async (url) => {
+      try {
+        const res = await getText(url)
         unstable_batchedUpdates(() => {
           setTextCache({ [url]: res }, false)
           if (commentsUrl && url == commentsUrl) {
@@ -139,9 +139,10 @@ export function useTextParts({
               setTextLyrics([{ title: getTitleFromItem(textItem), text: res }], false)
           }
         })
-      }, (error: FetchError) => {
+      } catch (e) {
+        const error = e as FetchError
         console.log(`${error.type}: ${error.message}`)
-         unstable_batchedUpdates(() => {
+        unstable_batchedUpdates(() => {
           setTextCache({ [url]: error }, false)
           if (commentsUrl && url == commentsUrl) {
             setTextComments(error)
@@ -153,7 +154,7 @@ export function useTextParts({
               setTextLyrics([{ title: getTitleFromItem(textItem), text: error }], false)
           }
         })
-      })
+      }
     })
   }, [getPath, config.scores, textCache, getLyricItemsFromCache, setTextCache, setTextComments, setTextIntroduction, setTextLyrics])
 

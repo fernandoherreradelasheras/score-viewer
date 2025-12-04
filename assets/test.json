@@ -68,18 +68,6 @@
             "path": "tonos/02",
             "title": "Querido imposible mío",
             "audioBaseFile": "02-render-base-20250511.mp3",
-            "audioOverlays": [
-                {
-                    "staff": "3",
-                    "appLabel": "reconstruction:3:IA:claude_sonet_3_7",
-                    "file": "02-render-claude37-20250511.mp3"
-                },
-                {
-                    "staff": "3",
-                    "appLabel": "reconstruction:3:IA:DeepSeek-V3-0324",
-                    "file": "02-render-deepseek-20250511.mp3"
-                }
-            ],
             "meiFile": "02_-_Querido_imposible_mio-music-T.mei",
             "text": [
                 {

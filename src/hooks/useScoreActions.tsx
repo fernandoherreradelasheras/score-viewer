@@ -14,6 +14,7 @@ import {
   renderAutoScrollAction,
 } from '../types';
 import { RenderedData } from './useScoreRenderer';
+import useStore from '../store';
 
 
 // Constants moved from ScoreView
@@ -69,14 +70,6 @@ interface RenderAutoScrollResult {
 interface ScoreActionsConfig {
   t: any
   verovio: any; // Verovio toolkit instance
-  svgContainerWidth: number;
-  svgContainerHeight: number;
-  appOptions: string[];
-  choiceOptions: string[];
-  showOriginalClefs: boolean | null;
-  showMusicAnalysis: boolean;
-  measureNumberInterval: number | null;
-  setScoreLayout: (layout: { currentPage: number; pageCount: number; sectionPageMap: Record<string, number> }) => void;
 }
 
 /**
@@ -114,19 +107,21 @@ const buildAppOptions = (appOptions: string[], showOriginalClefs: boolean, showM
 export default function useScoreActions({
   t,
   verovio,
-  svgContainerWidth,
-  svgContainerHeight,
-  appOptions,
-  choiceOptions,
-  showOriginalClefs,
-  showMusicAnalysis,
-  measureNumberInterval,
-  setScoreLayout,
 }: ScoreActionsConfig) {
 
+  const targetWidth = useStore.use.targetWidth();
+  const targetHeight = useStore.use.targetHeight();
+  const appOptions = useStore.use.appOptions();
+  const choiceOptions = useStore.use.choiceOptions();
+  const showOriginalClefs = useStore.use.showOriginalClefs();
+  const showMusicAnalysis = useStore.use.showMusicAnalysis();
+  const measureNumberInterval = useStore.use.measureNumberInterval();
+  const setScoreLayout = useStore.use.setScoreLayout();
 
-  const getSectionMap = async (scoreMei: string) => {
-    const analyzer = new ScoreAnalyzer(t, 0, scoreMei);
+
+
+
+  const getSectionMap = async (analyzer: ScoreAnalyzer) => {
     const sections = analyzer.getSections()
     const sectionsMap: Record<string, number> = {}
     for (const section of sections) {
@@ -147,8 +142,10 @@ export default function useScoreActions({
     if (!verovio) return null;
 
     const { postLoadTransition, meiStr, page, scale, restorePositionForAchor, scoreUrl } = config;
-    const loadedHeight = svgContainerHeight;
-    const loadedWidth = svgContainerWidth;
+    const loadedWidth = targetWidth;
+    const loadedHeight = targetHeight;
+
+    console.trace();
 
     console.log(`loading score: mode=normal page=${page} pageWidth=${loadedWidth}, pageHeight=${loadedHeight}, scale=${scale} restorePositionForAchor=${restorePositionForAchor}, showMusicAnalysis=${showMusicAnalysis}`);
 
@@ -164,26 +161,27 @@ export default function useScoreActions({
       pageWidth: loadedWidth,
       scale: scale,
       transpose: config.transposition != null ? config.transposition : "",
-      mnumInterval: measureNumberInterval ?? 0
+      mnumInterval: measureNumberInterval ?? 0,
+      expand: ""
     };
 
     try {
       const startTime = performance.now();
       console.log(`[useScoreActions] performLoadAction started`);
 
-      const optionsStart = performance.now();
-      await verovio.setOptions(options);
-      console.log(`[useScoreActions] setOptions took ${(performance.now() - optionsStart).toFixed(2)}ms`);
+      const analyzer = new ScoreAnalyzer(t, 0, meiStr);
+      const sectionMap = await getSectionMap(analyzer);
 
-      const loadStart = performance.now();
+      await verovio.setOptions(options);
       await verovio.loadData(meiStr);
-      console.log(`[useScoreActions] loadData took ${(performance.now() - loadStart).toFixed(2)}ms`);
+      const timemap = await verovio.renderToTimemap({ includeMeasures: true });
+
 
       const countStart = performance.now();
       const loadedPagesCount = await verovio.getPageCount();
       console.log(`[useScoreActions] getPageCount took ${(performance.now() - countStart).toFixed(2)}ms`);
 
-      const sectionMap = await getSectionMap(meiStr)
+
       console.log(`Score loaded in ${(performance.now() - startTime).toFixed(0)}ms, page count: ${loadedPagesCount}`);
       console.log(`[useScoreActions] performLoadAction completed in ${(performance.now() - startTime).toFixed(2)}ms`);
 
@@ -198,7 +196,7 @@ export default function useScoreActions({
         renderPage = (page <= loadedPagesCount) ? page : loadedPagesCount;
       }
 
-      setScoreLayout({ currentPage: renderPage, pageCount: loadedPagesCount, sectionPageMap: sectionMap })
+      setScoreLayout({ currentPage: renderPage, pageCount: loadedPagesCount, sectionPageMap: sectionMap });
 
       return renderAction({
         scoreUrl,
@@ -208,6 +206,7 @@ export default function useScoreActions({
         renderPage,
         scale,
         loadedPagesCount,
+        timemap: await resolveTimemap(timemap)
       });
     } catch (error) {
       console.error("Error performing load action:", error);
@@ -215,14 +214,8 @@ export default function useScoreActions({
     }
   }, [
     verovio,
-    svgContainerWidth,
-    svgContainerHeight,
-    appOptions,
-    choiceOptions,
-    showOriginalClefs,
-    showMusicAnalysis,
-    measureNumberInterval,
-    setScoreLayout
+    targetWidth,
+    targetHeight
   ]);
 
   /**
@@ -251,9 +244,14 @@ export default function useScoreActions({
     };
 
     try {
+
       await verovio.setOptions(options);
-      await verovio.loadData(meiStr);
-      return renderAutoScrollAction({ height });
+      await verovio.loadData(meiStr)
+      const timemap = await verovio.renderToTimemap({ includeMeasures: true });
+
+
+
+      return renderAutoScrollAction({ height, timemap: await resolveTimemap(timemap) });
     } catch (error) {
       console.error("Error performing auto-scroll load action:", error);
       return null;
@@ -283,8 +281,7 @@ export default function useScoreActions({
   const resolveTimemap = async (timemap: TimeMapEvent[]): Promise<TimeMapEvent[]> => {
     const mei = await verovio.getMEI()
     const analyzer = new ScoreAnalyzer(t, 0, mei)
-    const timeMapWithTiesMerged = mergeTimemapTies(timemap, analyzer.getTiedNotes())
-    return resolveTimemapAnimations(timeMapWithTiesMerged)
+    return mergeTimemapTies(timemap, analyzer.getTiedNotes())
   }
 
 
@@ -295,15 +292,12 @@ export default function useScoreActions({
   const performRenderAction = useCallback(async (config: RenderConfig, element: HTMLDivElement): Promise<RenderActionResult | null> => {
     if (!verovio || !element) return null;
 
-    const { transition, loadedHeight, loadedWidth, renderPage, scale, loadedPagesCount, scoreUrl } = config;
+    const { transition, loadedHeight, loadedWidth, renderPage, scale, loadedPagesCount, scoreUrl, timemap } = config;
     console.log(`Rendering score: mode=normal page=${renderPage} scale=${scale} transition=${transition}`);
     const startTime = performance.now();
     console.log(`[useScoreActions] performRenderAction started`);
 
     try {
-      const timemapStart = performance.now();
-      const timemap = await verovio.renderToTimemap({ includeMeasures: true });
-      console.log(`[useScoreActions] renderToTimemap took ${(performance.now() - timemapStart).toFixed(2)}ms`);
 
       const svgStart = performance.now();
       const svgData = (await verovio.renderToSVG(renderPage))
@@ -340,11 +334,14 @@ export default function useScoreActions({
       const firstMeasureId = analyzer.getFirstMeasureId();
       console.log(`[useScoreActions] getMEI + analysis took ${(performance.now() - meiStart).toFixed(2)}ms`);
 
+
+      const resolvedTimemap = await resolveTimemapAnimations(timemap);
+
       const newSvg: RenderedData = {
         id: svgElement.id,
         scoreUrl: scoreUrl,
         scale: scale,
-        timemap: await resolveTimemap(timemap),
+        timemap: resolvedTimemap,
         anchorElement: firstMeasureId,
         page: renderPage,
         height: loadedHeight,
@@ -368,12 +365,11 @@ export default function useScoreActions({
   const performRenderAutoScrollAction = useCallback(async (config: RenderAutoScrollConfig, element: HTMLDivElement): Promise<RenderAutoScrollResult | null> => {
     if (!verovio || !element) return null;
 
-    const { height } = config;
+    const { height, timemap } = config;
     console.log(`Rendering score: mode=autoscroll height=${height}`);
 
 
     try {
-      const timemap = await verovio.renderToTimemap({ includeMeasures: true });
       const svgData = await verovio.renderToSVG(1);
 
       const match = svgData.match(/svg viewBox="0 0 (\d+) \d+"/);
@@ -386,11 +382,13 @@ export default function useScoreActions({
 
       element.style.height = `${renderedHeight}px`;
 
+
+
       const newSvg: RenderedData = {
         id: "svg-auto-scrolling",
         scale: 100, // Auto-scroll uses fixed scale
         scoreUrl: "",
-        timemap: await resolveTimemap(timemap),
+        timemap: timemap,
         width: renderedWidth,
         height: renderedHeight,
         anchorElement: null,

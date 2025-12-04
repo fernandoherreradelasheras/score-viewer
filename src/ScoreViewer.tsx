@@ -50,6 +50,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   const { configErrors, hasConfigErrors } = useConfigValidation(config);
 
   const score = useStore.use.score()
+  const setScore = useStore.use.setScore()
 
   const normalizeFicta = useStore.use.normalizeFicta()
   const showOriginalClefs = useStore.use.showOriginalClefs()
@@ -73,6 +74,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
 
 
   const onFetchScoreError = (url: string, error: Error) => {
+    console.error("Fetch score error handler called:", url, error);
     setFetchScoreError({ url, error });
     unloadScore()
   }
@@ -130,24 +132,30 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
 
 
 
-  const loadAll = useCallback((scoreIndex: number) => {
+  const loadAll = useCallback(async (scoreIndex: number) => {
+    console.log(`Loading all for score index ${scoreIndex}`);
+    setScore(null)
     setFetchScoreError(null);
     setIntroAvailable(hasIntro(scoreIndex));
     setTextAvailable(hasText(scoreIndex));
     setFacsimileItems(config.scores[scoreIndex].facsimileItems || []);
-    fetchScore(scoreIndex);
-    fetchTextParts(scoreIndex);
+    await fetchTextParts(scoreIndex);
+    // Allow the container to get the final size (might depend on having tabs content)
+    setTimeout(() => {
+      fetchScore(scoreIndex);
+    }, 0);
+
   }, [config.scores, fetchScore, fetchTextParts]);
 
   useImperativeHandle(ref, () => ({
     goToSection: (section: string) => {
       goToSection(section)
     },
-    selectScore: (scoreIndex: number | null) => {
+    selectScore: async (scoreIndex: number | null) => {
       if (scoreIndex === null) {
         unloadScore()
       } else if (scoreIndex >= 0 && scoreIndex < config.scores.length) {
-        loadAll(scoreIndex);
+        await loadAll(scoreIndex);
       }
     }
   }));
@@ -165,8 +173,8 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     loadAll
   });
 
-  const onScoreSelectedChanged = (value: number) => {
-    loadAll(value);
+  const onScoreSelectedChanged = async (value: number) => {
+    await loadAll(value);
   };
 
   const scoreItems: DefaultOptionType[] = useMemo(() => config.scores.map((score, index) => ({
@@ -190,6 +198,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
       <TextView intro={textIntroduction} /> : null
     , [config.settings.showIntroductionSection, introAvailable, textIntroduction])
 
+
   const scoreView = useMemo(() => {
     if (fetchScoreError != null) {
       return <ErrorView message={t('error.fetchingScore.title')} description={
@@ -206,6 +215,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
         height={containerHeight} />
     }
   }, [config.settings.backgroundColor, config.settings.showDownloadButton, containerHeight, fetchScoreError, t])
+
 
   const textView = useMemo(() =>
     config.settings.showTextSection && textAvailable ?

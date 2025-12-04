@@ -39,6 +39,7 @@ export function useScoreViewerEffects({
 
   // Initial score loading effect
   useEffect(() => {
+    console.log("iniital effect to load score");
     if (configScores.length > 0 && configShowScoreSelector && !hasInitiallyLoaded.current) {
       hasInitiallyLoaded.current = true;
       loadAll(0);

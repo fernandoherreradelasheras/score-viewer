@@ -18,8 +18,6 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
     const { verovio } = useContext(Context);
     const { t } = useTranslation("common");
 
-    const setScoreLayout = useStore.use.setScoreLayout();
-
     const setIsLoading = useStore.use.setIsLoading();
     const pendingAction = useStore.use.pendingAction();
     const setPendingAction = useStore.use.setPendingAction();
@@ -31,19 +29,14 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
     const setPlayingState = useStore.use.setPlayingState();
     const showEditorial = useStore.use.showEditorial();
     const setShowEditorial = useStore.use.setShowEditorial();
-    const appOptions = useStore.use.appOptions();
-    const choiceOptions = useStore.use.choiceOptions();
     const withoutTransposition = useStore.use.withoutTransposition();
-
-    const showOriginalClefs = useStore.use.showOriginalClefs();
-    const measureNumberInterval = useStore.use.measureNumberInterval();
 
     const renderedSvgData = useStore.use.renderedSvgData();
     const setRenderedSvgData = useStore.use.setRenderedSvgData();
 
     const [showSpinner, setShowSpinner] = useState(false);
 
-    const { ref: svgContainerRef, width: svgContainerWidth, height: svgContainerHeight } = useComponentSize();
+    const { ref: svgContainerRef, width: _, height: svgContainerHeight } = useComponentSize();
 
 
     const {
@@ -68,15 +61,7 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
 
     const { executeAction } = useScoreActions({
         t,
-        verovio,
-        svgContainerWidth,
-        svgContainerHeight,
-        appOptions,
-        choiceOptions,
-        showOriginalClefs,
-        setScoreLayout,
-        showMusicAnalysis: false,
-        measureNumberInterval,
+        verovio
     });
 
     const addLoadAction = (score: Score) => {

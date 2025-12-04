@@ -1,4 +1,5 @@
 // Action-related types
+import { TimeMapEvent } from './player';
 import { Transition } from './ui';
 
 export type LoadConfig = {
@@ -25,10 +26,12 @@ export type RenderConfig = {
     renderPage: number;
     loadedPagesCount: number;
     scale: number;
+    timemap: TimeMapEvent[]
 }
 
 export type RenderAutoScrollConfig = {
     height: number
+    timemap: TimeMapEvent[]
 }
 
 export type Action = {

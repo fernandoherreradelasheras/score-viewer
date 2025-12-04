@@ -18,17 +18,21 @@ import { RenderedData } from './hooks/useScoreRenderer'
 
 
 interface RenderingState {
+    targetWidth: number
+    targetHeight: number
     pendingAction: Action | null
-    queuedAction: Action | null
+    setTargetWidth: (width: number) => void
+    setTargetHeight: (height: number) => void
     setPendingAction: (action: Action | null) => void
-    setQueuedAction: (action: Action | null) => void
 }
 
 const createRenderingStore = create<RenderingState>((set) => ({
+    targetWidth: 0,
+    targetHeight: 0,
     pendingAction: null,
-    queuedAction: null,
+    setTargetWidth: (width: number) => set(() => ({ targetWidth: width })),
+    setTargetHeight: (height: number) => set(() => ({ targetHeight: height })),
     setPendingAction: (action: Action | null) => set(() => ({ pendingAction: action })),
-    setQueuedAction: (action: Action | null) => set(() => ({ queuedAction: action })),
 }))
 
 
@@ -337,8 +341,10 @@ const createRenderedSvgStore = create<RenderedSvgState>((set, get) => ({
 class ScoreViewerStoreApi {
     public use = {
         // Rendering Store
-        queuedAction: createRenderingStoreWithSelectors.use.queuedAction,
-        setQueuedAction: createRenderingStoreWithSelectors.use.setQueuedAction,
+        targetWidth: createRenderingStoreWithSelectors.use.targetWidth,
+        setTargetWidth: createRenderingStoreWithSelectors.use.setTargetWidth,
+        targetHeight: createRenderingStoreWithSelectors.use.targetHeight,
+        setTargetHeight: createRenderingStoreWithSelectors.use.setTargetHeight,
         pendingAction: createRenderingStoreWithSelectors.use.pendingAction,
         setPendingAction: createRenderingStoreWithSelectors.use.setPendingAction,
 

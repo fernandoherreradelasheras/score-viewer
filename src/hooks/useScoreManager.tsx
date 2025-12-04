@@ -87,77 +87,76 @@ export function useScoreManager({
 
 
 
-  const fetchScore = useCallback((scoreIndex: number) => {
+  const fetchScore = useCallback(async (scoreIndex: number) => {
     const timestamp = performance.now();
-    (async () => {
-      if (scoreIndex === null) return;
+    if (scoreIndex === null) return;
 
-      const scoreDef = config.scores[scoreIndex];
-      if (!scoreDef) {
-        console.error(`No score definition found for index ${scoreIndex}`);
-        return;
-      }
-      const path = config.settings.basePath + scoreDef.path + "/";
-      const meiUrl = path + scoreDef.meiFile;
-      const encodingProperties = scoreDef.encodingProperties;
-      if (scoreCache[meiUrl]) {
-        const cachedScore = scoreCache[meiUrl];
-        updateScore(scoreIndex, cachedScore);
-      } else {
-        try {
-          const meiString = await fetchMei(meiUrl);
+    const scoreDef = config.scores[scoreIndex];
+    if (!scoreDef) {
+      console.error(`No score definition found for index ${scoreIndex}`);
+      return;
+    }
+    const path = config.settings.basePath + scoreDef.path + "/";
+    const meiUrl = path + scoreDef.meiFile;
+    const encodingProperties = scoreDef.encodingProperties;
+    if (scoreCache[meiUrl]) {
+      const cachedScore = scoreCache[meiUrl];
+      updateScore(scoreIndex, cachedScore);
+    } else {
+      try {
+        const meiString = await fetchMei(meiUrl);
 
-          const scoreProcessor = new ScoreProcessor(meiString);
-          if (config.settings.renderTitlesFromMEI) {
-            scoreProcessor.addTitlesFilter();
-            scoreProcessor.addReonstructionNamesFilter();
-          }
-          scoreProcessor.addEnsureMeasuresIdFilter();
-          scoreProcessor.addEnsureSectionsIdFilter();
-          const originalMei = scoreProcessor.filterScore();
-          const analyzer = new ScoreAnalyzer(t, 0, originalMei);
-          const properties = {
-            ...analyzer.getScoreProperties(),
-            encodedTransposition: encodingProperties.encodedTransposition as Transposition ?? undefined,
-          }
-          const audioUrl = scoreDef.audioBaseFile && scoreDef.audioBaseFile != "" ? path + scoreDef.audioBaseFile : null
-          const audioOverlayTracks = []
-          if (scoreDef.audioOverlays) {
-            for (const overlay of scoreDef.audioOverlays) {
-              audioOverlayTracks.push({
-                id: `overlay-staff-${overlay.staff}`,
-                label: overlay.appLabel,
-                url: path + overlay.file,
-                volume: 1
-              });
-            }
-          }
-
-
-          const editorialItems = analyzer.getEditorial();
-          const newScore: Score = {
-            url: meiUrl,
-            title: scoreDef.title,
-            originalMei: originalMei,
-            singleVerseMei: generateOneVerseMei(originalMei),
-            properties,
-            editorialItems,
-            audioUrl,
-            audioOverlayTracks,
-          }
-
-          setScoreCache(
-            { [meiUrl]: newScore }
-          )
-          updateScore(scoreIndex, newScore);
-          console.log(`Score fetched from network: ${meiUrl} took ${performance.now() - timestamp}ms`);
-        } catch (error: Error | any) {
-          if (onFetchScoreError) {
-            onFetchScoreError(meiUrl, error);
+        const scoreProcessor = new ScoreProcessor(meiString);
+        if (config.settings.renderTitlesFromMEI) {
+          scoreProcessor.addTitlesFilter();
+          scoreProcessor.addReonstructionNamesFilter();
+        }
+        scoreProcessor.addEnsureMeasuresIdFilter();
+        scoreProcessor.addEnsureSectionsIdFilter();
+        const originalMei = scoreProcessor.filterScore();
+        const analyzer = new ScoreAnalyzer(t, 0, originalMei);
+        const properties = {
+          ...analyzer.getScoreProperties(),
+          encodedTransposition: encodingProperties.encodedTransposition as Transposition ?? undefined,
+        }
+        const audioUrl = scoreDef.audioBaseFile && scoreDef.audioBaseFile != "" ? path + scoreDef.audioBaseFile : null
+        const audioOverlayTracks = []
+        if (scoreDef.audioOverlays) {
+          for (const overlay of scoreDef.audioOverlays) {
+            audioOverlayTracks.push({
+              id: `overlay-staff-${overlay.staff}`,
+              label: overlay.appLabel,
+              url: path + overlay.file,
+              volume: 1
+            });
           }
         }
+
+
+        const editorialItems = analyzer.getEditorial();
+        const newScore: Score = {
+          url: meiUrl,
+          title: scoreDef.title,
+          originalMei: originalMei,
+          singleVerseMei: generateOneVerseMei(originalMei),
+          properties,
+          editorialItems,
+          audioUrl,
+          audioOverlayTracks,
+        }
+
+        setScoreCache(
+          { [meiUrl]: newScore }
+        )
+        updateScore(scoreIndex, newScore);
+        console.log(`Score fetched from network: ${meiUrl} took ${performance.now() - timestamp}ms`);
+      } catch (error: Error | any) {
+        if (onFetchScoreError) {
+          console.error(`Error fetching score MEI from ${meiUrl}:`, error);
+          onFetchScoreError(meiUrl, error);
+        }
       }
-    })();
+    }
   }, [config.scores, config.settings.basePath, config.settings.renderTitlesFromMEI, scoreCache, score, setScore, setScoreCache, onScoreAnalyzed, normalizeFicta]);
 
   const unloadScore = () => {
