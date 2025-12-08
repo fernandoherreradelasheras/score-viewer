@@ -7,7 +7,8 @@
   "heading": {
     "work": "Work",
     "section": "Section",
-    "splitViewSelector": "Right view content"
+    "splitViewSelectorHorizontal": "Right view content",
+    "splitViewSelectorVertical": "Bottom view content"
   },
   "tab": {
     "introduction": "Introduction",

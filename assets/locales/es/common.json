@@ -6,7 +6,9 @@
   "Introduction": "Introducción",
   "heading": {
     "work": "Obra",
-    "section": "Sección"
+    "section": "Sección",
+    "splitViewSelectorHorizontal": "Contenido de la vista derecha",
+    "splitViewSelectorVertical": "Contenido de la vista inferior"
   },
   "tab": {
     "introduction": "Introducción",
