@@ -24,6 +24,9 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const { verovio } = useContext(Context);
     const { t } = useTranslation("common");
 
+    const splitViewOrientation = useStore.use.splitViewOrientation();
+    const isSplitView = useStore.use.isSplitView();
+
     // Store state management
     const targetHeight = useStore.use.targetHeight();
     const targetWidth = useStore.use.targetWidth();
@@ -172,6 +175,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         if (!verovio || !showingMei || !renderedSvgData || !score || pendingAction) {
             return
         }
+        console.log(`[ScoreView] Reloading score for new target size ${targetWidth}x${targetHeight}`);
 
         const anchor = (renderedSvgData.scoreUrl == score.url && renderedSvgData.anchorElement) ? renderedSvgData.anchorElement : undefined
         const action = loadAction({
@@ -329,6 +333,12 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         setTargetHeight(svgContainerHeight);
         setTargetWidth(svgContainerWidth);
     }, [svgContainerHeight, svgContainerWidth]);
+
+    useEffect(() => {
+        // prevent reloading score until layout change reflow sets the final container size
+        setTargetHeight(0);
+        setTargetWidth(0);
+    }, [splitViewOrientation, isSplitView]);
 
 
     // Handle scale changes
