@@ -145,9 +145,7 @@ export default function useScoreActions({
     const loadedWidth = targetWidth;
     const loadedHeight = targetHeight;
 
-    console.trace();
-
-    console.log(`loading score: mode=normal page=${page} pageWidth=${loadedWidth}, pageHeight=${loadedHeight}, scale=${scale} restorePositionForAchor=${restorePositionForAchor}, showMusicAnalysis=${showMusicAnalysis}`);
+    console.log(`loading score: page=${page} pageWidth=${loadedWidth}, pageHeight=${loadedHeight}, scale=${scale} restorePositionForAchor=${restorePositionForAchor}, showMusicAnalysis=${showMusicAnalysis} showOriginalClefs=${showOriginalClefs}`);
 
     const options: VerovioOptions = {
       ...verovioBaseOptions,
@@ -215,7 +213,12 @@ export default function useScoreActions({
   }, [
     verovio,
     targetWidth,
-    targetHeight
+    targetHeight,
+    appOptions,
+    showOriginalClefs,
+    showMusicAnalysis,
+    choiceOptions,
+    measureNumberInterval
   ]);
 
   /**
@@ -256,7 +259,14 @@ export default function useScoreActions({
       console.error("Error performing auto-scroll load action:", error);
       return null;
     }
-  }, [verovio, appOptions, choiceOptions, showOriginalClefs]);
+  }, [
+    verovio,
+    appOptions,
+    choiceOptions,
+    showOriginalClefs,
+    showMusicAnalysis,
+    measureNumberInterval
+  ]);
 
   const mergeTimemapTies = (timemap: TimeMapEvent[], tiedNotes: { first: string; second: string; }[]) => {
     const newTimeMap = timemap.map(e => { return { ...e } as TimeMapEvent });
