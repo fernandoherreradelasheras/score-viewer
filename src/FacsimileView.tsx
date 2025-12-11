@@ -17,39 +17,39 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [containerHeight, setContainerHeight] = useState<number>(0);
 
-  const Controls = useCallback(()  => {
-      const { zoomIn, zoomOut, resetTransform } = useControls();
+  const Controls = useCallback(() => {
+    const { zoomIn, zoomOut, resetTransform } = useControls();
 
-      const handlePageClick = (page: number) => {
-        setCurrentItem(page - 1)
-        resetTransform()
-      };
+    const handlePageClick = (page: number) => {
+      setCurrentItem(page - 1)
+      resetTransform()
+    };
 
-      const close = useCallback(() => {
-        setSplitView(false);
-      }, [setSplitView]);
+    const close = useCallback(() => {
+      setSplitView(false);
+    }, [setSplitView]);
 
-      useEffect(() => {
-        resetTransform();
-      }, [splitView, splitViewOrientation, resetTransform]);
+    useEffect(() => {
+      resetTransform();
+    }, [splitView, splitViewOrientation, resetTransform]);
 
-      return <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <Space direction="horizontal" size={12} style={{ flex: "0", marginLeft: "12px" }}>
-          <Button icon={<ZoomInOutlined />} onClick={() => zoomIn()}/>
-          <Button icon={<ZoomOutOutlined />} onClick={() => zoomOut()}/>
-          <Button onClick={() => resetTransform()}>{t('reset')}</Button>
-        </Space>
-         { items.length > 1 ?  <Pagination
-                  style={{ flex: "1", textAlign: "center" }}
-                  align="center"
-                  current={currentItem + 1}
-                  defaultPageSize={1}
-                  total={items.length}
-                  simple={false}
-                  onChange={handlePageClick} /> : null }
-          { splitView ? <Button icon={<CloseOutlined />} onClick={() => close()}/> : null }
+    return <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <Space direction="horizontal" size={12} style={{ flex: "0", marginLeft: "12px" }}>
+        <Button icon={<ZoomInOutlined />} onClick={() => zoomIn()} />
+        <Button icon={<ZoomOutOutlined />} onClick={() => zoomOut()} />
+        <Button onClick={() => resetTransform()}>{t('reset')}</Button>
+      </Space>
+      {items.length > 1 ? <Pagination
+        style={{ flex: "1", textAlign: "center" }}
+        align="center"
+        current={currentItem + 1}
+        defaultPageSize={1}
+        total={items.length}
+        simple={false}
+        onChange={handlePageClick} /> : null}
+      {splitView ? <Button icon={<CloseOutlined />} onClick={() => close()} /> : null}
 
-      </div>
+    </div>
   }, [items, currentItem, splitView, splitViewOrientation, close, t, setSplitView]);
 
 
@@ -73,11 +73,11 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
     [splitView, splitViewOrientation]
   );
 
-  const imageFile = useMemo(() => path + items[currentItem].file
-  , [currentItem, items]);
+  const imageFile = useMemo(() => currentItem < items.length ? path + items[currentItem].file : ''
+    , [currentItem, items]);
 
-  const imageTitle = useMemo(() => items[currentItem].name
-  , [currentItem, items]);
+  const imageTitle = useMemo(() => currentItem < items.length ? items[currentItem].name : ''
+    , [currentItem, items]);
 
   const imageStyle = useMemo(() => {
     const isVerticalSplit = splitView && splitViewOrientation === 'vertical';
@@ -127,33 +127,33 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
     } else {
       return baseStyle;
     }
-  }, [splitView, splitViewOrientation]);  return (
-      <TransformWrapper
-        key={transformKey}
-        initialScale={initialScale}
-        minScale={0.1}
-        maxScale={5}
-        centerOnInit={shouldCenterOnInit}
-        limitToBounds={true}
-        doubleClick={{
-          disabled: false,
-          mode: 'zoomIn',
-          step: 0.5,
-        }}
-        wheel={{
-          step: 0.1,
-        }}
-      >
-          <>
-            <Controls />
-            <TransformComponent
-                wrapperStyle={{ width: "100%", height: "100%" }}>
-                <div style={containerStyle} ref={(el: HTMLDivElement | null) => setContainer(el)}>
-                  <img src={imageFile} alt={imageTitle} style={imageStyle}/>
-                </div>
-            </TransformComponent>
-          </>
-      </TransformWrapper>
+  }, [splitView, splitViewOrientation]); return (
+    <TransformWrapper
+      key={transformKey}
+      initialScale={initialScale}
+      minScale={0.1}
+      maxScale={5}
+      centerOnInit={shouldCenterOnInit}
+      limitToBounds={true}
+      doubleClick={{
+        disabled: false,
+        mode: 'zoomIn',
+        step: 0.5,
+      }}
+      wheel={{
+        step: 0.1,
+      }}
+    >
+      <>
+        <Controls />
+        <TransformComponent
+          wrapperStyle={{ width: "100%", height: "100%" }}>
+          <div style={containerStyle} ref={(el: HTMLDivElement | null) => setContainer(el)}>
+            <img src={imageFile} alt={imageTitle} style={imageStyle} />
+          </div>
+        </TransformComponent>
+      </>
+    </TransformWrapper>
   );
 }
 
