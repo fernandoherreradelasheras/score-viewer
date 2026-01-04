@@ -10,7 +10,8 @@ import { useTranslation } from 'react-i18next';
 import { Button } from 'antd';
 import useStore from './store';
 import { CloseOutlined } from '@ant-design/icons';
-
+import rehypeImages from './utils/rehype-images'
+import rehypeFigure from "@microflash/rehype-figure";
 
 const markdownTitle = (title: string) => `# ${title}\n\n`
 const markdownSubtitle = (subtitle: string) => `## ${subtitle}\n\n`
@@ -119,7 +120,7 @@ function TextView(props: TextViewProps) {
         <ErrorView message={t('error.fetchErrorDescription')} description={
             <div>
                 <ul>
-                    {introError ?<li key="intro">
+                    {introError ? <li key="intro">
                         <strong>{t('error.fetchIntroError')}:</strong> {introError.message}
                     </li> : null}
                     {itemsErrors.map((item, index) => (
@@ -128,21 +129,22 @@ function TextView(props: TextViewProps) {
                             {(item.text as FetchError).message}
                         </li>
                     ))}
-                    {commentsError ?<li key="comments">
+                    {commentsError ? <li key="comments">
                         <strong>{t('error.fetchTextCommentsError')}:</strong> {commentsError.message}
                     </li> : null}
                 </ul>
             </div>
         } /> : null
 
+    console.log(markdownText)
 
     return (
         <div>
-            { splitView ?
+            {splitView ?
                 <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                    <Button icon={<CloseOutlined />} onClick={() => close()}/>
-            </div>
-            : null }
+                    <Button icon={<CloseOutlined />} onClick={() => close()} />
+                </div>
+                : null}
 
             {errorView ? errorView : null}
             <div style={{ display: "flex", flexDirection: "row" }}>
@@ -152,6 +154,8 @@ function TextView(props: TextViewProps) {
                         remarkPlugins={[remarkGfm, sectionize]}
                         rehypePlugins={[
                             rehypeRaw,
+                            rehypeImages,
+                            rehypeFigure,
                             [rehypeExternalLinks, { target: "_blank", rel: "noopener noreferrer" }]
                         ]}>{markdownText}</Markdown>
                 </div>
