@@ -15,8 +15,8 @@ const rehypeImages: Plugin<[], Root> = () => {
                 // Set width
                 const currentStyle = node.properties.style as string | undefined;
                 node.properties.style = currentStyle
-                    ? `${currentStyle}; width: 40%;`
-                    : 'width: 40%;';
+                    ? `${currentStyle}; max-width: 40%;`
+                    : 'max-width: 40%;';
             }
         });
     };
