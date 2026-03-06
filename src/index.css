@@ -3,13 +3,17 @@
 }
 
 .ant-tabs-content-top:has(.score-viewer) {
-  height: 100%
+  height: 100%;
 }
 
 .ant-tabs-tabpane-active:has(.score-viewer) {
-  height: 100%
+  height: 100%;
+  overflow: hidden !important;
 }
 
+.ant-splitter-panel:has(.score-viewer) {
+  overflow: hidden !important;
+}
 
 .svg-container.editorial-active {
   z-index: 20;
@@ -30,22 +34,27 @@
   --show-fill-color: blue;
   --show-outline-color: darkgreen;
 }
+
 .sic {
   --show-fill-color: blue;
   --show-outline-color: darkorange;
 }
+
 .choice {
   --show-fill-color: blue;
   --show-outline-color: palebrown;
 }
+
 .corr {
   --show-fill-color: blue;
   --show-outline-color: darkviolet;
 }
+
 .reg {
   --show-fill-color: blue;
   --show-outline-color: rgb(0, 89, 255);
 }
+
 .supplied {
   --show-fill-color: rgb(30, 30, 177);
   --show-outline-color: rgb(28, 214, 22);
@@ -59,20 +68,24 @@
 .svg-container.static-score:not(.editorial-active) svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg, .app.variant).bounding-box rect {
   fill: transparent;
 }
+
 .svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg, .app.variant).bounding-box rect {
   fill: var(--show-fill-color);
   pointer-events: auto;
   visibility: visible;
   cursor: pointer;
 }
+
 .svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg, .app.variant).bounding-box rect {
   fill-opacity: 0.2;
   outline: 30px solid var(--show-outline-color);
   outline-offset: 120px;
 }
+
 .svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg, .app.variant):hover {
   filter: url(#highlighting-hover);
 }
+
 .svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg, .app.variant):hover rect {
   fill-opacity: 0.5;
   filter: hue-rotate(180deg);
@@ -84,14 +97,14 @@
   font-stretch: condensed;
 }
 
-.svg-container.static-score svg g.harm.rdiss > text {
+.svg-container.static-score svg g.harm.rdiss>text {
   outline: 30px solid gray;
   border-radius: 50%;
   outline-offset: 10px;
 }
 
 
-.svg-container.static-score svg.with-transition  {
+.svg-container.static-score svg.with-transition {
   transition-property: opacity, transform, scale;
   transition-duration: 0.4s;
   transition-timing-function: ease-in-out;
@@ -136,12 +149,10 @@
   z-index: 10;
   --center-size: min(30%, calc(var(--host-width) * 0.15));
   --fade-size: min(45%, calc(var(--host-width) * 0.25));
-  background: radial-gradient(
-    circle at center,
-    transparent var(--center-size),
-    rgba(238, 142, 46, 0.15) calc(var(--center-size) + var(--fade-size) * 0.4),
-    rgba(170, 147, 125, 0.22) calc(var(--center-size) + var(--fade-size))
-  );
+  background: radial-gradient(circle at center,
+      transparent var(--center-size),
+      rgba(238, 142, 46, 0.15) calc(var(--center-size) + var(--fade-size) * 0.4),
+      rgba(170, 147, 125, 0.22) calc(var(--center-size) + var(--fade-size)));
   opacity: 0;
   transition: opacity 0.5s ease-in-out;
 }
@@ -156,28 +167,28 @@
 }
 
 .svg-container.static-score svg g .reconstruction-name {
-    opacity: 0.7;
+  opacity: 0.7;
 }
 
 .svg-container.static-score svg g .rdg-recontruction-highlight {
-    fill-opacity: 1;
-    opacity: 0.3;
+  fill-opacity: 1;
+  opacity: 0.3;
 }
 
 .svg-container.static-score svg g[data-label*="DeepSeek-V3-0324"] .rdg-recontruction-highlight {
-    fill: #28ad39;
+  fill: #28ad39;
 }
 
 .svg-container.static-score svg g[data-label*="google_gemma-3_27b"] .rdg-recontruction-highlight {
-    fill: #f5b966;
+  fill: #f5b966;
 }
 
 .svg-container.static-score svg g[data-label*="claude_sonet_3_7"] .rdg-recontruction-highlight {
-    fill: #8fe3ff;
+  fill: #8fe3ff;
 }
 
 .svg-container.static-score svg g[data-label*="llama_4_maverick_17B"] .rdg-recontruction-highlight {
-    fill: #ad28a2;
+  fill: #ad28a2;
 }
 
 .score-viewer-top-element .ant-tabs .ant-tabs-content-holder {
@@ -199,27 +210,26 @@
   display: table;
   min-width: 40vw;
 }
+
 .text-view section:has(span.line-number) p {
   text-align: center;
 }
 
 
 .mouse-tracker {
-    transform-origin: center;
-    position: fixed;
-    pointer-events: none;
-    visibility: hidden;
+  transform-origin: center;
+  position: fixed;
+  pointer-events: none;
+  visibility: hidden;
 
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    white-space: nowrap;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
 
-    z-index: 1000;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
-
-
