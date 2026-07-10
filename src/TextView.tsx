@@ -24,6 +24,8 @@ const formatPoemText = (text: string, initialLineNumber: number) => {
 
         if (line == "") {
             formattedText = formattedText.slice(0, -2) + "\n\n"
+        } else if (line.startsWith("%")) {
+            continue
         } else if (line.startsWith("[") && line.endsWith("]")) {
             formattedText += `### ${line.slice(1, -1)}\n`
         } else {
