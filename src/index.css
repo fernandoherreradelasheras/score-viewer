@@ -205,6 +205,26 @@
 }
 
 
+/* Tables */
+.text-view table {
+  border-collapse: collapse;
+  margin: 1em 0;
+  width: auto;
+}
+
+.text-view th,
+.text-view td {
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  text-align: left;
+}
+
+.text-view thead th {
+  border-bottom: 2px solid #999;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+
 /* Poem */
 .text-view section:has(span.line-number) {
   display: table;
