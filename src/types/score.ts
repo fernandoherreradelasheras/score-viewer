@@ -51,6 +51,8 @@ export type ScoreProperties = {
     hasEditorial: boolean;
     hasOriginalClefs: boolean;
     encodedTransposition?: Transposition | undefined
+    // Whether the external audio plays expansions/repeats expanded (see ScoreViewerConfigScore).
+    audioUsesExpansions?: boolean | undefined
     tiedNotes: { first: string; second: string; }[];
 }
 

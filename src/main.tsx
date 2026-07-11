@@ -37,6 +37,8 @@ const defaultConfig: ScoreViewerConfig = {
       audioOverlays: [
         { staff: "3", appLabel: "reconstruction:3:IA:DeepSeek-V3-0324", file: "/1-DeepSeek-V3-0324.mp3" }
       ],
+      // Set to true only if the mp3 plays repeats/expansions expanded (default: false)
+      audioUsesExpansions: false,
 
       meiFile: "1.mei",
       text: [

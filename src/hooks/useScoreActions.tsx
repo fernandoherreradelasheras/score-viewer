@@ -101,6 +101,19 @@ const buildAppOptions = (appOptions: string[], showOriginalClefs: boolean, showM
   ]
 }
 
+// Keep the timemap consistent with the externally-generated audio, three cases:
+//  - audio without expansions        -> expandNever  (timemap and SVG unexpanded)
+//  - audio expanded, visuals ON      -> expandAlways  (timemap and SVG expanded; longer view)
+//  - audio expanded, visuals OFF     -> neither       (timemap expanded to match audio,
+//                                                       but SVG kept short)
+// Caveat: in the "visuals OFF" case verovio's getElementsAtTime().page is broken
+// (returns 1), so page turning relies on getPageWithElement instead (see
+// checkPageForPosition in useWebAudioPlayer).
+const expansionOptions = (audioUsesExpansions?: boolean, showVisualExpansions?: boolean): VerovioOptions => {
+  if (!audioUsesExpansions) return { expandNever: true };
+  return showVisualExpansions ? { expandAlways: true } : {};
+};
+
 /**
  * Custom hook that manages score action execution
  */
@@ -117,6 +130,8 @@ export default function useScoreActions({
   const showMusicAnalysis = useStore.use.showMusicAnalysis();
   const measureNumberInterval = useStore.use.measureNumberInterval();
   const setScoreLayout = useStore.use.setScoreLayout();
+  const score = useStore.use.score();
+  const showVisualExpansions = useStore.use.showVisualExpansions();
 
 
 
@@ -160,7 +175,8 @@ export default function useScoreActions({
       scale: scale,
       transpose: config.transposition != null ? config.transposition : "",
       mnumInterval: measureNumberInterval ?? 0,
-      expand: ""
+      expand: "",
+      ...expansionOptions(score?.properties?.audioUsesExpansions, showVisualExpansions)
     };
 
     try {
@@ -218,7 +234,9 @@ export default function useScoreActions({
     showOriginalClefs,
     showMusicAnalysis,
     choiceOptions,
-    measureNumberInterval
+    measureNumberInterval,
+    score,
+    showVisualExpansions
   ]);
 
   /**
@@ -243,7 +261,8 @@ export default function useScoreActions({
       pageHeight: height,
       pageWidth: AUTO_SCROLL_RENDERING_WIDTH_LIMIT,
       scale: 100,
-      transpose: config.transposition != null ? config.transposition : ""
+      transpose: config.transposition != null ? config.transposition : "",
+      ...expansionOptions(score?.properties?.audioUsesExpansions, showVisualExpansions)
     };
 
     try {
@@ -265,7 +284,9 @@ export default function useScoreActions({
     choiceOptions,
     showOriginalClefs,
     showMusicAnalysis,
-    measureNumberInterval
+    measureNumberInterval,
+    score,
+    showVisualExpansions
   ]);
 
   const mergeTimemapTies = (timemap: TimeMapEvent[], tiedNotes: { first: string; second: string; }[]) => {

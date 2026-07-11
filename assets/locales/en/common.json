@@ -123,6 +123,10 @@
       "title": "Colored notes",
       "description": "Mark colored notes with brackets on top of them"
     },
+    "visualExpansions": {
+      "title": "Show repeats expanded",
+      "description": "Write out repeats/expansions in the score, following the audio (the view gets longer)"
+    },
     "resetSettings": "Reset settings to default"
   },
   "scoreProcessor": {

@@ -118,6 +118,7 @@ export function useScoreManager({
         const properties = {
           ...analyzer.getScoreProperties(),
           encodedTransposition: encodingProperties.encodedTransposition as Transposition ?? undefined,
+          audioUsesExpansions: scoreDef.audioUsesExpansions ?? false,
         }
         const audioUrl = scoreDef.audioBaseFile && scoreDef.audioBaseFile != "" ? path + scoreDef.audioBaseFile : null
         const audioOverlayTracks = []

@@ -124,6 +124,10 @@
       "title": "Notas ennegrecidas",
       "description": "Señalar las notas ennegrecidas con corchetes superiores"
     },
+    "visualExpansions": {
+      "title": "Mostrar repeticiones desplegadas",
+      "description": "Escribir las repeticiones/expansiones en la partitura, siguiendo al audio (la vista se alarga)"
+    },
     "resetSettings": "Restablecer configuración por defecto"
   },
   "scoreProcessor": {

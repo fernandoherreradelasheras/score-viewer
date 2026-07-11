@@ -32,6 +32,7 @@
                     "file": "01-render-reconstruction:3:IA:DeepSeek-V3-0324-20250511.mp3"
                 }
             ],
+            "audioUsesExpansions": false,
             "meiFile": "01_-_Un_imposible_me_mata-music-T.mei",
             "text": [
                 {
@@ -67,7 +68,7 @@
         {
             "path": "tonos/02",
             "title": "Querido imposible mío",
-            "audioBaseFile": "02-render-base-20250511.mp3",
+            "audioBaseFile": "06-render-20260213.mp3",
             "meiFile": "02_-_Querido_imposible_mio-music-T.mei",
             "text": [
                 {
@@ -107,7 +108,11 @@
             "text": [
                 {
                     "file": "03_-_Amariles_yo_no_puedo-text.txt",
-                    "append_to": "coplas",
+                    "type": "estribillo"
+                },
+                {
+                    "file": "test-custom.txt",
+                    "type": "@custom",
                     "name": "Coplas"
                 }
             ],

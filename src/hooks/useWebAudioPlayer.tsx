@@ -31,6 +31,11 @@ export default function useWebAudioPlayer(audioUrl: string | null, audioOverlayT
     const sourceNodesRef = useRef<Map<string, AudioBufferSourceNode>>(new Map());
     const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
 
+    // Cache for the getPageWithElement lookup in checkPageForPosition, so we only
+    // hit the worker when the sounding element actually changes (not every frame).
+    const lastElementIdRef = useRef<string | null>(null);
+    const lastElementPageRef = useRef<number | null>(null);
+
     const [canPlay, setCanPlay] = useState(false);
     const [loadedTracks, setLoadedTracks] = useState<string[]>([]);
     const needsUserInteractionRef = useRef(true);
@@ -176,8 +181,25 @@ export default function useWebAudioPlayer(audioUrl: string | null, audioOverlayT
     const checkPageForPosition = async (position: number) => {
         if (!autoScroll && playingState !== PlayingState.STOPPED) {
             const playingAtPosition = await verovio?.getElementsAtTime(position);
-            const playingPage = playingAtPosition?.page;
-            if (playingPage && playingPage !== currentPage) {
+            // verovio 6.x: getElementsAtTime().page is unreliable (returns 1) when the
+            // score is loaded without expandAlways/expandNever — the "visual expansions
+            // off" case (see expansionOptions in useScoreActions). Derive the page from
+            // the sounding element via getPageWithElement, which is correct in every
+            // expansion mode. Cache by elementId so we only hit the worker when the
+            // sounding element changes, not on every animation frame.
+            const elementId = playingAtPosition?.notes?.[0]
+                ?? playingAtPosition?.chords?.[0]
+                ?? playingAtPosition?.rests?.[0];
+            if (!elementId) return;
+            let playingPage: number | null | undefined;
+            if (elementId === lastElementIdRef.current) {
+                playingPage = lastElementPageRef.current;
+            } else {
+                playingPage = await verovio?.getPageWithElement(elementId);
+                lastElementIdRef.current = elementId;
+                lastElementPageRef.current = playingPage ?? null;
+            }
+            if (playingPage && playingPage > 0 && playingPage !== currentPage) {
                 goToPage(playingPage);
             }
         }

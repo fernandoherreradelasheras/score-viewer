@@ -64,6 +64,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     const showMusicAnalysis = useStore.use.showMusicAnalysis();
     const measureNumberInterval = useStore.use.measureNumberInterval();
+    const showVisualExpansions = useStore.use.showVisualExpansions();
 
     const { handleElementClick } = useEditorialHandler();
     const { ref: svgContainerRef, width: svgContainerWidth, height: svgContainerHeight } = useComponentSize();
@@ -283,7 +284,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             clearPageCache();
         }
     }, [scale, showNVerses, normalizeFicta, withoutTransposition, showColoredNotes,
-        showOriginalClefs, showMusicAnalysis, measureNumberInterval, clearPageCache, score]);
+        showOriginalClefs, showMusicAnalysis, measureNumberInterval, showVisualExpansions, clearPageCache, score]);
 
 
     // Handle the initial load when verovio has been initialized and when the container is ready
@@ -382,7 +383,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     // These changes requires reloading the currently built score
     useEffect(() => {
         reloadScore();
-    }, [appOptions, choiceOptions, withoutTransposition, showMusicAnalysis, measureNumberInterval]);
+    }, [appOptions, choiceOptions, withoutTransposition, showMusicAnalysis, measureNumberInterval, showVisualExpansions]);
 
     useEffect(() => {
         reloadScore()

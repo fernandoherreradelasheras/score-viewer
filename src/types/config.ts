@@ -19,6 +19,10 @@ export interface ScoreViewerConfigScore {
   path: string;
   audioBaseFile?: string | undefined;
   audioOverlays?: AudioOverlay[] | undefined;
+  // Whether the externally-generated audio (mp3) plays expansions/repeats expanded.
+  // Drives verovio's expand option so the timemap matches the audio.
+  // Defaults to false (audio without expansions -> verovio expandNever: true).
+  audioUsesExpansions?: boolean | undefined;
   introductionFile?: string | undefined;
   textCommentsFile?: string | undefined;
   meiFile: string;

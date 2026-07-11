@@ -33,6 +33,8 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
     const setMeasureNumberInterval = useStore.use.setMeasureNumberInterval();
     const showColoredNotes = useStore.use.showColoredNotes();
     const setShowColoredNotes = useStore.use.setShowColoredNotes();
+    const showVisualExpansions = useStore.use.showVisualExpansions();
+    const setShowVisualExpansions = useStore.use.setShowVisualExpansions();
     const resetScoreSettings = useStore.use.resetScoreSettings();
     const resetUILayout = useStore.use.resetUILayout();
 
@@ -68,6 +70,10 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
     const onShowColoredNotesChange = useCallback((value: boolean) => {
         setShowColoredNotes(value);
     }, [setShowColoredNotes]);
+
+    const onShowVisualExpansionsChange = useCallback((value: boolean) => {
+        setShowVisualExpansions(value);
+    }, [setShowVisualExpansions]);
 
     const numVersesAvailable = 8;
     const verseOptions: SelectProps['options'] = useMemo(() =>
@@ -222,6 +228,27 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
                             />
                         </Col>
                     </Row>
+
+                    {score?.properties?.audioUsesExpansions && (
+                        <Row align={"middle"}>
+                            <Col span={20}>
+                                <Space direction="vertical">
+                                    <Typography.Text strong={true} {...(!showVisualExpansions ? { type: 'secondary' } : {})}>
+                                        {t('scoreOptions.visualExpansions.title')}
+                                    </Typography.Text>
+                                    <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!showVisualExpansions ? { type: 'secondary' } : {})} >
+                                        {t('scoreOptions.visualExpansions.description')}
+                                    </Typography.Text>
+                                </Space>
+                            </Col>
+                            <Col span={4}>
+                                <Switch
+                                    value={showVisualExpansions}
+                                    onChange={onShowVisualExpansionsChange}
+                                />
+                            </Col>
+                        </Row>
+                    )}
 
                     <Row align={"middle"}>
                         <Col span={20}>
