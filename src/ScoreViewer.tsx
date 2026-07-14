@@ -1,6 +1,6 @@
 import './App.css'
 import useStore from "./store";
-import { forwardRef, Ref, useCallback, useMemo, useRef, useState } from 'react';
+import { forwardRef, Ref, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useVerovio from './useVerovio';
 import { Context } from './Context';
 import { ConfigProvider, theme, Typography } from 'antd'
@@ -66,6 +66,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
 
 
   const [introAvailable, setIntroAvailable] = useState<boolean>(false);
+  const [textAvailable, setTextAvailable] = useState<boolean>(false);
   const [facsimileItems, setFacsimileItems] = useState<FacsimileItem[]>([]);
 
   const scoreViewContainerRef = useRef<ScoreViewContainerRef>(null);
@@ -215,10 +216,19 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   }, [config.settings.backgroundColor, config.settings.showDownloadButton, containerHeight, fetchScoreError, t])
 
 
+  // Whether the current score carries poetic text. Updated only once a score is
+  // loaded (not while `score` is transiently null during a tono switch) so the
+  // Text tab does not flicker out and steal focus to another tab mid-load.
+  useEffect(() => {
+    if (score) {
+      setTextAvailable(!!(score.scoreText && score.scoreText.length > 0))
+    }
+  }, [score])
+
   const textView = useMemo(() =>
-    config.settings.showTextSection && score?.scoreText && score.scoreText.length > 0 ?
-      <TextView items={score.scoreText} comments={score.scoreTextComments} /> : null
-    , [config.settings.showTextSection, score])
+    config.settings.showTextSection && textAvailable ?
+      <TextView items={score?.scoreText ?? null} comments={score?.scoreTextComments ?? null} /> : null
+    , [config.settings.showTextSection, textAvailable, score])
 
   const title = useMemo(() => config.settings.showTitle && score?.title ?
     <Typography.Title style={{ flex: "0" }} level={3}>{score.title}</Typography.Title> : null

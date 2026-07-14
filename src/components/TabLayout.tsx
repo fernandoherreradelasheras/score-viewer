@@ -36,16 +36,16 @@ export default function TabLayout({
         label: <Space direction='horizontal'>{t('tab.introduction')}</Space>,
         children: introView
       } : null,
-      {
-        key: 'music',
-        label: <Space direction='horizontal'><Icon component={MusicSvg} />{t('tab.music')}</Space>,
-        children: scoreView
-      },
       textView ? {
         key: 'text',
         label: <Space direction='horizontal'><FileTextOutlined />{t('tab.text')}</Space>,
         children: textView
       } : null,
+      {
+        key: 'music',
+        label: <Space direction='horizontal'><Icon component={MusicSvg} />{t('tab.music')}</Space>,
+        children: scoreView
+      },
       facsimileView ? {
         key: 'facsimile',
         label: <Space direction='horizontal'> <FileImageOutlined />{t('tab.facsimile')}</Space>,
