@@ -1,7 +1,9 @@
 import { LyricItem } from '../types';
 
 const MEI_NS = 'http://www.music-encoding.org/ns/mei';
-const XML_NS = 'http://www.w3.org/XML/1998/namespace';
+
+const TEXT_NODE = 3;
+const ELEMENT_NODE = 1;
 
 export interface PoemFromMei {
   // One entry per text block (`<lg>`) under the poem, in document order. Each
@@ -17,11 +19,27 @@ const capitalize = (s: string) => (s.length ? s[0].toUpperCase() + s.slice(1) : 
 const childrenByLocalName = (parent: Element, name: string): Element[] =>
   Array.from(parent.children).filter((c) => c.localName === name);
 
-const xmlId = (el: Element): string | null =>
-  el.getAttribute('xml:id') ?? el.getAttributeNS(XML_NS, 'id');
-
 const normalizeText = (el: Element): string =>
   (el.textContent ?? '').replace(/\s+/g, ' ').trim();
+
+// Direct `<annot type="text-note">` children of an element.
+const directTextNotes = (parent: Element): Element[] =>
+  childrenByLocalName(parent, 'annot').filter((a) => a.getAttribute('type') === 'text-note');
+
+// Text of a verse `<l>`, excluding any nested `<annot type="text-note">` (the
+// text note) together with the whitespace/newline that precedes it inside the
+// `<l>`. Only direct child text and non-annot elements contribute.
+const verseText = (l: Element): string => {
+  let text = '';
+  for (const node of Array.from(l.childNodes)) {
+    if (node.nodeType === TEXT_NODE) {
+      text += node.textContent ?? '';
+    } else if (node.nodeType === ELEMENT_NODE && (node as Element).localName !== 'annot') {
+      text += (node as Element).textContent ?? '';
+    }
+  }
+  return text.replace(/\s+/g, ' ').trim();
+};
 
 const findPoemDiv = (doc: Document): Element | null => {
   const divs = Array.from(doc.getElementsByTagNameNS(MEI_NS, 'div'));
@@ -48,43 +66,42 @@ const extractBlocks = (poemDiv: Element): LyricItem[] => {
     const nestedStrophes = childrenByLocalName(block, 'lg');
     const strophes =
       nestedStrophes.length > 0
-        ? nestedStrophes.map((s) => childrenByLocalName(s, 'l').map(normalizeText))
-        : [childrenByLocalName(block, 'l').map(normalizeText)];
+        ? nestedStrophes.map((s) => childrenByLocalName(s, 'l').map(verseText))
+        : [childrenByLocalName(block, 'l').map(verseText)];
     return { title: blockHeader(block), strophes };
   });
 };
 
-// Notes are `<annot type="text-note">` direct children of the poem div. Each
-// references the annotated `<l>` by id via `@corresp`; the verse number shown is
-// the 1-based position of that `<l>` among ALL `<l>` in the poem (or `@n` when
-// present). A note without `@corresp` is a global note shown without a number.
+// Text notes are `<annot type="text-note">`. Each note is a child of the `<l>`
+// it annotates, so the verse number is that `<l>`'s 1-based position among ALL
+// `<l>` in the poem (or `@n` when present). Notes placed directly under the poem
+// div are global notes shown without a number.
 const extractComments = (poemDiv: Element): string | null => {
   const allL = Array.from(poemDiv.getElementsByTagNameNS(MEI_NS, 'l'));
-  const posOf = new Map<string, number>();
-  allL.forEach((l, i) => {
-    const id = xmlId(l);
-    if (id) {
-      posOf.set(id, i + 1);
-    }
-  });
 
-  const comments = childrenByLocalName(poemDiv, 'annot')
-    .filter((a) => a.getAttribute('type') === 'text-note')
-    .map((a) => {
-      const id = (a.getAttribute('corresp') ?? '').replace(/^#/, '');
-      const pos = id && posOf.has(id) ? (posOf.get(id) as number) : null;
-      const nAttr = a.getAttribute('n');
-      const disp = nAttr != null ? nAttr : pos != null ? String(pos) : null;
-      return { pos, disp, body: normalizeText(a) };
-    })
-    // Stable sort keeps notes on the same verse in document order.
-    .sort((x, y) => (x.pos ?? Infinity) - (y.pos ?? Infinity));
+  const notes: { pos: number | null; disp: string | null; body: string }[] = [];
 
-  if (comments.length === 0) {
+  const pushNote = (a: Element, pos: number | null) => {
+    const nAttr = a.getAttribute('n');
+    const disp = nAttr != null ? nAttr : pos != null ? String(pos) : null;
+    notes.push({ pos, disp, body: normalizeText(a) });
+  };
+
+  // The note lives inside the `<l>` it annotates.
+  allL.forEach((l, i) => directTextNotes(l).forEach((a) => pushNote(a, i + 1)));
+
+  // Notes directly under the poem div are global notes shown without a number.
+  directTextNotes(poemDiv).forEach((a) => pushNote(a, null));
+
+  if (notes.length === 0) {
     return null;
   }
 
-  return comments
+  // Order by verse; global notes (no verse) go last. Stable sort keeps notes on
+  // the same verse in document order.
+  notes.sort((x, y) => (x.pos ?? Infinity) - (y.pos ?? Infinity));
+
+  return notes
     .map((n) =>
       n.disp == null
         ? n.body // global note, no number

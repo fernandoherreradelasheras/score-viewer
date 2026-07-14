@@ -105,17 +105,6 @@
             "path": "tonos/03",
             "title": "Amariles yo no puedo",
             "meiFile": "03_-_Amariles_yo_no_puedo-music-T.mei",
-            "text": [
-                {
-                    "file": "03_-_Amariles_yo_no_puedo-text.txt",
-                    "type": "estribillo"
-                },
-                {
-                    "file": "test-custom.txt",
-                    "type": "@custom",
-                    "name": "Coplas"
-                }
-            ],
             "encodingProperties": {
                 "encodedTransposition": "-P4"
             },
@@ -136,8 +125,7 @@
                     "name": "Guion page 8",
                     "file": "G/image-008.jpg"
                 }
-            ],
-            "textCommentsFile": "03_-_Amariles_yo_no_puedo-text-comments.md"
+            ]
         },
         {
             "path": "tonos/38",
