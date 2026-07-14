@@ -21,9 +21,9 @@ export default function SplitViewSelector({
   const setActiveSplitView = useStore.use.setActiveSplitView();
 
   const selectorItems = useMemo(() => [
-    facsimileView ? { label: t('tab.facsimile'), value: 'facsimile' } : null,
     introView ? { label: t('tab.introduction'), value: 'intro' } : null,
     textView ? { label: t('tab.text'), value: 'text' } : null,
+    facsimileView ? { label: t('tab.facsimile'), value: 'facsimile' } : null,
   ].filter(item => item != null)
     , [facsimileView, introView, textView, t]);
 

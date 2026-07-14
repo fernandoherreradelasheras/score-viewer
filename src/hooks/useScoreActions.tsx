@@ -183,9 +183,6 @@ export default function useScoreActions({
       const startTime = performance.now();
       console.log(`[useScoreActions] performLoadAction started`);
 
-      const analyzer = new ScoreAnalyzer(t, 0, meiStr);
-      const sectionMap = await getSectionMap(analyzer);
-
       await verovio.setOptions(options);
       await verovio.loadData(meiStr);
       const timemap = await verovio.renderToTimemap({ includeMeasures: true });
@@ -194,6 +191,11 @@ export default function useScoreActions({
       const countStart = performance.now();
       const loadedPagesCount = await verovio.getPageCount();
       console.log(`[useScoreActions] getPageCount took ${(performance.now() - countStart).toFixed(2)}ms`);
+
+      // Build the section -> page map only after the data is loaded and
+      // paginated.
+      const analyzer = new ScoreAnalyzer(t, 0, meiStr);
+      const sectionMap = await getSectionMap(analyzer);
 
 
       console.log(`Score loaded in ${(performance.now() - startTime).toFixed(0)}ms, page count: ${loadedPagesCount}`);
