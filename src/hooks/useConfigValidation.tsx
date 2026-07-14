@@ -161,13 +161,6 @@ export const useConfigValidation = (config: ScoreViewerConfig) => {
           });
         }
 
-        if (score.text && !Array.isArray(score.text)) {
-          errors.push({
-            field: `scores[${index}].text`,
-            message: t('configValidation.scoreTextArray')
-          });
-        }
-
         if (score.facsimileItems && !Array.isArray(score.facsimileItems)) {
           errors.push({
             field: `scores[${index}].facsimileItems`,

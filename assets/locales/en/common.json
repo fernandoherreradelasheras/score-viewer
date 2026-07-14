@@ -50,8 +50,6 @@
     },
     "fetchIntroError": "Error fetching the introduction text",
     "fetchErrorDescription": "The following errors occurred fetching items from the network",
-    "fetchLyricsItemErrorWithSection": "Poetic text for section {{section}}",
-    "fetchTextCommentsError": "Text comments",
     "fetchTextSeeErrorAbove": "Error: see above for details"
   },
   "ok": "Ok",
@@ -171,7 +169,6 @@
     "scoreMeiFileRequired": "Score meiFile is required and must be a string",
     "scoreEncodingPropertiesRequired": "encodingProperties object is required",
     "scoreAudioOverlaysArray": "audioOverlays must be an array if provided",
-    "scoreTextArray": "text must be an array if provided",
     "scoreFacsimileItemsArray": "facsimileItems must be an array if provided",
     "configurationError": "Configuration Error",
     "configurationErrorDescription": "The ScoreViewer configuration contains errors:"

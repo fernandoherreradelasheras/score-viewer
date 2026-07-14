@@ -10,7 +10,6 @@ import {
     Score,
     PlayingState,
     TextPartsCache,
-    LyricItem,
     FetchError,
 } from './types'
 
@@ -42,18 +41,14 @@ interface ScoreManagementState {
     showingMei: string | null
     scoreCache: { [index: string]: Score }
     textCache: TextPartsCache
-    textComments: string | FetchError | null | undefined
     textIntroduction: string | FetchError | null | undefined
-    textLyrics: LyricItem[] | null | undefined
 
     setScore: (score: Score | null) => void
 
     setShowingMei: (mei: string | null) => void
     setScoreCache: (scoreCache: { [index: string]: Score }) => void
     setTextCache: (textCache: TextPartsCache, replace: boolean) => void
-    setTextComments: (textComments: string | FetchError | null | undefined) => void
     setTextIntroduction: (textIntroduction: string | FetchError | null | undefined) => void
-    setTextLyrics: (textLyrics: LyricItem[] | null | undefined, replace: boolean) => void
 }
 
 const createScoreManagementStore = create<ScoreManagementState>((set) => ({
@@ -61,9 +56,7 @@ const createScoreManagementStore = create<ScoreManagementState>((set) => ({
     showingMei: null,
     scoreCache: {},
     textCache: {},
-    textComments: undefined,
     textIntroduction: undefined,
-    textLyrics: undefined,
 
     setScore: (score: Score | null) => set(() => ({ score: score })),
 
@@ -74,11 +67,7 @@ const createScoreManagementStore = create<ScoreManagementState>((set) => ({
     setTextCache: (textCache: TextPartsCache, replace: boolean) => set((state) => ({
         textCache: replace ? textCache : { ...state.textCache, ...textCache }
     })),
-    setTextComments: (textComments: string | FetchError | null | undefined) => set(() => ({ textComments })),
     setTextIntroduction: (textIntroduction: string | FetchError | null | undefined) => set(() => ({ textIntroduction })),
-    setTextLyrics: (textLyrics: LyricItem[] | null | undefined, replace: boolean) => set((state) => ({
-        textLyrics: replace ? textLyrics : [...state.textLyrics || [], ...(textLyrics || [])]
-    }))
 }))
 
 
@@ -357,16 +346,12 @@ class ScoreViewerStoreApi {
         showingMei: createScoreManagementStoreWithSelectors.use.showingMei,
         scoreCache: createScoreManagementStoreWithSelectors.use.scoreCache,
         textCache: createScoreManagementStoreWithSelectors.use.textCache,
-        textComments: createScoreManagementStoreWithSelectors.use.textComments,
         textIntroduction: createScoreManagementStoreWithSelectors.use.textIntroduction,
-        textLyrics: createScoreManagementStoreWithSelectors.use.textLyrics,
         setScore: createScoreManagementStoreWithSelectors.use.setScore,
         setShowingMei: createScoreManagementStoreWithSelectors.use.setShowingMei,
         setScoreCache: createScoreManagementStoreWithSelectors.use.setScoreCache,
         setTextCache: createScoreManagementStoreWithSelectors.use.setTextCache,
-        setTextComments: createScoreManagementStoreWithSelectors.use.setTextComments,
         setTextIntroduction: createScoreManagementStoreWithSelectors.use.setTextIntroduction,
-        setTextLyrics: createScoreManagementStoreWithSelectors.use.setTextLyrics,
 
 
         // UI/Layout Store

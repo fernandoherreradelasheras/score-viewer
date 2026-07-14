@@ -23,6 +23,9 @@ export type Score = {
     editorialItems: EditorialItem[];
     audioUrl: string | null;
     audioOverlayTracks: AudioTrack[];
+    // Poetic text and text notes extracted from the MEI `<back>` block.
+    scoreText: LyricItem[];
+    scoreTextComments: string | null;
 }
 
 export type TextPartsCache = {
@@ -72,13 +75,9 @@ export class FetchError extends Error {
 
 export type LyricItem = {
     title: string
-    text: string | FetchError
-}
-
-export type TextParts = {
-    lyrics: LyricItem[] | null;
-    textComments: string | null;
-    introduction: string | null;
+    // Strophes of the block; each strophe is its ordered list of verses (lines).
+    // TextView assembles these into markdown.
+    strophes: string[][]
 }
 
 export type Note = {

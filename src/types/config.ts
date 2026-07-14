@@ -6,6 +6,11 @@ export interface AudioOverlay {
   file: string;
 }
 
+/**
+ * @deprecated The poetic text is now read from the MEI `<back>` block, not from
+ * external text files. This type is kept transitionally while `tonos.json` still
+ * carries `text[]`; it is ignored at runtime.
+ */
 export interface ScoreViewerConfigScoreText {
   file: string;
   append_to?: string | undefined;
@@ -24,8 +29,10 @@ export interface ScoreViewerConfigScore {
   // Defaults to false (audio without expansions -> verovio expandNever: true).
   audioUsesExpansions?: boolean | undefined;
   introductionFile?: string | undefined;
+  /** @deprecated Text notes are now read from the MEI `<back>` block; ignored at runtime. */
   textCommentsFile?: string | undefined;
   meiFile: string;
+  /** @deprecated Poetic text is now read from the MEI `<back>` block; ignored at runtime. */
   text?: ScoreViewerConfigScoreText[] | undefined;
   facsimileItems?: FacsimileItem[] | undefined;
   encodingProperties: {

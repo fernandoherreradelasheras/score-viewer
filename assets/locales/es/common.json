@@ -49,10 +49,7 @@
       "details": "Error al cargar la partitura de la red: {{url}}"
     },
     "fetchIntroError": "Error al obtener el texto de introducción",
-    "fetchLyricsItemError": "Error al obtener el texto poético",
-    "fetchTextCommentsError": "Comentarios del texto",
     "fetchErrorDescription": "Se produjeron los siguientes errores al obtener elementos de la red",
-    "fetchLyricsItemErrorWithSection": "Texto poético para la sección {{section}}",
     "fetchTextSeeErrorAbove": "Error: ver arriba para más detalles"
   },
   "ok": "Ok",
@@ -170,7 +167,6 @@
     "scoreMeiFileRequired": "El archivo MEI de la partitura es requerido y debe ser una cadena de texto",
     "scoreEncodingPropertiesRequired": "El objeto encodingProperties es requerido",
     "scoreAudioOverlaysArray": "audioOverlays debe ser un array si se proporciona",
-    "scoreTextArray": "text debe ser un array si se proporciona",
     "scoreFacsimileItemsArray": "facsimileItems debe ser un array si se proporciona",
     "configurationError": "Error de Configuración",
     "configurationErrorDescription": "La configuración del ScoreViewer contiene errores:"

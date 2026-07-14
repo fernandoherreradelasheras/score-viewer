@@ -66,7 +66,6 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
 
 
   const [introAvailable, setIntroAvailable] = useState<boolean>(false);
-  const [textAvailable, setTextAvailable] = useState<boolean>(false);
   const [facsimileItems, setFacsimileItems] = useState<FacsimileItem[]>([]);
 
   const scoreViewContainerRef = useRef<ScoreViewContainerRef>(null);
@@ -79,9 +78,9 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     unloadScore()
   }
 
-  const { fetchScore, unloadScore, hasIntro, hasText } = useScoreManager({ t, config, normalizeFicta, onScoreAnalyzed, onFetchScoreError });
+  const { fetchScore, unloadScore, hasIntro } = useScoreManager({ t, config, normalizeFicta, onScoreAnalyzed, onFetchScoreError });
 
-  const { fetchTextParts, textIntroduction, textLyrics, textComments } = useTextParts({ config })
+  const { fetchTextParts, textIntroduction } = useTextParts({ config })
 
   const overflow = useMemo(() =>
     isMobile && mobileOrientation.isLandscape ? "scroll" : "hidden"
@@ -137,7 +136,6 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     setScore(null)
     setFetchScoreError(null);
     setIntroAvailable(hasIntro(scoreIndex));
-    setTextAvailable(hasText(scoreIndex));
     setFacsimileItems(config.scores[scoreIndex].facsimileItems || []);
     await fetchTextParts(scoreIndex);
     // Allow the container to get the final size (might depend on having tabs content)
@@ -218,9 +216,9 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
 
 
   const textView = useMemo(() =>
-    config.settings.showTextSection && textAvailable ?
-      <TextView items={textLyrics} comments={textComments} /> : null
-    , [config.settings.showTextSection, textAvailable, textLyrics, textComments])
+    config.settings.showTextSection && score?.scoreText && score.scoreText.length > 0 ?
+      <TextView items={score.scoreText} comments={score.scoreTextComments} /> : null
+    , [config.settings.showTextSection, score])
 
   const title = useMemo(() => config.settings.showTitle && score?.title ?
     <Typography.Title style={{ flex: "0" }} level={3}>{score.title}</Typography.Title> : null

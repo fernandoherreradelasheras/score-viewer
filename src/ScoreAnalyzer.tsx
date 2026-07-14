@@ -324,9 +324,12 @@ class ScoreAnalyzer {
         return items
     }
 
-    getAnnotations() {
+    // Only annotations inside <score> are musical editorial annotations. Annotations
+    // under <back> (e.g. <annot type="text-note">) belong to the poetic text and
+    // are extracted separately (see poem-from-mei), so they are excluded here.
+    getScoreAnnotations() {
         const annotations: Annotation[] = []
-        let matches = this.document.evaluate(`//mei:annot`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        let matches = this.document.evaluate(`//mei:score//mei:annot`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
         while (node != null) {
             const element = node as Element
@@ -369,7 +372,7 @@ class ScoreAnalyzer {
                 .concat(this.getChoiceNodes())
                 .concat(this.getAppChoiceNodes())
 
-        const annotations = this.getAnnotations()
+        const annotations = this.getScoreAnnotations()
         const consumedAnnotationsTargets = new Set()
 
         editorialElements.forEach(e => {

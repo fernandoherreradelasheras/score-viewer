@@ -2,8 +2,25 @@ import { Score, ScoreProperties, Transposition } from '../types';
 import useStore from '../store';
 import ScoreProcessor from '../ScoreProcessor';
 import ScoreAnalyzer from '../ScoreAnalyzer';
-import { ScoreViewerConfig } from '../types/config';
+import { ScoreViewerConfig, ScoreViewerConfigScore } from '../types/config';
+import { parsePoemFromMei } from '../utils/poem-from-mei';
 import { useCallback } from 'react';
+
+// Warnings (but do not fail) when a score config still carries legacy properties
+const warnDeprecatedTextConfig = (scoreDef: ScoreViewerConfigScore) => {
+  if (scoreDef.text && scoreDef.text.length > 0) {
+    console.warn(
+      `[score-viewer] The "text" property on score "${scoreDef.title}" is deprecated and will be ignored. ` +
+      `The poetic text is now read from the MEI <back> block; please migrate it into the MEI.`
+    )
+  }
+  if (scoreDef.textCommentsFile) {
+    console.warn(
+      `[score-viewer] The "textCommentsFile" property on score "${scoreDef.title}" is deprecated and will be ignored. ` +
+      `Text notes are now read from the MEI <back> block; please migrate them into the MEI.`
+    )
+  }
+}
 
 interface UseScoreManagerProps {
   t: any;
@@ -96,6 +113,7 @@ export function useScoreManager({
       console.error(`No score definition found for index ${scoreIndex}`);
       return;
     }
+    warnDeprecatedTextConfig(scoreDef);
     const path = config.settings.basePath + scoreDef.path + "/";
     const meiUrl = path + scoreDef.meiFile;
     const encodingProperties = scoreDef.encodingProperties;
@@ -135,6 +153,7 @@ export function useScoreManager({
 
 
         const editorialItems = analyzer.getEditorial();
+        const { lyrics, comments } = parsePoemFromMei(originalMei);
         const newScore: Score = {
           url: meiUrl,
           title: scoreDef.title,
@@ -144,6 +163,8 @@ export function useScoreManager({
           editorialItems,
           audioUrl,
           audioOverlayTracks,
+          scoreText: lyrics,
+          scoreTextComments: comments,
         }
 
         setScoreCache(
@@ -169,11 +190,6 @@ export function useScoreManager({
     return (scoreDef && scoreDef.introductionFile) ? true : false;
   }, [config.scores]);
 
-  const hasText = useCallback((scoreIndex: number) => {
-    const scoreDef = config.scores[scoreIndex];
-    return (scoreDef && scoreDef.text && scoreDef.text.length > 0) ? true : false;
-  }, [config.scores]);
 
-
-  return { fetchScore, unloadScore, hasIntro, hasText };
+  return { fetchScore, unloadScore, hasIntro };
 }

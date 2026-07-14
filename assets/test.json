@@ -140,6 +140,15 @@
             "textCommentsFile": "03_-_Amariles_yo_no_puedo-text-comments.md"
         },
         {
+            "path": "tonos/38",
+            "title": "Al compás de un arroyuelo",
+            "meiFile": "38_Al_compas_de_un_arroyuelo.mei",
+            "introductionFile": "38_Al_compas_de_un_arroyuelo-intro.md",
+            "encodingProperties": {
+                "encodedTransposition": ""
+            }
+        },
+        {
             "path": "tonos",
             "title": "test mei",
             "meiFile": "test-anot.mei",

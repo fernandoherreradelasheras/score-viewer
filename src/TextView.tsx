@@ -16,29 +16,29 @@ import rehypeFigure from "@microflash/rehype-figure";
 const markdownTitle = (title: string) => `# ${title}\n\n`
 const markdownSubtitle = (subtitle: string) => `## ${subtitle}\n\n`
 
-const formatPoemText = (text: string, initialLineNumber: number) => {
-    var formattedText = "";
+const lineNumberMark = (lineNumber: number) =>
+    lineNumber % 5 == 0
+        ? `<span class="line-number" style="float: right; margin-right: -20px;" > ${lineNumber}</span>`
+        : ""
+
+// Assemble a block's strophes into markdown: each verse is italic, verses of a
+// strophe are joined by a hard line break, strophes are separated by a blank
+// line, and every 5th verse (counted continuously across blocks) shows its
+// line number. `initialLineNumber` continues the count from previous blocks.
+const formatStrophes = (strophes: string[][], initialLineNumber: number) => {
     var lastLineNumber = initialLineNumber
 
-    for (let line of text.split('\n')) {
+    const renderedStrophes = strophes.map((verses) =>
+        verses
+            .map((verse) => {
+                lastLineNumber += 1
+                return `*${verse}*${lineNumberMark(lastLineNumber)}`
+            })
+            .join("\\\n")
+    )
 
-        if (line == "") {
-            formattedText = formattedText.slice(0, -2) + "\n\n"
-        } else if (line.startsWith("%")) {
-            continue
-        } else if (line.startsWith("[") && line.endsWith("]")) {
-            formattedText += `### ${line.slice(1, -1)}\n`
-        } else {
-            lastLineNumber += 1
-            if (lastLineNumber % 5 == 0) {
-                formattedText += `*${line}*<span class="line-number" style="float: right; margin-right: -20px;" > ${lastLineNumber}</span>\\\n`
-            } else {
-                formattedText += `*${line}*\\\n`
-            }
-        }
-    }
+    const formattedText = renderedStrophes.join("\n\n") + "\n\n"
     return { formattedText, lastLineNumber }
-
 }
 
 
@@ -46,7 +46,7 @@ export interface TextViewProps {
     title?: string;
     intro?: string | FetchError | null;
     items?: LyricItem[] | null;
-    comments?: string | FetchError | null;
+    comments?: string | null;
 }
 
 function TextView(props: TextViewProps) {
@@ -68,7 +68,7 @@ function TextView(props: TextViewProps) {
         return introText
     }
 
-    const renderPoem = (items: LyricItem[], comments?: string | FetchError | null) => {
+    const renderPoem = (items: LyricItem[], comments?: string | null) => {
         var poemText = markdownSubtitle(t("textView.poeticText"))
 
         var lineNumber = 0
@@ -76,23 +76,15 @@ function TextView(props: TextViewProps) {
             if (items.length > 1) {
                 poemText += `### ${item.title}\n`
             }
-            if (item.text instanceof FetchError) {
-                poemText += `**${t("error.fetchTextSeeErrorAbove")}**\n\n`
-            } else {
-                const { formattedText, lastLineNumber } = formatPoemText(item.text, lineNumber)
-                poemText += formattedText
-                lineNumber = lastLineNumber
-            }
+            const { formattedText, lastLineNumber } = formatStrophes(item.strophes, lineNumber)
+            poemText += formattedText
+            lineNumber = lastLineNumber
         }
 
         if (comments) {
             poemText += "\n\n"
             poemText += markdownSubtitle(t("textView.notes"))
-            if (comments instanceof FetchError) {
-                poemText += `**${t("error.fetchTextSeeErrorAbove")}**\n\n`
-            } else {
-                poemText += comments + "\n\n"
-            }
+            poemText += comments + "\n\n"
         }
         return poemText
     }
@@ -112,28 +104,15 @@ function TextView(props: TextViewProps) {
         setMarkdownText(text);
     }, [intro, title, items, comments])
 
-    const introError = intro instanceof FetchError ? intro : null
-    const itemsErrors = items ? items.filter(item => item.text instanceof FetchError) : []
-    const commentsError = comments instanceof FetchError ? comments : null
 
-    const fetchErrors = [intro, ...items ? items.map(item => item.text) : [], comments]
-        .filter(e => e instanceof FetchError)
-    const errorView = fetchErrors.length > 0 ?
+    const introError = intro instanceof FetchError ? intro : null
+    const errorView = introError ?
         <ErrorView message={t('error.fetchErrorDescription')} description={
             <div>
                 <ul>
-                    {introError ? <li key="intro">
+                    <li key="intro">
                         <strong>{t('error.fetchIntroError')}:</strong> {introError.message}
-                    </li> : null}
-                    {itemsErrors.map((item, index) => (
-                        <li key={index}>
-                            <strong>{t('error.fetchLyricsItemErrorWithSection', { section: item.title })}:</strong>
-                            {(item.text as FetchError).message}
-                        </li>
-                    ))}
-                    {commentsError ? <li key="comments">
-                        <strong>{t('error.fetchTextCommentsError')}:</strong> {commentsError.message}
-                    </li> : null}
+                    </li>
                 </ul>
             </div>
         } /> : null
