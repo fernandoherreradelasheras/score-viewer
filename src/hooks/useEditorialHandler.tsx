@@ -36,7 +36,7 @@ export function useEditorialHandler() {
       }
     }
     return null
-}, [getEditorialAttached,setShowingEditorial])
+  }, [getEditorialAttached, setShowingEditorial])
 
   const handleElementClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
     if (!showEditorial) return;
@@ -47,7 +47,7 @@ export function useEditorialHandler() {
     if (target) {
       setShowingEditorial(target.id);
     } else {
-      const bb = element.closest(".bounding-box") as HTMLElement | null;
+      const bb = element.closest(".content-bounding-box") as HTMLElement | null;
       const parentTarget = bb?.parentElement
       if (parentTarget && [...parentTarget.classList.values()].some(c => targets.includes(c))) {
         const editorialForTarget = getEditorialAttached(parentTarget)

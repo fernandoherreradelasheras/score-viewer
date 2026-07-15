@@ -39,6 +39,7 @@ const verovioBaseOptions: VerovioOptions = {
   svgViewBox: false,
   svgRemoveXlink: false,
   svgBoundingBoxes: true,
+  svgContentBoundingBoxes: true,
   lyricElision: "regular",
   lyricTopMinMargin: 4.0,
   lyricVerseCollapse: true,

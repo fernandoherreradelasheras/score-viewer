@@ -4,7 +4,6 @@ import { Context } from './Context';
 import { useComponentSize } from "react-use-size";
 import ScoreProcessor from './ScoreProcessor';
 import { useEditorialHandler } from './hooks/useEditorialHandler';
-import { expandBBsForEditorialItems } from './SvgUtils';
 import useScoreActions, { RenderActionResult } from './hooks/useScoreActions';
 import useScoreRenderer from './hooks/useScoreRenderer';
 import { Action, Transition, loadAction, renderAction } from './types';
@@ -133,8 +132,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                     }, 10);
                 }
 
-                // will only be visible when showingEditorial is true via css
-                expandBBsForEditorialItems();
 
                 setIsLoading(false);
 
@@ -443,7 +440,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                         }
                     }
                     setRenderedSvgData(cachedPage);
-                    expandBBsForEditorialItems()
                     setIsLoading(false);
                 }, 220); // Slightly longer than animation
             } else {
@@ -456,7 +452,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                     }
                 }
                 setRenderedSvgData(cachedPage);
-                expandBBsForEditorialItems();
                 setIsLoading(false);
             }
 

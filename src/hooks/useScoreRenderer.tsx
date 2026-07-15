@@ -53,7 +53,7 @@ export default function useScoreRenderer({
    */
   const svgSingleSystem = useCallback(() => {
     if (!svgContainerRef.current) return false;
-    return svgContainerRef.current.querySelectorAll("svg .system.bounding-box")?.length === 1;
+    return svgContainerRef.current.querySelectorAll("svg .system.content-bounding-box")?.length === 1;
   }, [svgContainerRef]);
 
   /**

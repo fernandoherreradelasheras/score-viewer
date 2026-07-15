@@ -25,7 +25,7 @@ function Editorials() {
 
     const TOOLTIP_SELECTOR = useMemo(() =>
         ['corr', 'unclear', 'sic', 'app', 'choice', 'lem', 'reg', 'orig', 'supplied']
-            .map(e => `svg .${e}:not(.bounding-box)`).join(", ")
+            .map(e => `svg .${e}:not(.content-bounding-box)`).join(", ")
         , [])
 
     const showingEditorialItem = showingEditorial ? editorials?.find(e => e.id == showingEditorial) : null;

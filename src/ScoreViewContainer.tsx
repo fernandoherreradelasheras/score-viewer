@@ -145,7 +145,7 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
             {scoreViewerRef.current && mouseOver && <MouseTracker
                 track={scoreViewerRef.current}
                 getContent={(e) => {
-                    const staffBB = (e.target as Element)?.closest('g.staff.bounding-box');
+                    const staffBB = (e.target as Element)?.closest('g.staff.content-bounding-box');
                     const measure = (e.target as Element)?.closest('g.measure');
                     const n = measure?.getAttribute('data-n');
                     return staffBB && n ? t('score.measureNumber', { 'number': n }) : undefined;

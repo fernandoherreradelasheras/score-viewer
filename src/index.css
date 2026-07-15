@@ -65,21 +65,24 @@
   --show-outline-color: rgb(0, 89, 255);
 }
 
-.svg-container.static-score:not(.editorial-active) svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg, .app.variant).bounding-box rect {
+.svg-container.static-score:not(.editorial-active) svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg, .app.variant).content-bounding-box rect {
   fill: transparent;
 }
 
-.svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg, .app.variant).bounding-box rect {
-  fill: var(--show-fill-color);
-  pointer-events: auto;
-  visibility: visible;
+.svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg, .app.variant) {
   cursor: pointer;
 }
 
-.svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg, .app.variant).bounding-box rect {
+
+.svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg, .app.variant).content-bounding-box rect {
+  fill: var(--show-fill-color);
   fill-opacity: 0.2;
+
   outline: 30px solid var(--show-outline-color);
   outline-offset: 120px;
+
+  pointer-events: auto;
+  visibility: visible;
 }
 
 .svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .reg, .app.variant):hover {
