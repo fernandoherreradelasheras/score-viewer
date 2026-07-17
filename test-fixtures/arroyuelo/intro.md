@@ -1,0 +1,3 @@
+El tono ***Al compás de un arroyuelo***  desarrolla una alegoría amorosa a través del canto de un jilguero. El poeta establece un paralelismo entre el cortejo de las aves y el humano cuya armonía se proyecta análogamente hasta el valle y hasta lo universal.
+
+Encontramos otro testimonio de este tono en el Cancionero poético-musical hispano de Lisboa, con la única diferencia de que el orden de los tiples aparece intercambiado. Los manuscritos del CPMHL si conservan la parte del acompañamiento, por lo que la tomamos para completar nuestra edición.

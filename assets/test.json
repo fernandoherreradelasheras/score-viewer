@@ -10,200 +10,51 @@
         "showOptions": true,
         "backgroundColor": "#f5f5f5",
         "basePath": "./",
-        "facsimileImagesPath": "/tonos/facsimile/",
+        "facsimileImagesPath": "/facsimile/",
         "language": "autodetect",
         "allowUserLanguageChange": true,
         "selectorLabel": "work"
     },
     "scores": [
         {
-            "path": "tonos/01",
+            "_covers": "multiple audio versions + introduction + facsimiles (no MEI text)",
             "title": "Un imposible me mata",
+            "path": "un-imposible",
+            "meiFile": "music.mei",
+            "introductionFile": "intro.md",
             "audioFiles": [
                 {
-                    "file": "01-render-base-20250511.mp3",
+                    "file": "un-imposible.mp3",
                     "name": "Base"
-                },
-                {
-                    "file": "01-render-reconstruction:3:IA:claude_sonet_3_7-20250511.mp3",
-                    "name": "Reconstruction 3 · Claude Sonnet 3.7"
-                },
-                {
-                    "file": "01-render-reconstruction:3:IA:DeepSeek-V3-0324-20250511.mp3",
-                    "name": "Reconstruction 3 · DeepSeek V3"
                 }
             ],
-            "meiFile": "01_-_Un_imposible_me_mata-music-T.mei",
-            "text": [
+            "facsimileItems": [
                 {
-                    "file": "01_-_Un_imposible_me_mata-text.txt",
-                    "append_to": "coplas",
-                    "name": "Coplas"
+                    "name": "Soprano 1",
+                    "file": "un-imposible-s1.jpg"
+                },
+                {
+                    "name": "Soprano 2",
+                    "file": "un-imposible-s2.jpg"
+                },
+                {
+                    "name": "Tenor",
+                    "file": "un-imposible-tenor.jpg"
                 }
             ],
             "encodingProperties": {
                 "encodedTransposition": ""
-            },
-            "facsimileItems": [
-                {
-                    "name": "Soprano 1 page 9",
-                    "file": "S1/image-009.jpg"
-                },
-                {
-                    "name": "Soprano 2 page 9",
-                    "file": "S2/image-009.jpg"
-                },
-                {
-                    "name": "Tenor page 12",
-                    "file": "T/image-012.jpg"
-                },
-                {
-                    "name": "Guion page 7",
-                    "file": "G/image-007.jpg"
-                }
-            ],
-            "introductionFile": "01_-_Un_imposible_me_mata-intro.md",
-            "textCommentsFile": "01_-_Un_imposible_me_mata-text-comments.md"
+            }
         },
         {
-            "path": "tonos/02",
-            "title": "Querido imposible mío",
-            "audioBaseFiles": [
-                {
-                    "file": "06-render-20260213.mp3",
-                    "name": "Base"
-                }
-            ],
-            "meiFile": "02_-_Querido_imposible_mio-music-T.mei",
-            "text": [
-                {
-                    "file": "02_-_Querido_imposible_mio-text.txt",
-                    "append_to": "coplas",
-                    "name": "Coplas"
-                }
-            ],
-            "encodingProperties": {
-                "encodedTransposition": "-P4"
-            },
-            "facsimileItems": [
-                {
-                    "name": "Soprano 1 page 10",
-                    "file": "S1/image-010.jpg"
-                },
-                {
-                    "name": "Soprano 2 page 10",
-                    "file": "S2/image-010.jpg"
-                },
-                {
-                    "name": "Tenor page 13",
-                    "file": "T/image-013.jpg"
-                },
-                {
-                    "name": "Guion page 7",
-                    "file": "G/image-007.jpg"
-                }
-            ],
-            "introductionFile": "02_-_Querido_imposible_mio-intro.md",
-            "textCommentsFile": "02_-_Querido_imposible_mio-text-comments.md"
-        },
-        {
-            "path": "tonos/03",
+            "_covers": "MEI text + facsimile + transposition, without introduction",
             "title": "Amariles yo no puedo",
-            "meiFile": "03_-_Amariles_yo_no_puedo-music-T.mei",
-            "encodingProperties": {
-                "encodedTransposition": "-P4"
-            },
+            "path": "amariles",
+            "meiFile": "music.mei",
             "facsimileItems": [
                 {
-                    "name": "Soprano 1 page 11",
-                    "file": "S1/image-011.jpg"
-                },
-                {
-                    "name": "Soprano 2 page 11",
-                    "file": "S2/image-011.jpg"
-                },
-                {
-                    "name": "Tenor page 14",
-                    "file": "T/image-014.jpg"
-                },
-                {
-                    "name": "Guion page 8",
-                    "file": "G/image-008.jpg"
-                }
-            ]
-        },
-        {
-            "path": "tonos/38",
-            "title": "Al compás de un arroyuelo",
-            "meiFile": "38_Al_compas_de_un_arroyuelo.mei",
-            "introductionFile": "38_Al_compas_de_un_arroyuelo-intro.md",
-            "encodingProperties": {
-                "encodedTransposition": ""
-            }
-        },
-        {
-            "path": "tonos",
-            "title": "test mei",
-            "meiFile": "test-anot.mei",
-            "encodingProperties": {
-                "encodedTransposition": "-P4"
-            }
-        },
-        {
-            "path": "tonos",
-            "title": "wrong url test mei",
-            "meiFile": "non-exixtent.mei",
-            "encodingProperties": {
-                "encodedTransposition": "-P4"
-            }
-        },
-        {
-            "path": "tonos",
-            "title": "big MEI file",
-            "meiFile": "test-big.mei",
-            "encodingProperties": {
-                "encodedTransposition": "-P4"
-            }
-        },
-        {
-            "path": "tonos",
-            "title": "no clefs",
-            "meiFile": "no-clefs.mei",
-            "encodingProperties": {
-                "encodedTransposition": "-P4"
-            }
-        },
-        {
-            "path": "tonos",
-            "title": "no clefs and no transposition",
-            "meiFile": "no-clefsnt.mei",
-            "encodingProperties": {
-                "encodedTransposition": ""
-            }
-        },
-        {
-            "path": "tonos",
-            "title": "parallel fifths test",
-            "meiFile": "parallel.mei",
-            "encodingProperties": {
-                "encodedTransposition": "-P4"
-            }
-        },
-        {
-            "path": "tonos",
-            "title": "variant test",
-            "meiFile": "variant.mei",
-            "encodingProperties": {
-                "encodedTransposition": "-P4"
-            }
-        },
-        {
-            "path": "tarasca",
-            "title": "Jacara",
-            "meiFile": "en la chozuela pajiza_mdiv1.mei",
-            "audioFiles": [
-                {
-                    "file": "en la chozuela pajiza 1.mp3"
+                    "name": "Soprano 1",
+                    "file": "amariles-s1.jpg"
                 }
             ],
             "encodingProperties": {
@@ -211,18 +62,29 @@
             }
         },
         {
-            "path": "tonos",
-            "title": "test expansions",
-            "meiFile": "test-repeat.mei",
+            "_covers": "MEI text with notes + introduction + multiple sections (goToSection)",
+            "title": "Al compás de un arroyuelo",
+            "path": "arroyuelo",
+            "meiFile": "music.mei",
+            "introductionFile": "intro.md",
+            "encodingProperties": {
+                "encodedTransposition": ""
+            }
+        },
+        {
+            "_covers": "audio with and without repeats/expansions",
+            "title": "Repeticiones (con/sin expansión)",
+            "path": "repeticiones",
+            "meiFile": "music.mei",
             "audioFiles": [
                 {
-                    "file": "test-repeat-not-expanded.mp3",
-                    "name": "no repeats",
+                    "file": "without-repeats.mp3",
+                    "name": "Sin repeticiones",
                     "repeats": false
                 },
                 {
-                    "file": "test-repeat-expanded.mp3",
-                    "name": "with repeats",
+                    "file": "with-repeats.mp3",
+                    "name": "Con repeticiones",
                     "repeats": true
                 }
             ],
@@ -231,55 +93,30 @@
             }
         },
         {
-            "path": "tarasca",
-            "title": "responsion",
-            "meiFile": "en la chozuela pajiza_mdiv2.mei",
-            "audioFiles": [
-                {
-                    "file": "en la chozuela pajiza 2.mp3"
-                }
-            ],
+            "_covers": "editorial content (apparatus/variants) + sections",
+            "title": "Variantes editoriales",
+            "path": "variantes",
+            "meiFile": "music.mei",
             "encodingProperties": {
                 "encodedTransposition": "-P4"
             }
         },
         {
-            "path": "tarasca",
-            "title": "copla 1",
-            "meiFile": "en la chozuela pajiza_mdiv3.mei",
-            "audioFiles": [
-                {
-                    "file": "en la chozuela pajiza 3.mp3"
-                }
-            ],
+            "_covers": "original clefs option",
+            "title": "Claves originales",
+            "path": "claves-originales",
+            "meiFile": "music.mei",
             "encodingProperties": {
                 "encodedTransposition": "-P4"
             }
         },
         {
-            "path": "tarasca",
-            "title": "copla 2",
-            "meiFile": "en la chozuela pajiza_mdiv4.mei",
-            "audioFiles": [
-                {
-                    "file": "en la chozuela pajiza 4.mp3"
-                }
-            ],
+            "_covers": "fetch error handling (missing MEI file)",
+            "title": "URL errónea (error de carga)",
+            "path": "un-imposible",
+            "meiFile": "no-existe.mei",
             "encodingProperties": {
-                "encodedTransposition": "-P4"
-            }
-        },
-        {
-            "path": "tarasca",
-            "title": "copla 3",
-            "meiFile": "en la chozuela pajiza_mdiv5.mei",
-            "audioFiles": [
-                {
-                    "file": "en la chozuela pajiza 5.mp3"
-                }
-            ],
-            "encodingProperties": {
-                "encodedTransposition": "-P4"
+                "encodedTransposition": ""
             }
         }
     ]

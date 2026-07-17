@@ -28,10 +28,15 @@ export default defineConfig(({ mode }) => {
       }),
       svgr({ svgrOptions: { icon: false } })
     ],
-    // Enable source maps for better debugging
+    // Test fixtures served at the dev-server root by `npm run dev`.
+    // The are not copied into the build output (as set by build.copyPublicDir
+    // below) so they don't leak into the npm package with the component.
+    publicDir: 'test-fixtures',
     build: {
+      // Enable source maps for better debugging
       sourcemap: true,
       minify: !isDev,
+      copyPublicDir: false,
     },
     // Enable detailed source maps in development
     css: {

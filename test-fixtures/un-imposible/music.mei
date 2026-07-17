@@ -1,0 +1,2630 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?xml-model href="https://music-encoding.org/schema/5.1/mei-all.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="https://music-encoding.org/schema/5.1/mei-all.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<mei xmlns="http://www.music-encoding.org/ns/mei" meiversion="5.1">
+   <meiHead>
+      <fileDesc>
+         <titleStmt>
+            <title type="main">Un imposible me mata</title>
+            <title type="subordinate">Tono 1º del Cancionero de Miranda</title>
+            <composer>
+               <persName role="composer">[Anónimo]</persName>
+            </composer>
+            <respStmt>
+               <persName xml:id="FHH" role="transcriber">Fernando Herrera</persName>
+            </respStmt>
+            <respStmt>
+               <persName role="reconstruction">Fernando Herrera</persName>
+            </respStmt>
+         </titleStmt>
+         <pubStmt>
+            <date isodate="2024-12-31T01:58:04"/>
+            <publisher>
+               <corpName role="publisher">Humano y divino<identifier type="URI">https://humanoydivino.com</identifier>
+               </corpName>
+            </publisher>
+            <availability>
+               <useRestrict>In the event that this encoding is subject to copyright protection in any jurisdiction under applicable laws, it is licensed under CC BY-SA 4.0. Otherwise, it's in the public domain</useRestrict>
+            </availability>
+         </pubStmt>
+         <sourceDesc>
+            <source n="1" label="manuscript">
+               <bibl>
+                  <identifier type="URI">https://purl.pt/41324</identifier>
+                  <title>Miçelania de Tonos de Varios Autores, a 4º - (Superius primus a 4)</title>
+               </bibl>
+            </source>
+            <source n="2" label="manuscript">
+               <bibl>
+                  <identifier type="URI">https://purl.pt/41324</identifier>
+                  <title>Miçelania de Tonos de Varios Autores, a 4º - (Superius secundus a 4)</title>
+               </bibl>
+            </source>
+            <source n="3" label="manuscript">
+               <bibl>
+                  <identifier type="URI">https://purl.pt/41324</identifier>
+                  <title>Miçelania de Tonos de Varios Autores, a 4º - (Guião a 4)</title>
+               </bibl>
+            </source>
+            <source n="4" label="manuscript">
+               <bibl>
+                  <identifier type="URI">https://digitarq.arquivos.pt/documentDetails/a343c5c86e4340a0a1a05a8965d823e5</identifier>
+                  <title>Miçelania de Tonos de Varios Autores, a 4º - (Tenor a 4)</title>
+               </bibl>
+            </source>
+            <source n="5" label="digital">
+               <bibl>
+                  <title>Reconstrucción de la parte perdida de Alto</title>
+               </bibl>
+            </source>
+         </sourceDesc>
+      </fileDesc>
+      <workList>
+         <work>
+            <title>Un imposible me mata</title>
+            <perfMedium>
+               <perfResList>
+                  <perfRes>Tiple 1º</perfRes>
+                  <perfRes>Tiple 2º</perfRes>
+                  <perfRes type="reconstructed">Alto</perfRes>
+                  <perfRes>Tenor</perfRes>
+                  <perfRes>guion</perfRes>
+               </perfResList>
+            </perfMedium>
+         </work>
+      </workList>
+   </meiHead>
+   <music>
+      <body>
+         <mdiv>
+            <score>
+               <scoreDef midi.bpm="180.0">
+                  <staffGrp>
+                     <staffGrp symbol="bracket">
+                        <staffDef n="1" lines="5" meter.count="3" meter.unit="2">
+                           <label>Tiple 1º</label>
+                           <labelAbbr>T. 1</labelAbbr>
+                           <clef shape="G" line="2"/>
+                        </staffDef>
+                        <staffDef n="2" lines="5" meter.count="3" meter.unit="2">
+                           <label>Tiple 2º</label>
+                           <labelAbbr>T. 2</labelAbbr>
+                           <clef shape="G" line="2"/>
+                        </staffDef>
+                        <staffDef n="3" lines="5" meter.count="3" meter.unit="2">
+                           <label>[Alto]</label>
+                           <labelAbbr>[A.]</labelAbbr>
+                           <clef shape="G" line="2"/>
+                        </staffDef>
+                        <staffDef n="4" lines="5" meter.count="3" meter.unit="2">
+                           <label>Tenor</label>
+                           <labelAbbr>Tn.</labelAbbr>
+                           <clef xml:id="ci982231" shape="G" line="2" dis="8" dis.place="below"/>
+                        </staffDef>
+                     </staffGrp>
+                     <staffDef n="5" lines="5" meter.count="3" meter.unit="2">
+                        <label>Guion</label>
+                        <labelAbbr>G.</labelAbbr>
+                        <clef xml:id="ci982232" shape="F" line="4"/>
+                     </staffDef>
+                  </staffGrp>
+               </scoreDef>
+               <section xml:id="coplas" label="coplas">
+                  <app xml:id="a9823">
+                     <lem label="app_clefs"/>
+                     <rdg label="app_clefs">
+                        <scoreDef midi.bpm="180.0">
+                           <staffGrp>
+                              <staffGrp symbol="bracket">
+                                 <staffDef n="1" lines="5" meter.count="3" meter.unit="2">
+                                    <label>Tiple 1º</label>
+                                    <labelAbbr>T. 1</labelAbbr>
+                                    <clef shape="G" line="2"/>
+                                 </staffDef>
+                                 <staffDef n="2" lines="5" meter.count="3" meter.unit="2">
+                                    <label>Tiple 2º</label>
+                                    <labelAbbr>T. 2</labelAbbr>
+                                    <clef shape="G" line="2"/>
+                                 </staffDef>
+                                 <staffDef n="3" lines="5" meter.count="3" meter.unit="2">
+                                    <label>[Alto]</label>
+                                    <labelAbbr>[A.]</labelAbbr>
+                                    <clef shape="G" line="2"/>
+                                 </staffDef>
+                                 <staffDef n="4" lines="5" meter.count="3" meter.unit="2">
+                                    <label>Tenor</label>
+                                    <labelAbbr>Tn.</labelAbbr>
+                                    <clef corresp="#ci982231" shape="C" line="3"/>
+                                 </staffDef>
+                              </staffGrp>
+                              <staffDef n="5" lines="5" meter.count="3" meter.unit="2">
+                                 <label>Guion</label>
+                                 <labelAbbr>G.</labelAbbr>
+                                 <clef corresp="#ci982232" shape="C" line="4"/>
+                              </staffDef>
+                           </staffGrp>
+                        </scoreDef>
+                     </rdg>
+                  </app>
+                  <annot plist="#a9823 #ci982231 #ci982232">Claves modernizadas</annot>
+                  <annot plist="#siu287">Voz reconstruida</annot>
+                  <measure n="1">
+                     <staff n="1">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <note dur="2" oct="5" pname="c" xml:id="n846746">
+                              <verse n="1">
+                                 <syl>Un</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">Tris</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">Do</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl>Yo</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="n7kdr82" dur="2" oct="5" pname="c">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">im</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t" con="b">te</syl>
+                                 <syl>el</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="m">ra</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">pa</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <note dur="2" oct="4" pname="g" xml:id="n666495">
+                              <verse n="1">
+                                 <syl>Un</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">Tris</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">Do</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl>Yo</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="n1ac9vzn" dur="2" oct="4" pname="g">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">im</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t" con="b">te</syl>
+                                 <syl>el</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="m">ra</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">pa</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <note dur="2" oct="4" pname="e">
+                              <verse n="1">
+                                 <syl>Un</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">Tris</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">Do</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl>Yo</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="nl12f3" dur="2" oct="4" pname="e">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">im</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t" con="b">te</syl>
+                                 <syl>el</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="m">ra</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">pa</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <note dur="2" oct="4" pname="c" xml:id="n921153">
+                              <verse n="1">
+                                 <syl>Un</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">Tris</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">Do</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl>Yo</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="n1u66vw1" dur="2" oct="4" pname="c">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">im</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t" con="b">te</syl>
+                                 <syl>el</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="m">ra</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">pa</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <note dur="2" oct="3" pname="c" xml:id="n873758"/>
+                           <note xml:id="n1sg26xj" dur="2" oct="3" pname="c"/>
+                        </layer>
+                     </staff>
+                     <bracketSpan startid="#n921153" endid="#n651197" func="coloration" lwidth="0.5vu"/>
+                     <bracketSpan startid="#n666495" endid="#n859277" func="coloration" lwidth="0.5vu"/>
+                     <bracketSpan startid="#n846746" endid="#n913575" func="coloration" lwidth="0.5vu"/>
+                     <bracketSpan startid="#n873758" endid="#n394466" func="coloration" lwidth="0.5vu"/>
+                     <tie startid="#n7kdr82" endid="#n19vnpb3"/>
+                     <tie startid="#n1ac9vzn" endid="#njsw6f7"/>
+                     <tie startid="#n1u66vw1" endid="#nu5crzn"/>
+                     <tie startid="#n1sg26xj" endid="#nfdrx4y"/>
+                     <tie startid="#nl12f3" endid="#nl14f3"/>
+                  </measure>
+                  <measure n="2">
+                     <staff n="1">
+                        <layer n="1">
+                           <note xml:id="n19vnpb3" dur="2" oct="5" pname="c"/>
+                           <note dur="2" oct="5" pname="c">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">po</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">co</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">das</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">de</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="n19433uk" dur="2" oct="5" pname="c">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">si</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="m">ra</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">fle</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">cie</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note xml:id="njsw6f7" dur="2" oct="4" pname="g"/>
+                           <note dur="2" oct="4" pname="a">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">po</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">co</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">das</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">de</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="n11yh97q" dur="2" oct="4" pname="a">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">si</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="m">ra</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">fle</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">cie</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note xml:id="nl14f3" dur="2" oct="4" pname="e"/>
+                           <note dur="2" oct="4" pname="f">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">po</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">co</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">das</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">de</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="nl16f3" dur="2" oct="4" pname="f">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">si</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="m">ra</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">fle</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">cie</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <note xml:id="nu5crzn" dur="2" oct="4" pname="c"/>
+                           <note dur="2" oct="3" pname="f">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">po</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">co</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">das</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">de</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="n1sz03a6" dur="2" oct="3" pname="f">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">si</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="m">ra</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">fle</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">cie</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <note xml:id="nfdrx4y" dur="2" oct="3" pname="c"/>
+                           <note dur="2" oct="3" pname="f"/>
+                           <note xml:id="n11jmdz1" dur="2" oct="3" pname="f"/>
+                        </layer>
+                     </staff>
+                     <tie startid="#n19433uk" endid="#n11fiyw8"/>
+                     <tie startid="#n11yh97q" endid="#n17kg4iv"/>
+                     <tie startid="#n1sz03a6" endid="#n1cuk7xl"/>
+                     <tie startid="#n11jmdz1" endid="#n98xyt"/>
+                     <tie startid="#nl16f3" endid="#nl18f3"/>
+                  </measure>
+                  <measure n="3">
+                     <staff n="1">
+                        <layer n="1">
+                           <note xml:id="n11fiyw8" dur="2" oct="5" pname="c"/>
+                           <note dur="2" oct="5" pname="d">
+                              <verse n="1">
+                                 <syl wordpos="t">ble</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">zón</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">chas</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">ra</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="5" pname="f">
+                              <verse n="1">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>se</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl>de</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">con</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note xml:id="n17kg4iv" dur="2" oct="4" pname="a"/>
+                           <note dur="2" oct="4" pname="b" accid="f">
+                              <verse n="1">
+                                 <syl wordpos="t">ble</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">zón</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">chas</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">ra</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="5" pname="c">
+                              <verse n="1">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>se</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl>de</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">con</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note xml:id="nl18f3" dur="2" oct="4" pname="f"/>
+                           <note dur="2" oct="4" pname="f">
+                              <verse n="1">
+                                 <syl wordpos="t">ble</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">zón</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">chas</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">ra</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="4" pname="a">
+                              <verse n="1">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>se</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl>de</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">con</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <note xml:id="n1cuk7xl" dur="2" oct="3" pname="f"/>
+                           <note dur="2" oct="3" pname="b" accid="f">
+                              <verse n="1">
+                                 <syl wordpos="t">ble</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">zón</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">chas</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">ra</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="3" pname="a">
+                              <verse n="1">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>se</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl>de</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">con</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <note xml:id="n98xyt" dur="2" oct="3" pname="f"/>
+                           <note dur="2" oct="2" pname="b" accid="f"/>
+                           <note dur="2" oct="2" pname="a"/>
+                        </layer>
+                     </staff>
+                     <app>
+                        <lem/>
+                        <rdg type="dissonant_analysis">
+                           <harm type="rdiss" place="above" staff="5" tstamp="2" n="2">
+                              <rend label="apoyatura abordada desde abajo">T</rend>
+                           </harm>
+                           <harm type="rdiss" place="above" staff="4" tstamp="2" n="4">
+                              <rend label="apoyatura abordada desde abajo">T</rend>
+                           </harm>
+                           <harm type="rdiss" place="above" staff="1" tstamp="2" n="10">
+                              <rend label="disonancia no clasificada, intervalo de 2ª o 7ª" color="red">Z</rend>
+                           </harm>
+                        </rdg>
+                     </app>
+                  </measure>
+                  <measure n="4" right="rptend">
+                     <staff n="1">
+                        <layer n="1">
+                           <note dur="2" oct="5" pname="f">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">ma</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">que</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">fue</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">ten</syl>
+                              </verse>
+                           </note>
+                           <note dur="1" oct="5" pname="e" xml:id="n913575">
+                              <verse n="1">
+                                 <syl wordpos="t">ta,</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">ja,</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">go,</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">to,</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note dur="2" oct="5" pname="d">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">ma</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">que</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">fue</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">ten</syl>
+                              </verse>
+                           </note>
+                           <note dur="1" oct="5" pname="c" xml:id="n859277">
+                              <verse n="1">
+                                 <syl wordpos="t">ta,</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">ja,</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">go,</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">to,</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note dur="2" oct="4" pname="g">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">ma</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">que</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">fue</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">ten</syl>
+                              </verse>
+                           </note>
+                           <note dur="1" oct="4" pname="g">
+                              <verse n="1">
+                                 <syl wordpos="t">ta,</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">ja,</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">go,</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">to,</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <note dur="2" oct="3" pname="b">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">ma</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">que</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">fue</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">ten</syl>
+                              </verse>
+                           </note>
+                           <note dur="1" oct="4" pname="c" xml:id="n651197">
+                              <verse n="1">
+                                 <syl wordpos="t">ta,</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">ja,</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">go,</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">to,</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <note dur="2" oct="2" pname="b"/>
+                           <note dur="1" oct="3" pname="c" xml:id="n394466"/>
+                        </layer>
+                     </staff>
+                     <app>
+                        <lem/>
+                        <rdg type="dissonant_analysis">
+                           <harm type="rdiss" place="above" staff="3" tstamp="1" n="6">
+                              <rend label="anticipación descendente">a</rend>
+                           </harm>
+                        </rdg>
+                     </app>
+                  </measure>
+                  <measure n="5">
+                     <staff n="1">
+                        <layer n="1">
+                           <mRest/>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <mRest/>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <mRest/>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <note dur="2" oct="4" pname="f" xml:id="n826480">
+                              <verse n="1">
+                                 <syl>y</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>y</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="b">que</syl>
+                                 <syl>a</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="b">si</syl>
+                                 <syl>el</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="n1poay91" dur="2" oct="4" pname="f">
+                              <verse n="1">
+                                 <syl>sus</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>si</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">ca</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">a</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <note dur="2" oct="3" pname="f" xml:id="n33346"/>
+                           <note xml:id="n3x9nzu" dur="2" oct="3" pname="f"/>
+                        </layer>
+                     </staff>
+                     <bracketSpan startid="#n826480" endid="#n419340" func="coloration" lwidth="0.5vu"/>
+                     <bracketSpan startid="#n33346" endid="#n944705" func="coloration" lwidth="0.5vu"/>
+                     <tie startid="#n1poay91" endid="#nt461gu"/>
+                     <tie startid="#n3x9nzu" endid="#nnjdw6p"/>
+                  </measure>
+                  <measure n="6">
+                     <staff n="1">
+                        <layer n="1">
+                           <mRest/>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <note dur="2" oct="5" pname="c" xml:id="n958824">
+                              <verse n="1">
+                                 <syl>y</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>y</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="b">que</syl>
+                                 <syl>a</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="b">si</syl>
+                                 <syl>el</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="ndcsyo7" dur="2" oct="5" pname="c">
+                              <verse n="1">
+                                 <syl>sus</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>si</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">ca</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">a</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <mRest/>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <note xml:id="nt461gu" dur="2" oct="4" pname="f"/>
+                           <supplied xml:id="suidu82" agent="ink" reason="Parte del compás 6 está cubierta de tinta y no se pueden leer las notas, por lo que ha sido reconstruido" resp="#FHH">
+                              <note xml:id="n1suidu82" dur="2" oct="4" pname="e">
+                                 <verse n="1">
+                                    <syl con="d" wordpos="i">me</syl>
+                                 </verse>
+                                 <verse n="2">
+                                    <syl>le</syl>
+                                 </verse>
+                                 <verse n="3">
+                                    <syl wordpos="t">da</syl>
+                                 </verse>
+                                 <verse n="4">
+                                    <syl wordpos="t">mor</syl>
+                                 </verse>
+                              </note>
+                              <note xml:id="nammkyx" dur="2" oct="4" pname="e">
+                                 <verse n="1">
+                                    <syl con="d" wordpos="m">mo</syl>
+                                 </verse>
+                                 <verse n="2">
+                                    <syl con="d" wordpos="i">pre</syl>
+                                 </verse>
+                                 <verse n="3">
+                                    <syl con="d" wordpos="i">pa</syl>
+                                 </verse>
+                                 <verse n="4">
+                                    <syl con="d" wordpos="i">fue</syl>
+                                 </verse>
+                              </note>
+                           </supplied>
+                        </layer>
+                        <annot plist="#suidu82">Añanadidas las dos últimas notas del compás que son ilegibles en el manuscrito por casusa de la tinta</annot>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <note xml:id="nnjdw6p" dur="2" oct="3" pname="f"/>
+                           <note dur="2" oct="3" pname="c"/>
+                           <note xml:id="ngshvq9" dur="2" oct="3" pname="c"/>
+                        </layer>
+                     </staff>
+                     <bracketSpan startid="#n958824" endid="#n685772" func="coloration" lwidth="0.5vu"/>
+                     <tie startid="#ndcsyo7" endid="#n871l54"/>
+                     <tie startid="#nammkyx" endid="#nnlubus"/>
+                     <tie startid="#ngshvq9" endid="#n17e8e6"/>
+                  </measure>
+                  <measure n="7">
+                     <staff n="1">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <note dur="2" oct="5" pname="f" xml:id="n901808">
+                              <verse n="1">
+                                 <syl>y</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>y</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="b">que</syl>
+                                 <syl>a</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="b">si</syl>
+                                 <syl>el</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="n16uh86b" dur="2" oct="5" pname="f">
+                              <verse n="1">
+                                 <syl>sus</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>si</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">ca</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">a</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note xml:id="n871l54" dur="2" oct="5" pname="c"/>
+                           <note dur="2" oct="4" pname="b" accid="f">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">me</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>le</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">da</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">mor</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="n1ycmpnw" dur="2" oct="4" pname="a">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">mo</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">pre</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">pa</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">fue</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <mRest/>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <note xml:id="nnlubus" dur="2" oct="4" pname="e"/>
+                           <note dots="1" dur="2" oct="4" pname="d">
+                              <verse n="1">
+                                 <syl wordpos="t">rias</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="m">gun</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">so</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">ra</syl>
+                              </verse>
+                           </note>
+                           <note dur="4" oct="4" pname="e">
+                              <verse n="1">
+                                 <syl>y</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t" con="b">to</syl>
+                                 <syl>y</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="b">que</syl>
+                                 <syl>a</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="b">si</syl>
+                                 <syl>el</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <note xml:id="n17e8e6" dur="2" oct="3" pname="c"/>
+                           <note dots="1" dur="2" oct="3" pname="d"/>
+                           <note dur="4" oct="3" pname="c"/>
+                        </layer>
+                     </staff>
+                     <bracketSpan startid="#n901808" endid="#n713415" func="coloration" lwidth="0.5vu"/>
+                     <tie startid="#n16uh86b" endid="#ndwy455"/>
+                     <tie startid="#n1ycmpnw" endid="#n91jagp"/>
+                     <app>
+                        <lem/>
+                        <rdg type="dissonant_analysis">
+                           <harm type="rdiss" place="above" staff="5" tstamp="3.5" n="2">
+                              <rend label="bordadura inferior">n</rend>
+                           </harm>
+                           <harm type="rdiss" place="above" staff="4" tstamp="3.5" n="4">
+                              <rend label="bordadura superior">N</rend>
+                           </harm>
+                        </rdg>
+                     </app>
+                  </measure>
+                  <measure n="8">
+                     <staff n="1">
+                        <layer n="1">
+                           <note xml:id="ndwy455" dur="2" oct="5" pname="f"/>
+                           <note dur="2" oct="5" pname="e">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">me</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>le</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">da</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">mor</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="ndnvyuv" dur="2" oct="5" pname="e">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">mo</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">pre</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">pa</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">fue</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note xml:id="n91jagp" dur="2" oct="4" pname="a"/>
+                           <note dur="2" oct="4" pname="a">
+                              <verse n="1">
+                                 <syl wordpos="t">rias</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="m">gun</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">so</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">ra</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="4" pname="a" xml:id="n685772">
+                              <verse n="1">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">to</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="b">me</syl>
+                                 <syl con="d" wordpos="i">em</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">des</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <note dur="2" oct="4" pname="e">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">me</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>le</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">da</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">mor</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="nl40f3" dur="2" oct="4" pname="e">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">mo</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">pre</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">pa</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">fue</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <note dur="2" oct="4" pname="d">
+                              <verse n="1">
+                                 <syl>sus</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>si</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">ca</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">a</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="4" pname="c">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">me</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>le</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">da</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">mor</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="n12jvdx4" dur="2" oct="4" pname="c" accid="s">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">mo</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">pre</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">pa</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">fue</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <note dur="2" oct="3" pname="d"/>
+                           <note dur="2" oct="3" pname="c"/>
+                           <note xml:id="n1tcsb81" dur="2" oct="2" pname="a"/>
+                        </layer>
+                     </staff>
+                     <tie startid="#ndnvyuv" endid="#nz6fbaq"/>
+                     <tie startid="#n12jvdx4" endid="#nrg218u"/>
+                     <tie startid="#n1tcsb81" endid="#n1et02ke"/>
+                     <tie startid="#nl40f3" endid="#nl42f3"/>
+                  </measure>
+                  <measure n="9">
+                     <staff n="1">
+                        <layer n="1">
+                           <note xml:id="nz6fbaq" dur="2" oct="5" pname="e"/>
+                           <note dur="2" oct="5" pname="d">
+                              <verse n="1">
+                                 <syl wordpos="t">rias</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="m">gun</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">so</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">ra</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="5" pname="e">
+                              <verse n="1">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">to</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="b">me</syl>
+                                 <syl con="d" wordpos="i">em</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">des</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note dots="1" dur="1" oct="4" pname="a">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">rin</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">tris</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="m">bis</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">pi</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note xml:id="nl42f3" dur="2" oct="4" pname="e"/>
+                           <note dur="2" oct="4" pname="f">
+                              <verse n="1">
+                                 <syl wordpos="t">rias</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="m">gun</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">so</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">ra</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="4" pname="e">
+                              <verse n="1">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">to</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="b">me</syl>
+                                 <syl con="d" wordpos="i">em</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">des</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <note xml:id="nrg218u" dur="2" oct="4" pname="c" accid.ges="s"/>
+                           <note dur="2" oct="4" pname="d">
+                              <verse n="1">
+                                 <syl wordpos="t">rias</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="m">gun</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">so</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">ra</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="4" pname="c" accid="s">
+                              <verse n="1">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">to</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="b">me</syl>
+                                 <syl con="d" wordpos="i">em</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">des</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <note xml:id="n1et02ke" dur="2" oct="2" pname="a"/>
+                           <note dur="2" oct="3" pname="d"/>
+                           <note dur="2" oct="3" pname="c" accid="s"/>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure n="10">
+                     <staff n="1">
+                        <layer n="1">
+                           <note dur="2" oct="5" pname="d">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">rin</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">tris</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="m">bis</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">pi</syl>
+                              </verse>
+                           </note>
+                           <note dur="1" oct="5" pname="c" accid="s" xml:id="n713415">
+                              <verse n="1">
+                                 <syl wordpos="t">den</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">te:</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">ten</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">que</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note dots="1" dur="1" oct="4" pname="a">
+                              <verse n="1">
+                                 <syl wordpos="t">den</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">te:</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">ten</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">que</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note dur="2" oct="4" pname="f">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">rin</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">tris</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="m">bis</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">pi</syl>
+                              </verse>
+                           </note>
+                           <note dur="1" oct="4" pname="e">
+                              <verse n="1">
+                                 <syl wordpos="t">den</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">te:</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">ten</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">que</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <note dur="2" oct="4" pname="d">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">rin</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">tris</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="m">bis</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">pi</syl>
+                              </verse>
+                           </note>
+                           <note dur="1" oct="3" pname="a" xml:id="n419340">
+                              <verse n="1">
+                                 <syl wordpos="t">den</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">te:</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">ten</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">que</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <note dur="2" oct="3" pname="d"/>
+                           <note dur="1" oct="2" pname="a" xml:id="n944705"/>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure n="11">
+                     <staff n="1">
+                        <layer n="1">
+                           <rest dur="1"/>
+                           <note dur="4" oct="5" pname="c" accid="s">
+                              <verse n="1">
+                                 <syl>quién</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">co</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl>que</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">pe</syl>
+                              </verse>
+                           </note>
+                           <note dur="4" oct="5" pname="c" accid.ges="s">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">di</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="m">ra</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">cuan</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="b" wordpos="t">ro</syl>
+                                 <syl con="d" wordpos="i">an</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <rest dur="1"/>
+                           <note dur="4" oct="4" pname="a">
+                              <verse n="1">
+                                 <syl>quién</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">co</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl>que</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">pe</syl>
+                              </verse>
+                           </note>
+                           <note dur="4" oct="4" pname="a">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">di</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="m">ra</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">cuan</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="b" wordpos="t">ro</syl>
+                                 <syl con="d" wordpos="i">an</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <rest dur="1"/>
+                           <note dur="4" oct="4" pname="e">
+                              <verse n="1">
+                                 <syl>quién</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">co</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl>que</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">pe</syl>
+                              </verse>
+                           </note>
+                           <note dur="4" oct="4" pname="e">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">di</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="m">ra</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">cuan</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="b" wordpos="t">ro</syl>
+                                 <syl con="d" wordpos="i">an</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <rest dur="1"/>
+                           <note dur="4" oct="3" pname="a">
+                              <verse n="1">
+                                 <syl>quién</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">co</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl>que</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">pe</syl>
+                              </verse>
+                           </note>
+                           <note dur="4" oct="3" pname="a">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">di</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="m">ra</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">cuan</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="b" wordpos="t">ro</syl>
+                                 <syl con="d" wordpos="i">an</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <note dur="1" oct="2" pname="a"/>
+                           <note dur="2" oct="2" pname="a"/>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure n="12">
+                     <staff n="1">
+                        <layer n="1">
+                           <note dur="2" oct="5" pname="d">
+                              <verse n="1">
+                                 <syl wordpos="t">rá</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">zón,</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">do</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">dar</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="5" pname="c" xml:id="n600882">
+                              <accid accid="s" func="edit" enclose="paren"/>
+                              <verse n="1">
+                                 <syl>que</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>¿por</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">muer</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">pe</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="n54fo4l" dur="2" oct="5" pname="d">
+                              <verse n="1">
+                                 <syl>yo</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>qué</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">to</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">nan</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note dur="2" oct="4" pname="a" xml:id="n756548">
+                              <verse n="1">
+                                 <syl wordpos="t">rá</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">zón,</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">do</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">dar</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="4" pname="a">
+                              <verse n="1">
+                                 <syl>que</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>¿por</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">muer</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">pe</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="nzd70iv" dur="2" oct="4" pname="g">
+                              <verse n="1">
+                                 <syl>yo</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>qué</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">to</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">nan</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note dur="2" oct="4" pname="f">
+                              <verse n="1">
+                                 <syl wordpos="t">rá</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">zón,</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">do</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">dar</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="4" pname="e">
+                              <verse n="1">
+                                 <syl>que</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>¿por</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">muer</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">pe</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="nl56f3" dur="2" oct="4" pname="d">
+                              <verse n="1">
+                                 <syl>yo</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>qué</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">to</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">nan</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <note dur="2" oct="4" pname="d" xml:id="n318511">
+                              <verse n="1">
+                                 <syl wordpos="t">rá</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">zón,</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">do</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">dar</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="3" pname="a">
+                              <verse n="1">
+                                 <syl>que</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>¿por</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">muer</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">pe</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="n1bklumo" dur="2" oct="3" pname="b">
+                              <verse n="1">
+                                 <syl>yo</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>qué</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">to</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">nan</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <note dur="2" oct="3" pname="d"/>
+                           <note dur="2" oct="2" pname="a"/>
+                           <note xml:id="nchq3x" dur="2" oct="2" pname="b"/>
+                        </layer>
+                     </staff>
+                     <bracketSpan startid="#n318511" endid="#n646826" func="coloration" lwidth="0.5vu"/>
+                     <bracketSpan startid="#n756548" endid="#n1c9809fk" func="coloration" lwidth="0.5vu"/>
+                     <bracketSpan startid="#n600882" endid="#n299717" func="coloration" lwidth="0.5vu"/>
+                     <bracketSpan startid="#nchq3x" endid="#n906636" func="coloration" lwidth="0.5vu"/>
+                     <tie startid="#n54fo4l" endid="#nabcbf6"/>
+                     <tie startid="#nzd70iv" endid="#n1wyy7z5"/>
+                     <tie startid="#n1bklumo" endid="#n19qtfp2"/>
+                     <tie startid="#nchq3x" endid="#n1czlwde"/>
+                     <tie startid="#nl56f3" endid="#nl58f3"/>
+                  </measure>
+                  <measure n="13">
+                     <staff n="1">
+                        <layer n="1">
+                           <note xml:id="nabcbf6" dur="2" oct="5" pname="d"/>
+                           <note dur="2" oct="5" pname="c">
+                              <verse n="1">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>has</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">do</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="nmys04f" dur="2" oct="4" pname="b">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">mue</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">muer</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">ve</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">siem</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note xml:id="n1wyy7z5" dur="2" oct="4" pname="g"/>
+                           <note dur="2" oct="4" pname="g">
+                              <verse n="1">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>has</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">do</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="n1k6szh6" dur="2" oct="4" pname="g">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">mue</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">muer</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">ve</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">siem</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note xml:id="nl58f3" dur="2" oct="4" pname="d"/>
+                           <note dur="2" oct="4" pname="e">
+                              <verse n="1">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>has</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">do</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="nl60f3" dur="2" oct="4" pname="d">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">mue</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">muer</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">ve</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">siem</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <note xml:id="n19qtfp2" dur="2" oct="3" pname="b"/>
+                           <note dur="2" oct="4" pname="c">
+                              <verse n="1">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>has</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">do</syl>
+                              </verse>
+                           </note>
+                           <note xml:id="n1o0fo8c" dur="2" oct="3" pname="g">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">mue</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">muer</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">ve</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">siem</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <note xml:id="n1czlwde" dur="2" oct="2" pname="b"/>
+                           <note dur="2" oct="3" pname="c"/>
+                           <note xml:id="n18uu1kq" dur="2" oct="2" pname="g"/>
+                        </layer>
+                     </staff>
+                     <tie startid="#nmys04f" endid="#n2jffw9"/>
+                     <tie startid="#n1k6szh6" endid="#neyc6c7"/>
+                     <tie startid="#n1o0fo8c" endid="#nepizeq"/>
+                     <tie startid="#n18uu1kq" endid="#ni4f6pf"/>
+                     <tie startid="#nl60f3" endid="#nl62f3"/>
+                  </measure>
+                  <measure n="14">
+                     <staff n="1">
+                        <layer n="1">
+                           <note xml:id="n2jffw9" dur="2" oct="4" pname="b"/>
+                           <note dur="1" oct="5" pname="c" xml:id="n299717">
+                              <verse n="1">
+                                 <syl wordpos="t">ro,</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">to?</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">is,</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">pre,</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note xml:id="neyc6c7" dur="2" oct="4" pname="g"/>
+                           <corr xml:id="c9809fk">
+                              <note xml:id="n1c9809fk" dur="1" oct="4" pname="g">
+                                 <verse n="1">
+                                    <syl wordpos="t">ro,</syl>
+                                 </verse>
+                                 <verse n="2">
+                                    <syl wordpos="t">to?</syl>
+                                 </verse>
+                                 <verse n="3">
+                                    <syl wordpos="t">is,</syl>
+                                 </verse>
+                                 <verse n="4">
+                                    <syl wordpos="t">pre,</syl>
+                                 </verse>
+                              </note>
+                           </corr>
+                        </layer>
+                        <annot plist="#c9809fk">Mi bemol en el original (transpuesto a Si bemol). Corregimos para evitar la disonancia con el Do del tiple 1º</annot>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note xml:id="nl62f3" dur="2" oct="4" pname="d"/>
+                           <note dur="1" oct="4" pname="e">
+                              <verse n="1">
+                                 <syl wordpos="t">ro,</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">to?</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">is,</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">pre,</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <note xml:id="nepizeq" dur="2" oct="3" pname="g"/>
+                           <note dur="1" oct="3" pname="e" xml:id="n646826">
+                              <verse n="1">
+                                 <syl wordpos="t">ro,</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">to?</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">is,</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">pre,</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <note xml:id="ni4f6pf" dur="2" oct="2" pname="g"/>
+                           <note dur="1" oct="3" pname="c" xml:id="n906636"/>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure left="rptstart" n="15">
+                     <staff n="1">
+                        <layer n="1">
+                           <note dur="2" oct="5" pname="c">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">sien</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">vuel</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl>es</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="4" pname="b" accid="f">
+                              <verse n="1">
+                                 <syl wordpos="t">do</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">res</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">ve</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl>un</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="5" pname="c">
+                              <verse n="1">
+                                 <syl>mi</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="m">pon</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl>su</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">pa</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note dur="2" oct="4" pname="a">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">sien</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">vuel</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl>es</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="4" pname="b" accid="f">
+                              <verse n="1">
+                                 <syl wordpos="t">do</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">res</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">ve</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl>un</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="4" pname="a">
+                              <verse n="1">
+                                 <syl>mi</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="m">pon</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl>su</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">pa</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note dur="2" oct="4" pname="d">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">sien</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">vuel</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl>es</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="4" pname="d">
+                              <verse n="1">
+                                 <syl wordpos="t">do</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">res</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">ve</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl>un</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="4" pname="f">
+                              <verse n="1">
+                                 <syl>mi</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="m">pon</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl>su</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">pa</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <note dur="2" oct="3" pname="f">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">sien</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl>me</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">vuel</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl>es</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="3" pname="g">
+                              <verse n="1">
+                                 <syl wordpos="t">do</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">res</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">ve</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl>un</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="3" pname="a">
+                              <verse n="1">
+                                 <syl>mi</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="m">pon</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl>su</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">pa</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <note dur="2" oct="3" pname="f"/>
+                           <note dur="2" oct="3" pname="g"/>
+                           <note dur="2" oct="3" pname="a"/>
+                        </layer>
+                     </staff>
+                     <app>
+                        <lem/>
+                        <rdg type="dissonant_analysis">
+                           <harm type="rdiss" place="above" staff="3" tstamp="1" n="6">
+                              <rend label="anticipación descendente">a</rend>
+                           </harm>
+                        </rdg>
+                     </app>
+                  </measure>
+                  <measure n="16">
+                     <staff n="1">
+                        <layer n="1">
+                           <note dur="1" oct="5" pname="d">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">muer</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">de</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">ri</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">de</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="5" pname="c">
+                              <verse n="1">
+                                 <syl con="b" wordpos="t">te</syl>
+                                 <syl con="d" wordpos="i">im</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">por</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">gor</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">cer</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note dur="1" oct="4" pname="g">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">muer</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">de</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">ri</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">de</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="4" pname="g">
+                              <verse n="1">
+                                 <syl con="b" wordpos="t">te</syl>
+                                 <syl con="d" wordpos="i">im</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">por</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">gor</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">cer</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note dur="1" oct="4" pname="d">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">muer</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">de</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">ri</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">de</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="4" pname="e">
+                              <verse n="1">
+                                 <syl con="b" wordpos="t">te</syl>
+                                 <syl con="d" wordpos="i">im</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">por</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">gor</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">cer</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <note dur="1" oct="3" pname="b">
+                              <verse n="1">
+                                 <syl con="d" wordpos="i">muer</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">de</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="i">ri</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">de</syl>
+                              </verse>
+                           </note>
+                           <note dur="2" oct="4" pname="c">
+                              <verse n="1">
+                                 <syl con="b" wordpos="t">te</syl>
+                                 <syl con="d" wordpos="i">im</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">por</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">gor</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">cer</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <note dur="1" oct="3" pname="b"/>
+                           <note dur="2" oct="4" pname="c"/>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure n="17">
+                     <staff n="1">
+                        <layer n="1">
+                           <note dur="2" oct="5" pname="c" xml:id="n788014">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">po</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">que</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="b" wordpos="i">a</syl>
+                                 <syl>he</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">te</syl>
+                              </verse>
+                           </note>
+                           <note dur="1" oct="4" pname="b" xml:id="n910755">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">si</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">qui</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="m">rir</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">rri</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note dur="2" oct="4" pname="g" xml:id="n646553">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">po</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">que</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="b" wordpos="i">a</syl>
+                                 <syl>he</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">te</syl>
+                              </verse>
+                           </note>
+                           <note dur="1" oct="4" pname="g" xml:id="n709185">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">si</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">qui</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="m">rir</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">rri</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note dur="2" oct="4" pname="e">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">po</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">que</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="b" wordpos="i">a</syl>
+                                 <syl>he</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">te</syl>
+                              </verse>
+                           </note>
+                           <note dur="1" oct="4" pname="d">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">si</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">qui</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="m">rir</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">rri</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <note dur="2" oct="3" pname="c" xml:id="n955203">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">po</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">que</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="b" wordpos="i">a</syl>
+                                 <syl>he</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="i">te</syl>
+                              </verse>
+                           </note>
+                           <note dur="1" oct="3" pname="g" xml:id="n115482">
+                              <verse n="1">
+                                 <syl con="d" wordpos="m">si</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl con="d" wordpos="i">qui</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl con="d" wordpos="m">rir</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl con="d" wordpos="m">rri</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <note dur="2" oct="3" pname="c" xml:id="n427695"/>
+                           <note dur="1" oct="2" pname="g" xml:id="n772094"/>
+                        </layer>
+                     </staff>
+                     <bracketSpan startid="#n955203" endid="#n115482" func="coloration" lwidth="0.5vu"/>
+                     <bracketSpan startid="#n646553" endid="#n709185" func="coloration" lwidth="0.5vu"/>
+                     <bracketSpan startid="#n788014" endid="#n910755" func="coloration" lwidth="0.5vu"/>
+                     <bracketSpan startid="#n427695" endid="#n772094" func="coloration" lwidth="0.5vu"/>
+                  </measure>
+                  <measure right="rptend" n="18">
+                     <staff n="1">
+                        <layer n="1">
+                           <note dots="1" dur="1" oct="5" pname="c">
+                              <verse n="1">
+                                 <syl wordpos="t">ble</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">se</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">me</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">ble</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note dots="1" dur="1" oct="4" pname="g">
+                              <verse n="1">
+                                 <syl wordpos="t">ble</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">se</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">me</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">ble</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note dots="1" dur="1" oct="4" pname="e">
+                              <verse n="1">
+                                 <syl wordpos="t">ble</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">se</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">me</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">ble</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <note dots="1" dur="1" oct="3" pname="c">
+                              <verse n="1">
+                                 <syl wordpos="t">ble</syl>
+                              </verse>
+                              <verse n="2">
+                                 <syl wordpos="t">se</syl>
+                              </verse>
+                              <verse n="3">
+                                 <syl wordpos="t">me</syl>
+                              </verse>
+                              <verse n="4">
+                                 <syl wordpos="t">ble</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="5">
+                        <layer n="1">
+                           <note dots="1" dur="1" oct="3" pname="c"/>
+                        </layer>
+                     </staff>
+                  </measure>
+               </section>
+            </score>
+         </mdiv>
+      </body>
+      <back>
+         <div type="poem">
+            <lg type="coplas" corresp="#coplas">
+               <lg type="copla" n="1">
+                  <l>Un imposible me mata,</l>
+                  <l>y sus memorias me rinden;</l>
+                  <l>quién dirá qué yo me muero,</l>
+                  <l>siendo mi muerte imposible.</l>
+               </lg>
+               <lg type="copla" n="2">
+                  <l>Triste el corazón se queja,</l>
+                  <l>y si le pregunto, triste:</l>
+                  <l>corazón, ¿por qué me has muerto?</l>
+                  <l>me responde: porque quise.</l>
+               </lg>
+               <lg type="copla" n="3">
+                  <l>Doradas flechas de fuego,</l>
+                  <l>que a cada paso me embisten,</l>
+                  <l>que cuando muerto me veis,</l>
+                  <l>vuelve su rigor a herirme.</l>
+               </lg>
+               <lg type="copla" n="4">
+                  <l>Yo padeciera contento,</l>
+                  <l>si el amor fuera despique,
+                     <annot type="text-note">despique: Satisfacción o venganza que se toma de alguna ofensa o desprécio que se ha recibido. (Diccionario de autoridades, 1732)</annot>
+                  </l>
+                  <l>pero andar penando siempre,</l>
+                  <l>es un padecer terrible.</l>
+               </lg>
+            </lg>
+         </div>
+      </back>
+   </music>
+</mei>

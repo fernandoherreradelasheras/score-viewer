@@ -24,33 +24,47 @@ const defaultConfig: ScoreViewerConfig = {
     showOptions: true,
     backgroundColor: "#f6eee3",
     basePath: "/",
-    facsimileImagesPath: "/",
+    facsimileImagesPath: "/facsimile/",
     language: "es",
     allowUserLanguageChange: false,
     selectorLabel: "work"
   },
+  // A small solid subset of the curated fixtures (see assets/test.json for the
+  // full set), enough to exercise the main features from a code-based config.
   scores: [
     {
-      title: "Airecillos mansos",
-      path: "",
+      title: "Un imposible me mata",
+      path: "un-imposible",
+      meiFile: "music.mei",
+      introductionFile: "intro.md",
       audioFiles: [
         // repeats per file: set true only if that mp3 plays repeats/expansions
         // expanded (default: false)
-        { file: "1-base.mp3", name: "Base", repeats: false },
-        { file: "/1-DeepSeek-V3-0324.mp3", name: "Reconstruction 3 · DeepSeek V3" }
+        { file: "base.mp3", name: "Base", repeats: false },
+        { file: "reconstruction-deepseek.mp3", name: "Reconstrucción · DeepSeek V3" }
       ],
-      meiFile: "1.mei",
-      text: [
-        { "file": "test.txt", "append_to": "coplas", "name": "Coplas" },
-        { "file": "test3.txt", "type": "estribillo" },
-
-
-      ],
-      encodingProperties: { encodedTransposition: "-P4" },
       facsimileItems: [
-        { name: "Page 32", file: "page32.jpg" },
-        { name: "Page 33", file: "page33.jpg" }
-      ]
+        { name: "Soprano 1", file: "un-imposible-s1.jpg" },
+        { name: "Tenor", file: "un-imposible-tenor.jpg" }
+      ],
+      encodingProperties: { encodedTransposition: "" }
+    },
+    {
+      title: "Al compás de un arroyuelo",
+      path: "arroyuelo",
+      meiFile: "music.mei",
+      introductionFile: "intro.md",
+      encodingProperties: { encodedTransposition: "" }
+    },
+    {
+      title: "Repeticiones (con/sin expansión)",
+      path: "repeticiones",
+      meiFile: "music.mei",
+      audioFiles: [
+        { file: "without-repeats.mp3", name: "Sin repeticiones", repeats: false },
+        { file: "with-repeats.mp3", name: "Con repeticiones", repeats: true }
+      ],
+      encodingProperties: { encodedTransposition: "" }
     }
   ]
 };
