@@ -1,6 +1,13 @@
 // Score-related types
 import { EditorialItem } from './editorial';
-import { AudioTrack } from './player';
+
+export type AudioFile = {
+    url: string;
+    name?: string;
+    // Whether this rendered audio plays repeats/expansions expanded (drives
+    // verovio's expand option so the timemap matches the audio).
+    repeats: boolean;
+}
 
 export type FacsimileItem = {
     name: string
@@ -21,8 +28,8 @@ export type Score = {
     singleVerseMei: string;
     properties: ScoreProperties;
     editorialItems: EditorialItem[];
-    audioUrl: string | null;
-    audioOverlayTracks: AudioTrack[];
+    // Alternative rendered-audio versions of the score. The first is the default.
+    audioFiles: AudioFile[];
     // Poetic text and text notes extracted from the MEI `<back>` block.
     scoreText: LyricItem[];
     scoreTextComments: string | null;
@@ -54,8 +61,6 @@ export type ScoreProperties = {
     hasEditorial: boolean;
     hasOriginalClefs: boolean;
     encodedTransposition?: Transposition | undefined
-    // Whether the external audio plays expansions/repeats expanded (see ScoreViewerConfigScore).
-    audioUsesExpansions?: boolean | undefined
     tiedNotes: { first: string; second: string; }[];
 }
 

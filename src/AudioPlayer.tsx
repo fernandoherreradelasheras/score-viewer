@@ -25,6 +25,12 @@ function AudioPlayer() {
     const score = useStore.use.score();
     const playingState = useStore.use.playingState();
     const renderedSvgData = useStore.use.renderedSvgData();
+    const selectedAudioIndex = useStore.use.selectedAudioIndex();
+
+    const audioUrl = useMemo(
+        () => score?.audioFiles?.[selectedAudioIndex]?.url ?? null,
+        [score, selectedAudioIndex]
+    );
 
     const {
         canPlay,
@@ -32,7 +38,7 @@ function AudioPlayer() {
         handlePlay,
         handlePlayPause,
         handleStop,
-    } = useWebAudioPlayer(score?.audioUrl || null, [], score?.originalMei);
+    } = useWebAudioPlayer(audioUrl, score?.originalMei);
 
 
 
@@ -48,16 +54,16 @@ function AudioPlayer() {
         <Tooltip title={playPauseTooltip()}><Button icon={<PauseCircleTwoTone style={{ fontSize: '36px' }} />} onClick={handlePlayPause} /></Tooltip>
         , [playPauseTooltip, handlePlayPause]);
 
-    // Always show playControls if audioSrc is available, regardless of canPlay status
+    // Always show playControls if audio is available, regardless of canPlay status
     const playControls = useMemo(() =>
-        score?.audioUrl ?
+        audioUrl ?
             <div style={{ position: "absolute", bottom: 0, right: 0, padding: "8px" }}>
                 <Space direction="horizontal" size="small">
                     {playingState !== PlayingState.STOPPED ? stopButton : null}
                     {playingState === PlayingState.PLAYING ? pauseButton : playButton}
                 </Space>
             </div> : null,
-        [score, playingState, playButton, stopButton, pauseButton]);
+        [audioUrl, playingState, playButton, stopButton, pauseButton]);
 
 
     return (

@@ -15,6 +15,7 @@ import {
 } from '../types';
 import { RenderedData } from './useScoreRenderer';
 import useStore from '../store';
+import { resolveSvgNoteId } from '../utils/svg-note-id';
 
 
 // Constants moved from ScoreView
@@ -76,20 +77,21 @@ interface ScoreActionsConfig {
 /**
  * Transform a timemap with staff animation references
  */
+const staffAnimationRef = (id: string): string => {
+  // Repeated renditions carry `-rendN` ids absent from a non-expanded SVG; fall
+  // back to the original id so the staff (and its glow animation) is found.
+  const lookupId = resolveSvgNoteId(id) ?? id;
+  const escapedId = CSS.escape(lookupId);
+  const staff = document.querySelector(`.staff:has(#${escapedId})`)?.getAttribute("data-n");
+  return `#radius-${staff}-animation`;
+};
+
 const resolveTimemapAnimations = (timemap: TimeMapEvent[]): TimeMapEvent[] =>
   timemap.map(e => {
     return {
       ...e,
-      stavesOn: e.on?.map((id) => {
-        const escapedId = CSS.escape(id);
-        const staff = document.querySelector(`.staff:has(#${escapedId})`)?.getAttribute("data-n");
-        return `#radius-${staff}-animation`;
-      }),
-      stavesOff: e.off?.map((id) => {
-        const escapedId = CSS.escape(id);
-        const staff = document.querySelector(`.staff:has(#${escapedId})`)?.getAttribute("data-n");
-        return `#radius-${staff}-animation`;
-      })
+      stavesOn: e.on?.map(staffAnimationRef),
+      stavesOff: e.off?.map(staffAnimationRef)
     } as TimeMapEvent;
   });
 
@@ -102,17 +104,15 @@ const buildAppOptions = (appOptions: string[], showOriginalClefs: boolean, showM
   ]
 }
 
-// Keep the timemap consistent with the externally-generated audio, three cases:
-//  - audio without expansions        -> expandNever  (timemap and SVG unexpanded)
-//  - audio expanded, visuals ON      -> expandAlways  (timemap and SVG expanded; longer view)
-//  - audio expanded, visuals OFF     -> neither       (timemap expanded to match audio,
-//                                                       but SVG kept short)
-// Caveat: in the "visuals OFF" case verovio's getElementsAtTime().page is broken
-// (returns 1), so page turning relies on getPageWithElement instead (see
-// checkPageForPosition in useWebAudioPlayer).
-const expansionOptions = (audioUsesExpansions?: boolean, showVisualExpansions?: boolean): VerovioOptions => {
-  if (!audioUsesExpansions) return { expandNever: true };
-  return showVisualExpansions ? { expandAlways: true } : {};
+// Keep the timemap consistent with the externally-generated audio.
+// If audio does not play repeats: expandNever: true -> (timemap, midi and SVG unexpanded)
+// if audio plays repeats: expandNever: false + expandAlways: false -> (timemap and midi expanded, SVG unexpanded)
+const expansionOptions = (repeats?: boolean): VerovioOptions => {
+  return {
+    expand: "", // Not supported yet
+    expandNever: !repeats,
+    expandAlways: false,
+  };
 };
 
 /**
@@ -132,7 +132,7 @@ export default function useScoreActions({
   const measureNumberInterval = useStore.use.measureNumberInterval();
   const setScoreLayout = useStore.use.setScoreLayout();
   const score = useStore.use.score();
-  const showVisualExpansions = useStore.use.showVisualExpansions();
+  const selectedAudioIndex = useStore.use.selectedAudioIndex();
 
 
 
@@ -176,9 +176,11 @@ export default function useScoreActions({
       scale: scale,
       transpose: config.transposition != null ? config.transposition : "",
       mnumInterval: measureNumberInterval ?? 0,
-      expand: "",
-      ...expansionOptions(score?.properties?.audioUsesExpansions, showVisualExpansions)
+      ...expansionOptions(score?.audioFiles?.[selectedAudioIndex]?.repeats)
     };
+
+    console.log("VerovioOptions: ", options)
+
 
     try {
       const startTime = performance.now();
@@ -187,6 +189,8 @@ export default function useScoreActions({
       await verovio.setOptions(options);
       await verovio.loadData(meiStr);
       const timemap = await verovio.renderToTimemap({ includeMeasures: true });
+      console.log("timemap duration: ", timemap.slice(-1)[0].tstamp)
+
 
 
       const countStart = performance.now();
@@ -239,7 +243,7 @@ export default function useScoreActions({
     choiceOptions,
     measureNumberInterval,
     score,
-    showVisualExpansions
+    selectedAudioIndex
   ]);
 
   /**
@@ -265,7 +269,7 @@ export default function useScoreActions({
       pageWidth: AUTO_SCROLL_RENDERING_WIDTH_LIMIT,
       scale: 100,
       transpose: config.transposition != null ? config.transposition : "",
-      ...expansionOptions(score?.properties?.audioUsesExpansions, showVisualExpansions)
+      ...expansionOptions(score?.audioFiles?.[selectedAudioIndex]?.repeats)
     };
 
     try {
@@ -273,6 +277,7 @@ export default function useScoreActions({
       await verovio.setOptions(options);
       await verovio.loadData(meiStr)
       const timemap = await verovio.renderToTimemap({ includeMeasures: true });
+      console.log("timemap duration: ", timemap.slice(-1)[0].tstamp)
 
 
 
@@ -289,25 +294,44 @@ export default function useScoreActions({
     showMusicAnalysis,
     measureNumberInterval,
     score,
-    showVisualExpansions
+    selectedAudioIndex
   ]);
+
+  // Merge a single concrete tied pair so the second note stays highlighted from
+  // the first note's onset until the second note's release (a sustained tie).
+  const mergeTiePair = (timemap: TimeMapEvent[], first: string, second: string) => {
+    const firstOnIndex = timemap.findIndex(e => e.on != null && e.on.includes(first));
+    const firstOffIndex = timemap.findIndex(e => e.off != null && e.off.includes(first));
+    const secondOnIndex = timemap.findIndex(e => e.on != null && e.on.includes(second));
+    const secondOffIndex = timemap.findIndex(e => e.off != null && e.off.includes(second));
+    if (firstOnIndex == -1 || firstOffIndex == -1 || secondOnIndex == -1 || secondOffIndex == -1) {
+      // The tie may be for a reconstructed voice not selected, or a rendition
+      // whose partner is absent.
+      return;
+    }
+    timemap[firstOnIndex].on!.push(second)
+    timemap[firstOffIndex].off = timemap[firstOffIndex].off!.filter(id => id != first)
+    timemap[secondOnIndex].on = timemap[secondOnIndex].on!.filter(id => id != second)
+    timemap[secondOffIndex].off!.push(first)
+  }
 
   const mergeTimemapTies = (timemap: TimeMapEvent[], tiedNotes: { first: string; second: string; }[]) => {
     const newTimeMap = timemap.map(e => { return { ...e } as TimeMapEvent });
     for (const { first, second } of tiedNotes) {
-      const firstOnIndex = newTimeMap.findIndex(e => e.on != null && e.on.includes(first));
-      const firstOffIndex = newTimeMap.findIndex(e => e.off != null && e.off.includes(first));
-      const secondOnIndex = newTimeMap.findIndex(e => e.on != null && e.on.includes(second));
-      const secondOffIndex = newTimeMap.findIndex(e => e.off != null && e.off.includes(second));
-      if (firstOnIndex == -1 || firstOffIndex == -1 || secondOnIndex == -1 || secondOffIndex == -1) {
-        // ties could be for a reconstructed voice not selected
-        continue;
+      // In an expanded timemap the tie appears once per rendition (verovio tags
+      // repeats as `<id>-rendN`). Merge every rendition of `first`, pairing it
+      // with the `second` note carrying the same suffix.
+      const renditionPrefix = first + '-rend';
+      const firstIds = new Set<string>();
+      for (const e of newTimeMap) {
+        for (const id of e.on ?? []) {
+          if (id === first || id.startsWith(renditionPrefix)) firstIds.add(id);
+        }
       }
-
-      newTimeMap[firstOnIndex].on!.push(second)
-      newTimeMap[firstOffIndex].off = newTimeMap[firstOffIndex].off!.filter(id => id != first)
-      newTimeMap[secondOnIndex].on = newTimeMap[secondOnIndex].on!.filter(id => id != second)
-      newTimeMap[secondOffIndex].off!.push(first)
+      for (const firstId of firstIds) {
+        const suffix = firstId.slice(first.length); // '' | '-rendN'
+        mergeTiePair(newTimeMap, firstId, second + suffix);
+      }
     }
     return newTimeMap
   }

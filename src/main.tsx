@@ -33,13 +33,12 @@ const defaultConfig: ScoreViewerConfig = {
     {
       title: "Airecillos mansos",
       path: "",
-      audioBaseFile: "1-base.mp3",
-      audioOverlays: [
-        { staff: "3", appLabel: "reconstruction:3:IA:DeepSeek-V3-0324", file: "/1-DeepSeek-V3-0324.mp3" }
+      audioFiles: [
+        // repeats per file: set true only if that mp3 plays repeats/expansions
+        // expanded (default: false)
+        { file: "1-base.mp3", name: "Base", repeats: false },
+        { file: "/1-DeepSeek-V3-0324.mp3", name: "Reconstruction 3 · DeepSeek V3" }
       ],
-      // Set to true only if the mp3 plays repeats/expansions expanded (default: false)
-      audioUsesExpansions: false,
-
       meiFile: "1.mei",
       text: [
         { "file": "test.txt", "append_to": "coplas", "name": "Coplas" },

@@ -1,9 +1,13 @@
 import { FacsimileItem } from "./score";
 
-export interface AudioOverlay {
-  staff: string;
-  appLabel: string;
+// An alternative rendered-audio version of the score. The first entry is played
+// by default; the options panel lets the user switch version for the current
+// score (not a persistent selection).
+export interface ScoreViewerConfigAudioFile {
   file: string;
+  name?: string;
+  // Whether this rendered audio plays repeats expanded
+  repeats?: boolean | undefined;
 }
 
 /**
@@ -22,12 +26,7 @@ export interface ScoreViewerConfigScoreText {
 export interface ScoreViewerConfigScore {
   title: string;
   path: string;
-  audioBaseFile?: string | undefined;
-  audioOverlays?: AudioOverlay[] | undefined;
-  // Whether the externally-generated audio (mp3) plays expansions/repeats expanded.
-  // Drives verovio's expand option so the timemap matches the audio.
-  // Defaults to false (audio without expansions -> verovio expandNever: true).
-  audioUsesExpansions?: boolean | undefined;
+  audioFiles?: ScoreViewerConfigAudioFile[] | undefined;
   introductionFile?: string | undefined;
   /** @deprecated Text notes are now read from the MEI `<back>` block; ignored at runtime. */
   textCommentsFile?: string | undefined;

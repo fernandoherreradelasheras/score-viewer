@@ -154,10 +154,10 @@ export const useConfigValidation = (config: ScoreViewerConfig) => {
         }
 
         // Validate optional arrays
-        if (score.audioOverlays && !Array.isArray(score.audioOverlays)) {
+        if (score.audioFiles && !Array.isArray(score.audioFiles)) {
           errors.push({
-            field: `scores[${index}].audioOverlays`,
-            message: t('configValidation.scoreAudioOverlaysArray')
+            field: `scores[${index}].audioFiles`,
+            message: t('configValidation.scoreAudioFilesArray')
           });
         }
 

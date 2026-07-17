@@ -1,11 +1,7 @@
-import i18next from "./i18n";
-
 type FilterFunc = (doc: Document, params: any) => void
 
 type Filters = [FilterFunc, any][];
 
-const XPATH_RECONSTRUCTION_RDG_LABELS = '(//mei:measure[1])//mei:app[@type="voice_reconstruction"]/mei:rdg/@label'
-const XPATH_FIRST_MEASURE = '//mei:measure[1]'
 const XPATH_FICTA_ACCIDS = '//mei:accid[@func="edit"]'
 
 const nsResolver = (prefix: string | null) => { return { mei: "http://www.music-encoding.org/ns/mei", xml: "http://www.w3.org/XML/1998/namespace" }[prefix || ''] || null }
@@ -45,64 +41,6 @@ const AddSectionTitlesFilter: FilterFunc = (doc: Document, _: {}) => {
     })
 }
 
-const AddReconstructionNamesFilter: FilterFunc = (doc: Document, _: {}) => {
-    let measure = doc?.evaluate(XPATH_FIRST_MEASURE, doc, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()
-    if (measure == null) {
-        return
-    }
-
-    let matches = doc?.evaluate(XPATH_RECONSTRUCTION_RDG_LABELS, doc, nsResolver, XPathResult.ANY_TYPE, null)
-    const labels = []
-    let node;
-    while ((node = matches?.iterateNext())) {
-        if (node.nodeValue != null) {
-            labels.push(node.nodeValue)
-        }
-    }
-
-    const app = doc.createElement("app")
-    app.setAttribute("type", "voice_reconstruction")
-    measure?.insertBefore(app, measure.firstChild)
-
-    const lem = doc.createElement("lem")
-    lem.setAttribute("label", "none")
-    app.appendChild(lem)
-
-    labels.forEach(label => {
-        const parts = label.split(":")
-        if (parts.length < 4 || parts[0] != "reconstruction") {
-            return
-        }
-        const staff = label.split(":")[1]
-        const type = label.split(":")[2]
-        const name = label.split(":")[3]
-        const desc = type == "IA" ?
-            i18next.t('scoreProcessor.reconstructionByIA', { "name": name }) :
-            i18next.t('scoreProcessor.reconstructionByHuman', { "name": name })
-
-
-        const rdg = doc.createElement("rdg")
-        rdg.setAttribute("label", label)
-        app.appendChild(rdg)
-
-
-        const dir = doc.createElement("dir")
-        dir.setAttribute("place", "above")
-        dir.setAttribute("staff", staff)
-        dir.setAttribute("tstamp", "0")
-        dir.setAttribute("type", "reconstruction-name")
-        rdg.appendChild(dir)
-
-        const rend = doc.createElement("rend")
-        rend.setAttribute("fontstyle", "normal")
-        rend.setAttribute("fontweight", "bold")
-        dir.appendChild(rend)
-
-        const text = doc.createTextNode(desc)
-        rend.appendChild(text)
-    })
-
-}
 
 const FilterToNVerses: FilterFunc = (doc: Document, params: { n: number }) => {
     const numVerses = params.n
@@ -190,9 +128,6 @@ class ScoreProcessor {
 
     addTitlesFilter() {
         this.filters.push([AddSectionTitlesFilter, {}])
-    }
-    addReonstructionNamesFilter() {
-        this.filters.push([AddReconstructionNamesFilter, {}])
     }
     addNVersesFilter(numVerses: number) {
         this.filters.push([FilterToNVerses, { n: numVerses }])

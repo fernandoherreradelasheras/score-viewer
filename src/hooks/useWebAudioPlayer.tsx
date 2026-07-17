@@ -1,12 +1,12 @@
 import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import useStore from "../store";
-import { TimeMapEvent, PlayingState, AudioTrack } from "../types";
+import { TimeMapEvent, PlayingState } from "../types";
 import useVerovio from "../useVerovio";
 
 let sharedAudioContext: AudioContext | null = null;
 const MS_OVER_LAST_TIMESTAMP = 1000;
 
-export default function useWebAudioPlayer(audioUrl: string | null, audioOverlayTracks: AudioTrack[], originalMei: string | undefined) {
+export default function useWebAudioPlayer(audioUrl: string | null, originalMei: string | undefined) {
     // Get state and base functionality from base hook
 
     const playingState = useStore.use.playingState();
@@ -37,7 +37,6 @@ export default function useWebAudioPlayer(audioUrl: string | null, audioOverlayT
     const lastElementPageRef = useRef<number | null>(null);
 
     const [canPlay, setCanPlay] = useState(false);
-    const [loadedTracks, setLoadedTracks] = useState<string[]>([]);
     const needsUserInteractionRef = useRef(true);
 
 
@@ -108,11 +107,9 @@ export default function useWebAudioPlayer(audioUrl: string | null, audioOverlayT
                 return
             }
             audioBuffersRef.current.clear();
-            setLoadedTracks([]);
             try {
                 const buffer = await fetchAudioBuffer(audioUrl, context);
                 audioBuffersRef.current.set('main', buffer);
-                setLoadedTracks(['main']);
                 setCanPlay(true);
             } catch (error) {
                 console.error("Failed to load main audio:", error);
@@ -129,31 +126,6 @@ export default function useWebAudioPlayer(audioUrl: string | null, audioOverlayT
             loadAudio(audioUrl)
         }
     }, [audioUrl, originalMei]);
-
-
-    useEffect(() => {
-        const loadOverlayAudio = async (audioOverlayTracks: AudioTrack[]) => {
-            const context = getAudioContext();
-            if (!context) {
-                return;
-            }
-            await Promise.all(audioOverlayTracks.map(async (track: AudioTrack) => {
-                if (!track.url) return;
-                try {
-                    console.log(`Loading audio overlay from URL: ${track.url}`);
-                    const buffer = await fetchAudioBuffer(track.url, context);
-                    audioBuffersRef.current.set(track.id, buffer);
-                    setLoadedTracks(prev => [...prev, track.id]);
-                } catch (error) {
-                    console.error(`Failed to load track ${track.id} from ${track.url}`, error);
-                }
-            }));
-        }
-
-        if (audioOverlayTracks.length > 0) {
-            loadOverlayAudio(audioOverlayTracks)
-        }
-    }, [audioOverlayTracks]);
 
 
     // We need a clean up effect to release the audio context when the component gets removed.
@@ -363,7 +335,6 @@ export default function useWebAudioPlayer(audioUrl: string | null, audioOverlayT
 
     return {
         canPlay,
-        loadedTracks,
         playPauseTooltip,
         handlePlay,
         handlePlayPause,

@@ -51,6 +51,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
 
   const score = useStore.use.score()
   const setScore = useStore.use.setScore()
+  const setSelectedAudioIndex = useStore.use.setSelectedAudioIndex()
 
   const normalizeFicta = useStore.use.normalizeFicta()
   const showOriginalClefs = useStore.use.showOriginalClefs()
@@ -138,13 +139,14 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     setFetchScoreError(null);
     setIntroAvailable(hasIntro(scoreIndex));
     setFacsimileItems(config.scores[scoreIndex].facsimileItems || []);
+    setSelectedAudioIndex(0);
     await fetchTextParts(scoreIndex);
     // Allow the container to get the final size (might depend on having tabs content)
     setTimeout(() => {
       fetchScore(scoreIndex);
     }, 0);
 
-  }, [config.scores, fetchScore, fetchTextParts]);
+  }, [config.scores, fetchScore, fetchTextParts, hasIntro, setScore, setSelectedAudioIndex]);
 
   useImperativeHandle(ref, () => ({
     goToSection: (section: string) => {

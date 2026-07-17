@@ -19,20 +19,20 @@
         {
             "path": "tonos/01",
             "title": "Un imposible me mata",
-            "audioBaseFile": "01-render-base-20250511.mp3",
-            "audioOverlays": [
+            "audioFiles": [
                 {
-                    "staff": "3",
-                    "appLabel": "reconstruction:3:IA:claude_sonet_3_7",
-                    "file": "01-render-reconstruction:3:IA:claude_sonet_3_7-20250511.mp3"
+                    "file": "01-render-base-20250511.mp3",
+                    "name": "Base"
                 },
                 {
-                    "staff": "3",
-                    "appLabel": "reconstruction:3:IA:DeepSeek-V3-0324",
-                    "file": "01-render-reconstruction:3:IA:DeepSeek-V3-0324-20250511.mp3"
+                    "file": "01-render-reconstruction:3:IA:claude_sonet_3_7-20250511.mp3",
+                    "name": "Reconstruction 3 · Claude Sonnet 3.7"
+                },
+                {
+                    "file": "01-render-reconstruction:3:IA:DeepSeek-V3-0324-20250511.mp3",
+                    "name": "Reconstruction 3 · DeepSeek V3"
                 }
             ],
-            "audioUsesExpansions": false,
             "meiFile": "01_-_Un_imposible_me_mata-music-T.mei",
             "text": [
                 {
@@ -68,7 +68,12 @@
         {
             "path": "tonos/02",
             "title": "Querido imposible mío",
-            "audioBaseFile": "06-render-20260213.mp3",
+            "audioBaseFiles": [
+                {
+                    "file": "06-render-20260213.mp3",
+                    "name": "Base"
+                }
+            ],
             "meiFile": "02_-_Querido_imposible_mio-music-T.mei",
             "text": [
                 {
@@ -196,16 +201,44 @@
             "path": "tarasca",
             "title": "Jacara",
             "meiFile": "en la chozuela pajiza_mdiv1.mei",
-            "audioBaseFile": "en la chozuela pajiza 1.mp3",
+            "audioFiles": [
+                {
+                    "file": "en la chozuela pajiza 1.mp3"
+                }
+            ],
             "encodingProperties": {
                 "encodedTransposition": "-P4"
+            }
+        },
+        {
+            "path": "tonos",
+            "title": "test expansions",
+            "meiFile": "test-repeat.mei",
+            "audioFiles": [
+                {
+                    "file": "test-repeat-not-expanded.mp3",
+                    "name": "no repeats",
+                    "repeats": false
+                },
+                {
+                    "file": "test-repeat-expanded.mp3",
+                    "name": "with repeats",
+                    "repeats": true
+                }
+            ],
+            "encodingProperties": {
+                "encodedTransposition": ""
             }
         },
         {
             "path": "tarasca",
             "title": "responsion",
             "meiFile": "en la chozuela pajiza_mdiv2.mei",
-            "audioBaseFile": "en la chozuela pajiza 2.mp3",
+            "audioFiles": [
+                {
+                    "file": "en la chozuela pajiza 2.mp3"
+                }
+            ],
             "encodingProperties": {
                 "encodedTransposition": "-P4"
             }
@@ -214,7 +247,11 @@
             "path": "tarasca",
             "title": "copla 1",
             "meiFile": "en la chozuela pajiza_mdiv3.mei",
-            "audioBaseFile": "en la chozuela pajiza 3.mp3",
+            "audioFiles": [
+                {
+                    "file": "en la chozuela pajiza 3.mp3"
+                }
+            ],
             "encodingProperties": {
                 "encodedTransposition": "-P4"
             }
@@ -223,7 +260,11 @@
             "path": "tarasca",
             "title": "copla 2",
             "meiFile": "en la chozuela pajiza_mdiv4.mei",
-            "audioBaseFile": "en la chozuela pajiza 4.mp3",
+            "audioFiles": [
+                {
+                    "file": "en la chozuela pajiza 4.mp3"
+                }
+            ],
             "encodingProperties": {
                 "encodedTransposition": "-P4"
             }
@@ -232,7 +273,11 @@
             "path": "tarasca",
             "title": "copla 3",
             "meiFile": "en la chozuela pajiza_mdiv5.mei",
-            "audioBaseFile": "en la chozuela pajiza 5.mp3",
+            "audioFiles": [
+                {
+                    "file": "en la chozuela pajiza 5.mp3"
+                }
+            ],
             "encodingProperties": {
                 "encodedTransposition": "-P4"
             }

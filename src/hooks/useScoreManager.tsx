@@ -127,7 +127,6 @@ export function useScoreManager({
         const scoreProcessor = new ScoreProcessor(meiString);
         if (config.settings.renderTitlesFromMEI) {
           scoreProcessor.addTitlesFilter();
-          scoreProcessor.addReonstructionNamesFilter();
         }
         scoreProcessor.addEnsureMeasuresIdFilter();
         scoreProcessor.addEnsureSectionsIdFilter();
@@ -136,21 +135,14 @@ export function useScoreManager({
         const properties = {
           ...analyzer.getScoreProperties(),
           encodedTransposition: encodingProperties.encodedTransposition as Transposition ?? undefined,
-          audioUsesExpansions: scoreDef.audioUsesExpansions ?? false,
         }
-        const audioUrl = scoreDef.audioBaseFile && scoreDef.audioBaseFile != "" ? path + scoreDef.audioBaseFile : null
-        const audioOverlayTracks = []
-        if (scoreDef.audioOverlays) {
-          for (const overlay of scoreDef.audioOverlays) {
-            audioOverlayTracks.push({
-              id: `overlay-staff-${overlay.staff}`,
-              label: overlay.appLabel,
-              url: path + overlay.file,
-              volume: 1
-            });
-          }
-        }
-
+        const audioFiles = (scoreDef.audioFiles ?? [])
+          .filter((audio) => audio.file && audio.file !== "")
+          .map((audio) => ({
+            url: path + audio.file,
+            name: audio.name,
+            repeats: audio.repeats ?? false,
+          }))
 
         const editorialItems = analyzer.getEditorial();
         const { lyrics, comments } = parsePoemFromMei(originalMei);
@@ -161,8 +153,7 @@ export function useScoreManager({
           singleVerseMei: generateOneVerseMei(originalMei),
           properties,
           editorialItems,
-          audioUrl,
-          audioOverlayTracks,
+          audioFiles,
           scoreText: lyrics,
           scoreTextComments: comments,
         }

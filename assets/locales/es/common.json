@@ -121,9 +121,9 @@
       "title": "Notas ennegrecidas",
       "description": "Señalar las notas ennegrecidas con corchetes superiores"
     },
-    "visualExpansions": {
-      "title": "Mostrar repeticiones desplegadas",
-      "description": "Escribir las repeticiones/expansiones en la partitura, siguiendo al audio (la vista se alarga)"
+    "audioVersion": {
+      "title": "Versión de audio",
+      "description": "Elige qué versión de audio reproducir para esta partitura"
     },
     "resetSettings": "Restablecer configuración por defecto"
   },
@@ -166,7 +166,7 @@
     "scorePathRequired": "La ruta de la partitura es requerida y debe ser una cadena de texto",
     "scoreMeiFileRequired": "El archivo MEI de la partitura es requerido y debe ser una cadena de texto",
     "scoreEncodingPropertiesRequired": "El objeto encodingProperties es requerido",
-    "scoreAudioOverlaysArray": "audioOverlays debe ser un array si se proporciona",
+    "scoreAudioFilesArray": "audioFiles debe ser un array si se proporciona",
     "scoreFacsimileItemsArray": "facsimileItems debe ser un array si se proporciona",
     "configurationError": "Error de Configuración",
     "configurationErrorDescription": "La configuración del ScoreViewer contiene errores:"

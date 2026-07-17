@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import useStore from "./store";
 import { svgFilter } from "./SvgUtils";
 import { TimeMapEvent, PlayingState } from "./types";
+import { resolveSvgNoteId } from "./utils/svg-note-id";
 
 
 const staffHighlightColors = ["#8e0000", "#227710", "#5500aa", "#e9227a", "#0026f3", "#11ddff", "#8e0000", "#227710"]
@@ -125,7 +126,9 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
 
     const higlightNotesAtPosition = (position: number) => {
         timemap.slice().reverse().find(e => e.on && e.tstamp <= position)?.on?.forEach(id => {
-            document?.querySelectorAll(`#${id} > *`)?.forEach(noteElement => {
+            const resolvedId = resolveSvgNoteId(id)
+            if (!resolvedId) return
+            document?.querySelectorAll(`#${CSS.escape(resolvedId)} > *`)?.forEach(noteElement => {
                 noteElement.classList.add('note-highlight')
             })
         })
@@ -183,8 +186,9 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
         const off = new Set(events.flatMap(e => e.off));
         const on = new Set(events.flatMap(e => e.on).filter(e => !off.has(e)))
         off.forEach(id => {
-            if (id) {
-                const escapedId = CSS.escape(id)
+            const resolvedId = resolveSvgNoteId(id)
+            if (resolvedId) {
+                const escapedId = CSS.escape(resolvedId)
                 const noteElements = [...document?.querySelectorAll(`#${escapedId} .note-highlight`)] as SVGGElement[] | null
                 noteElements?.forEach(noteElement => {
                     noteElement.classList.remove('note-highlight')
@@ -197,8 +201,9 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
             startGlowingNotes([...keys])
         }
         on.forEach(id => {
-            if (id) {
-                const escapedId = CSS.escape(id)
+            const resolvedId = resolveSvgNoteId(id)
+            if (resolvedId) {
+                const escapedId = CSS.escape(resolvedId)
                 document?.querySelectorAll(`#${escapedId} > *`)?.forEach(noteElement => {
                     noteElement.classList.add('note-highlight')
                 })

@@ -16,12 +16,4 @@ export type TimeMapEvent = {
     stavesOn?: string[] | undefined;
 }
 
-export interface AudioTrack {
-    id: string;
-    label: string;
-    url: string;
-    volume?: number | undefined; // Default volume (0-1)
-}
-
-
 

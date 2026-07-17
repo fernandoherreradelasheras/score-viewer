@@ -42,6 +42,7 @@ interface ScoreManagementState {
     scoreCache: { [index: string]: Score }
     textCache: TextPartsCache
     textIntroduction: string | FetchError | null | undefined
+    selectedAudioIndex: number
 
     setScore: (score: Score | null) => void
 
@@ -49,6 +50,7 @@ interface ScoreManagementState {
     setScoreCache: (scoreCache: { [index: string]: Score }) => void
     setTextCache: (textCache: TextPartsCache, replace: boolean) => void
     setTextIntroduction: (textIntroduction: string | FetchError | null | undefined) => void
+    setSelectedAudioIndex: (index: number) => void
 }
 
 const createScoreManagementStore = create<ScoreManagementState>((set) => ({
@@ -57,6 +59,7 @@ const createScoreManagementStore = create<ScoreManagementState>((set) => ({
     scoreCache: {},
     textCache: {},
     textIntroduction: undefined,
+    selectedAudioIndex: 0,
 
     setScore: (score: Score | null) => set(() => ({ score: score })),
 
@@ -68,6 +71,7 @@ const createScoreManagementStore = create<ScoreManagementState>((set) => ({
         textCache: replace ? textCache : { ...state.textCache, ...textCache }
     })),
     setTextIntroduction: (textIntroduction: string | FetchError | null | undefined) => set(() => ({ textIntroduction })),
+    setSelectedAudioIndex: (index: number) => set(() => ({ selectedAudioIndex: index })),
 }))
 
 
@@ -235,7 +239,6 @@ interface ScoreSettings {
     showMusicAnalysis: boolean
     measureNumberInterval: number
     showColoredNotes: boolean
-    showVisualExpansions: boolean
 
     setShowNVerses: (n: number) => void
     setShowEditorial: (showEditorial: boolean) => void
@@ -248,7 +251,6 @@ interface ScoreSettings {
     setShowMusicAnalysis: (showMusicAnalysis: boolean) => void
     setMeasureNumberInterval: (interval: number) => void
     setShowColoredNotes: (showColoredNotes: boolean) => void
-    setShowVisualExpansions: (showVisualExpansions: boolean) => void
     resetScoreSettings: () => void
 }
 
@@ -264,7 +266,6 @@ const DEFAULT_SCORE_SETTINGS = {
     showMusicAnalysis: false,
     measureNumberInterval: 0,
     showColoredNotes: false,
-    showVisualExpansions: false,
 }
 
 const createScoreSettingsStore = create<ScoreSettings>()(persist((set) => ({
@@ -285,7 +286,6 @@ const createScoreSettingsStore = create<ScoreSettings>()(persist((set) => ({
     setShowMusicAnalysis: (showMusicAnalysis: boolean) => set(() => ({ showMusicAnalysis })),
     setMeasureNumberInterval: (interval: number) => set(() => ({ measureNumberInterval: interval })),
     setShowColoredNotes: (showColoredNotes: boolean) => set(() => ({ showColoredNotes })),
-    setShowVisualExpansions: (showVisualExpansions: boolean) => set(() => ({ showVisualExpansions })),
     resetScoreSettings: () => set({ ...DEFAULT_SCORE_SETTINGS }),
 }), {
     name: 'score-settings-store'
@@ -347,11 +347,13 @@ class ScoreViewerStoreApi {
         scoreCache: createScoreManagementStoreWithSelectors.use.scoreCache,
         textCache: createScoreManagementStoreWithSelectors.use.textCache,
         textIntroduction: createScoreManagementStoreWithSelectors.use.textIntroduction,
+        selectedAudioIndex: createScoreManagementStoreWithSelectors.use.selectedAudioIndex,
         setScore: createScoreManagementStoreWithSelectors.use.setScore,
         setShowingMei: createScoreManagementStoreWithSelectors.use.setShowingMei,
         setScoreCache: createScoreManagementStoreWithSelectors.use.setScoreCache,
         setTextCache: createScoreManagementStoreWithSelectors.use.setTextCache,
         setTextIntroduction: createScoreManagementStoreWithSelectors.use.setTextIntroduction,
+        setSelectedAudioIndex: createScoreManagementStoreWithSelectors.use.setSelectedAudioIndex,
 
 
         // UI/Layout Store
@@ -411,7 +413,6 @@ class ScoreViewerStoreApi {
         showMusicAnalysis: createScoreSettingsStoreWithSelectors.use.showMusicAnalysis,
         measureNumberInterval: createScoreSettingsStoreWithSelectors.use.measureNumberInterval,
         showColoredNotes: createScoreSettingsStoreWithSelectors.use.showColoredNotes,
-        showVisualExpansions: createScoreSettingsStoreWithSelectors.use.showVisualExpansions,
         setShowNVerses: createScoreSettingsStoreWithSelectors.use.setShowNVerses,
         setShowEditorial: createScoreSettingsStoreWithSelectors.use.setShowEditorial,
         setShowOriginalClefs: createScoreSettingsStoreWithSelectors.use.setShowOriginalClefs,
@@ -423,7 +424,6 @@ class ScoreViewerStoreApi {
         setShowMusicAnalysis: createScoreSettingsStoreWithSelectors.use.setShowMusicAnalysis,
         setMeasureNumberInterval: createScoreSettingsStoreWithSelectors.use.setMeasureNumberInterval,
         setShowColoredNotes: createScoreSettingsStoreWithSelectors.use.setShowColoredNotes,
-        setShowVisualExpansions: createScoreSettingsStoreWithSelectors.use.setShowVisualExpansions,
         resetScoreSettings: createScoreSettingsStoreWithSelectors.use.resetScoreSettings,
 
 

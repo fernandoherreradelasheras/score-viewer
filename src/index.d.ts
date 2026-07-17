@@ -1,6 +1,6 @@
 import { ScoreViewerProps } from './ScoreViewer';
 import { Reconstruction, ScoreProperties, VisualizationOptions } from './types';
-import { ScoreViewerConfig, ScoreViewerConfigSettings, ScoreViewerConfigScore, ScoreViewerConfigScoreText, AudioOverlay } from './types/config';
+import { ScoreViewerConfig, ScoreViewerConfigSettings, ScoreViewerConfigScore, ScoreViewerConfigScoreText, ScoreViewerConfigAudioFile } from './types/config';
 
 export {
   ScoreViewerProps,
@@ -8,7 +8,7 @@ export {
   ScoreViewerConfigSettings,
   ScoreViewerConfigScore,
   ScoreViewerConfigScoreText,
-  AudioOverlay,
+  ScoreViewerConfigAudioFile,
   ScoreProperties,
   Reconstruction,
   VisualizationOptions,
