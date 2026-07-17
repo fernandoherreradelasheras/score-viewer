@@ -23,7 +23,6 @@ const warnDeprecatedTextConfig = (scoreDef: ScoreViewerConfigScore) => {
 }
 
 interface UseScoreManagerProps {
-  t: any;
   config: ScoreViewerConfig;
   normalizeFicta: boolean | null;
   onScoreAnalyzed?: ((scoreIndex: number, properties: ScoreProperties) => void) | undefined;
@@ -31,7 +30,6 @@ interface UseScoreManagerProps {
 }
 
 export function useScoreManager({
-  t,
   config,
   normalizeFicta,
   onScoreAnalyzed,
@@ -131,7 +129,8 @@ export function useScoreManager({
         scoreProcessor.addEnsureMeasuresIdFilter();
         scoreProcessor.addEnsureSectionsIdFilter();
         const originalMei = scoreProcessor.filterScore();
-        const analyzer = new ScoreAnalyzer(t, 0, originalMei);
+
+        const analyzer = new ScoreAnalyzer(0, originalMei);
         const properties = {
           ...analyzer.getScoreProperties(),
           encodedTransposition: encodingProperties.encodedTransposition as Transposition ?? undefined,

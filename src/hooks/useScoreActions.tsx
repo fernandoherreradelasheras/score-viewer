@@ -70,7 +70,6 @@ interface RenderAutoScrollResult {
 }
 
 interface ScoreActionsConfig {
-  t: any
   verovio: any; // Verovio toolkit instance
 }
 
@@ -119,7 +118,6 @@ const expansionOptions = (repeats?: boolean): VerovioOptions => {
  * Custom hook that manages score action execution
  */
 export default function useScoreActions({
-  t,
   verovio,
 }: ScoreActionsConfig) {
 
@@ -192,14 +190,13 @@ export default function useScoreActions({
       console.log("timemap duration: ", timemap.slice(-1)[0].tstamp)
 
 
-
       const countStart = performance.now();
       const loadedPagesCount = await verovio.getPageCount();
       console.log(`[useScoreActions] getPageCount took ${(performance.now() - countStart).toFixed(2)}ms`);
 
       // Build the section -> page map only after the data is loaded and
       // paginated.
-      const analyzer = new ScoreAnalyzer(t, 0, meiStr);
+      const analyzer = new ScoreAnalyzer(0, meiStr);
       const sectionMap = await getSectionMap(analyzer);
 
 
@@ -336,11 +333,12 @@ export default function useScoreActions({
     return newTimeMap
   }
 
-  const resolveTimemap = async (timemap: TimeMapEvent[]): Promise<TimeMapEvent[]> => {
+
+  const resolveTimemap = useCallback(async (timemap: TimeMapEvent[]): Promise<TimeMapEvent[]> => {
     const mei = await verovio.getMEI()
-    const analyzer = new ScoreAnalyzer(t, 0, mei)
+    const analyzer = new ScoreAnalyzer(0, mei)
     return mergeTimemapTies(timemap, analyzer.getTiedNotes())
-  }
+  }, [verovio]);
 
 
 
@@ -388,7 +386,8 @@ export default function useScoreActions({
 
       const meiStart = performance.now();
       const mei = await verovio.getMEI({ pageNo: renderPage });
-      const analyzer = new ScoreAnalyzer(t, 0, mei);
+
+      const analyzer = new ScoreAnalyzer(0, mei);
       const firstMeasureId = analyzer.getFirstMeasureId();
       console.log(`[useScoreActions] getMEI + analysis took ${(performance.now() - meiStart).toFixed(2)}ms`);
 
@@ -415,7 +414,7 @@ export default function useScoreActions({
       console.log(`Error rendering page: ${error}`);
       return null;
     }
-  }, [verovio, t, resolveTimemap]);
+  }, [verovio, resolveTimemap]);
 
   /**
    * Render the score for auto-scrolling

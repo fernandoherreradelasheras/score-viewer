@@ -7,7 +7,6 @@ import useScoreActions from './hooks/useScoreActions';
 import useScoreRenderer from './hooks/useScoreRenderer';
 import { PlayingState, Score, loadAutoScrollAction } from './types';
 import { ScoreViewProps } from './ScoreView';
-import { useTranslation } from 'react-i18next';
 import LoadingSpinner from './components/LoadingSpinner';
 import { getReverseTransposition } from './utils/score-utils';
 
@@ -16,7 +15,6 @@ import { getReverseTransposition } from './utils/score-utils';
 function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
     const { backgroundColor } = scoreViewProps;
     const { verovio } = useContext(Context);
-    const { t } = useTranslation("common");
 
     const setIsLoading = useStore.use.setIsLoading();
     const pendingAction = useStore.use.pendingAction();
@@ -60,7 +58,6 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
     });
 
     const { executeAction } = useScoreActions({
-        t,
         verovio
     });
 

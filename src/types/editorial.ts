@@ -10,11 +10,26 @@ export interface EditorialItem {
     correspIds?: string[]
 }
 
+export interface NoteContentDescription {
+    kind: "note"
+    pname: string
+    accid: string
+    oct: string
+    dur: string
+}
+
+export interface RestContentDescription {
+    kind: "rest"
+    dur: string
+}
+
+export type ContentDescription = NoteContentDescription | RestContentDescription
+
 export interface Option {
     type: string
     selector: string
     source: string | null
-    contentDescription: string | undefined
+    contentDescription: ContentDescription[] | undefined
 }
 
 export interface Choice {

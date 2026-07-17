@@ -172,5 +172,41 @@
     "scoreFacsimileItemsArray": "facsimileItems must be an array if provided",
     "configurationError": "Configuration Error",
     "configurationErrorDescription": "The ScoreViewer configuration contains errors:"
+  },
+  "note": {
+    "pitch": {
+      "a": "A",
+      "b": "B",
+      "c": "C",
+      "d": "D",
+      "e": "E",
+      "f": "F",
+      "g": "G"
+    },
+    "mensuralDuration": {
+      "maxima": "maxima",
+      "longa": "longa",
+      "brevis": "brevis",
+      "semibrevis": "semibrevis",
+      "minima": "minima",
+      "semiminima": "semiminima",
+      "fusa": "fusa",
+      "semifusa": "semifusa"
+    },
+    "commonDuration": {
+      "octuple": "octuple whole",
+      "quadruple": "quadruple whole",
+      "double": "double whole",
+      "whole": "whole",
+      "half": "half",
+      "quarter": "quarter",
+      "8th": "eighth",
+      "16th": "sixteenth"
+    },
+    "unknownDuration": "unknown duration",
+    "description": "{{pitch}}{{accidental}}{{octave}} ({{duration}})"
+  },
+  "rest": {
+    "description": "{{duration}} rest"
   }
 }

@@ -17,7 +17,7 @@
     },
     "scores": [
         {
-            "_covers": "multiple audio versions + introduction + facsimiles (no MEI text)",
+            "_covers": "single audio version + introduction + facsimiles. No MEI text",
             "title": "Un imposible me mata",
             "path": "un-imposible",
             "meiFile": "music.mei",
@@ -47,7 +47,7 @@
             }
         },
         {
-            "_covers": "MEI text + facsimile + transposition, without introduction",
+            "_covers": "MEI text + facsimile + transposition. No audio, no introduction",
             "title": "Amariles yo no puedo",
             "path": "amariles",
             "meiFile": "music.mei",
@@ -62,7 +62,7 @@
             }
         },
         {
-            "_covers": "MEI text with notes + introduction + multiple sections (goToSection)",
+            "_covers": "MEI text with comments + introduction + multiple sections (goToSection). No audio, no facsimile",
             "title": "Al compás de un arroyuelo",
             "path": "arroyuelo",
             "meiFile": "music.mei",
@@ -93,18 +93,9 @@
             }
         },
         {
-            "_covers": "editorial content (apparatus/variants) + sections",
+            "_covers": "editorial content (choice) + sections",
             "title": "Variantes editoriales",
             "path": "variantes",
-            "meiFile": "music.mei",
-            "encodingProperties": {
-                "encodedTransposition": "-P4"
-            }
-        },
-        {
-            "_covers": "original clefs option",
-            "title": "Claves originales",
-            "path": "claves-originales",
             "meiFile": "music.mei",
             "encodingProperties": {
                 "encodedTransposition": "-P4"

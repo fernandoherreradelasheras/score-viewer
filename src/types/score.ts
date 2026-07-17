@@ -51,8 +51,8 @@ export type ScoreProperties = {
     hasFicta: boolean;
     numVerses: number;
     numMeasures: number;
-    composer: string;
-    lyricist: string;
+    composer: string | null;
+    lyricist: string | null;
     editor: string;
     reconstructionBy: string | null;
     sections: { label: string; id: string }[];

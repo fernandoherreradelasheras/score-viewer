@@ -7,7 +7,6 @@ import { useEditorialHandler } from './hooks/useEditorialHandler';
 import useScoreActions, { RenderActionResult } from './hooks/useScoreActions';
 import useScoreRenderer from './hooks/useScoreRenderer';
 import { Action, Transition, loadAction, renderAction } from './types';
-import { useTranslation } from 'react-i18next';
 import LoadingSpinner from './components/LoadingSpinner';
 import useIdleCallback from './hooks/useIdleCallback';
 import { getReverseTransposition } from './utils/score-utils';
@@ -21,7 +20,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     const { backgroundColor } = scoreViewProps;
     const { verovio } = useContext(Context);
-    const { t } = useTranslation("common");
 
     const splitViewOrientation = useStore.use.splitViewOrientation();
     const isSplitView = useStore.use.isSplitView();
@@ -85,7 +83,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     });
 
     const { executeAction } = useScoreActions({
-        t,
         verovio,
     });
 

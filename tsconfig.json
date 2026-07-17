@@ -24,10 +24,5 @@
     "esModuleInterop": true
   },
   "include": ["src", "lib"],
-  "references": [{ "path": "./tsconfig.node.json" }],
-  "types": [
-    "vite/client",
-    "vite-plugin-svgr/client"
-  ]
-
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

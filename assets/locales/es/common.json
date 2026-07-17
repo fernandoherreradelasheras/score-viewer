@@ -170,5 +170,41 @@
     "scoreFacsimileItemsArray": "facsimileItems debe ser un array si se proporciona",
     "configurationError": "Error de Configuración",
     "configurationErrorDescription": "La configuración del ScoreViewer contiene errores:"
+  },
+  "note": {
+    "pitch": {
+      "a": "La",
+      "b": "Si",
+      "c": "Do",
+      "d": "Re",
+      "e": "Mi",
+      "f": "Fa",
+      "g": "Sol"
+    },
+    "mensuralDuration": {
+      "maxima": "maxima",
+      "longa": "longa",
+      "brevis": "breve",
+      "semibrevis": "semibreve",
+      "minima": "mínima",
+      "semiminima": "semimínima",
+      "fusa": "corchea",
+      "semifusa": "semicorchea"
+    },
+    "commonDuration": {
+      "octuple": "maxima",
+      "quadruple": "longa",
+      "double": "breve",
+      "whole": "redonda",
+      "half": "blanca",
+      "quarter": "negra",
+      "8th": "corchea",
+      "16th": "semicorchea"
+    },
+    "unknownDuration": "duración desconocida",
+    "description": "{{pitch}}{{accidental}}{{octave}} ({{duration}})"
+  },
+  "rest": {
+    "description": "silencio de {{duration}}"
   }
 }

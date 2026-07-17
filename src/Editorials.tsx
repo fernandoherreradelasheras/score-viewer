@@ -4,8 +4,40 @@ import { useEditorialHandler } from "./hooks/useEditorialHandler";
 import HoverHighlighter from "./HoverHighlighter";
 import { Button, Modal, Radio } from "antd";
 import { Tooltip } from "react-tooltip";
-import { EditorialItem, Choice, Option } from "./types";
+import { EditorialItem, Choice, Option, ContentDescription } from "./types";
 import { useTranslation } from 'react-i18next';
+
+
+const ACCIDENTAL_SYMBOLS: Record<string, string> = {
+    f: "♭",
+    s: "♯",
+    n: "♮",
+    ff: "𝄫",
+    ss: "𝄪",
+};
+
+const MEI_DURATIONS: Record<string, { mensuralKey: string; commonKey: string }> = {
+    // if given CMN names:
+    "long": { mensuralKey: "note.mensuralDuration.longa", commonKey: "note.commonDuration.quadruple" },
+    "breve": { mensuralKey: "note.mensuralDuration.brevis", commonKey: "note.commonDuration.double" },
+    "1": { mensuralKey: "note.mensuralDuration.semibrevis", commonKey: "note.commonDuration.whole" },
+    "2": { mensuralKey: "note.mensuralDuration.minima", commonKey: "note.commonDuration.half" },
+    "4": { mensuralKey: "note.mensuralDuration.semiminima", commonKey: "note.commonDuration.quarter" },
+    "8": { mensuralKey: "note.mensuralDuration.fusa", commonKey: "note.commonDuration.8th" },
+    "16": { mensuralKey: "note.mensuralDuration.semifusa", commonKey: "note.commonDuration.16th" },
+    // If given mensural names:
+    "maxima": { mensuralKey: "note.mensuralDuration.maxima", commonKey: "note.commonDuration.octuple" },
+    "longa": { mensuralKey: "note.mensuralDuration.longa", commonKey: "note.commonDuration.quadruple" },
+    "brevis": { mensuralKey: "note.mensuralDuration.brevis", commonKey: "note.commonDuration.double" },
+    "semibrevis": { mensuralKey: "note.mensuralDuration.semibrevis", commonKey: "note.commonDuration.whole" },
+    "minima": { mensuralKey: "note.mensuralDuration.minima", commonKey: "note.commonDuration.half" },
+    "semiminima": { mensuralKey: "note.mensuralDuration.semiminima", commonKey: "note.commonDuration.quarter" },
+    "fusa": { mensuralKey: "note.mensuralDuration.fusa", commonKey: "note.commonDuration.8th" },
+    "semifusa": { mensuralKey: "note.mensuralDuration.semifusa", commonKey: "note.commonDuration.16th" }
+};
+
+// TODO: we might want to make this configurable globally or per score
+const DISPLAY_MENSURAL_DURATIONS = true;
 
 
 function Editorials() {
@@ -39,15 +71,57 @@ function Editorials() {
         return annot != null ? <p>{annot.text}</p> : null;
     };
 
+    const describeDuration = (dur?: string | null) => {
+        if (!dur) {
+            return t("note.unknownDuration", { defaultValue: "unknown duration" });
+        }
+        const entry = MEI_DURATIONS[dur];
+        if (!entry) {
+            return dur;
+        }
+        const key = DISPLAY_MENSURAL_DURATIONS ? entry.mensuralKey : entry.commonKey;
+        return t(key, { defaultValue: key.split(".").pop() || dur });
+    };
+
+    const describeContentItem = (item: ContentDescription) => {
+        const duration = describeDuration(item.dur);
+        if (item.kind === "rest") {
+            return t("rest.description", {
+                duration,
+                defaultValue: `${duration} rest`,
+            });
+        }
+        const pitch = t(`note.pitch.${item.pname}`, { defaultValue: item.pname.toUpperCase() });
+        const accidental = item.accid ? ACCIDENTAL_SYMBOLS[item.accid] ?? "" : "";
+        return t("note.description", {
+            pitch,
+            accidental,
+            octave: item.oct,
+            duration,
+            defaultValue: `${pitch}${accidental}${item.oct}, ${duration}`,
+        });
+    };
+
+    const describeContent = (content: ContentDescription[] | undefined) => {
+        if (!content || content.length === 0) {
+            return undefined;
+        }
+        return content.map(describeContentItem).join("; ");
+    };
+
     const getAppChoiceExtraText = (sourceTitle: string | null | undefined, contentDescription: string | null | undefined) => {
         return `${sourceTitle ? sourceTitle : ''}${contentDescription ? ': ' + contentDescription : ''}`;
     }
 
-    const getAppChoiceText = (subtype: string, options: Option[], option: Option) => {
+    const getOptionDescription = (option: Option) => {
         const optionSource = option.source;
         const sourceTitle = optionSource && score?.properties.sources[optionSource]?.title;
-        const contentDescription = option.contentDescription
-        const extraText = getAppChoiceExtraText(sourceTitle, contentDescription);
+        const contentDescription = describeContent(option.contentDescription)
+        return getAppChoiceExtraText(sourceTitle, contentDescription);
+    }
+
+    const getAppChoiceText = (subtype: string, options: Option[], option: Option) => {
+        const extraText = getOptionDescription(option)
         if (subtype == "lem") {
             return `${t("editorial.preferredReading")} ${extraText}`;
         }
@@ -64,13 +138,16 @@ function Editorials() {
             const text = getAppChoiceText(subtype, options, options[index]);
             return text
         } else if (type == "choice") {
+            const extraText = getOptionDescription(options[index]);
+            let choiceText = '';
             if (subtype == "reg") {
-                return t("editorial.regReading");
+                choiceText = t("editorial.regReading");
             } else if (subtype == "orig") {
-                return t("editorial.origReading");
+                choiceText = t("editorial.origReading");
             } else {
-                return t('editorial.optionNumber', { 'number': 1 + index });
+                choiceText = t('editorial.optionNumber', { 'number': 1 + index });
             }
+            return `${choiceText} ${extraText}`
         } else {
             return "";
         }
