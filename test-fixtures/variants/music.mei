@@ -283,7 +283,7 @@
                            </app>
                         </layer>
                      </staff>
-                     <annot plist="#ai2334">La partitura de Évora opta por mantener el primer mi natural y aplicar bemol al segundo mi tanto en el compás 49, tiple 2º el 51, alto 2º, dando lugar a un cromatismo interesante</annot>
+                     <annot plist="#ai2334">La partitura de Évora opta por mantener el primer mi natural y aplicar bemol al segundo mi, dando lugar a un cromatismo interesante</annot>
                      <staff n="3">
                         <layer n="1">
                            <note xml:id="n1nc16gk" dots="1" dur="1" pname="a" oct="4" stem.len="0.000000">

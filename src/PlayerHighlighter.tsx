@@ -1,11 +1,11 @@
-import { useEffect, useRef } from "react";
+
+import { Fragment, useEffect, useRef } from "react";
 import useStore from "./store";
 import { svgFilter } from "./SvgUtils";
 import { TimeMapEvent, PlayingState } from "./types";
-import { resolveSvgNoteId } from "./utils/svg-note-id";
+import { PLAYER_STAFF_COLORS } from "./types/colors";
 
 
-const staffHighlightColors = ["#8e0000", "#227710", "#5500aa", "#e9227a", "#0026f3", "#11ddff", "#8e0000", "#227710"]
 
 
 const noteHighlightStyle = `
@@ -15,39 +15,33 @@ const noteHighlightStyle = `
       `
 
 
-
 const svgHighlightFilters =
     <svg xmlns="http://www.w3.org/2000/svg" style={{ height: "0px", width: "0px" }}>
         <defs>
-            {svgFilter("1", staffHighlightColors[0], 100)}
-            {svgFilter("2", staffHighlightColors[1], 100)}
-            {svgFilter("3", staffHighlightColors[2], 100)}
-            {svgFilter("4", staffHighlightColors[3], 100)}
-            {svgFilter("5", staffHighlightColors[4], 100)}
-            {svgFilter("6", staffHighlightColors[5], 100)}
-            {svgFilter("7", staffHighlightColors[6], 100)}
-            {svgFilter("8", staffHighlightColors[7], 100)}
-            {svgFilter("hover", "#fe3b20", 0)}
+            {PLAYER_STAFF_COLORS.map((color, i) =>
+                <Fragment key={i}>{svgFilter(`${i + 1}`, color, 100)}</Fragment>
+            )}
         </defs>
 
-        <animate id="radius-1-animation" xlinkHref="#radius-1" attributeName="radius" from="10" to="600" dur="6s" begin="0s" fill="freeze" repeatCount="indefinite" restart="always" />
-        <animate id="radius-2-animation" xlinkHref="#radius-2" attributeName="radius" from="10" to="600" dur="6s" begin="0s" fill="freeze" repeatCount="indefinite" restart="always" />
-        <animate id="radius-3-animation" xlinkHref="#radius-3" attributeName="radius" from="10" to="600" dur="6s" begin="0s" fill="freeze" repeatCount="indefinite" restart="always" />
-        <animate id="radius-4-animation" xlinkHref="#radius-4" attributeName="radius" from="10" to="600" dur="6s" begin="0s" fill="freeze" repeatCount="indefinite" restart="always" />
-        <animate id="radius-5-animation" xlinkHref="#radius-5" attributeName="radius" from="10" to="600" dur="6s" begin="0s" fill="freeze" repeatCount="indefinite" restart="always" />
-        <animate id="radius-6-animation" xlinkHref="#radius-6" attributeName="radius" from="10" to="600" dur="6s" begin="0s" fill="freeze" repeatCount="indefinite" restart="always" />
-        <animate id="radius-7-animation" xlinkHref="#radius-7" attributeName="radius" from="10" to="600" dur="6s" begin="0s" fill="freeze" repeatCount="indefinite" restart="always" />
-        <animate id="radius-8-animation" xlinkHref="#radius-8" attributeName="radius" from="10" to="600" dur="6s" begin="0s" fill="freeze" repeatCount="indefinite" restart="always" />
+        {PLAYER_STAFF_COLORS.map((_, i) =>
+            <animate
+                key={i}
+                id={`radius-${i + 1}-animation`}
+                xlinkHref={`#radius-${i + 1}`}
+                attributeName="radius"
+                from="10" to="600" dur="6s" begin="0s"
+                fill="freeze" repeatCount="indefinite" restart="always"
+            />
+        )}
     </svg>
 
 
 const getSvgStyleRules = () =>
-    [1, 2, 3, 4, 5, 6, 7, 8]
-        .map(i => `.staff[data-n="${i}"] { \
-        --high: url(#highlighting-${i}); \
+    PLAYER_STAFF_COLORS
+        .map((color, i) => `.staff[data-n="${i + 1}"] { \
+        --high: url(#highlighting-${i + 1}); \
         --verseFontWeight: bold; \
-        --hgcolor: ${staffHighlightColors[i - 1]} }`).join('\n')
-
+        --hgcolor: ${color} }`).join('\n')
 
 function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
 
@@ -66,16 +60,16 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
     const animateElements = useRef(null as { [key: string]: SVGAnimateElement } | null)
 
     const buildAnimateElementsCache = () => {
-        const elementMap = {} as { [key: string]: SVGAnimateElement }
-        [1, 2, 3, 4, 5, 6, 7, 8].forEach(n => {
-            const key = `#radius-${n}-animation`
-            const value = document.querySelector(key) as SVGAnimateElement | null
+        const elementMap: { [key: string]: SVGAnimateElement } = {};
+        PLAYER_STAFF_COLORS.forEach((_, i) => {
+            const key = `#radius-${i + 1}-animation`;
+            const value = document.querySelector<SVGAnimateElement>(key);
             if (value) {
-                elementMap[key] = value
+                elementMap[key] = value;
             }
-        })
-        return elementMap
-    }
+        });
+        return elementMap;
+    };
 
     useEffect(() => {
         if (animateElements.current == null) {
@@ -126,9 +120,7 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
 
     const higlightNotesAtPosition = (position: number) => {
         timemap.slice().reverse().find(e => e.on && e.tstamp <= position)?.on?.forEach(id => {
-            const resolvedId = resolveSvgNoteId(id)
-            if (!resolvedId) return
-            document?.querySelectorAll(`#${CSS.escape(resolvedId)} > *`)?.forEach(noteElement => {
+            document?.querySelectorAll(`#${CSS.escape(id)} > *`)?.forEach(noteElement => {
                 noteElement.classList.add('note-highlight')
             })
         })
@@ -186,9 +178,8 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
         const off = new Set(events.flatMap(e => e.off));
         const on = new Set(events.flatMap(e => e.on).filter(e => !off.has(e)))
         off.forEach(id => {
-            const resolvedId = resolveSvgNoteId(id)
-            if (resolvedId) {
-                const escapedId = CSS.escape(resolvedId)
+            if (id) {
+                const escapedId = CSS.escape(id)
                 const noteElements = [...document?.querySelectorAll(`#${escapedId} .note-highlight`)] as SVGGElement[] | null
                 noteElements?.forEach(noteElement => {
                     noteElement.classList.remove('note-highlight')
@@ -201,9 +192,8 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
             startGlowingNotes([...keys])
         }
         on.forEach(id => {
-            const resolvedId = resolveSvgNoteId(id)
-            if (resolvedId) {
-                const escapedId = CSS.escape(resolvedId)
+            if (id) {
+                const escapedId = CSS.escape(id)
                 document?.querySelectorAll(`#${escapedId} > *`)?.forEach(noteElement => {
                     noteElement.classList.add('note-highlight')
                 })

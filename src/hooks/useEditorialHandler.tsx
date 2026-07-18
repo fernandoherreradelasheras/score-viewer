@@ -1,19 +1,18 @@
 import { useCallback } from 'react';
 import useStore from '../store';
-import { EditorialItem } from '../types';
-import { useTranslation } from 'react-i18next';
+import { EDITORIAL_TRANSPARENT_TAGS, EDITORIAL_SELECTION_TAGS, EditorialItem, SUBST_ALLOWED_CHILD_TAGS, CHOICE_ALLOWED_CHILD_TAGS, PlayingState } from '../types';
 
 
-const targets = ["note", "rest", "clef", "accid", "app", "choice", "corr", "sic", "unclear", "supplied", "reg", "measure"];
+const PARENTS_OF_ELEMENTS = [...EDITORIAL_SELECTION_TAGS, ...SUBST_ALLOWED_CHILD_TAGS, ...CHOICE_ALLOWED_CHILD_TAGS]
+
 
 
 export function useEditorialHandler() {
 
-  const { t } = useTranslation("common")
-
   const showEditorial = useStore.use.showEditorial();
   const setShowingEditorial = useStore.use.setShowingEditorial();
   const editorials = useStore.use.score()?.editorialItems;
+  const playingState = useStore.use.playingState();
 
 
   const getEditorialAttached = useCallback((elem: HTMLElement): EditorialItem | undefined => {
@@ -27,59 +26,47 @@ export function useEditorialHandler() {
   }, [editorials]);
 
   const findTarget = useCallback((target: HTMLElement): EditorialItem | null => {
-    for (let e of targets) {
+    // A click anywhere inside an editorial group — including its enlarged
+    // content-bounding-box hit area — resolves to that group. `.mei-editorial` is set
+    // only on the editorial <g> itself (never on the content-bounding-box <g>, which
+    // also carries the tag class), so closest() lands on the element whose id matches
+    // the item instead of on the bounding-box wrapper.
+    const editorialGroup = target.closest('.mei-editorial') as HTMLElement | null;
+    const attached = editorialGroup ? getEditorialAttached(editorialGroup) : null;
+    if (attached) {
+      return attached;
+    }
+
+    // Fallback: resolve by editorial tag class / data-corresp (e.g. clef changes).
+    for (let e of [...EDITORIAL_TRANSPARENT_TAGS, ...PARENTS_OF_ELEMENTS]) {
       const closest = target.closest(`.${e}`) as HTMLElement | null;
       const editorialForTarget = closest ? getEditorialAttached(closest) : null;
-
       if (editorialForTarget) {
         return editorialForTarget;
       }
     }
     return null
-  }, [getEditorialAttached, setShowingEditorial])
+  }, [getEditorialAttached])
 
   const handleElementClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (!showEditorial) return;
+    if (!showEditorial || playingState !== PlayingState.STOPPED) return;
 
 
     const element = event.target as HTMLElement;
+    if (element.tagName === "svg" || element.tagName === "path") {
+      return;
+    }
     const target = findTarget(element)
     if (target) {
       setShowingEditorial(target.id);
-    } else {
-      const bb = element.closest(".content-bounding-box") as HTMLElement | null;
-      const parentTarget = bb?.parentElement
-      if (parentTarget && [...parentTarget.classList.values()].some(c => targets.includes(c))) {
-        const editorialForTarget = getEditorialAttached(parentTarget)
-        if (editorialForTarget) {
-          setShowingEditorial(editorialForTarget.id);
-        }
-      }
     }
-  }, [showEditorial, getEditorialAttached, setShowingEditorial]);
+  }, [showEditorial, playingState, getEditorialAttached, setShowingEditorial]);
 
-
-  const formatType = useCallback((type: string): string => {
-    switch (type) {
-      case "corr": return t('editorial.formatType.corr');
-      case "unclear": return t('editorial.formatType.unclear');
-      case "choice": return t('editorial.formatType.choice');
-      case "app": return t('editorial.formatType.app');
-      case "lem": return t('editorial.formatType.lem');
-      case "rdg": return t('editorial.formatType.rdg');
-      case "sic": return t('editorial.formatType.sic');
-      case "supplied": return t('editorial.formatType.supplied');
-      case "reg": return t('editorial.formatType.reg');
-      case "clef[data-corresp]": return t('editorial.formatType.clefChange');
-      default: return t('editorial.formatType.default', { type });
-    }
-  }, [t]);
 
   return {
     showEditorial,
     editorials,
     handleElementClick,
-    formatType,
     getEditorialAttached
   };
 }

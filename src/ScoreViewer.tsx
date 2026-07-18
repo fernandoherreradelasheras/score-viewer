@@ -53,6 +53,10 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   const setScore = useStore.use.setScore()
   const setSelectedAudioIndex = useStore.use.setSelectedAudioIndex()
 
+  const setAppOptions = useStore.use.setAppOptions()
+  const setChoiceOptions = useStore.use.setChoiceOptions()
+  const setSubstOptions = useStore.use.setSubstOptions()
+
   const normalizeFicta = useStore.use.normalizeFicta()
   const showOriginalClefs = useStore.use.showOriginalClefs()
   const activeTab = useStore.use.activeTab()
@@ -63,7 +67,6 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   const mobileOrientation = useMobileOrientation()
 
   const [fetchScoreError, setFetchScoreError] = useState<FetchError | null>(null);
-
 
 
   const [introAvailable, setIntroAvailable] = useState<boolean>(false);
@@ -136,6 +139,9 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   const loadAll = useCallback(async (scoreIndex: number) => {
     console.log(`Loading all for score index ${scoreIndex}`);
     setScore(null)
+    setChoiceOptions([], true)
+    setAppOptions([], true)
+    setSubstOptions([], true)
     setFetchScoreError(null);
     setIntroAvailable(hasIntro(scoreIndex));
     setFacsimileItems(config.scores[scoreIndex].facsimileItems || []);

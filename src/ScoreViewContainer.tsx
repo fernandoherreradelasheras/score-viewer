@@ -109,7 +109,7 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
 
     return (
         <div ref={scoreViewerRef}
-            className="score-viewer"
+            className={"score-viewer" + (playingState !== PlayingState.STOPPED ? " player-active" : "")}
             onMouseEnter={() => setMouseOver(true)} onMouseLeave={() => setMouseOver(false)}
             style={{
                 position: "relative",

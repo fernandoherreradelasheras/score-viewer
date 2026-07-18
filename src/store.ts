@@ -81,6 +81,9 @@ interface ScoreNavigationState {
 
     sectionPageMap: Record<string, number>
 
+    elementPages: Record<string, number>
+    setElementPages: (ids: string[], page: number) => void
+
     setScoreLayout: (layout: { pageCount: number, sectionPageMap: Record<string, number>, currentPage: number }) => void
 
     goToPage: (page: number) => void
@@ -98,11 +101,23 @@ export const createScoreViewerStore = create<ScoreNavigationState>((set, get) =>
     currentPage: 1,
     sectionPageMap: {},
 
+    elementPages: {},
+
+    setElementPages: (ids, page) => set((state) => {
+        const elementPages = { ...state.elementPages };
+        for (const id of ids) {
+            elementPages[id] = page;
+        }
+        return { elementPages };
+    }),
+
     setScoreLayout: ({ pageCount, sectionPageMap, currentPage }) => {
         set({
             pageCount,
             sectionPageMap,
             currentPage,
+            // the score was (re)paginated, so any previously recorded pages are stale
+            elementPages: {},
             navigationCommand: null
         });
     },
@@ -235,6 +250,7 @@ interface ScoreSettings {
     showingEditorial: string | null
     appOptions: string[]
     choiceOptions: string[]
+    substOptions: string[]
     withoutTransposition: boolean
     showMusicAnalysis: boolean
     measureNumberInterval: number
@@ -247,6 +263,7 @@ interface ScoreSettings {
     setShowingEditorial: (editorial: string | null) => void
     setAppOptions: (options: string[], replace: boolean) => void
     setChoiceOptions: (options: string[], replace: boolean) => void
+    setSubstOptions: (options: string[], replace: boolean) => void
     setWithoutTransposition: (withoutTransposition: boolean) => void
     setShowMusicAnalysis: (showMusicAnalysis: boolean) => void
     setMeasureNumberInterval: (interval: number) => void
@@ -262,6 +279,7 @@ const DEFAULT_SCORE_SETTINGS = {
     showingEditorial: null,
     appOptions: [],
     choiceOptions: [],
+    substOptions: [],
     withoutTransposition: false,
     showMusicAnalysis: false,
     measureNumberInterval: 0,
@@ -281,6 +299,9 @@ const createScoreSettingsStore = create<ScoreSettings>()(persist((set) => ({
     })),
     setChoiceOptions: (options: string[], replace: boolean) => set((state) => ({
         choiceOptions: replace ? options : [...state.choiceOptions, ...options]
+    })),
+    setSubstOptions: (options: string[], replace: boolean) => set((state) => ({
+        substOptions: replace ? options : [...state.substOptions, ...options]
     })),
     setWithoutTransposition: (withoutTransposition: boolean) => set(() => ({ withoutTransposition })),
     setShowMusicAnalysis: (showMusicAnalysis: boolean) => set(() => ({ showMusicAnalysis })),
@@ -381,6 +402,8 @@ class ScoreViewerStoreApi {
         pageCount: createScoreViewerStoreWithSelectors.use.pageCount,
         currentPage: createScoreViewerStoreWithSelectors.use.currentPage,
         sectionPageMap: createScoreViewerStoreWithSelectors.use.sectionPageMap,
+        elementPages: createScoreViewerStoreWithSelectors.use.elementPages,
+        setElementPages: createScoreViewerStoreWithSelectors.use.setElementPages,
         setScoreLayout: createScoreViewerStoreWithSelectors.use.setScoreLayout,
         goToPage: createScoreViewerStoreWithSelectors.use.goToPage,
         goToNextPage: createScoreViewerStoreWithSelectors.use.goToNextPage,
@@ -409,6 +432,7 @@ class ScoreViewerStoreApi {
         showingEditorial: createScoreSettingsStoreWithSelectors.use.showingEditorial,
         appOptions: createScoreSettingsStoreWithSelectors.use.appOptions,
         choiceOptions: createScoreSettingsStoreWithSelectors.use.choiceOptions,
+        substOptions: createScoreSettingsStoreWithSelectors.use.substOptions,
         withoutTransposition: createScoreSettingsStoreWithSelectors.use.withoutTransposition,
         showMusicAnalysis: createScoreSettingsStoreWithSelectors.use.showMusicAnalysis,
         measureNumberInterval: createScoreSettingsStoreWithSelectors.use.measureNumberInterval,
@@ -420,6 +444,7 @@ class ScoreViewerStoreApi {
         setShowingEditorial: createScoreSettingsStoreWithSelectors.use.setShowingEditorial,
         setAppOptions: createScoreSettingsStoreWithSelectors.use.setAppOptions,
         setChoiceOptions: createScoreSettingsStoreWithSelectors.use.setChoiceOptions,
+        setSubstOptions: createScoreSettingsStoreWithSelectors.use.setSubstOptions,
         setWithoutTransposition: createScoreSettingsStoreWithSelectors.use.setWithoutTransposition,
         setShowMusicAnalysis: createScoreSettingsStoreWithSelectors.use.setShowMusicAnalysis,
         setMeasureNumberInterval: createScoreSettingsStoreWithSelectors.use.setMeasureNumberInterval,

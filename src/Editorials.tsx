@@ -1,11 +1,11 @@
-import { useMemo } from "react";
 import useStore from "./store";
-import { useEditorialHandler } from "./hooks/useEditorialHandler";
-import HoverHighlighter from "./HoverHighlighter";
-import { Button, Modal, Radio } from "antd";
+import { Button, Modal, Radio, Typography, Descriptions, Alert, Badge } from "antd";
 import { Tooltip } from "react-tooltip";
-import { EditorialItem, Choice, Option, ContentDescription } from "./types";
+import { EditorialItem, Choice, Option, ContentDescription, EDITORIAL_ALL_TAGS, EDITORIAL_SELECTION_TAGS, ChoiceEditorialItem, SimpleEditorialItem, PlayingState } from "./types";
+import { EDITORIAL_COLORS } from "./types/colors";
 import { useTranslation } from 'react-i18next';
+
+const { Text, Paragraph } = Typography;
 
 
 const ACCIDENTAL_SYMBOLS: Record<string, string> = {
@@ -36,9 +36,10 @@ const MEI_DURATIONS: Record<string, { mensuralKey: string; commonKey: string }> 
     "semifusa": { mensuralKey: "note.mensuralDuration.semifusa", commonKey: "note.commonDuration.16th" }
 };
 
-// TODO: we might want to make this configurable globally or per score
+// we might want to make this configurable globally or per score
 const DISPLAY_MENSURAL_DURATIONS = true;
 
+const TOOLTIP_SELECTOR = "svg .mei-editorial";
 
 function Editorials() {
     const { t } = useTranslation("common");
@@ -49,26 +50,30 @@ function Editorials() {
     const setAppOptions = useStore.use.setAppOptions();
     const choiceOptions = useStore.use.choiceOptions();
     const setChoiceOptions = useStore.use.setChoiceOptions();
-    const renderedSvgData = useStore.use.renderedSvgData();
+    const substOptions = useStore.use.substOptions()
+    const setSubstOptions = useStore.use.setSubstOptions()
+    const playingState = useStore.use.playingState();
 
     const editorials = score?.editorialItems;
 
-    const { formatType } = useEditorialHandler();
-
-    const TOOLTIP_SELECTOR = useMemo(() =>
-        ['corr', 'unclear', 'sic', 'app', 'choice', 'lem', 'reg', 'orig', 'supplied']
-            .map(e => `svg .${e}:not(.content-bounding-box)`).join(", ")
-        , [])
-
     const showingEditorialItem = showingEditorial ? editorials?.find(e => e.id == showingEditorial) : null;
 
-    const getAnnotationText = (item: EditorialItem) => {
+    const titleKey = (type: string): string => {
+        if (EDITORIAL_ALL_TAGS.includes(type)) {
+            return `editorial.formatType.${type}`;
+        } else if (type == "clef[data-corresp]") {
+            return "editorial.formatType.clefChange"
+        } else {
+            return type;
+        }
+    }
+
+    const getAnnotationText = (item: EditorialItem): string | null => {
         if (item.annotations.size <= 0) {
             return null;
         }
         const annot = item.annotations.values().next().value;
-
-        return annot != null ? <p>{annot.text}</p> : null;
+        return annot?.text ?? null;
     };
 
     const describeDuration = (dur?: string | null) => {
@@ -102,54 +107,81 @@ function Editorials() {
         });
     };
 
-    const describeContent = (content: ContentDescription[] | undefined) => {
+    const describeContentAsString = (content: ContentDescription[] | undefined) => {
         if (!content || content.length === 0) {
             return undefined;
         }
         return content.map(describeContentItem).join("; ");
     };
 
-    const getAppChoiceExtraText = (sourceTitle: string | null | undefined, contentDescription: string | null | undefined) => {
-        return `${sourceTitle ? sourceTitle : ''}${contentDescription ? ': ' + contentDescription : ''}`;
-    }
+    const describeContentAsList = (content: ContentDescription[] | undefined) => {
+        if (!content || content.length === 0) {
+            return undefined;
+        }
+        return (
+            <ul style={{ margin: 0, paddingInlineStart: 22 }}>
+                {content.map((item, index) => <li key={index}><Text>{describeContentItem(item)}</Text></li>)}
+            </ul>
+        )
+    };
 
     const getOptionDescription = (option: Option) => {
         const optionSource = option.source;
         const sourceTitle = optionSource && score?.properties.sources[optionSource]?.title;
-        const contentDescription = describeContent(option.contentDescription)
+        const contentDescription = describeContentAsString(option.contentDescription)
         return getAppChoiceExtraText(sourceTitle, contentDescription);
     }
 
-    const getAppChoiceText = (subtype: string, options: Option[], option: Option) => {
-        const extraText = getOptionDescription(option)
+    const getAppChoiceExtraText = (sourceTitle: string | null | undefined, contentDescription: string | null | undefined) => {
+        return `${sourceTitle ? sourceTitle : ''}${contentDescription ? ': ' + contentDescription : ''}`;
+    }
+
+    const getAppChoiceText = (subtype: string, options: Option[], option: Option, includeDescription: boolean) => {
+        const extraText = includeDescription ? getOptionDescription(option) : null;
+        let text = '';
         if (subtype == "lem") {
-            return `${t("editorial.preferredReading")} ${extraText}`;
+            text = t("editorial.preferredReading")
+        } else if (subtype == "rdg") {
+            const rdgs = options.filter(o => o.type == "rdg");
+            if (rdgs.length == 1) {
+                text = t("editorial.alternativeReading")
+            } else {
+                text = `${t("editorial.alternativeReadingNumber")}${1 + rdgs.findIndex(r => r == option)}`;
+            }
         }
-        const rdgs = options.filter(o => o.type == "rdg");
-        if (rdgs.length == 1) {
-            return `${t("editorial.alternativeReading")} ${extraText}`;
+        return extraText ? `${text} ${extraText}` : text;
+    }
+
+    const getSubstChoiceText = (subtype: string, options: Option[], index: number, includeDescription: boolean) => {
+        const option = options[index];
+        const extraText = includeDescription ? getOptionDescription(option) : null;
+        let type;
+        let trOptions = {};
+        if (subtype == "add" || subtype == "del") {
+            type = subtype
+        } else if (options.length == 2) {
+            type = (index == 0) ? "del" : "add"
+        } else if (options.length == 1) {
+            type = "del"
+        } else {
+            type = (index == 0) ? "editorial.substSubstFirstChild" : "editorial.substSubstOtherChild"
+            trOptions = { ...trOptions, position: index + 1 }
         }
-        return `${t("editorial.alternativeReadingNumber")}${1 + rdgs.findIndex(r => r == option)} ${extraText}`;
+
+        const text = t(titleKey(type), trOptions)
+        return extraText ? `${text} ${extraText}` : text;
     }
 
 
-    const getChoiceText = (type: string, subtype: string, options: Option[], index: number) => {
+    const getChoiceText = (type: string, subtype: string, options: Option[], index: number, includeDescription: boolean) => {
         if (type == "app") {
-            const text = getAppChoiceText(subtype, options, options[index]);
-            return text
+            return getAppChoiceText(subtype, options, options[index], includeDescription);
         } else if (type == "choice") {
-            const extraText = getOptionDescription(options[index]);
-            let choiceText = '';
-            if (subtype == "reg") {
-                choiceText = t("editorial.regReading");
-            } else if (subtype == "orig") {
-                choiceText = t("editorial.origReading");
-            } else {
-                choiceText = t('editorial.optionNumber', { 'number': 1 + index });
-            }
-            return `${choiceText} ${extraText}`
-        } else {
-            return "";
+            const choiceText = t(titleKey(subtype), { defaultValue: t('editorial.optionNumber', { 'number': 1 + index }) });
+            const extraText = includeDescription ? getOptionDescription(options[index]) : null;
+            return extraText ? `${choiceText} ${extraText}` : choiceText;
+        } else if (type == "subst") {
+            return getSubstChoiceText(subtype, options, index, includeDescription);
         }
     };
 
@@ -163,12 +195,16 @@ function Editorials() {
             const newOptions = choiceOptions.filter((o: any) => !removeEntries.includes(o));
             newOptions.push(choice.options[selectedOptionIndex].selector);
             setChoiceOptions(newOptions, true);
+        } else if (type == "subst") {
+            const newOptions = substOptions.filter((o: any) => !removeEntries.includes(o));
+            newOptions.push(choice.options[selectedOptionIndex].selector);
+            setSubstOptions(newOptions, true);
         }
     };
 
-    const getOptionsList = (item: EditorialItem, selectedOptionIndex: number) => {
+    const getOptionsList = (item: ChoiceEditorialItem, selectedOptionIndex: number) => {
         const type = item.type;
-        const choice = item.choice!;
+        const choice = item.choice;
         const options = choice.options.map((o, index) => { return { option: o, index: index }; });
 
         return (
@@ -176,7 +212,8 @@ function Editorials() {
                 style={{ display: 'flex', flexDirection: 'column', gap: 8, }}
                 onChange={(e) => onOptionSelected(type, choice, e.target.value)}
                 value={selectedOptionIndex}
-                options={options.map((o) => { return { value: o.index, label: getChoiceText(type, o.option.type, choice.options, o.index) }; })} />
+                disabled={playingState !== PlayingState.STOPPED}
+                options={options.map((o) => { return { value: o.index, label: getChoiceText(type, o.option.type, choice.options, o.index, true) }; })} />
         );
     };
 
@@ -200,13 +237,33 @@ function Editorials() {
             } else {
                 return 0;
             }
+        } else if (type == "subst") {
+            const inSubsts = choice.options.findIndex((option) => Object.values(substOptions).includes(option.selector));
+            if (inSubsts != -1) {
+                return inSubsts;
+            } else {
+                // verovio renders the first child of a <subst> (whether <add> or <del>)
+                return 0
+            }
         }
 
         return 0;
     };
 
+    const getChoicesTexts = (item: ChoiceEditorialItem) => {
+        const type = item.type;
+        const choice = item.choice;
+        if (choice === undefined) {
+            return null;
+        }
 
-    const getChoices = (item: EditorialItem) => {
+        const selectedOptionIdx = getSelectedOption(type, choice);
+        return getOptionsList(item, selectedOptionIdx);
+    }
+
+
+
+    const getCurrentlyShowingChoiceText = (item: ChoiceEditorialItem, includeDescription: boolean) => {
         const type = item.type;
         const choice = item.choice;
         if (choice === undefined) {
@@ -215,28 +272,103 @@ function Editorials() {
 
         const selectedOptionIdx = getSelectedOption(type, choice);
         const subtype = item.choice!.options[selectedOptionIdx].type;
+        return getChoiceText(type, subtype, choice.options, selectedOptionIdx, includeDescription);
+    };
 
-        const options = getOptionsList(item, selectedOptionIdx);
 
+    const getChoices = (item: ChoiceEditorialItem) => {
         return (
             <div>
-                <br />
-                <p>{t('editorial.currentlyShowing', { 'what': getChoiceText(type, subtype, choice.options, selectedOptionIdx) })} </p>
-                <p>{t('editorial.availableOptions')}:</p>
-                {options}
+                <Paragraph type="secondary" style={{ marginBottom: 8 }}>
+                    {t('editorial.currentlyShowing', { 'what': getCurrentlyShowingChoiceText(item, true) })}
+                </Paragraph>
+                <Text strong>{t('editorial.availableOptions')}:</Text>
+                <div style={{ marginTop: 8 }}>
+                    {getChoicesTexts(item)}
+                </div>
             </div>
         );
     };
 
+    const getContentHeader = (item: SimpleEditorialItem, single: boolean) => {
+        if (single) {
+            return t("editorial.formatHeaderSingle", { type: item.type })
+        } else {
+            return t("editorial.formatHeaderSeveral", { type: item.type })
+        }
 
-    const getTooltipContent = (render: { content: string | null; activeAnchor: HTMLElement | null }) => {
+    }
+
+
+    const getSimpleEditorialContent = (item: SimpleEditorialItem) => {
+        const count = item.contentDescription.length
+        if (count <= 0) {
+            return null
+        }
+        return (
+            <div>
+                <Text strong>{getContentHeader(item, count == 1)}</Text>
+                <div style={{ marginTop: 8 }}>
+                    {describeContentAsList(item.contentDescription)}
+                </div>
+            </div>
+        )
+    }
+
+    const getEditorialItemTypeName = (item: EditorialItem) => {
+        return t(titleKey(item.type))
+    }
+
+    // Resolve a @resp / @source pointer to a readable name/title, falling back to
+    // "not specified" when empty so every dialog shows the same fields consistently.
+    const notSpecified = () => t('editorial.notSpecified', { defaultValue: 'No indicado' });
+
+    const resolveResp = (resp: string) => {
+        if (!resp) return notSpecified();
+        const id = resp.replace(/^#/, '');
+        return score?.properties.responsibilities?.[id] ?? id;
+    };
+
+    const resolveSource = (source: string) => {
+        if (!source) return notSpecified();
+        const id = source.replace(/^#/, '');
+        return score?.properties.sources?.[id]?.title || id;
+    };
+
+    const buildMetaItems = (item: EditorialItem) => [
+        ...(item.reason ? [{ key: 'reason', label: t('editorial.reason'), children: item.reason }] : []),
+        { key: 'resp', label: t('editorial.resp'), children: resolveResp(item.resp) },
+        { key: 'source', label: t('editorial.source'), children: resolveSource(item.source) },
+    ];
+
+
+    const getContentForTooltip = (render: { content: string | null; activeAnchor: HTMLElement | null }) => {
+        const id = render.activeAnchor?.id;
+        if (id) {
+            const editorialItem = editorials?.find((item) =>
+                item.id === id ||
+                item.correspIds?.includes(id) ||
+                ('choice' in item && item.choice.options.some(o => o.id === id))
+            )
+            if (editorialItem) {
+                const options = {
+                    type: getEditorialItemTypeName(editorialItem),
+                    details: ('choice' in editorialItem && editorialItem.choice) ? getCurrentlyShowingChoiceText(editorialItem, false) : null
+                }
+                const content = EDITORIAL_SELECTION_TAGS.includes(editorialItem.type)
+                    ? t(`editorial.tooltip.${editorialItem.type}`, options)
+                    : t('editorial.tooltip.default', options)
+
+                return <span>{content}</span>
+            }
+        }
+
         const cls = (render.activeAnchor?.className as SVGAnimatedString | undefined)?.baseVal;
-        return cls ? <span>{formatType(cls)}</span> : null
+        return cls ? <span>{t(titleKey(cls))}</span> : null
     }
 
     return (
         <div>
-
 
             <Tooltip id="verovio-tooltip"
                 variant="info"
@@ -244,23 +376,29 @@ function Editorials() {
                 offset={20}
                 delayShow={500}
                 anchorSelect={TOOLTIP_SELECTOR}
-                render={getTooltipContent} />
+                render={getContentForTooltip} />
 
-            {renderedSvgData?.id && <HoverHighlighter svgId={renderedSvgData.id} />}
 
             {showingEditorialItem ? (
                 <Modal
-                    title={formatType(showingEditorialItem!.type)}
+                    title={
+                        <Badge
+                            color={EDITORIAL_COLORS[showingEditorialItem.type as keyof typeof EDITORIAL_COLORS] ?? undefined}
+                            text={<Text strong>{getEditorialItemTypeName(showingEditorialItem)}</Text>} />
+                    }
                     open={showingEditorialItem != null && showingEditorialItem != undefined}
                     onCancel={() => setShowingEditorial(null)}
                     footer={
                         <Button type="primary" onClick={() => setShowingEditorial(null)}>{t('ok')}</Button>
                     }>
 
-                    {showingEditorialItem!.reason != "" ? <p>{`${t('editorial.reason')}: ${showingEditorialItem!.reason}`}</p> : ""}
-                    {showingEditorialItem!.resp != "" ? <p>{`${t('editorial.resp')}: ${showingEditorialItem!.resp}`}</p> : ""}
-                    {getAnnotationText(showingEditorialItem!)}
-                    {getChoices(showingEditorialItem!)}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 4 }}>
+                        <Descriptions size="small" column={1} items={buildMetaItems(showingEditorialItem)} />
+                        {getAnnotationText(showingEditorialItem) && (
+                            <Alert type="info" showIcon message={getAnnotationText(showingEditorialItem)} />
+                        )}
+                        {'choice' in showingEditorialItem ? getChoices(showingEditorialItem) : getSimpleEditorialContent(showingEditorialItem)}
+                    </div>
                 </Modal>
             ) : null}
         </div>

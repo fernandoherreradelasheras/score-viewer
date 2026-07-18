@@ -16,6 +16,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
     const setPlayingPosition = useStore.use.setPlayingPosition();
     const currentPage = useStore.use.currentPage();
     const goToPage = useStore.use.goToPage();
+    const elementPages = useStore.use.elementPages();
     const autoScroll = useStore.use.autoScroll();
     const setAutoScroll = useStore.use.setAutoScroll();
 
@@ -31,13 +32,19 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
     const sourceNodesRef = useRef<Map<string, AudioBufferSourceNode>>(new Map());
     const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
 
-    // Cache for the getPageWithElement lookup in checkPageForPosition, so we only
-    // hit the worker when the sounding element actually changes (not every frame).
-    const lastElementIdRef = useRef<string | null>(null);
-    const lastElementPageRef = useRef<number | null>(null);
-
     const [canPlay, setCanPlay] = useState(false);
     const needsUserInteractionRef = useRef(true);
+
+    const currentPageRef = useRef(currentPage);
+    currentPageRef.current = currentPage;
+
+    // Read through refs: checkPageForPosition runs from the requestAnimationFrame
+    // loop, which holds the closure captured when playback started.
+    const elementPagesRef = useRef(elementPages);
+    elementPagesRef.current = elementPages;
+
+    const timemapRef = useRef<TimeMapEvent[]>([]);
+    timemapRef.current = renderedSvgData?.timemap ?? [];
 
 
     const getAudioContext = useCallback(() => {
@@ -99,8 +106,23 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         };
     }, [getAudioContext]);
 
+    // Lets an audio-version switch be told apart from a score change: the first has to
+    // resume where the listener was, the second must start over.
+    const loadedMeiRef = useRef(originalMei);
+
     useEffect(() => {
-        const loadAudio = async (audioUrl: string) => {
+        const restorePosition = (position: number) => {
+            setPlayingPosition(position);
+            if (position > 0) {
+                // Reuse the seek path: it restarts the sources when playing, repositions
+                // them when paused, and rebuilds the highlighter's event queue either way.
+                setSeekPosition(position);
+            } else if (playingState === PlayingState.PLAYING) {
+                startPlayback(0);
+            }
+        }
+
+        const loadAudio = async (audioUrl: string, resumeAt: number | null) => {
             console.log(`Loading audio from URL: ${audioUrl}`);
             const context = getAudioContext();
             if (!context) {
@@ -111,19 +133,34 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
                 const buffer = await fetchAudioBuffer(audioUrl, context);
                 audioBuffersRef.current.set('main', buffer);
                 setCanPlay(true);
+                if (resumeAt != null) {
+                    // A shorter rendering of the same score must not seek past its end.
+                    restorePosition(Math.min(resumeAt, buffer.duration * 1000));
+                }
             } catch (error) {
                 console.error("Failed to load main audio:", error);
             }
         }
 
+        const isSameScore = loadedMeiRef.current === originalMei;
+        loadedMeiRef.current = originalMei;
+
+        // While playing, the live position is the authoritative one; while paused,
+        // startTimeRef is stale and only pausedPositionRef holds the real position.
+        const resumeAt = isSameScore && playingState !== PlayingState.STOPPED
+            ? (playingState === PlayingState.PLAYING ? getCurrentPosition() : pausedPositionRef.current)
+            : null;
+
         if (playingState !== PlayingState.STOPPED) {
             stopPlayback();
-            setPlayingState(PlayingState.STOPPED);
+            if (resumeAt == null) {
+                setPlayingState(PlayingState.STOPPED);
+            }
         }
         setCanPlay(false);
 
         if (audioUrl) {
-            loadAudio(audioUrl)
+            loadAudio(audioUrl, resumeAt)
         }
     }, [audioUrl, originalMei]);
 
@@ -151,29 +188,20 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
     }, []);
 
     const checkPageForPosition = async (position: number) => {
-        if (!autoScroll && playingState !== PlayingState.STOPPED) {
-            const playingAtPosition = await verovio?.getElementsAtTime(position);
-            // verovio 6.x: getElementsAtTime().page is unreliable (returns 1) when the
-            // score is loaded without expandAlways/expandNever — the "visual expansions
-            // off" case (see expansionOptions in useScoreActions). Derive the page from
-            // the sounding element via getPageWithElement, which is correct in every
-            // expansion mode. Cache by elementId so we only hit the worker when the
-            // sounding element changes, not on every animation frame.
-            const elementId = playingAtPosition?.notes?.[0]
-                ?? playingAtPosition?.chords?.[0]
-                ?? playingAtPosition?.rests?.[0];
-            if (!elementId) return;
-            let playingPage: number | null | undefined;
-            if (elementId === lastElementIdRef.current) {
-                playingPage = lastElementPageRef.current;
-            } else {
-                playingPage = await verovio?.getPageWithElement(elementId);
-                lastElementIdRef.current = elementId;
-                lastElementPageRef.current = playingPage ?? null;
-            }
-            if (playingPage && playingPage > 0 && playingPage !== currentPage) {
-                goToPage(playingPage);
-            }
+        if (autoScroll || playingState === PlayingState.STOPPED) return;
+
+        const timemap = timemapRef.current;
+        let elementId: string | undefined;
+        for (let i = timemap.length - 1; i >= 0; i--) {
+            const e = timemap[i];
+            if (e.tstamp <= position && e.on && e.on.length > 0) { elementId = e.on[0]; break; }
+        }
+        if (!elementId) return;
+
+        const playingPage: number | undefined = elementPagesRef.current[elementId]
+            ?? await verovio?.getPageWithElement(elementId);
+        if (playingPage && playingPage > 0 && playingPage !== currentPageRef.current) {
+            goToPage(playingPage);
         }
     }
 

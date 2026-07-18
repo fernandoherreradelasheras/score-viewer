@@ -25,7 +25,7 @@
             "audioFiles": [
                 {
                     "file": "un-imposible.mp3",
-                    "name": "Base"
+                    "name": "audio un imposible"
                 }
             ],
             "facsimileItems": [
@@ -72,30 +72,9 @@
             }
         },
         {
-            "_covers": "audio with and without repeats/expansions",
-            "title": "Repeticiones (con/sin expansión)",
-            "path": "repeticiones",
-            "meiFile": "music.mei",
-            "audioFiles": [
-                {
-                    "file": "without-repeats.mp3",
-                    "name": "Sin repeticiones",
-                    "repeats": false
-                },
-                {
-                    "file": "with-repeats.mp3",
-                    "name": "Con repeticiones",
-                    "repeats": true
-                }
-            ],
-            "encodingProperties": {
-                "encodedTransposition": ""
-            }
-        },
-        {
             "_covers": "editorial content (choice) + sections",
-            "title": "Variantes editoriales",
-            "path": "variantes",
+            "title": "Editorial variants",
+            "path": "variants",
             "meiFile": "music.mei",
             "encodingProperties": {
                 "encodedTransposition": "-P4"
@@ -106,6 +85,21 @@
             "title": "URL errónea (error de carga)",
             "path": "un-imposible",
             "meiFile": "no-existe.mei",
+            "encodingProperties": {
+                "encodedTransposition": ""
+            }
+        },
+        {
+            "_covers": "editorial elements",
+            "title": "editorial markup",
+            "path": "editorials",
+            "meiFile": "music.mei",
+            "audioFiles": [
+                {
+                    "file": "editorials.mp3",
+                    "name": "audio1"
+                }
+            ],
             "encodingProperties": {
                 "encodedTransposition": ""
             }

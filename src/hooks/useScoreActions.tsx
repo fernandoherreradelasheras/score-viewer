@@ -12,14 +12,43 @@ import {
   RenderAutoScrollConfig,
   renderAction,
   renderAutoScrollAction,
+  EDITORIAL_ALL_TAGS,
+  EDITORIAL_SELECTION_TAGS,
 } from '../types';
 import { RenderedData } from './useScoreRenderer';
 import useStore from '../store';
-import { resolveSvgNoteId } from '../utils/svg-note-id';
+import { EDITORIAL_COLORS } from '../types/colors';
 
 
-// Constants moved from ScoreView
-const EXTRA_SVG_ATTRIBUTES = ["measure@n", "staff@n", "clef@corresp", "verse@n", "note@dur", "rdg@label"];
+
+const APP_CLEFS_READING = {
+  option: 'clefs',
+  app_attr_name: 'label',
+  app_attr_value: 'app_clefs',
+  svg_extra_attributes: ['rdg@label', 'lem@label'],
+  svg_query_selector: '.app:has(> :is(.lem, .rdg)[data-label="app_clefs"])'
+}
+const APP_HARMONIC_ANALYSIS_READING = {
+  option: 'analysis',
+  app_attr_name: 'type',
+  app_attr_value: 'dissonant_analysis',
+  svg_extra_attributes: ['rdg@type', 'lem@type'],
+  svg_query_selector: '.app:has(> :is(.lem, .rdg)[data-type="dissonant_analysis"])'
+}
+
+const GLOBAL_APP_READINGS = [
+  APP_CLEFS_READING,
+  APP_HARMONIC_ANALYSIS_READING
+];
+
+
+const EXTRA_SVG_ATTRIBUTES = [
+  "measure@n", "staff@n", "clef@corresp", "verse@n", "note@dur",
+  ...GLOBAL_APP_READINGS.flatMap(r => r.svg_extra_attributes)
+];
+
+
+
 const AUTO_SCROLL_RENDERING_WIDTH_LIMIT = 60000;
 
 const verovioBaseOptions: VerovioOptions = {
@@ -44,7 +73,10 @@ const verovioBaseOptions: VerovioOptions = {
   lyricElision: "regular",
   lyricTopMinMargin: 4.0,
   lyricVerseCollapse: true,
-  smuflTextFont: "embedded"
+  smuflTextFont: "embedded",
+  expand: "",
+  expandNever: true, // avoid verovio expand repeats for the timemap
+  expandAlways: false
 };
 
 // Helper to get the appropriate CSS class for a transition
@@ -76,43 +108,56 @@ interface ScoreActionsConfig {
 /**
  * Transform a timemap with staff animation references
  */
-const staffAnimationRef = (id: string): string => {
-  // Repeated renditions carry `-rendN` ids absent from a non-expanded SVG; fall
-  // back to the original id so the staff (and its glow animation) is found.
-  const lookupId = resolveSvgNoteId(id) ?? id;
-  const escapedId = CSS.escape(lookupId);
-  const staff = document.querySelector(`.staff:has(#${escapedId})`)?.getAttribute("data-n");
-  return `#radius-${staff}-animation`;
-};
+const staffAnimationRef = (id: string, noteStaffMap: Record<string, string>): string =>
+  // Resolve the staff (for its glow animation) from a page-independent map rather
+  // than the SVG, which only holds the current page.
+  `#radius-${noteStaffMap[id]}-animation`;
 
-const resolveTimemapAnimations = (timemap: TimeMapEvent[]): TimeMapEvent[] =>
+const resolveTimemapAnimations = (timemap: TimeMapEvent[], noteStaffMap: Record<string, string>): TimeMapEvent[] =>
   timemap.map(e => {
     return {
       ...e,
-      stavesOn: e.on?.map(staffAnimationRef),
-      stavesOff: e.off?.map(staffAnimationRef)
+      stavesOn: e.on?.map(id => staffAnimationRef(id, noteStaffMap)),
+      stavesOff: e.off?.map(id => staffAnimationRef(id, noteStaffMap))
     } as TimeMapEvent;
   });
 
 const buildAppOptions = (appOptions: string[], showOriginalClefs: boolean, showMusicAnalysis: boolean) => {
-
   return [
     ...appOptions,
-    ...showOriginalClefs ? [`./rdg[contains(@label, 'app_clefs')]`] : [],
-    ...showMusicAnalysis ? [`./rdg[contains(@type, 'dissonant_analysis')]`] : []
+    ...showOriginalClefs ? [`./rdg[contains(@${APP_CLEFS_READING.app_attr_name}, '${APP_CLEFS_READING.app_attr_value}')]`] : [],
+    ...showMusicAnalysis ? [`./rdg[contains(@${APP_HARMONIC_ANALYSIS_READING.app_attr_name}, '${APP_HARMONIC_ANALYSIS_READING.app_attr_value}')]`] : []
   ]
 }
 
-// Keep the timemap consistent with the externally-generated audio.
-// If audio does not play repeats: expandNever: true -> (timemap, midi and SVG unexpanded)
-// if audio plays repeats: expandNever: false + expandAlways: false -> (timemap and midi expanded, SVG unexpanded)
-const expansionOptions = (repeats?: boolean): VerovioOptions => {
-  return {
-    expand: "", // Not supported yet
-    expandNever: !repeats,
-    expandAlways: false,
-  };
-};
+
+
+
+const setSvgClassesForEditorial = (svgElement: SVGElement) => {
+  // Global apps (original clefs / harmonic analysis) and everything inside them are
+  // excluded from editorial highlighting.
+  const globalApps = new Set(
+    GLOBAL_APP_READINGS.flatMap(r => [...svgElement.querySelectorAll(r.svg_query_selector)])
+  )
+
+  EDITORIAL_ALL_TAGS.forEach((tag: string) => {
+    const color = EDITORIAL_COLORS[tag as keyof typeof EDITORIAL_COLORS];
+    svgElement
+      .querySelectorAll(`.${tag}:not(.content-bounding-box):not(.bounding-box)`)
+      .forEach(e => {
+        const el = e as SVGGElement;
+        const app = el.closest(".app");
+        if (app && globalApps.has(app)) return;
+        el.classList.add("mei-editorial");
+        if (EDITORIAL_SELECTION_TAGS.includes(tag)) {
+          el.classList.add("mei-editorial-container");
+        }
+        if (color) {
+          el.style.setProperty("--editorial-color", color);
+        }
+      });
+  });
+}
 
 /**
  * Custom hook that manages score action execution
@@ -125,14 +170,14 @@ export default function useScoreActions({
   const targetHeight = useStore.use.targetHeight();
   const appOptions = useStore.use.appOptions();
   const choiceOptions = useStore.use.choiceOptions();
+  const substOptions = useStore.use.substOptions();
   const showOriginalClefs = useStore.use.showOriginalClefs();
   const showMusicAnalysis = useStore.use.showMusicAnalysis();
   const measureNumberInterval = useStore.use.measureNumberInterval();
   const setScoreLayout = useStore.use.setScoreLayout();
+  const setElementPages = useStore.use.setElementPages();
   const score = useStore.use.score();
   const selectedAudioIndex = useStore.use.selectedAudioIndex();
-
-
 
 
   const getSectionMap = async (analyzer: ScoreAnalyzer) => {
@@ -146,8 +191,14 @@ export default function useScoreActions({
       }
     }
     return sectionsMap
-
   }
+
+
+  const loadAndBuildTimemap = useCallback(async (meiStr: string): Promise<TimeMapEvent[]> => {
+    await verovio.loadData(meiStr);
+    const timemap = await verovio.renderToTimemap({ includeMeasures: true });
+    return timemap;
+  }, [verovio]);
 
   /**
    * Execute the load action - prepares Verovio with options and loads the MEI data
@@ -169,12 +220,12 @@ export default function useScoreActions({
       svgAdditionalAttribute: EXTRA_SVG_ATTRIBUTES,
       appXPathQuery: buildAppOptions(appOptions, showOriginalClefs || false, showMusicAnalysis),
       choiceXPathQuery: choiceOptions,
+      substXPathQuery: substOptions,
       pageHeight: loadedHeight,
       pageWidth: loadedWidth,
       scale: scale,
       transpose: config.transposition != null ? config.transposition : "",
-      mnumInterval: measureNumberInterval ?? 0,
-      ...expansionOptions(score?.audioFiles?.[selectedAudioIndex]?.repeats)
+      mnumInterval: measureNumberInterval ?? 0
     };
 
     console.log("VerovioOptions: ", options)
@@ -185,8 +236,7 @@ export default function useScoreActions({
       console.log(`[useScoreActions] performLoadAction started`);
 
       await verovio.setOptions(options);
-      await verovio.loadData(meiStr);
-      const timemap = await verovio.renderToTimemap({ includeMeasures: true });
+      const timemap = await loadAndBuildTimemap(meiStr);
       console.log("timemap duration: ", timemap.slice(-1)[0].tstamp)
 
 
@@ -198,7 +248,6 @@ export default function useScoreActions({
       // paginated.
       const analyzer = new ScoreAnalyzer(0, meiStr);
       const sectionMap = await getSectionMap(analyzer);
-
 
       console.log(`Score loaded in ${(performance.now() - startTime).toFixed(0)}ms, page count: ${loadedPagesCount}`);
       console.log(`[useScoreActions] performLoadAction completed in ${(performance.now() - startTime).toFixed(2)}ms`);
@@ -238,9 +287,11 @@ export default function useScoreActions({
     showOriginalClefs,
     showMusicAnalysis,
     choiceOptions,
+    substOptions,
     measureNumberInterval,
     score,
-    selectedAudioIndex
+    selectedAudioIndex,
+    loadAndBuildTimemap
   ]);
 
   /**
@@ -262,22 +313,18 @@ export default function useScoreActions({
       svgAdditionalAttribute: EXTRA_SVG_ATTRIBUTES,
       appXPathQuery: buildAppOptions(appOptions, showOriginalClefs || false, false),
       choiceXPathQuery: choiceOptions,
+      substXPathQuery: substOptions,
       pageHeight: height,
       pageWidth: AUTO_SCROLL_RENDERING_WIDTH_LIMIT,
       scale: 100,
       transpose: config.transposition != null ? config.transposition : "",
-      ...expansionOptions(score?.audioFiles?.[selectedAudioIndex]?.repeats)
     };
 
     try {
 
       await verovio.setOptions(options);
-      await verovio.loadData(meiStr)
-      const timemap = await verovio.renderToTimemap({ includeMeasures: true });
+      const timemap = await loadAndBuildTimemap(meiStr);
       console.log("timemap duration: ", timemap.slice(-1)[0].tstamp)
-
-
-
       return renderAutoScrollAction({ height, timemap: await resolveTimemap(timemap) });
     } catch (error) {
       console.error("Error performing auto-scroll load action:", error);
@@ -287,11 +334,13 @@ export default function useScoreActions({
     verovio,
     appOptions,
     choiceOptions,
+    substOptions,
     showOriginalClefs,
     showMusicAnalysis,
     measureNumberInterval,
     score,
-    selectedAudioIndex
+    selectedAudioIndex,
+    loadAndBuildTimemap
   ]);
 
   // Merge a single concrete tied pair so the second note stays highlighted from
@@ -302,8 +351,6 @@ export default function useScoreActions({
     const secondOnIndex = timemap.findIndex(e => e.on != null && e.on.includes(second));
     const secondOffIndex = timemap.findIndex(e => e.off != null && e.off.includes(second));
     if (firstOnIndex == -1 || firstOffIndex == -1 || secondOnIndex == -1 || secondOffIndex == -1) {
-      // The tie may be for a reconstructed voice not selected, or a rendition
-      // whose partner is absent.
       return;
     }
     timemap[firstOnIndex].on!.push(second)
@@ -315,23 +362,20 @@ export default function useScoreActions({
   const mergeTimemapTies = (timemap: TimeMapEvent[], tiedNotes: { first: string; second: string; }[]) => {
     const newTimeMap = timemap.map(e => { return { ...e } as TimeMapEvent });
     for (const { first, second } of tiedNotes) {
-      // In an expanded timemap the tie appears once per rendition (verovio tags
-      // repeats as `<id>-rendN`). Merge every rendition of `first`, pairing it
-      // with the `second` note carrying the same suffix.
-      const renditionPrefix = first + '-rend';
+
       const firstIds = new Set<string>();
       for (const e of newTimeMap) {
         for (const id of e.on ?? []) {
-          if (id === first || id.startsWith(renditionPrefix)) firstIds.add(id);
+          if (id === first) firstIds.add(id);
         }
       }
       for (const firstId of firstIds) {
-        const suffix = firstId.slice(first.length); // '' | '-rendN'
-        mergeTiePair(newTimeMap, firstId, second + suffix);
+        mergeTiePair(newTimeMap, firstId, second);
       }
     }
     return newTimeMap
   }
+
 
 
   const resolveTimemap = useCallback(async (timemap: TimeMapEvent[]): Promise<TimeMapEvent[]> => {
@@ -370,6 +414,13 @@ export default function useScoreActions({
         return null;
       }
 
+      setSvgClassesForEditorial(svgElement)
+
+      setElementPages(
+        [...svgElement.querySelectorAll(".note[id], .rest[id], .chord[id]")].map(e => e.id),
+        renderPage
+      );
+
       // Set initial opacity to 0 for fade-in animation (will be animated in ScoreView)
       svgElement.style.opacity = '0';
 
@@ -391,8 +442,7 @@ export default function useScoreActions({
       const firstMeasureId = analyzer.getFirstMeasureId();
       console.log(`[useScoreActions] getMEI + analysis took ${(performance.now() - meiStart).toFixed(2)}ms`);
 
-
-      const resolvedTimemap = await resolveTimemapAnimations(timemap);
+      const resolvedTimemap = resolveTimemapAnimations(timemap, score?.properties.noteStaffMap ?? {});
 
       const newSvg: RenderedData = {
         id: svgElement.id,
@@ -414,7 +464,7 @@ export default function useScoreActions({
       console.log(`Error rendering page: ${error}`);
       return null;
     }
-  }, [verovio, resolveTimemap]);
+  }, [verovio, resolveTimemap, score, setElementPages]);
 
   /**
    * Render the score for auto-scrolling
@@ -439,17 +489,17 @@ export default function useScoreActions({
 
       element.style.height = `${renderedHeight}px`;
 
-
+      const resolvedTimemap = resolveTimemapAnimations(timemap, score?.properties.noteStaffMap ?? {});
 
       const newSvg: RenderedData = {
         id: "svg-auto-scrolling",
         scale: 100, // Auto-scroll uses fixed scale
         scoreUrl: "",
-        timemap: timemap,
+        timemap: resolvedTimemap,
         width: renderedWidth,
         height: renderedHeight,
         anchorElement: null,
-        page: 1,
+        page: 1
       };
 
       return { newSvg };
@@ -470,7 +520,6 @@ export default function useScoreActions({
     if (!transition) {
       return true;
     }
-
 
     // Don't show for other transitions (SLIDE, FADE)
     return false;

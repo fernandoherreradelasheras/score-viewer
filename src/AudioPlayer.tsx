@@ -18,9 +18,6 @@ export type PlayerEvent = {
 }
 
 
-
-
-
 function AudioPlayer() {
     const score = useStore.use.score();
     const playingState = useStore.use.playingState();

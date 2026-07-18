@@ -4,22 +4,12 @@ import { EditorialItem } from './editorial';
 export type AudioFile = {
     url: string;
     name?: string;
-    // Whether this rendered audio plays repeats/expansions expanded (drives
-    // verovio's expand option so the timemap matches the audio).
-    repeats: boolean;
 }
 
 export type FacsimileItem = {
     name: string
     file: string
 }
-
-export type ReconstructionItem = {
-    voice: string
-    label: string
-    reconstructionBy: string
-}
-
 
 export type Score = {
     url: string;
@@ -39,8 +29,6 @@ export type TextPartsCache = {
     [url: string]: string | FetchError | null
 }
 
-
-
 // just adding here those we might use. See verovio docs for explanation
 export type Transposition = "" | "P4" | "+P4" | "-P4" | "M3" | "+M3" | "-M3" | "P8" | "+P8" | "-P8"
 
@@ -54,14 +42,16 @@ export type ScoreProperties = {
     composer: string | null;
     lyricist: string | null;
     editor: string;
-    reconstructionBy: string | null;
     sections: { label: string; id: string }[];
     sources: Sources;
+    responsibilities: Record<string, string>;
     notes: string[];
     hasEditorial: boolean;
     hasOriginalClefs: boolean;
     encodedTransposition?: Transposition | undefined
     tiedNotes: { first: string; second: string; }[];
+    // note/rest/chord xml:id -> staff @n, for page-independent staff resolution.
+    noteStaffMap: Record<string, string>;
 }
 
 export type VisualizationOptions = {

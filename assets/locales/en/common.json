@@ -19,27 +19,44 @@
   "editorial": {
     "preferredReading": "preferred reading",
     "alternativeReading": "alternative reading",
-    "regReading": "regularized reading",
-    "origReading": "original reading",
     "alternativeReadingNumber": "alternative reading #",
     "currentlyShowing": "Currently showing the {{what}}",
     "availableOptions": "Available options",
     "reason": "Reason",
     "resp": "Responsible person",
-    "optionNumber": "Option #{{number}}",
+    "optionNumber": "option #{{number}}",
     "formatType": {
-      "corr": "Applied correction",
-      "unclear": "Unclear element in the source",
-      "choice": "Available options",
-      "app": "Alternative readings",
+      "corr": "applied correction",
+      "unclear": "unclear element in the source",
+      "choice": "alternative options",
+      "app": "alternative readings",
+      "subst": "substituted material",
       "lem": "preferred reading",
       "rdg": "other reading",
+      "add": "added material",
+      "del": "removed material",
+      "orig": "original reading",
+      "reg": "regularized reading",
       "sic": "obvious error",
       "supplied": "added part",
-      "reg": "Regularization",
-      "clefChange": "Clef change",
+      "restore": "restored material",
+      "damage": "damaged material",
+      "clefChange": "clef change",
       "default": "type: {{type}}"
-    }
+    },
+    "elementTitle": "Editorial intervention: $t(editorial.formatType.{{ type }})",
+    "tooltip": {
+      "choice": "{{type}} (current: {{ details }})",
+      "app": "{{type}} (current: {{ details }})",
+      "subst": "{{type}} (current: {{ details }})",
+      "default": "{{ type }}"
+    },
+    "substOptionDel": "show deleted material",
+    "substOptionAdd": "show added material",
+    "substSubstFirstChild": "first substitution element",
+    "substSubstOtherChild": "#{{ position }} substitution element",
+    "source": "Source",
+    "notSpecified": "Not specified"
   },
   "error": {
     "scoreViewerError": "Something went wrong in the score viewer.",
@@ -64,7 +81,6 @@
   },
   "scoreOptions": {
     "title": "Display options",
-    "reconstruction": "Reconstruction {{voiceName}}",
     "uiSettings": {
       "title": "UI settings"
     },
@@ -100,7 +116,6 @@
     },
     "verseAmmount_one": "1 verse",
     "verseAmmount_other": "{{count}} verses",
-    "reconstructionNone": "none",
     "language": {
       "title": "Language",
       "description": "Language for the UI"
@@ -126,10 +141,6 @@
       "description": "Choose which rendered audio version to play for this score"
     },
     "resetSettings": "Reset settings to default"
-  },
-  "scoreProcessor": {
-    "reconstructionByIA": "Reconstruction by AI. Model {{name}}",
-    "reconstructionByHuman": "Reconstruction by {{name}}"
   },
   "score": {
     "measureNumber": "Measure {{number}}"

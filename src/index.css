@@ -30,73 +30,51 @@
 }
 
 /* Editorial highlighting */
-.unclear {
-  --show-fill-color: blue;
-  --show-outline-color: darkgreen;
+
+/* Outline offset by kind: simple interventions sit closer, containers get a wider
+   ring. Container rule comes second (same specificity) so it wins for the app/
+   choice/subst groups, which carry both classes. */
+.mei-editorial {
+  --editorial-offset: 60px;
 }
 
-.sic {
-  --show-fill-color: blue;
-  --show-outline-color: darkorange;
+.mei-editorial-container {
+  --editorial-offset: 120px;
 }
 
-.choice {
-  --show-fill-color: blue;
-  --show-outline-color: palebrown;
-}
-
-.corr {
-  --show-fill-color: blue;
-  --show-outline-color: darkviolet;
-}
-
-.orig {
-  --show-fill-color: rgb(0, 255, 140);
-  --show-outline-color: rgb(0, 100, 40);
-}
-
-.reg {
-  --show-fill-color: blue;
-  --show-outline-color: rgb(0, 89, 255);
-}
-
-.supplied {
-  --show-fill-color: rgb(30, 30, 177);
-  --show-outline-color: rgb(28, 214, 22);
-}
-
-.app.variant {
-  --show-fill-color: rgb(15, 15, 68);
-  --show-outline-color: rgb(0, 89, 255);
-}
-
-.svg-container.static-score:not(.editorial-active) svg :is(.unclear, .sic, .choice, .corr, .supplied, .orig, .reg, .app.variant).content-bounding-box rect {
+/* Mode off: boxes stay invisible */
+.svg-container.static-score:not(.editorial-active) svg .mei-editorial>.content-bounding-box>rect {
   fill: transparent;
 }
 
-.svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .orig, .reg, .app.variant) {
+.score-viewer:not(.player-active) .svg-container.editorial-active.static-score svg .mei-editorial {
   cursor: pointer;
 }
 
-
-.svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .orig, .reg, .app.variant).content-bounding-box rect {
-  fill: var(--show-fill-color);
+/* Base frame: color and offset are inherited from the outer intervention <g> */
+.svg-container.editorial-active.static-score svg .mei-editorial>.content-bounding-box>rect {
+  fill: var(--editorial-color);
   fill-opacity: 0.2;
-
-  outline: 30px solid var(--show-outline-color);
-  outline-offset: 120px;
-
+  outline: 30px solid var(--editorial-color);
+  outline-offset: var(--editorial-offset, 120px);
+  stroke: transparent !important;
+  stroke-width: calc(1.2 * (var(--editorial-offset, 120px) + 10px));
   pointer-events: auto;
   visibility: visible;
 }
 
-.svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .orig, .reg, .app.variant):hover {
-  filter: url(#highlighting-hover);
+/* Containers (app / choice / subst): dashed ring, no fill.
+   Must come AFTER the base rule, same specificity. */
+.svg-container.editorial-active.static-score svg .mei-editorial-container>.content-bounding-box>rect {
+  fill: none;
+  outline-style: dashed;
 }
 
-.svg-container.editorial-active.static-score svg :is(.unclear, .sic, .choice, .corr, .supplied, .orig, .reg, .app.variant):hover rect {
-  fill-opacity: 0.5;
-  filter: hue-rotate(180deg);
+/* Hover: only the innermost hovered intervention lights up */
+.score-viewer:not(.player-active) .svg-container.editorial-active.static-score svg .mei-editorial:hover:not(:has(.mei-editorial:hover))>.content-bounding-box>rect {
+  fill-opacity: 0.38;
+  outline-width: 55px;
+  transition: fill-opacity 0.15s ease, outline-width 0.15s ease;
 }
 
 .svg-container.static-score svg g.harm.rdiss tspan {
@@ -174,30 +152,6 @@
   transition-duration: 0.3s !important;
 }
 
-.svg-container.static-score svg g .reconstruction-name {
-  opacity: 0.7;
-}
-
-.svg-container.static-score svg g .rdg-recontruction-highlight {
-  fill-opacity: 1;
-  opacity: 0.3;
-}
-
-.svg-container.static-score svg g[data-label*="DeepSeek-V3-0324"] .rdg-recontruction-highlight {
-  fill: #28ad39;
-}
-
-.svg-container.static-score svg g[data-label*="google_gemma-3_27b"] .rdg-recontruction-highlight {
-  fill: #f5b966;
-}
-
-.svg-container.static-score svg g[data-label*="claude_sonet_3_7"] .rdg-recontruction-highlight {
-  fill: #8fe3ff;
-}
-
-.svg-container.static-score svg g[data-label*="llama_4_maverick_17B"] .rdg-recontruction-highlight {
-  fill: #ad28a2;
-}
 
 .score-viewer-top-element .ant-tabs .ant-tabs-content-holder {
   overflow-y: auto;

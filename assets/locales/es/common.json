@@ -22,24 +22,67 @@
     "regReading": "lectura regularizada",
     "origReading": "lectura original",
     "alternativeReadingNumber": "lectura alternativa nº",
-    "currentlyShowing": "Actualmente se muestra la {{what}}",
-    "availableOptions": "Opciones disponibles",
+    "currentlyShowing": "Actualmente se muestra la opción: '{{what}}'",
+    "availableOptions": "opciones disponibles",
     "reason": "Razón",
     "resp": "Responsable",
-    "optionNumber": "Opción nº{{number}}",
+    "optionNumber": "opción nº{{number}}",
     "formatType": {
-      "corr": "Corrección aplicada",
-      "unclear": "Elemento poco claro en la fuente",
-      "choice": "Opciones disponibles",
-      "app": "Lecturas alternativas",
+      "corr": "corrección aplicada",
+      "unclear": "elemento poco claro en la fuente",
+      "choice": "opciones alternativas",
+      "app": "lecturas alternativas",
+      "subst": "material reemplazado",
       "lem": "lectura preferida",
       "rdg": "otra lectura",
+      "add": "material añadido",
+      "del": "material eliminado",
+      "orig": "lectura original",
+      "reg": "lectura regularizada",
       "sic": "error evidente",
       "supplied": "parte añadida",
-      "reg": "Regularización",
-      "clefChange": "Cambio de clave",
+      "restore": "material resituido",
+      "damage": "material dañado",
+      "clefChange": "cambio de clave",
       "default": "tipo: {{type}}"
-    }
+    },
+    "formatHeaderSingle": "Elemento $t(editorial.appliedTypeSingle.{{ type }}): ",
+    "formatHeaderSeveral": "Elementos $t(editorial.appliedTypeSeveral.{{ type }}): ",
+    "appliedTypeSingle": {
+      "corr": "corregido",
+      "unclear": "poco claro",
+      "add": "añadido",
+      "del": "eliminado",
+      "orig": "originale",
+      "reg": "regularizado",
+      "sic": "evidente",
+      "supplied": "provisto",
+      "restore": "resituido",
+      "damage": "dañado"
+    },
+    "appliedTypeSeveral": {
+      "corr": "corregidos",
+      "unclear": "poco claros",
+      "add": "añadidos",
+      "del": "eliminados",
+      "orig": "originales",
+      "reg": "regularizados",
+      "sic": "evidentes",
+      "supplied": "provistos",
+      "restore": "resituidos",
+      "damage": "dañados"
+    },
+    "elementTitle": "Intervención editorial: $t(editorial.formatType.{{ type }})",
+    "tooltip": {
+      "choice": "{{ type }} (mostrando: {{ details }})",
+      "app": "{{ type }} (mostrando: {{ details }})",
+      "subst": "{{ type }} (mostrando: {{ details }})",
+      "default": "{{ type }}"
+    },
+    "substSubstFirstChild": "primer elemento de la sustitución",
+    "substSubstOtherChild": "elemento {{ position }} de la sustitución",
+    "source": "Fuente",
+    "notSpecified": "No indicado"
   },
   "error": {
     "scoreViewerError": "Algo fue mal en el visor de partituras",
@@ -64,7 +107,6 @@
   },
   "scoreOptions": {
     "title": "Opciones de visualizacion",
-    "reconstruction": "Reconstrucción {{voiceName}}",
     "uiSettings": {
       "title": "Configuración de la interfaz de usuario"
     },
@@ -100,7 +142,6 @@
     },
     "verseAmmount_one": "1 estrofa",
     "verseAmmount_other": "{{count}} estrofas",
-    "reconstructionNone": "ninguna",
     "language": {
       "title": "Idioma",
       "description": "Idioma de la interfaz de usuario"
@@ -126,10 +167,6 @@
       "description": "Elige qué versión de audio reproducir para esta partitura"
     },
     "resetSettings": "Restablecer configuración por defecto"
-  },
-  "scoreProcessor": {
-    "reconstructionByIA": "Reconstrucción por IA. Modelo {{name}}",
-    "reconstructionByHuman": "Reconstrucción por {{name}}"
   },
   "score": {
     "measureNumber": "Compás {{number}}"

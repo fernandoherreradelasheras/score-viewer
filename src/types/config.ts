@@ -6,8 +6,6 @@ import { FacsimileItem } from "./score";
 export interface ScoreViewerConfigAudioFile {
   file: string;
   name?: string;
-  // Whether this rendered audio plays repeats expanded
-  repeats?: boolean | undefined;
 }
 
 /**

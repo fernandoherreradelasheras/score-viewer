@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="https://music-encoding.org/schema/5.1/mei-all.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<mei xmlns="http://www.music-encoding.org/ns/mei" meiversion="5.1">
+   <meiHead>
+      <fileDesc>
+         <titleStmt>
+            <title type="main">Editoriales + repeticiones</title>
+            <respStmt>
+               <persName xml:id="person1" role="transcriber" >John Transcriber</persName>
+            </respStmt>
+            <respStmt>
+               <persName xml:id="person2" role="reviewer" >Jean Reviewer</persName>
+            </respStmt>
+         </titleStmt>
+         <sourceDesc>
+            <source xml:id="sCdMtiple1" n="1" label="manuscript">
+               <bibl>
+                  <identifier type="URI">https://purl.pt/41324</identifier>
+                  <title>Miçelania de Tonos de Varios Autores, a 4º - (Superius primus a 4)</title>
+               </bibl>
+            </source>
+            <source xml:id="sCPMHLtiple1" n="2" label="manuscript">
+               <bibl>
+                  <title>Cancionero Poético Musical Hispano de lisboa - (Tiple 1)</title>
+               </bibl>
+            </source>
+         </sourceDesc>
+         <pubStmt>
+            <date isodate="2026-07-17"/>
+         </pubStmt>
+      </fileDesc>
+   </meiHead>
+   <music>
+      <body>
+         <mdiv>
+            <score>
+               <scoreDef midi.bpm="120.0">
+                  <staffGrp>
+                     <staffDef n="1" lines="5" meter.count="4" meter.unit="4">
+                        <label>Oboe</label>
+                        <clef shape="G" line="2"/>
+                     </staffDef>
+                  </staffGrp>
+               </scoreDef>
+               <!-- Section 1: repeated. Its four selecting containers each cover one
+                    id pattern on their branch notes, to prove the timemap<->SVG id
+                    mapping is robust regardless of which branch notes the source MEI
+                    labels (the app stamps missing ids on the shared originalMei
+                    before both verovio loads; see EnsureNotesRestsIdFilter). -->
+               <section label="section 1">
+                  <measure left="rptstart" n="1">
+                     <staff n="1">
+                        <layer n="1">
+                           <note xml:id="n_m1_a" dur="4" pname="c" oct="5"/>
+                           <!-- CASE: all branch notes carry an id -->
+                           <app>
+                              <lem><note xml:id="n_app_lem" dur="4" pname="d" oct="5"/></lem>
+                              <rdg><note xml:id="n_app_rdg" dur="4" pname="e" oct="5"/></rdg>
+                           </app>
+                           <!-- CASE: no branch note carries an id -->
+                           <choice>
+                              <corr source="#sCdMtiple1"><note dur="4" pname="f" oct="5"/></corr>
+                              <sic source="#sCPMHLtiple1"><note dur="4" pname="g" oct="5"/></sic>
+                           </choice>
+                           <choice>
+                                 <orig><note xml:id="n_m1_d1" dur="4" pname="a" oct="4"/></orig>
+                                 <corr><note xml:id="n_m1_d2" dur="4" pname="b" oct="4"/></corr>
+                                 <corr><note xml:id="n_m1_d3" dur="4" pname="c" oct="5"/></corr>
+                           </choice>
+                        </layer>
+                     </staff>
+                     <annot plist="#n_m1_a">Nota editorial de prueba. <ref target="#n_m1_a">véase</ref></annot>
+                  </measure>
+                  <measure n="2">
+                     <staff n="1">
+                        <layer n="1">
+                           <!-- CASE: only the first (selected) branch note carries an id -->
+                           <choice>
+                              <orig resp="#person1"><note xml:id="n_choice_orig" dur="4" pname="b" oct="4"/></orig>
+                              <reg resp="#person2" label="copyst mistake"><note dur="4" pname="c" oct="5"/></reg>
+                           </choice>
+                           <!-- CASE: the first (selected) branch note has no id, the rest do -->
+                           <subst>
+                              <del><note dur="4" pname="a" oct="4"/></del>
+                              <add><note xml:id="n_subst_add" dur="4" pname="g" oct="4"/></add>
+                           </subst>
+                           <supplied><note xml:id="n_supplied" dur="4" pname="f" oct="4"/></supplied>
+                           <unclear>
+                              <note xml:id="n_unclear_1" dur="16" pname="e" oct="4"/>
+                              <note xml:id="n_unclear_2" dur="16" pname="e" oct="4"/>
+                              <note xml:id="n_unclear_3" dur="16" pname="e" oct="4"/>
+                              <note xml:id="n_unclear_4" dur="16" pname="e" oct="4"/>
+                           </unclear>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure n="3">
+                     <staff n="1">
+                        <layer n="1">
+                           <damage><note xml:id="n_damage" dur="4" pname="d" oct="4"/></damage>
+                           <restore>
+                              <note xml:id="n_restore_1" dur="8" pname="c" oct="4"/>
+                              <note xml:id="n_restore_2" dur="8" pname="c" oct="4"/>
+                           </restore>
+                           <del><note xml:id="n_del_standalone" dur="4" pname="d" oct="4"/></del>
+                           <add><note xml:id="n_add_standalone" dur="4" pname="e" oct="4"/></add>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure n="4">
+                     <staff n="1">
+                        <layer n="1">
+                           <corr source="#soure1"><note xml:id="n_corr_standalone" dur="4" pname="f" oct="4"/></corr>
+                           <sic><note xml:id="n_sic_standalone" dur="4" pname="g" oct="4"/></sic>
+                           <orig><note xml:id="n_orig_standalone" dur="4" pname="a" oct="4"/></orig>
+                           <reg><note xml:id="n_reg_standalone" dur="4" pname="b" oct="4"/></reg>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure right="rptend" n="5">
+                     <staff n="1">
+                        <layer n="1">
+                           <note xml:id="n_m5_a" dur="1" pname="c" oct="5">
+                              <verse n="1">
+                                 <syl>
+                                    <choice>
+                                       <abbr>abbr.</abbr>
+                                       <expan>abbreviatura</expan>
+                                    </choice>
+                                 </syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <sb/>
+               </section>
+               <section restart="true" label="section 2">
+                  <scoreDef midi.bpm="150.0">
+                     <staffGrp>
+                        <staffDef n="1" lines="5" meter.count="4" meter.unit="4">
+                           <clef shape="G" line="2"/>
+                        </staffDef>
+                     </staffGrp>
+                  </scoreDef>
+                  <measure left="rptstart" n="6">
+                     <staff n="1">
+                        <layer n="1">
+                           <note xml:id="n_s2_a" dur="4" pname="c" oct="5"/>
+                           <app>
+                              <lem><note xml:id="n_s2_lem" dur="4" pname="d" oct="5"/></lem>
+                              <rdg><note xml:id="n_s2_rdg" dur="4" pname="e" oct="5"/></rdg>
+                           </app>
+                           <note xml:id="n_s2_c" dur="4" pname="e" oct="5"/>
+                           <!-- CASE: subst with other children (verovio needs at least one add / del) -->
+                           <subst>
+                              <add><note xml:id="n_s2_d_subst_first" dur="4" pname="e" oct="5"/></add>
+                              <del><note xml:id="n_s2_d_subst_second" dur="4" pname="d" oct="5"/></del>
+                           </subst>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure right="rptend" n="7">
+                     <staff n="1">
+                        <layer n="1">
+                           <choice>
+                              <corr xml:id="c19238923"><note xml:id="n_s2_e" dur="1" pname="g" oct="4"/></corr>
+                              <sic>
+                                 <note dur="2" pname="g" oct="5"/>
+                                 <note dur="2" pname="a" oct="5"/>
+                              </sic>
+                           </choice>
+                        </layer>
+                        <annot plist="#c19238923">Sol La en el manuscrito, Corregimos por coherencia con la otra parte</annot>
+                     </staff>
+                  </measure>
+               </section>
+            </score>
+         </mdiv>
+      </body>
+   </music>
+</mei>

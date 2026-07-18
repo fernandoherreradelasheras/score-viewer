@@ -1,11 +1,13 @@
-import { EditorialItem, Annotation, ScoreProperties, Option, Sources, ContentDescription } from "./types";
+import { Annotation, Choice, ChoiceEditorialItem, ContentDescription, EDITORIAL_ALL_TAGS, EDITORIAL_SELECTION_TAGS, EDITORIAL_TRANSPARENT_TAGS, EditorialItem, GLOBAL_APP_TYPES, Option, ScoreProperties, SimpleEditorialItem, Sources } from "./types";
 
 
 
-const nsResolver = (prefix: string | null) => { return { mei: "http://www.music-encoding.org/ns/mei", xml: "http://www.w3.org/XML/1998/namespace" }[prefix || ''] || null }
+const MEI_NS = "http://www.music-encoding.org/ns/mei"
 
-const APP_GLOBAL_TYPES = ["app_clefs", "voice_reconstruction"]
+const nsResolver = (prefix: string | null) => { return { mei: MEI_NS, xml: "http://www.w3.org/XML/1998/namespace" }[prefix || ''] || null }
 
+
+const EDITORIAL_SELF_TEST = EDITORIAL_ALL_TAGS.map(tag => `self::mei:${tag}`).join(" or ")
 
 
 class ScoreAnalyzer {
@@ -61,9 +63,9 @@ class ScoreAnalyzer {
     }
 
     hasEditorialElements() {
-        const annots = this.document.evaluate('count(//mei:annot)', this.document, nsResolver, XPathResult.ANY_TYPE, null)?.numberValue
-        const variants = this.document.evaluate('count(//mei:app[@type="variant"])', this.document, nsResolver, XPathResult.ANY_TYPE, null)?.numberValue
-        return (annots != null && annots > 0) || (variants != null && variants > 0)
+        const typeExclusion = GLOBAL_APP_TYPES.map(type => `@type='${type}'`).join(" or ")
+        const it = this.document.evaluate(`//*[(${EDITORIAL_SELF_TEST}) and not(${typeExclusion})]`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        return it.iterateNext() != null
     }
 
     getNumMeasures() {
@@ -84,11 +86,6 @@ class ScoreAnalyzer {
     getLyricist() {
         let name = this.document.evaluate("//mei:lyricist/mei:persName[@role=\"lyricist\"][1]", this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
         return name || null
-    }
-
-    getReconstructionBy() {
-        let name = this.document.evaluate("//mei:respStmt/mei:persName[@role=\"reconstruction\"][1]", this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
-        return name ? name : null
     }
 
     getMeiNotes() {
@@ -140,11 +137,26 @@ class ScoreAnalyzer {
         return sources
     }
 
+
+    getResponsibilities() {
+        const responsibilities: Record<string, string> = {}
+        let matches = this.document.evaluate(`//mei:respStmt/mei:persName[@xml:id]`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        let node = matches.iterateNext()
+        while (node != null) {
+            const person = node as Element
+            const id = person.getAttribute("xml:id")
+            if (id) {
+                responsibilities[id] = person.textContent?.trim() || id
+            }
+            node = matches.iterateNext()
+        }
+        return responsibilities
+    }
+
     getVoiceName(staff: string) {
         let voiceName = this.document.evaluate(`//mei:staffDef[@n="${staff}"]/mei:label`, this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
         return voiceName ? voiceName : null
     }
-
 
 
     getScoreProperties(): ScoreProperties {
@@ -155,13 +167,14 @@ class ScoreAnalyzer {
             composer: this.getComposer(),
             lyricist: this.getLyricist(),
             editor: this.getEditor(),
-            reconstructionBy: this.getReconstructionBy(),
             notes: this.getMeiNotes(),
             sections: this.getSections(),
             sources: this.getSources(),
+            responsibilities: this.getResponsibilities(),
             hasEditorial: this.hasEditorialElements(),
             hasOriginalClefs: this.hasOriginalClefs(),
             tiedNotes: this.getTiedNotes(),
+            noteStaffMap: this.getNoteStaffMap(),
         }
     }
 
@@ -174,22 +187,41 @@ class ScoreAnalyzer {
         return this.document.evaluate(`(//mei:measure)[1]/@xml:id`, this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.nodeValue || null
     }
 
-    getEditorialNodesOfType = (type: string) => {
-        const items: EditorialItem[] = []
-        let matches = this.document.evaluate(`//mei:${type}`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+    getEditorialNodesOfType = (editorialType: SimpleEditorialItem["type"]): SimpleEditorialItem[] => {
+        const items: SimpleEditorialItem[] = []
+        let matches = this.document.evaluate(`//mei:${editorialType}`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
         while (node != null) {
-            if (node.parentElement?.tagName != "choice" && node.parentElement?.tagName != "app") {
+            if (node.parentElement?.tagName && !EDITORIAL_SELECTION_TAGS.includes(node.parentElement?.tagName)) {
                 const element = node as Element
                 const id = element.getAttribute("xml:id")
                 const reason = element.getAttribute("reason")
                 const resp = element.getAttribute("resp")
+                const source = element.getAttribute("source")
+                const childIds: string[] = []
+                const descriptions: ContentDescription[] = []
+                for (let child of [...node.childNodes?.values()].filter(n => n.nodeType == Node.ELEMENT_NODE)) {
+                    const childElement = child as Element;
+                    const childId = childElement.getAttribute("xml:id")
+                    if (childId) {
+                        childIds.push(childId)
+                    }
+                    if (childElement.tagName === "note") {
+                        descriptions.push(this.describeNoteElement(childElement));
+                    } else if (childElement.tagName === "rest") {
+                        descriptions.push(this.describeRestElement(childElement));
+                    }
+                }
+
                 items.push({
                     id: id!!,
                     reason: reason || "",
                     resp: resp || "",
-                    type: type,
-                    annotations: new Set()
+                    source: source || "",
+                    type: editorialType,
+                    annotations: new Set(),
+                    childIds: childIds,
+                    contentDescription: descriptions
                 })
             }
             node = matches.iterateNext()
@@ -197,39 +229,59 @@ class ScoreAnalyzer {
         return items
     }
 
-    choiceNodeToEditorialItem(node: Element, type: string): EditorialItem {
+    getNoteOrRestDescription(el: Element): ContentDescription | null {
+        if (el.tagName === "note") {
+            return this.describeNoteElement(el);
+        } else if (el.tagName === "rest") {
+            return this.describeRestElement(el);
+        } else {
+            return null
+        }
+    }
+
+    choiceNodeToEditorialItem(node: Element, type: "app" | "choice" | "subst"): ChoiceEditorialItem {
         const choiceId = node.getAttribute("xml:id")
         const options: Option[] = []
-        const choice = { id: choiceId!!, options: options }
+        const choice: Choice = { id: choiceId!, options: options }
 
         for (let child of [...node.childNodes?.values()].filter(n => n.nodeType == Node.ELEMENT_NODE)) {
             const choiceElement = child as Element
-            const optionLabel = choiceElement.getAttribute("label")
-            const optionSource = choiceElement.getAttribute("source")
             const nodeType = choiceElement.tagName
+            const choiceId = choiceElement.getAttribute("xml:id") || null
+
+            const label = choiceElement.getAttribute("label") || null
+            const selector = `./${nodeType}[@xml:id='${choiceId}']`
+            const source = choiceElement.getAttribute("source")?.slice(1) || null
             const descriptions: ContentDescription[] = [];
-            for (const child of choiceElement.childNodes) {
-                if (child instanceof Element && child.tagName === "note") {
-                    descriptions.push(this.describeNoteElement(child));
-                } else if (child instanceof Element && child.tagName === "rest") {
-                    descriptions.push(this.describeRestElement(child));
+            const description = this.getNoteOrRestDescription(choiceElement)
+            if (description) {
+                descriptions.push(description)
+            } else {
+                for (const choiceChild of [...choiceElement.childNodes?.values()].filter(n => n.nodeType == Node.ELEMENT_NODE)) {
+                    const choiceChildElement = choiceChild as Element
+                    const description = this.getNoteOrRestDescription(choiceChildElement)
+                    if (description) {
+                        descriptions.push(description)
+                    }
                 }
             }
 
             choice.options.push(
                 {
+                    id: choiceId,
                     type: nodeType,
-                    selector: `./${nodeType}[@label='${optionLabel}']`,
-                    source: optionSource ? optionSource.slice(1) : null,
+                    label: label,
+                    selector: selector,
+                    source: source,
                     contentDescription: descriptions.length > 0 ? descriptions : undefined
                 })
         }
-        return { id: choiceId!!, type: type, resp: "", reason: "", choice: choice, annotations: new Set() }
+        return { id: choiceId!!, type: type, resp: "", reason: "", source: "", choice: choice, annotations: new Set() }
     }
 
 
-    getChoiceNodes() {
-        const items: EditorialItem[] = []
+    getChoiceNodes(): ChoiceEditorialItem[] {
+        const items: ChoiceEditorialItem[] = []
         let matches = this.document.evaluate('//mei:choice', this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
         while (node != null) {
@@ -241,20 +293,35 @@ class ScoreAnalyzer {
         return items
     }
 
-    getAppChoiceNodes() {
-        const items: EditorialItem[] = []
+    getAppChoiceNodes(): ChoiceEditorialItem[] {
+        const items: ChoiceEditorialItem[] = []
         let matches = this.document.evaluate(`//mei:app`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
         while (node != null) {
             const element = node as Element
-            // app elements with global defined type are not considered editorial choices but
-            // global choices and are handles on the options panel (e.g. voice reconstruction, original clefs, etc...)
-            // app element with no type are also ignored (harm analysis, etc...)
             const type = element.getAttribute("type")
-            if (type != null && !APP_GLOBAL_TYPES.includes(type)) {
-                const item = this.choiceNodeToEditorialItem(element, "app")
-                items.push(item)
+            // app elements with global defined type are not considered editorial choices but
+            // global choices and are handles on the options panel (e.g. original clefs, etc...)
+            // //TODO (harm analysis, etc...)
+            if (type != null && GLOBAL_APP_TYPES.includes(type)) {
+                continue;
             }
+            const item = this.choiceNodeToEditorialItem(element, "app")
+            items.push(item)
+
+            node = matches.iterateNext()
+        }
+        return items
+    }
+
+    getSubstChoiceNodes(): ChoiceEditorialItem[] {
+        const items: ChoiceEditorialItem[] = []
+        let matches = this.document.evaluate('//mei:subst', this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        let node = matches.iterateNext()
+        while (node != null) {
+            const element = node as Element
+            const item = this.choiceNodeToEditorialItem(element, "subst")
+            items.push(item)
             node = matches.iterateNext()
         }
         return items
@@ -296,43 +363,50 @@ class ScoreAnalyzer {
         return tiedNotes
     }
 
-
-
-    getEditorial(): EditorialItem[] {
-        const editorialElements: EditorialItem[] =
-            this.getEditorialNodesOfType("unclear")
-                .concat(this.getEditorialNodesOfType("sic"))
-                .concat(this.getEditorialNodesOfType("corr"))
-                .concat(this.getEditorialNodesOfType("supplied"))
-                .concat(this.getEditorialNodesOfType("reg"))
-                .concat(this.getChoiceNodes())
-                .concat(this.getAppChoiceNodes())
-
-        const annotations = this.getScoreAnnotations()
-        const consumedAnnotationsTargets = new Set()
-
-        editorialElements.forEach(e => {
-            const annot = annotations.find(a => a.targetIds.includes(e.id))
-            if (annot) {
-                e.annotations.add(annot)
-                consumedAnnotationsTargets.add(e.id)
-            }
-        })
-
-        // Create EditorialElements for those ids that were target of an annotation but are not covered by
-        // any other EditorialElement
-        annotations.forEach(annot => {
-            const unusedIds = annot.targetIds?.filter(id => !consumedAnnotationsTargets.has(id))
-
-            if (unusedIds && unusedIds.length > 0) {
-                const elementsForAnnotation = editorialElements.filter(e => e.annotations.has(annot))
-                if (elementsForAnnotation.length == 1) {
-                    // Append the ids referenced by the annotation as @corres
-                    elementsForAnnotation[0].correspIds = [...unusedIds]
-                } else {
-                    console.log(`Cannot add the targetIds ${unusedIds}`)
+    // Map of note/rest/chord xml:id -> its staff @n. Built from the full MEI (all
+    // pages), so the player can resolve a note's staff without querying the SVG,
+    // whose DOM only holds the currently rendered page.
+    getNoteStaffMap() {
+        const map: Record<string, string> = {}
+        const staves = this.document.getElementsByTagNameNS(MEI_NS, "staff")
+        for (let i = 0; i < staves.length; i++) {
+            const n = staves[i].getAttribute("n") || ""
+            for (const tag of ["note", "rest", "chord"]) {
+                const els = staves[i].getElementsByTagNameNS(MEI_NS, tag)
+                for (let j = 0; j < els.length; j++) {
+                    const id = els[j].getAttribute("xml:id")
+                    if (id) map[id] = n
                 }
             }
+        }
+        return map
+    }
+
+    getAnnotationMatchIds(item: EditorialItem): string[] {
+        if ("childIds" in item) {
+            return [item.id, ...item.childIds]
+        }
+        return [item.id, ...item.choice.options.flatMap(o => o.id ? [o.id] : [])]
+    }
+
+    getEditorial(): EditorialItem[] {
+
+        const editorialElements: EditorialItem[] = [
+            ...EDITORIAL_TRANSPARENT_TAGS.flatMap(tag => this.getEditorialNodesOfType(tag as SimpleEditorialItem["type"])),
+            ...this.getChoiceNodes(),
+            ...this.getAppChoiceNodes(),
+            ...this.getSubstChoiceNodes()
+        ]
+
+        // Attach each score annotation to the editorial item it targets.
+        const annotations = this.getScoreAnnotations()
+        editorialElements.forEach(item => {
+            const matchIds = this.getAnnotationMatchIds(item)
+            annotations.forEach(annot => {
+                if (annot.targetIds?.some(target => matchIds.includes(target))) {
+                    item.annotations.add(annot)
+                }
+            })
         })
 
         return editorialElements

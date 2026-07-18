@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="https://music-encoding.org/schema/5.1/mei-all.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<mei xmlns="http://www.music-encoding.org/ns/mei" meiversion="5.1">
+   <meiHead>
+      <fileDesc>
+         <titleStmt>
+            <title type="main">Editoriales + repeticiones</title>
+            <respStmt>
+               <persName role="transcriber">Test Fixture</persName>
+            </respStmt>
+         </titleStmt>
+         <pubStmt>
+            <date isodate="2026-07-17"/>
+         </pubStmt>
+      </fileDesc>
+   </meiHead>
+   <music>
+      <body>
+         <mdiv>
+            <score>
+               <scoreDef midi.bpm="120.0">
+                  <staffGrp>
+                     <staffDef n="1" lines="5" meter.count="4" meter.unit="4">
+                        <label>Oboe</label>
+                        <clef shape="G" line="2"/>
+                     </staffDef>
+                  </staffGrp>
+               </scoreDef>
+               <!-- Section 1: repeated. Its four selecting containers each cover one
+                    id pattern on their branch notes, to prove the timemap<->SVG id
+                    mapping is robust regardless of which branch notes the source MEI
+                    labels (the app stamps missing ids on the shared originalMei
+                    before both verovio loads; see EnsureNotesRestsIdFilter). -->
+               <section label="section 1">
+                  <measure left="rptstart" n="1">
+                     <staff n="1">
+                        <layer n="1">
+                           <note xml:id="n_m1_a" dur="4" pname="c" oct="5"/>
+                           <!-- CASE: all branch notes carry an id -->
+                           <note xml:id="n_app_lem" dur="4" pname="d" oct="5"/>
+                           <!-- CASE: no branch note carries an id -->
+                           <note dur="4" pname="f" oct="5"/>
+                           <note xml:id="n_m1_d" dur="4" pname="a" oct="4"/>
+                        </layer>
+                     </staff>
+                     
+                  </measure>
+                  <measure n="2">
+                     <staff n="1">
+                        <layer n="1">
+                           <!-- CASE: only the first (selected) branch note carries an id -->
+                           <note xml:id="n_choice_orig" dur="4" pname="b" oct="4"/>
+                           <!-- CASE: the first (selected) branch note has no id, the rest do -->
+                           <note dur="4" pname="a" oct="4"/>
+                           <note xml:id="n_supplied" dur="4" pname="f" oct="4"/>
+                           <note xml:id="n_unclear" dur="4" pname="e" oct="4"/>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure n="3">
+                     <staff n="1">
+                        <layer n="1">
+                           <note xml:id="n_damage" dur="4" pname="d" oct="4"/>
+                           
+                              <note xml:id="n_restore_1" dur="8" pname="c" oct="4"/>
+                              <note xml:id="n_restore_2" dur="8" pname="c" oct="4"/>
+                           
+                           <note xml:id="n_del_standalone" dur="4" pname="d" oct="4"/>
+                           <note xml:id="n_add_standalone" dur="4" pname="e" oct="4"/>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure n="4">
+                     <staff n="1">
+                        <layer n="1">
+                           <note xml:id="n_corr_standalone" dur="4" pname="f" oct="4"/>
+                           <note xml:id="n_sic_standalone" dur="4" pname="g" oct="4"/>
+                           <note xml:id="n_orig_standalone" dur="4" pname="a" oct="4"/>
+                           <note xml:id="n_reg_standalone" dur="4" pname="b" oct="4"/>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure right="rptend" n="5">
+                     <staff n="1">
+                        <layer n="1">
+                           <note xml:id="n_m5_a" dur="1" pname="c" oct="5">
+                              <verse n="1">
+                                 <syl>
+                                    abbr.
+                                 </syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <sb/>
+               
+                  <scoreDef midi.bpm="150.0">
+                     <staffGrp>
+                        <staffDef n="1" lines="5" meter.count="4" meter.unit="4">
+                           <clef shape="G" line="2"/>
+                        </staffDef>
+                     </staffGrp>
+                  </scoreDef>
+                  <measure left="rptstart" n="6">
+                     <staff n="1">
+                        <layer n="1">
+                           <note xml:id="n_s2_a" dur="4" pname="c" oct="5"/>
+                           <note xml:id="n_s2_lem" dur="4" pname="d" oct="5"/>
+                           <note xml:id="n_s2_c" dur="4" pname="e" oct="5"/>
+                           <!-- CASE: subst with other children (verovio needs at least one add / del) -->
+                           <note xml:id="n_s2_d_subst_first" dur="4" pname="d" oct="5"/>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure right="rptend" n="7">
+                     <staff n="1">
+                        <layer n="1">
+                           <note xml:id="n_s2_e" dur="1" pname="g" oct="4"/>
+                        </layer>
+                        
+                     </staff>
+                  </measure>
+               </section>
+               <!-- Section 2: a second repeated section, to confirm the timemap pass
+                    still unfolds repeats when more than one section is present (verovio
+                    refuses to on its own). Carries an editorial app variant too. -->
+               
+            </score>
+         </mdiv>
+      </body>
+   </music>
+</mei>

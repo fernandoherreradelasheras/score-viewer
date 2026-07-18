@@ -29,8 +29,7 @@ const defaultConfig: ScoreViewerConfig = {
     allowUserLanguageChange: false,
     selectorLabel: "work"
   },
-  // A small solid subset of the curated fixtures (see assets/test.json for the
-  // full set), enough to exercise the main features from a code-based config.
+
   scores: [
     {
       title: "Un imposible me mata",
@@ -38,10 +37,7 @@ const defaultConfig: ScoreViewerConfig = {
       meiFile: "music.mei",
       introductionFile: "intro.md",
       audioFiles: [
-        // repeats per file: set true only if that mp3 plays repeats/expansions
-        // expanded (default: false)
-        { file: "base.mp3", name: "Base", repeats: false },
-        { file: "reconstruction-deepseek.mp3", name: "Reconstrucción · DeepSeek V3" }
+        { file: "base.mp3", name: "audio render" }
       ],
       facsimileItems: [
         { name: "Soprano 1", file: "un-imposible-s1.jpg" },
@@ -57,12 +53,23 @@ const defaultConfig: ScoreViewerConfig = {
       encodingProperties: { encodedTransposition: "" }
     },
     {
-      title: "Repeticiones (con/sin expansión)",
-      path: "repeticiones",
+      // Editorial markup
+      title: "editorial markup",
+      path: "editorials",
       meiFile: "music.mei",
       audioFiles: [
-        { file: "without-repeats.mp3", name: "Sin repeticiones", repeats: false },
-        { file: "with-repeats.mp3", name: "Con repeticiones", repeats: true }
+        { file: "editorials.mp3", name: "audio1" },
+      ],
+      encodingProperties: { encodedTransposition: "" }
+    },
+    {
+      // Multi-page score whose repeat spans a page boundary: exercises the paged
+      // player turning pages.
+      title: "multipage",
+      path: "multipage",
+      meiFile: "music.mei",
+      audioFiles: [
+        { file: "multipage.mp3", name: "multipage audio" },
       ],
       encodingProperties: { encodedTransposition: "" }
     }

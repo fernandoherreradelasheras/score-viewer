@@ -50,6 +50,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const showEditorial = useStore.use.showEditorial();
     const appOptions = useStore.use.appOptions();
     const choiceOptions = useStore.use.choiceOptions();
+    const substOptions = useStore.use.substOptions();
     const withoutTransposition = useStore.use.withoutTransposition();
     const renderedSvgData = useStore.use.renderedSvgData();
     const setRenderedSvgData = useStore.use.setRenderedSvgData();
@@ -61,9 +62,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     const showMusicAnalysis = useStore.use.showMusicAnalysis();
     const measureNumberInterval = useStore.use.measureNumberInterval();
-    const selectedAudioIndex = useStore.use.selectedAudioIndex();
-
-    const audioRepeatsExpanded = score?.audioFiles?.[selectedAudioIndex]?.repeats ?? false;
 
     const { handleElementClick } = useEditorialHandler();
     const { ref: svgContainerRef, width: svgContainerWidth, height: svgContainerHeight } = useComponentSize();
@@ -146,6 +144,10 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             }
         } else {
             console.error("Action execution failed");
+            // Always clear the pending action, otherwise isReady() stays false and every
+            // later render/page-turn is silently dropped (e.g. audio-driven page changes).
+            setPendingAction(null);
+            setIsLoading(false);
             setShowSpinner(false);
         }
     }, [executeAction, svgContainerRef, setPendingAction, setRenderedSvgData, setCachedPage, setIsLoading, setScale, calculateEffectiveMaxScale, reachedEffectiveMaxScale, setReachedEffectiveMaxScale]);
@@ -280,7 +282,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             clearPageCache();
         }
     }, [scale, showNVerses, normalizeFicta, withoutTransposition, showColoredNotes,
-        showOriginalClefs, showMusicAnalysis, measureNumberInterval, audioRepeatsExpanded, clearPageCache, score]);
+        showOriginalClefs, showMusicAnalysis, measureNumberInterval, clearPageCache, score]);
 
 
     // Handle the initial load when verovio has been initialized and when the container is ready
@@ -379,7 +381,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     // These changes requires reloading the currently built score
     useEffect(() => {
         reloadScore();
-    }, [appOptions, choiceOptions, withoutTransposition, showMusicAnalysis, measureNumberInterval, audioRepeatsExpanded]);
+    }, [appOptions, choiceOptions, substOptions, withoutTransposition, showMusicAnalysis, measureNumberInterval]);
 
     useEffect(() => {
         reloadScore()

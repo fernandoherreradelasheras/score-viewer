@@ -1,10 +1,22 @@
+import { EDITORIAL_ALL_TAGS } from "./types/editorial";
+
 type FilterFunc = (doc: Document, params: any) => void
 
 type Filters = [FilterFunc, any][];
 
 const XPATH_FICTA_ACCIDS = '//mei:accid[@func="edit"]'
 
-const nsResolver = (prefix: string | null) => { return { mei: "http://www.music-encoding.org/ns/mei", xml: "http://www.w3.org/XML/1998/namespace" }[prefix || ''] || null }
+const MEI_NS = "http://www.music-encoding.org/ns/mei"
+
+const nsResolver = (prefix: string | null) => { return { mei: MEI_NS, xml: "http://www.w3.org/XML/1998/namespace" }[prefix || ''] || null }
+
+// Editorial element used to wrap an annotation target that is not already
+// editorial.
+const ANNOTATION_TARGET_WRAPPER = "reg"
+
+// Elements it is valid and meaningful to wrap in an editorial element (layer-level
+// events). Non-musical annotation targets are left untouched.
+const WRAPPABLE_TARGET_TAGS = new Set(["note", "rest", "chord", "mRest", "multiRest", "space"])
 
 
 const AddSectionTitlesFilter: FilterFunc = (doc: Document, _: {}) => {
@@ -91,10 +103,12 @@ const FilterRemoveBracketSpan: FilterFunc = (doc: Document, _: {}) => {
     }
     nodes.forEach(n => n.parentElement?.removeChild(n))
 }
-
 const EnsureElementIdFilter = (doc: Document, element: string, prefix: string) => {
+    EnsureQueryIdFilter(doc, `//mei:${element}[not(@xml:id)]`, prefix)
+}
 
-    let matches = doc?.evaluate(`//mei:${element}[not(@xml:id)]`, doc, nsResolver, XPathResult.ANY_TYPE, null)
+const EnsureQueryIdFilter = (doc: Document, query: string, prefix: string) => {
+    let matches = doc?.evaluate(query, doc, nsResolver, XPathResult.ANY_TYPE, null)
     if (matches == null) {
         return
     }
@@ -104,7 +118,8 @@ const EnsureElementIdFilter = (doc: Document, element: string, prefix: string) =
         nodes.push(node)
     }
     nodes.forEach(n => {
-        n.setAttribute("xml:id", `${prefix}-${Math.random().toString(36).substring(2, 15)}`)
+        const id = `${prefix}-${Math.random().toString(36).substring(2, 15)}`
+        n.setAttribute("xml:id", id)
     })
 }
 
@@ -115,6 +130,50 @@ const EnsureMeasuresIdFilter: FilterFunc = (doc: Document, _: {}) => {
 
 const EnsureSectionsIdFilter: FilterFunc = (doc: Document, _: {}) => {
     EnsureElementIdFilter(doc, "section", "s")
+}
+
+
+const EnsureNotesRestsIdFilter: FilterFunc = (doc: Document, _: {}) => {
+    EnsureElementIdFilter(doc, "note", "n")
+    EnsureElementIdFilter(doc, "rest", "r")
+}
+
+
+const WrapAnnotationTargetsFilter: FilterFunc = (doc: Document, _: {}) => {
+    const editorialTags = new Set(EDITORIAL_ALL_TAGS)
+
+    const targetIds = new Set<string>()
+    const plists = doc.evaluate(`//mei:score//mei:annot/@plist`, doc, nsResolver, XPathResult.ANY_TYPE, null)
+    let attr
+    while ((attr = plists?.iterateNext()) != null) {
+        (attr.nodeValue || "").split(/\s+/).filter(Boolean).forEach(ref => targetIds.add(ref.replace(/^#/, "")))
+    }
+    if (targetIds.size === 0) return
+
+
+    const toWrap: Element[] = []
+    targetIds.forEach(id => {
+        const el = doc.evaluate(`//*[@xml:id='${id}']`, doc, nsResolver, XPathResult.ANY_TYPE, null).iterateNext() as Element | null
+        if (!el || !WRAPPABLE_TARGET_TAGS.has(el.localName)) return
+        for (let a: Element | null = el; a != null; a = a.parentElement) {
+            if (editorialTags.has(a.localName)) return
+        }
+        toWrap.push(el)
+    })
+
+    toWrap.forEach(el => {
+        const wrapper = doc.createElementNS(MEI_NS, ANNOTATION_TARGET_WRAPPER)
+        wrapper.setAttribute("xml:id", `${ANNOTATION_TARGET_WRAPPER}-${el.getAttribute("xml:id")}`)
+        el.parentNode?.insertBefore(wrapper, el)
+        wrapper.appendChild(el)
+    })
+}
+
+const EnsureEditorialElementsWithoutIdFilter: FilterFunc = (doc: Document, _: {}) => {
+    EDITORIAL_ALL_TAGS.forEach(tag => {
+        EnsureElementIdFilter(doc, tag, tag.substring(0, 1))
+        EnsureQueryIdFilter(doc, `//mei:${tag}/*[not(@xml:id)]`, `${tag.substring(0, 1)}_opt`)
+    })
 }
 
 class ScoreProcessor {
@@ -140,6 +199,15 @@ class ScoreProcessor {
     }
     addEnsureSectionsIdFilter() {
         this.filters.push([EnsureSectionsIdFilter, {}])
+    }
+    addEnsureNotesRestsIdFilter() {
+        this.filters.push([EnsureNotesRestsIdFilter, {}])
+    }
+    addEnsureEditorialElementsWithoutIdFilter() {
+        this.filters.push([EnsureEditorialElementsWithoutIdFilter, {}])
+    }
+    addWrapAnnotationTargetsFilter() {
+        this.filters.push([WrapAnnotationTargetsFilter, {}])
     }
     addRemoveBracketSpanFilter() {
         this.filters.push([FilterRemoveBracketSpan, {}])

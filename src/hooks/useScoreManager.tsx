@@ -128,6 +128,9 @@ export function useScoreManager({
         }
         scoreProcessor.addEnsureMeasuresIdFilter();
         scoreProcessor.addEnsureSectionsIdFilter();
+        scoreProcessor.addWrapAnnotationTargetsFilter();
+        scoreProcessor.addEnsureEditorialElementsWithoutIdFilter();
+        scoreProcessor.addEnsureNotesRestsIdFilter();
         const originalMei = scoreProcessor.filterScore();
 
         const analyzer = new ScoreAnalyzer(0, originalMei);
@@ -140,7 +143,6 @@ export function useScoreManager({
           .map((audio) => ({
             url: path + audio.file,
             name: audio.name,
-            repeats: audio.repeats ?? false,
           }))
 
         const editorialItems = analyzer.getEditorial();
