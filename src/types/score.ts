@@ -42,6 +42,7 @@ export type ScoreProperties = {
     composer: string | null;
     lyricist: string | null;
     editor: string;
+    reconstructionBy: string | null;
     sections: { label: string; id: string }[];
     sources: Sources;
     responsibilities: Record<string, string>;
