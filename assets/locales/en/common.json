@@ -71,6 +71,10 @@
   },
   "ok": "Ok",
   "reset": "Reset",
+  "audioVersion": {
+    "title": "Audio version",
+    "description": "Choose which rendered audio version to play for this score"
+  },
   "playerMode": {
     "autoscroll": "auto scroll",
     "normal": "normal"
@@ -136,9 +140,14 @@
       "title": "Colored notes",
       "description": "Mark colored notes with brackets on top of them"
     },
-    "audioVersion": {
-      "title": "Audio version",
-      "description": "Choose which rendered audio version to play for this score"
+    "noteVisualization": {
+      "title": "Note animation",
+      "description": "How sounding notes are animated during playback",
+      "options": {
+        "glow": "Halo",
+        "pulse": "Pulse",
+        "duration-bar": "Duration bar"
+      }
     },
     "resetSettings": "Reset settings to default"
   },

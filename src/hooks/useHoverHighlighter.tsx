@@ -1,4 +1,12 @@
-import { svgFilter } from "../SvgUtils";
+const svgFilter = (id: string, color: string, initialRadius: number) =>
+  <filter id={`highlighting-${id}`} x="-100%" y="-100%" width="300%" height="300%">
+    <feMorphology id={`radius-${id}`} in="SourceAlpha" operator="dilate" radius={initialRadius} result="expanded" />
+
+    <feFlood floodColor={color} floodOpacity="0.6" result="color" />
+    <feComposite in="color" in2="expanded" operator="in" result="colored-background" />
+    <feComposite in="SourceGraphic" in2="colored-background" operator="over" />
+
+  </filter>
 
 /**
  * Custom hook to create SVG-based hover highlighting effects

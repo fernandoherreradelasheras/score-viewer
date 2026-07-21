@@ -106,21 +106,15 @@ interface ScoreActionsConfig {
 }
 
 /**
- * Transform a timemap with staff animation references
+ * Annotate each `on` with the staff its note belongs to, so the player can pick a
+ * colour and an animation per voice. The staff comes from a page-independent map
+ * rather than from the SVG, which only holds the current page.
  */
-const staffAnimationRef = (id: string, noteStaffMap: Record<string, string>): string =>
-  // Resolve the staff (for its glow animation) from a page-independent map rather
-  // than the SVG, which only holds the current page.
-  `#radius-${noteStaffMap[id]}-animation`;
-
 const resolveTimemapAnimations = (timemap: TimeMapEvent[], noteStaffMap: Record<string, string>): TimeMapEvent[] =>
-  timemap.map(e => {
-    return {
-      ...e,
-      stavesOn: e.on?.map(id => staffAnimationRef(id, noteStaffMap)),
-      stavesOff: e.off?.map(id => staffAnimationRef(id, noteStaffMap))
-    } as TimeMapEvent;
-  });
+  timemap.map(e => ({
+    ...e,
+    stavesOn: e.on?.map(id => parseInt(noteStaffMap[id]) || 1)
+  }));
 
 const buildAppOptions = (appOptions: string[], showOriginalClefs: boolean, showMusicAnalysis: boolean) => {
   return [

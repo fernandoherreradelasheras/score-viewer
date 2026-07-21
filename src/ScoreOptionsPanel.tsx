@@ -4,6 +4,7 @@ import { isMobile } from 'react-device-detect';
 
 import { LANGUAGE_SESSION_STORAGE_KEY, SUPPORTED_LANGUAGES } from "./types/ui";
 import useStore from "./store";
+import { NOTE_VISUALIZATIONS, NoteVisualizationId } from "./visualizations";
 import { useCallback, useMemo } from "react";
 
 
@@ -13,8 +14,6 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
     const { t, i18n } = useTranslation("common")
 
     const score = useStore.use.score();
-    const selectedAudioIndex = useStore.use.selectedAudioIndex();
-    const setSelectedAudioIndex = useStore.use.setSelectedAudioIndex();
     const showNVerses = useStore.use.showNVerses();
     const setShowNVerses = useStore.use.setShowNVerses();
     const showOriginalClefs = useStore.use.showOriginalClefs();
@@ -35,6 +34,8 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
     const setMeasureNumberInterval = useStore.use.setMeasureNumberInterval();
     const showColoredNotes = useStore.use.showColoredNotes();
     const setShowColoredNotes = useStore.use.setShowColoredNotes();
+    const noteVisualization = useStore.use.noteVisualization();
+    const setNoteVisualization = useStore.use.setNoteVisualization();
     const resetScoreSettings = useStore.use.resetScoreSettings();
     const resetUILayout = useStore.use.resetUILayout();
 
@@ -71,40 +72,37 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
         setShowColoredNotes(value);
     }, [setShowColoredNotes]);
 
-    const onAudioVersionChange = useCallback((value: number) => {
-        setSelectedAudioIndex(value);
-    }, [setSelectedAudioIndex]);
+    const onNoteVisualizationChange = useCallback((value: NoteVisualizationId) => {
+        setNoteVisualization(value);
+    }, [setNoteVisualization]);
 
-    const audioFiles = score?.audioFiles ?? [];
-    const audioVersionOptions: SelectProps['options'] = useMemo(() =>
-        audioFiles.map((audio, index) => ({
-            value: index,
-            label: (
-                <Space direction="vertical" size={0}>
-                    {audio.name != undefined ? audio.name : audio.url.split('/').pop() ?? audio.url}
-                </Space>
-            )
+    const noteVisualizationOptions: SelectProps['options'] = useMemo(() =>
+        NOTE_VISUALIZATIONS.map(id => ({
+            value: id,
+            label: t(`scoreOptions.noteVisualization.options.${id}`)
         })),
-        [audioFiles]
+        [t]
     );
 
-    const audioVersionRow = audioFiles.length > 1 ?
+    const audioFiles = score?.audioFiles ?? [];
+
+    const noteVisualizationRow = audioFiles.length > 0 ?
         <Row align={"middle"}>
             <Col span={12}>
                 <Space direction="vertical">
                     <Typography.Text strong={true}>
-                        {t('scoreOptions.audioVersion.title')}
+                        {t('scoreOptions.noteVisualization.title')}
                     </Typography.Text>
                     <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }}>
-                        {t('scoreOptions.audioVersion.description')}
+                        {t('scoreOptions.noteVisualization.description')}
                     </Typography.Text>
                 </Space>
             </Col>
             <Col span={12}>
-                <Select<number>
-                    options={audioVersionOptions}
-                    value={selectedAudioIndex}
-                    onChange={onAudioVersionChange}
+                <Select<NoteVisualizationId>
+                    options={noteVisualizationOptions}
+                    value={noteVisualization}
+                    onChange={onNoteVisualizationChange}
                     style={{ width: "100%" }}
                 />
             </Col>
@@ -213,7 +211,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
                     {t('scoreOptions.scoreViewerSettings.title')}
                 </Typography.Title>
                 <Space direction="vertical" size="middle">
-                    {audioVersionRow}
+                    {noteVisualizationRow}
                     <Row align={"middle"}>
                         <Col span={20}>
                             <Space direction="vertical">

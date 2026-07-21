@@ -37,3 +37,6 @@ export const PLAYER_STAFF_COLORS = [
     "#AA3377", // staff 7 (repite 1)
     "#EE6677", // staff 8 (repite 2)
 ]
+
+export const playerStaffColor = (staff: number) =>
+    PLAYER_STAFF_COLORS[(Math.max(1, staff) - 1) % PLAYER_STAFF_COLORS.length]

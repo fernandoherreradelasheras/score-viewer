@@ -103,6 +103,25 @@
             "encodingProperties": {
                 "encodedTransposition": ""
             }
+        },
+        {
+            "_covers": "multiple pages, multiple audio",
+            "title": "two audios",
+            "path": "multipage",
+            "meiFile": "music.mei",
+            "audioFiles": [
+                {
+                    "file": "harp.mp3",
+                    "name": "harp audio"
+                },
+                {
+                    "file": "oboe.mp3",
+                    "name": "oboe audio"
+                }
+            ],
+            "encodingProperties": {
+                "encodedTransposition": ""
+            }
         }
     ]
 }

@@ -1,45 +1,25 @@
 
-import { Fragment, useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import useStore from "./store";
-import { svgFilter } from "./SvgUtils";
 import { TimeMapEvent, PlayingState } from "./types";
-import { PLAYER_STAFF_COLORS } from "./types/colors";
-
-
+import { PLAYER_STAFF_COLORS, playerStaffColor } from "./types/colors";
+import { buildNoteTimings } from "./utils/timemap";
+import { buildTieLinks } from "./utils/ties";
+import { createNoteVisualization } from "./visualizations";
 
 
 const noteHighlightStyle = `
-        .notehead.note-highlight { filter: var(--high); fill: var(--hgcolor); }
-        g.stem path.note-highlight { color: var(--hgcolor); stroke-width: 36; }
+        .notehead.note-highlight { fill: var(--hgcolor); }
+        /* The class lands on g.stem (a direct child of the note), not on its path,
+           which picks up the color through verovio's stroke: currentColor. */
+        g.stem.note-highlight path { color: var(--hgcolor); stroke-width: 36; }
         .verse[data-n="1"].note-highlight { font-weight: var(--verseFontWeight); fill: var(--hgcolor); }
       `
-
-
-const svgHighlightFilters =
-    <svg xmlns="http://www.w3.org/2000/svg" style={{ height: "0px", width: "0px" }}>
-        <defs>
-            {PLAYER_STAFF_COLORS.map((color, i) =>
-                <Fragment key={i}>{svgFilter(`${i + 1}`, color, 100)}</Fragment>
-            )}
-        </defs>
-
-        {PLAYER_STAFF_COLORS.map((_, i) =>
-            <animate
-                key={i}
-                id={`radius-${i + 1}-animation`}
-                xlinkHref={`#radius-${i + 1}`}
-                attributeName="radius"
-                from="10" to="600" dur="6s" begin="0s"
-                fill="freeze" repeatCount="indefinite" restart="always"
-            />
-        )}
-    </svg>
 
 
 const getSvgStyleRules = () =>
     PLAYER_STAFF_COLORS
         .map((color, i) => `.staff[data-n="${i + 1}"] { \
-        --high: url(#highlighting-${i + 1}); \
         --verseFontWeight: bold; \
         --hgcolor: ${color} }`).join('\n')
 
@@ -50,51 +30,19 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
     const playingState = useStore.use.playingState()
     const playingPosition = useStore.use.playingPosition()
     const seekPosition = useStore.use.seekPosition()
-
+    const noteVisualization = useStore.use.noteVisualization()
 
     const renderedSvgData = useStore.use.renderedSvgData()
+    const score = useStore.use.score()
 
     const eventsQueue = useRef<TimeMapEvent[]>([])
     const lastTimeStamp = useRef(-1)
 
-    const animateElements = useRef(null as { [key: string]: SVGAnimateElement } | null)
+    const noteTimings = useMemo(() => buildNoteTimings(timemap), [timemap])
+    const ties = useMemo(() => buildTieLinks(score?.properties?.tiedNotes ?? []), [score])
+    const visualization = useMemo(() => createNoteVisualization(noteVisualization, ties), [noteVisualization, ties])
 
-    const buildAnimateElementsCache = () => {
-        const elementMap: { [key: string]: SVGAnimateElement } = {};
-        PLAYER_STAFF_COLORS.forEach((_, i) => {
-            const key = `#radius-${i + 1}-animation`;
-            const value = document.querySelector<SVGAnimateElement>(key);
-            if (value) {
-                elementMap[key] = value;
-            }
-        });
-        return elementMap;
-    };
-
-    useEffect(() => {
-        if (animateElements.current == null) {
-            const cache = buildAnimateElementsCache()
-            if (cache != null) {
-                animateElements.current = cache
-            }
-        }
-    }, [])
-
-
-    const stopGlowingNotes = () => {
-        animateElements.current && Object.values(animateElements.current).forEach((a: SVGAnimateElement) => {
-            a?.endElement()
-        })
-    }
-
-    const startGlowingNotes = (keys: string[]) => {
-        if (animateElements.current == null) {
-            return
-        }
-        for (let key of keys) {
-            animateElements.current[key]?.beginElement()
-        }
-    }
+    useEffect(() => () => visualization.reset(), [visualization])
 
     useEffect(() => {
         if (timemap.length <= 0 && isLoading) {
@@ -111,19 +59,49 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
         }
 
         if (playingState != PlayingState.PLAYING) {
-            stopGlowingNotes()
+            visualization.reset()
             if (playingPosition == 0) {
                 resetHiglights()
             }
         }
     }, [playingState])
 
-    const higlightNotesAtPosition = (position: number) => {
-        timemap.slice().reverse().find(e => e.on && e.tstamp <= position)?.on?.forEach(id => {
-            document?.querySelectorAll(`#${CSS.escape(id)} > *`)?.forEach(noteElement => {
-                noteElement.classList.add('note-highlight')
-            })
+    const highlightNote = (id: string) => {
+        document.querySelectorAll(`#${CSS.escape(id)} > *`).forEach(noteElement => {
+            noteElement.classList.add('note-highlight')
         })
+    }
+
+    const unhighlightNote = (id: string) => {
+        document.querySelectorAll(`#${CSS.escape(id)} > .note-highlight`).forEach(noteElement => {
+            noteElement.classList.remove('note-highlight')
+        })
+    }
+
+    const attackNote = (id: string, staff: number) => {
+        const timing = noteTimings.get(id)
+        visualization.attack({
+            noteId: id,
+            element: document.getElementById(id) as SVGGElement | null,
+            staff,
+            color: playerStaffColor(staff),
+            durationMs: timing?.durationMs ?? 0,
+            durationQuarters: timing?.durationQuarters ?? 0,
+        })
+    }
+
+    const higlightNotesAtPosition = (position: number) => {
+        // Replay the whole timemap up to `position`: notes that started earlier and are
+        // still sounding must stay lit, not only the ones of the last event.
+        const sounding = new Set<string>()
+        for (const event of timemap) {
+            if (event.tstamp > position) {
+                break
+            }
+            event.off?.forEach(id => sounding.delete(id))
+            event.on?.forEach(id => sounding.add(id))
+        }
+        sounding.forEach(id => highlightNote(id))
     }
 
     useEffect(() => {
@@ -135,6 +113,7 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
     const resetHiglights = () => {
         eventsQueue.current = [...timemap]
         lastTimeStamp.current = -1
+        visualization.reset()
         const remainingHighlights = document?.querySelectorAll(`.note-highlight`)
         remainingHighlights?.forEach(noteElement => {
             noteElement.classList.remove('note-highlight')
@@ -175,28 +154,24 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
             return
         }
 
-        const off = new Set(events.flatMap(e => e.off));
-        const on = new Set(events.flatMap(e => e.on).filter(e => !off.has(e)))
-        off.forEach(id => {
-            if (id) {
-                const escapedId = CSS.escape(id)
-                const noteElements = [...document?.querySelectorAll(`#${escapedId} .note-highlight`)] as SVGGElement[] | null
-                noteElements?.forEach(noteElement => {
-                    noteElement.classList.remove('note-highlight')
-                })
+        const off = new Set(events.flatMap(e => e.off ?? []))
+        // Keep each note paired with its staff: stavesOn is positional against on.
+        const on = new Map<string, number>()
+        events.forEach(e => e.on?.forEach((id, i) => {
+            if (!off.has(id)) {
+                on.set(id, e.stavesOn?.[i] ?? 1)
             }
+        }))
+
+        off.forEach(id => {
+            unhighlightNote(id)
+            visualization.release(id)
         })
 
-        if (playingState == PlayingState.PLAYING) {
-            const keys = new Set(events.flatMap(e => e.stavesOn).filter(e => e != null))
-            startGlowingNotes([...keys])
-        }
-        on.forEach(id => {
-            if (id) {
-                const escapedId = CSS.escape(id)
-                document?.querySelectorAll(`#${escapedId} > *`)?.forEach(noteElement => {
-                    noteElement.classList.add('note-highlight')
-                })
+        on.forEach((staff, id) => {
+            highlightNote(id)
+            if (playingState == PlayingState.PLAYING) {
+                attackNote(id, staff)
             }
         })
 
@@ -206,7 +181,6 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
         if (seekPosition == -1) {
             return
         }
-        stopGlowingNotes()
         resetHiglights()
         if (seekPosition > 0 && playingState == PlayingState.PAUSED) {
             higlightNotesAtPosition(seekPosition)
@@ -217,12 +191,11 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
     return (
         <div className="player-highlighter" style={{ width: "0px", height: "0px" }}>
 
-            {svgHighlightFilters}
-
             <style>
                 {`
                     ${getSvgStyleRules()}
                     ${noteHighlightStyle}
+                    ${visualization.styles ?? ''}
                 `}
             </style>
         </div>

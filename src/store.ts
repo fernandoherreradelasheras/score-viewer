@@ -14,6 +14,7 @@ import {
 } from './types'
 
 import { RenderedData } from './hooks/useScoreRenderer'
+import { NoteVisualizationId } from './visualizations'
 
 
 interface RenderingState {
@@ -255,6 +256,7 @@ interface ScoreSettings {
     showMusicAnalysis: boolean
     measureNumberInterval: number
     showColoredNotes: boolean
+    noteVisualization: NoteVisualizationId
 
     setShowNVerses: (n: number) => void
     setShowEditorial: (showEditorial: boolean) => void
@@ -268,6 +270,7 @@ interface ScoreSettings {
     setShowMusicAnalysis: (showMusicAnalysis: boolean) => void
     setMeasureNumberInterval: (interval: number) => void
     setShowColoredNotes: (showColoredNotes: boolean) => void
+    setNoteVisualization: (noteVisualization: NoteVisualizationId) => void
     resetScoreSettings: () => void
 }
 
@@ -284,6 +287,7 @@ const DEFAULT_SCORE_SETTINGS = {
     showMusicAnalysis: false,
     measureNumberInterval: 0,
     showColoredNotes: false,
+    noteVisualization: "glow" as NoteVisualizationId,
 }
 
 const createScoreSettingsStore = create<ScoreSettings>()(persist((set) => ({
@@ -307,6 +311,7 @@ const createScoreSettingsStore = create<ScoreSettings>()(persist((set) => ({
     setShowMusicAnalysis: (showMusicAnalysis: boolean) => set(() => ({ showMusicAnalysis })),
     setMeasureNumberInterval: (interval: number) => set(() => ({ measureNumberInterval: interval })),
     setShowColoredNotes: (showColoredNotes: boolean) => set(() => ({ showColoredNotes })),
+    setNoteVisualization: (noteVisualization: NoteVisualizationId) => set(() => ({ noteVisualization })),
     resetScoreSettings: () => set({ ...DEFAULT_SCORE_SETTINGS }),
 }), {
     name: 'score-settings-store'
@@ -437,6 +442,7 @@ class ScoreViewerStoreApi {
         showMusicAnalysis: createScoreSettingsStoreWithSelectors.use.showMusicAnalysis,
         measureNumberInterval: createScoreSettingsStoreWithSelectors.use.measureNumberInterval,
         showColoredNotes: createScoreSettingsStoreWithSelectors.use.showColoredNotes,
+        noteVisualization: createScoreSettingsStoreWithSelectors.use.noteVisualization,
         setShowNVerses: createScoreSettingsStoreWithSelectors.use.setShowNVerses,
         setShowEditorial: createScoreSettingsStoreWithSelectors.use.setShowEditorial,
         setShowOriginalClefs: createScoreSettingsStoreWithSelectors.use.setShowOriginalClefs,
@@ -449,6 +455,7 @@ class ScoreViewerStoreApi {
         setShowMusicAnalysis: createScoreSettingsStoreWithSelectors.use.setShowMusicAnalysis,
         setMeasureNumberInterval: createScoreSettingsStoreWithSelectors.use.setMeasureNumberInterval,
         setShowColoredNotes: createScoreSettingsStoreWithSelectors.use.setShowColoredNotes,
+        setNoteVisualization: createScoreSettingsStoreWithSelectors.use.setNoteVisualization,
         resetScoreSettings: createScoreSettingsStoreWithSelectors.use.resetScoreSettings,
 
 

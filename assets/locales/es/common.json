@@ -97,6 +97,10 @@
   },
   "ok": "Ok",
   "reset": "Reset",
+  "audioVersion": {
+    "title": "Versión de audio",
+    "description": "Elige qué versión de audio reproducir para esta partitura"
+  },
   "playerMode": {
     "autoscroll": "auto scroll",
     "normal": "normal"
@@ -162,9 +166,14 @@
       "title": "Notas ennegrecidas",
       "description": "Señalar las notas ennegrecidas con corchetes superiores"
     },
-    "audioVersion": {
-      "title": "Versión de audio",
-      "description": "Elige qué versión de audio reproducir para esta partitura"
+    "noteVisualization": {
+      "title": "Animaci\u00f3n de las notas",
+      "description": "C\u00f3mo se animan las notas que suenan durante la reproducci\u00f3n",
+      "options": {
+        "glow": "Halo",
+        "pulse": "Pulso",
+        "duration-bar": "Barra de duraci\u00f3n"
+      }
     },
     "resetSettings": "Restablecer configuración por defecto"
   },
