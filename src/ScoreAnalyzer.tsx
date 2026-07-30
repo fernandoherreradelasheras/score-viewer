@@ -309,11 +309,10 @@ class ScoreAnalyzer {
             // app elements with global defined type are not considered editorial choices but
             // global choices and are handles on the options panel (e.g. original clefs, etc...)
             // //TODO (harm analysis, etc...)
-            if (type != null && GLOBAL_APP_TYPES.includes(type)) {
-                continue;
+            if (type == null || !GLOBAL_APP_TYPES.includes(type)) {
+                const item = this.choiceNodeToEditorialItem(element, "app")
+                items.push(item)
             }
-            const item = this.choiceNodeToEditorialItem(element, "app")
-            items.push(item)
 
             node = matches.iterateNext()
         }
