@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { VerovioOptions } from 'verovio';
 import ScoreAnalyzer from '../ScoreAnalyzer';
 
@@ -194,6 +194,26 @@ export default function useScoreActions({
     return timemap;
   }, [verovio]);
 
+  // The verovio options that depend on the user's editorial/display settings: for a
+  // given MEI, page size and scale, these are what change the rendered output. It is
+  // exposed so callers can tell whether a settings change needs a reload at all, and
+  // it is the same object performLoadAction applies, so a new option cannot be added
+  // in one place and forgotten in the other.
+  // Both readings are dropped on scores that do not encode them: the query would match
+  // nothing anyway, and leaving it out keeps the options identical so toggling either
+  // one on such a score does not force a reload.
+  const scoreRenderOptions = useMemo(() => ({
+    appXPathQuery: buildAppOptions(
+      appOptions,
+      (showOriginalClefs && score?.properties?.hasOriginalClefs) || false,
+      (showMusicAnalysis && score?.properties?.hasHarmonicAnalysis) || false
+    ),
+    choiceXPathQuery: choiceOptions,
+    substXPathQuery: substOptions,
+    mnumInterval: measureNumberInterval ?? 0,
+  }), [appOptions, showOriginalClefs, showMusicAnalysis, choiceOptions, substOptions, measureNumberInterval,
+    score?.properties?.hasOriginalClefs, score?.properties?.hasHarmonicAnalysis]);
+
   /**
    * Execute the load action - prepares Verovio with options and loads the MEI data
    */
@@ -212,14 +232,11 @@ export default function useScoreActions({
       adjustPageHeight: false,
       landscape: false,
       svgAdditionalAttribute: EXTRA_SVG_ATTRIBUTES,
-      appXPathQuery: buildAppOptions(appOptions, showOriginalClefs || false, showMusicAnalysis),
-      choiceXPathQuery: choiceOptions,
-      substXPathQuery: substOptions,
+      ...scoreRenderOptions,
       pageHeight: loadedHeight,
       pageWidth: loadedWidth,
       scale: scale,
       transpose: config.transposition != null ? config.transposition : "",
-      mnumInterval: measureNumberInterval ?? 0
     };
 
     console.log("VerovioOptions: ", options)
@@ -277,12 +294,7 @@ export default function useScoreActions({
     verovio,
     targetWidth,
     targetHeight,
-    appOptions,
-    showOriginalClefs,
-    showMusicAnalysis,
-    choiceOptions,
-    substOptions,
-    measureNumberInterval,
+    scoreRenderOptions,
     score,
     selectedAudioIndex,
     loadAndBuildTimemap
@@ -305,7 +317,7 @@ export default function useScoreActions({
       adjustPageHeight: true,
       svgViewBox: true,
       svgAdditionalAttribute: EXTRA_SVG_ATTRIBUTES,
-      appXPathQuery: buildAppOptions(appOptions, showOriginalClefs || false, false),
+      appXPathQuery: buildAppOptions(appOptions, (showOriginalClefs && score?.properties?.hasOriginalClefs) || false, false),
       choiceXPathQuery: choiceOptions,
       substXPathQuery: substOptions,
       pageHeight: height,
@@ -583,6 +595,7 @@ export default function useScoreActions({
   ]);
 
   return {
-    executeAction
+    executeAction,
+    scoreRenderOptions
   };
 }

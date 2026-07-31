@@ -49,6 +49,7 @@ export type ScoreProperties = {
     notes: string[];
     hasEditorial: boolean;
     hasOriginalClefs: boolean;
+    hasHarmonicAnalysis: boolean;
     encodedTransposition?: Transposition | undefined
     tiedNotes: { first: string; second: string; }[];
     // note/rest/chord xml:id -> staff @n, for page-independent staff resolution.

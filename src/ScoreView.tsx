@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import useStore from "./store";
 import { Context } from './Context';
 import { useComponentSize } from "react-use-size";
@@ -69,6 +69,17 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const [showSpinner, setShowSpinner] = useState(false);
     const lastRenderedUrl = useRef<string | undefined | null>(null);
 
+    // Serialization of the verovio pipeline. The worker holds a single toolkit
+    // instance, so only one load/render chain may run at a time; and a setting
+    // changed while one is running must not be lost. New requests are coalesced into
+    // `queuedAction` (newest wins) and flushed when the chain ends, while
+    // `generation` is bumped by every request so a chain that was superseded
+    // mid-flight discards its results instead of overwriting the newer configuration.
+    const runningRef = useRef(false);
+    const generationRef = useRef(0);
+    const queuedActionRef = useRef<Action | null>(null);
+    const continuationRef = useRef<Action | null>(null);
+
     const {
         svgContainerClasses,
         calculateEffectiveMaxScale,
@@ -80,14 +91,64 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         svgContainerHeight
     });
 
-    const { executeAction } = useScoreActions({
+    const { executeAction, scoreRenderOptions } = useScoreActions({
         verovio,
     });
 
-    const isReady = () => (score && verovio && svgContainerWidth > 0 && svgContainerHeight > 0 && !pendingAction)
+    // Identifies the settings a load would hand to verovio, so a change that leaves
+    // them untouched does not trigger a reload: turning off a transposition on a score
+    // that is not transposed resolves to the same empty `transpose` either way.
+    const renderKey = useMemo(() => JSON.stringify({
+        ...scoreRenderOptions,
+        transpose: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : "",
+    }), [scoreRenderOptions, withoutTransposition, score?.properties?.encodedTransposition]);
+    const loadedRenderKeyRef = useRef<string | null>(null);
+
+    const canSchedule = () => (score && verovio && svgContainerWidth > 0 && svgContainerHeight > 0)
+    const isReady = () => (canSchedule() && !pendingAction)
+
+    // Dispatch whatever request was coalesced while the pipeline was busy.
+    const flushQueuedAction = useCallback(() => {
+        const queued = queuedActionRef.current;
+        queuedActionRef.current = null;
+        if (queued) {
+            setPendingAction(queued);
+            return true;
+        }
+        return false;
+    }, [setPendingAction]);
+
+    const finishChain = useCallback(() => {
+        runningRef.current = false;
+        if (!flushQueuedAction()) {
+            setPendingAction(null);
+            // Hide spinner when all actions complete
+            setShowSpinner(false);
+        }
+    }, [flushQueuedAction, setPendingAction]);
+
+    // Single entry point for every configuration-driven (re)load: it never drops a
+    // request, so the last option the user picked is always the one rendered.
+    const scheduleAction = useCallback((action: Action) => {
+        if (action.type === "load") {
+            // A load repaginates the score, so every cached page becomes stale. Doing
+            // it here rather than on every settings change means a change that ends up
+            // not reloading also keeps the cache.
+            loadedRenderKeyRef.current = renderKey;
+            clearPageCache();
+        }
+        generationRef.current += 1;
+        if (runningRef.current) {
+            queuedActionRef.current = action;
+            return;
+        }
+        queuedActionRef.current = null;
+        setPendingAction(action);
+    }, [setPendingAction, renderKey, clearPageCache]);
 
     const processPendingAction = useCallback(async (action: Action) => {
 
+        const generation = generationRef.current;
         const { success, nextAction, result, showSpinner: shouldShowSpinner } = await executeAction(action, svgContainerRef.current!);
 
         // Show spinner for heavy operations
@@ -95,13 +156,19 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             setShowSpinner(true);
         }
 
+        // A newer configuration was requested while this chain was running, so its
+        // results describe a state the user already moved away from. Drop them and
+        // let the queued request take over.
+        if (generation !== generationRef.current) {
+            console.log(`[ScoreView] Discarding superseded ${action.type} action`);
+            finishChain();
+            return;
+        }
+
         if (success) {
             if (nextAction) {
+                continuationRef.current = nextAction;
                 setPendingAction(nextAction);
-            } else {
-                setPendingAction(null);
-                // Hide spinner when all actions complete
-                setShowSpinner(false);
             }
 
             if (action.type === "render" && result) {
@@ -142,15 +209,18 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                     }
                 }, 400);
             }
+
+            if (!nextAction) {
+                finishChain();
+            }
         } else {
             console.error("Action execution failed");
-            // Always clear the pending action, otherwise isReady() stays false and every
+            // Always close the chain, otherwise isReady() stays false and every
             // later render/page-turn is silently dropped (e.g. audio-driven page changes).
-            setPendingAction(null);
+            finishChain();
             setIsLoading(false);
-            setShowSpinner(false);
         }
-    }, [executeAction, svgContainerRef, setPendingAction, setRenderedSvgData, setCachedPage, setIsLoading, setScale, calculateEffectiveMaxScale, reachedEffectiveMaxScale, setReachedEffectiveMaxScale]);
+    }, [executeAction, svgContainerRef, setPendingAction, finishChain, setRenderedSvgData, setCachedPage, setIsLoading, setScale, calculateEffectiveMaxScale, reachedEffectiveMaxScale, setReachedEffectiveMaxScale]);
 
 
     // Process pending actions
@@ -164,6 +234,16 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             return;
         }
 
+        // Never start a second chain on top of a running one: both would interleave
+        // their setOptions/loadData on the shared toolkit. Queue a copy instead, so
+        // flushing it is seen as a new pending action.
+        if (runningRef.current && pendingAction !== continuationRef.current) {
+            queuedActionRef.current = { ...pendingAction };
+            return;
+        }
+        continuationRef.current = null;
+        runningRef.current = true;
+
         (async () => {
             await processPendingAction(pendingAction);
         }
@@ -171,7 +251,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     }, [pendingAction]);
 
     useEffect(() => {
-        if (!verovio || !showingMei || !renderedSvgData || !score || pendingAction) {
+        if (!verovio || !showingMei || !renderedSvgData || !score) {
             return
         }
         console.log(`[ScoreView] Reloading score for new target size ${targetWidth}x${targetHeight}`);
@@ -186,11 +266,16 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             transposition: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null,
             restorePositionForAchor: anchor
         });
-        setPendingAction(action);
+        scheduleAction(action);
 
     }, [targetHeight, targetWidth]);
 
 
+    // Must stay reproducible: `updateLoadedScore` compares its output against the
+    // currently loaded MEI to decide whether a reload is needed at all. The three
+    // filters below only drop nodes and attributes, unlike the ones applied when the
+    // score is fetched, which mint random xml:ids. Adding an id-generating filter here
+    // would make every call produce a different string and silently defeat that check.
     const generateShowingScore = useCallback(() => {
         if (!score) return null;
 
@@ -222,6 +307,17 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             return;
         }
 
+        // An identical MEI means the setting that triggered this is a no-op for this
+        // score (normalizing ficta where there is none, a verse limit above the verse
+        // count, removing coloration brackets that do not exist...), so there is
+        // nothing to reload. Only skip when that MEI is what is actually on screen: a
+        // previous load may have failed and left `showingMei` set with nothing rendered.
+        if (newShowingMei === showingMei && renderedSvgData?.scoreUrl === score?.url) {
+            console.log(`[ScoreView] Skipping reload: the generated MEI is unchanged`);
+            setShowSpinner(false);
+            return;
+        }
+
         const action = loadAction({
             scoreUrl: score?.url || "",
             postLoadTransition: fadeIn ? Transition.FADE_IN : undefined,
@@ -231,9 +327,9 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             transposition: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null,
             restorePositionForAchor: restoreAnchor && renderedSvgData?.anchorElement ? renderedSvgData.anchorElement : undefined
         });
-        setPendingAction(action);
+        scheduleAction(action);
         setShowingMei(newShowingMei);
-    }, [score, renderedSvgData?.anchorElement, scale, setPendingAction, setShowingMei, generateShowingScore]);
+    }, [score, renderedSvgData?.anchorElement, renderedSvgData?.scoreUrl, showingMei, scale, scheduleAction, setShowingMei, generateShowingScore]);
 
     const fadeOutTransition = useCallback(() => {
         const currentSvg = svgContainerRef.current?.querySelector("svg") as SVGSVGElement | null;
@@ -266,23 +362,12 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
 
     // This group of changes require rebuilding the score and reloading it
+    // (updateLoadedScore skips the reload when the rebuilt MEI turns out identical)
     useEffect(() => {
         if (!score) return;
-        // TODO: skip the update if the current loaded score has only 1 verse
-        // TODO: skip the update if the current loaded score doesn't have any ficta
         updateLoadedScore(true, false);
     }, [showNVerses, normalizeFicta, showColoredNotes]);
 
-
-
-    // Clear page cache when options change that affect rendering
-    useEffect(() => {
-        if (score) {  // Only clear if we have a score loaded
-            console.log('[ScoreView] Clearing page cache due to option/score change');
-            clearPageCache();
-        }
-    }, [scale, showNVerses, normalizeFicta, withoutTransposition, showColoredNotes,
-        showOriginalClefs, showMusicAnalysis, measureNumberInterval, clearPageCache, score]);
 
 
     // Handle the initial load when verovio has been initialized and when the container is ready
@@ -304,7 +389,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             scale,
             transposition: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null,
         });
-        setPendingAction(action);
+        scheduleAction(action);
 
 
     }, [verovio, svgContainerRef.current]);
@@ -342,7 +427,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     // Handle scale changes
     useEffect(() => {
-        if (!isReady() || !showingMei) return;
+        if (!canSchedule() || !showingMei) return;
 
         // Start fade out for crossfade effect
         fadeOutTransition();
@@ -358,11 +443,19 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             transposition: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null,
             restorePositionForAchor: anchorElement
         });
-        setPendingAction(action);
+        scheduleAction(action);
     }, [scale]);
 
     const reloadScore = () => {
-        if (!isReady() || !showingMei) return;
+        if (!canSchedule() || !showingMei) return;
+
+        // Same reasoning as the MEI comparison in updateLoadedScore, on the other half
+        // of the settings: if what reaches verovio is what is already rendered, the
+        // change was a no-op for this score.
+        if (renderKey === loadedRenderKeyRef.current && renderedSvgData?.scoreUrl === score?.url) {
+            console.log(`[ScoreView] Skipping reload: verovio options unchanged`);
+            return;
+        }
 
         const page = currentPage > 0 ? currentPage : 1;
         const anchor = renderedSvgData?.anchorElement || undefined;
@@ -375,7 +468,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                 transposition: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null,
                 restorePositionForAchor: anchor
             });
-        setPendingAction(action);
+        scheduleAction(action);
     }
 
     // These changes requires reloading the currently built score
@@ -477,7 +570,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             loadedPagesCount: pageCount,
             timemap: renderedSvgData.timemap
         });
-        setPendingAction(action);
+        scheduleAction(action);
     }, [currentPage, getCachedPage, setRenderedSvgData, setIsLoading]);
 
     // Pre-render adjacent pages when idle
@@ -488,21 +581,27 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         const nextPage = currentRenderedPage + 1;
         const prevPage = currentRenderedPage - 1;
 
-        // Pre-render next page if not cached
-        if (nextPage <= pageCount && !getCachedPage(nextPage)) {
-            console.log(`[ScoreView] Pre-rendering page ${nextPage}`);
-            preRenderPage(nextPage);
-        }
+        // One at a time: each pre-render holds the pipeline while it runs
+        (async () => {
+            if (nextPage <= pageCount && !getCachedPage(nextPage)) {
+                console.log(`[ScoreView] Pre-rendering page ${nextPage}`);
+                await preRenderPage(nextPage);
+            }
 
-        // Pre-render previous page if not cached
-        if (prevPage >= 1 && !getCachedPage(prevPage)) {
-            console.log(`[ScoreView] Pre-rendering page ${prevPage}`);
-            preRenderPage(prevPage);
-        }
+            if (prevPage >= 1 && !getCachedPage(prevPage)) {
+                console.log(`[ScoreView] Pre-rendering page ${prevPage}`);
+                await preRenderPage(prevPage);
+            }
+        })();
     }, [renderedSvgData, pageCount, verovio, getCachedPage]);
 
     const preRenderPage = async (page: number) => {
-        if (!verovio || !renderedSvgData) return;
+        if (!verovio || !renderedSvgData || runningRef.current) return;
+
+        // A pre-render drives the same toolkit as a load/render chain, so it has to
+        // hold the pipeline too: a setting changed meanwhile is queued, not run on top.
+        runningRef.current = true;
+        const generation = generationRef.current;
 
         try {
             const startTime = performance.now();
@@ -534,14 +633,22 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                 const svgHTML = tempContainer.innerHTML;
                 const svgDataWithHTML = { ...renderResult.newSvg, svgHTML };
 
-                setCachedPage(page, svgDataWithHTML);
-                console.log(`[ScoreView] Pre-rendered page ${page} in ${(performance.now() - startTime).toFixed(0)}ms`);
+                // Only cache it if the configuration it was rendered with is still the
+                // current one; otherwise it would repopulate a cache that was just
+                // cleared for the new settings.
+                if (generation === generationRef.current) {
+                    setCachedPage(page, svgDataWithHTML);
+                    console.log(`[ScoreView] Pre-rendered page ${page} in ${(performance.now() - startTime).toFixed(0)}ms`);
+                }
             }
 
             // Clean up temp container
             document.body.removeChild(tempContainer);
         } catch (error) {
             console.error(`Error pre-rendering page ${page}:`, error);
+        } finally {
+            runningRef.current = false;
+            flushQueuedAction();
         }
     };
 

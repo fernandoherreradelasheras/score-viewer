@@ -62,6 +62,13 @@ class ScoreAnalyzer {
         return res != null
     }
 
+    // Mirrors the reading that useScoreActions selects for the harmonic analysis
+    // option, so the option can be skipped on scores that do not encode one.
+    hasHarmonicAnalysis() {
+        const res = this.document.evaluate(`//mei:rdg[contains(@type, "dissonant_analysis")]`, this.document, nsResolver, XPathResult.ANY_TYPE, null).iterateNext()
+        return res != null
+    }
+
     hasEditorialElements() {
         const typeExclusion = GLOBAL_APP_TYPES.map(type => `@type='${type}'`).join(" or ")
         const it = this.document.evaluate(`//*[(${EDITORIAL_SELF_TEST}) and not(${typeExclusion})]`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
@@ -179,6 +186,7 @@ class ScoreAnalyzer {
             responsibilities: this.getResponsibilities(),
             hasEditorial: this.hasEditorialElements(),
             hasOriginalClefs: this.hasOriginalClefs(),
+            hasHarmonicAnalysis: this.hasHarmonicAnalysis(),
             tiedNotes: this.getTiedNotes(),
             noteStaffMap: this.getNoteStaffMap(),
         }
