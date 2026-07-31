@@ -254,6 +254,11 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         if (!verovio || !showingMei || !renderedSvgData || !score) {
             return
         }
+        // A layout change zeroes the target size on purpose, to hold the reload until
+        // the reflow settles the final container size.
+        if (targetHeight <= 0 || targetWidth <= 0) {
+            return
+        }
         console.log(`[ScoreView] Reloading score for new target size ${targetWidth}x${targetHeight}`);
 
         const anchor = (renderedSvgData.scoreUrl == score.url && renderedSvgData.anchorElement) ? renderedSvgData.anchorElement : undefined
@@ -399,10 +404,11 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         if (svgContainerHeight <= 0 || svgContainerWidth <= 0) {
             return;
         }
+        // The measured size is always recorded, even with a load in flight: this effect
+        // only re-runs when the container changes, so bailing out here used to lose the
+        // final size of a layout change for good (closing the split view left the score
+        // laid out for the old pane). scheduleAction coalesces it against what is running.
         if (renderedSvgData && renderedSvgData?.scoreUrl == score?.url) {
-            if (pendingAction) {
-                return;
-            }
             if (renderedSvgData?.height && renderedSvgData?.width &&
                 Math.abs(renderedSvgData.height - svgContainerHeight) < 100 &&
                 Math.abs(renderedSvgData.width - svgContainerWidth) < 100 &&
@@ -410,7 +416,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                 renderedSvgData?.scale == scale) {
                 return
             }
-            clearPageCache();
             // As we have rendered data, fade out
             fadeOutTransition();
         }
