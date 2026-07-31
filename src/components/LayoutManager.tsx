@@ -13,6 +13,20 @@ interface LayoutManagerProps {
   showIntroductionSection: boolean;
   showTextSection: boolean;
   showFacsimileSection: boolean;
+  tabBarExtra?: React.ReactNode;
+}
+
+// Whether this layout will end up drawing a tab bar, i.e. whether there is anything to
+// switch to besides the score. Exported so callers can decide what to put in it without
+// restating the condition.
+export function rendersTabBar(
+  props: Pick<LayoutManagerProps, 'introView' | 'textView' | 'facsimileView'
+    | 'showIntroductionSection' | 'showTextSection' | 'showFacsimileSection'>,
+  isSplitView: boolean
+) {
+  return !isSplitView
+    && (props.showIntroductionSection || props.showTextSection || props.showFacsimileSection)
+    && [props.introView, props.textView, props.facsimileView].filter(Boolean).length > 0
 }
 
 export default function LayoutManager({
@@ -24,6 +38,7 @@ export default function LayoutManager({
   showIntroductionSection,
   showTextSection,
   showFacsimileSection,
+  tabBarExtra,
 }: LayoutManagerProps) {
 
   const isSplitView = useStore.use.isSplitView();
@@ -83,8 +98,10 @@ export default function LayoutManager({
   }, [isSplitView, facsimileView, introView, textView, splitViewContentNotAvailable, tabContentNotAvailable, getAvailableViews, setActiveSplitView, setActiveTab]);
 
   // Determine what to render
-  const shouldShowTabs = !isSplitView && (showIntroductionSection || showTextSection || showFacsimileSection);
-  const hasMultipleTabs = [introView, textView, facsimileView].filter(Boolean).length > 0;
+  const shouldShowTabs = rendersTabBar(
+    { introView, textView, facsimileView, showIntroductionSection, showTextSection, showFacsimileSection },
+    isSplitView
+  );
 
   if (isSplitView) {
     return (
@@ -97,7 +114,7 @@ export default function LayoutManager({
         setSizes={setSizes}
       />
     );
-  } else if (shouldShowTabs && hasMultipleTabs) {
+  } else if (shouldShowTabs) {
     return (
       <TabLayout
         scoreView={scoreView}
@@ -107,6 +124,7 @@ export default function LayoutManager({
         showIntroductionSection={showIntroductionSection}
         showTextSection={showTextSection}
         showFacsimileSection={showFacsimileSection}
+        tabBarExtra={tabBarExtra}
       />
     );
   } else {

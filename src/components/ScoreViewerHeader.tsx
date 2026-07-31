@@ -1,10 +1,9 @@
 import { useMemo } from 'react';
-import { Button, Select, Space, Typography } from 'antd';
-import Icon, { SettingOutlined } from '@ant-design/icons';
+import { Select, Space, Typography } from 'antd';
 import { DefaultOptionType } from 'antd/es/select';
 import { useTranslation } from 'react-i18next';
-import { PlayingState } from '../types';
 import SplitViewSelector from './SplitViewSelector';
+import SettingsButton from './SettingsButton';
 import useStore from '../store';
 
 interface ScoreViewerHeaderProps {
@@ -34,7 +33,6 @@ export default function ScoreViewerHeader({
 }: ScoreViewerHeaderProps) {
   const { t } = useTranslation("common");
   const isSplitView = useStore.use.isSplitView();
-  const playingState = useStore.use.playingState();
   const label = selectorLabel === "work" ? t('heading.work') : t('heading.section');
 
 
@@ -67,12 +65,7 @@ export default function ScoreViewerHeader({
     }}>
       {scoreSelector}
       {splitViewSelector}
-      {showOptions ? <Button
-        icon={<Icon component={SettingOutlined} />}
-        onClick={onShowDrawer}
-        disabled={playingState === PlayingState.PLAYING}>
-        {t('scoreControls.settings')}
-      </Button> : null}
+      {showOptions ? <SettingsButton onClick={onShowDrawer} /> : null}
     </Space>
   );
 }

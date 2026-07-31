@@ -14,6 +14,8 @@ interface TabLayoutProps {
   showIntroductionSection: boolean;
   showTextSection: boolean;
   showFacsimileSection: boolean;
+  // Rendered at the right end of the tab bar, sharing its row
+  tabBarExtra?: React.ReactNode;
 }
 
 export default function TabLayout({
@@ -23,7 +25,8 @@ export default function TabLayout({
   facsimileView,
   showIntroductionSection,
   showTextSection,
-  showFacsimileSection
+  showFacsimileSection,
+  tabBarExtra
 }: TabLayoutProps) {
   const { t } = useTranslation("common");
   const activeTab = useStore.use.activeTab()
@@ -70,6 +73,7 @@ export default function TabLayout({
       items={tabsItems}
       defaultActiveKey="music"
       onChange={onTabChange}
+      tabBarExtraContent={tabBarExtra ? { right: tabBarExtra } : undefined}
       style={{
         width: "100%",
         flex: "1",

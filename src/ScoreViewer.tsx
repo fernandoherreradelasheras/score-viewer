@@ -19,8 +19,9 @@ import { useConfigValidation } from './hooks/useConfigValidation';
 import { useTranslation } from 'react-i18next';
 import ErrorView from './ErrorView';
 import ScoreOptionsPanel from './ScoreOptionsPanel';
-import LayoutManager from './components/LayoutManager';
+import LayoutManager, { rendersTabBar } from './components/LayoutManager';
 import ScoreViewerHeader from './components/ScoreViewerHeader';
+import SettingsButton from './components/SettingsButton';
 import { useScoreViewerEffects } from './hooks/useScoreViewerEffects';
 
 
@@ -50,6 +51,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   const { configErrors, hasConfigErrors } = useConfigValidation(config);
 
   const score = useStore.use.score()
+  const isSplitView = useStore.use.isSplitView()
   const setScore = useStore.use.setScore()
   const setSelectedAudioIndex = useStore.use.setSelectedAudioIndex()
 
@@ -249,6 +251,26 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
 
 
 
+  const showDrawer = useCallback(() => {
+    setOpenDrawer(true);
+  }, []);
+
+  const showScoreSelector = config.scores.length > 1 && config.settings.showScoreSelector;
+
+  // With an external score selector and no split view the header holds nothing but the
+  // settings button, and a whole row for one button is expensive on mobile. When there
+  // is a tab bar, the button moves into it and the header row disappears.
+  const settingsInTabBar = useMemo(() =>
+    config.settings.showOptions && !showScoreSelector &&
+    rendersTabBar({
+      introView, textView, facsimileView,
+      showIntroductionSection: config.settings.showIntroductionSection,
+      showTextSection: config.settings.showTextSection,
+      showFacsimileSection: config.settings.showFacsimileSection
+    }, isSplitView)
+    , [config.settings.showOptions, config.settings.showIntroductionSection, config.settings.showTextSection,
+    config.settings.showFacsimileSection, showScoreSelector, introView, textView, facsimileView, isSplitView]);
+
   const content = useMemo(() => (
     <LayoutManager
       scoreView={scoreView}
@@ -258,15 +280,13 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
       showIntroductionSection={config.settings.showIntroductionSection}
       showTextSection={config.settings.showTextSection}
       showFacsimileSection={config.settings.showFacsimileSection}
+      tabBarExtra={settingsInTabBar ? <SettingsButton onClick={showDrawer} /> : null}
     />
   ), [
     scoreView, textView, introView, facsimileView,
     config.settings.showIntroductionSection, config.settings.showTextSection, config.settings.showFacsimileSection,
+    settingsInTabBar, showDrawer,
   ]);
-
-  const showDrawer = useCallback(() => {
-    setOpenDrawer(true);
-  }, []);
 
   const onDrawerClose = useCallback(() => {
     setOpenDrawer(false);
@@ -280,10 +300,11 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     , [openDrawer, config.settings.allowUserLanguageChange, onDrawerClose])
 
 
-  const header = useMemo(() => (
+  // settingsInTabBar already implies the header would have nothing else to show
+  const header = useMemo(() => settingsInTabBar ? null : (
     <ScoreViewerHeader
-      showScoreSelector={config.scores.length > 1 && config.settings.showScoreSelector}
-      showOptions={config.settings.showOptions}
+      showScoreSelector={showScoreSelector}
+      showOptions={config.settings.showOptions && !settingsInTabBar}
       selectorLabel={config.settings.selectorLabel || "work"}
       scoreItems={scoreItems}
       onScoreSelectedChanged={onScoreSelectedChanged}
@@ -293,7 +314,8 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
       onShowDrawer={showDrawer}
     />
   ), [
-    config.scores.length, config.settings.showScoreSelector, scoreItems, onScoreSelectedChanged,
+    showScoreSelector, settingsInTabBar, config.settings.showOptions,
+    config.settings.selectorLabel, scoreItems, onScoreSelectedChanged,
     facsimileView, introView, textView, showDrawer
   ]);
 
