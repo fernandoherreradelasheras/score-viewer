@@ -58,7 +58,7 @@ class ScoreAnalyzer {
     }
 
     hasOriginalClefs() {
-        const res = this.document.evaluate('//mei:rdg[@label="app_clefs"]', this.document, nsResolver, XPathResult.ANY_TYPE, null).iterateNext()
+        const res = this.document.evaluate('//mei:rdg[@type="app_clefs"]', this.document, nsResolver, XPathResult.ANY_TYPE, null).iterateNext()
         return res != null
     }
 
@@ -315,8 +315,8 @@ class ScoreAnalyzer {
             const element = node as Element
             const type = element.getAttribute("type")
             // app elements with global defined type are not considered editorial choices but
-            // global choices and are handles on the options panel (e.g. original clefs, etc...)
-            // //TODO (harm analysis, etc...)
+            // global choices and are handled on the options panel (original clefs and
+            // harmonic analysis).
             if (type == null || !GLOBAL_APP_TYPES.includes(type)) {
                 const item = this.choiceNodeToEditorialItem(element, "app")
                 items.push(item)

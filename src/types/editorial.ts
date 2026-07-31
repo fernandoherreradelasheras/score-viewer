@@ -13,7 +13,9 @@ export const EDITORIAL_ALL_TAGS = [...new Set([
     ...EDITORIAL_SELECTION_TAGS, ...EDITORIAL_APP_CHILD_TAGS, ...EDITORIAL_TRANSPARENT_TAGS
 ])]
 
-export const GLOBAL_APP_TYPES = ["app_clefs"]
+// <app> types handled as global options (the options panel) rather than as editorial
+// choices. Kept in sync with GLOBAL_APP_READINGS in useScoreActions.
+export const GLOBAL_APP_TYPES = ["app_clefs", "dissonant_analysis"]
 
 
 export interface NoteContentDescription {

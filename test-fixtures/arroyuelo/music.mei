@@ -60,9 +60,9 @@
                   </staffGrp>
                </scoreDef>
                <section xml:id="coplas" label="coplas">
-                  <app xml:id="acdkjf9">
-                     <lem label="app_clefs"/>
-                     <rdg label="app_clefs">
+                  <app xml:id="acdkjf9" type="app_clefs">
+                     <lem type="app_clefs"/>
+                     <rdg type="app_clefs">
                         <scoreDef midi.bpm="200.0">
                            <staffGrp symbol="bracket">
                               <staffDef n="1" lines="5" keysig="1s" meter.count="3" meter.unit="2">
@@ -296,7 +296,7 @@
                            <note dur="1" pname="a" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="1" tstamp="2" n="10">
@@ -779,7 +779,7 @@
                            <note dots="1" dur="1" pname="e" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="5" tstamp="1" n="2">
@@ -1057,7 +1057,7 @@
                            <note dur="1" pname="a" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="2" tstamp="2" n="8">
@@ -1540,7 +1540,7 @@
                            <note dots="1" dur="1" pname="e" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="5" tstamp="1" n="2">
@@ -3933,7 +3933,7 @@
                            <note dur="1" pname="a" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="3" tstamp="2" n="6">
@@ -4049,7 +4049,7 @@
                            <note dur="2" pname="a" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="1" tstamp="1.5" n="10">
@@ -4281,7 +4281,7 @@
                            <note dur="2" pname="e" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="1" tstamp="2" n="10">
@@ -4387,7 +4387,7 @@
                         </layer>
                      </staff>
                      <tie startid="#nwyea9u" endid="#n18j01pz"/>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="4" tstamp="1.5" n="4">
@@ -4648,7 +4648,7 @@
                      <slur startid="#n9wvy22" endid="#n1nqaq0g"/>
                      <tie endid="#n1nqaq0g" startid="#n7wmhd1"/>
                      <slur endid="#nvdqbis2" startid="#n9wvy22"/>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="3" tstamp="1.5" n="6">
@@ -4799,7 +4799,7 @@
                            <note dur="1" pname="a" oct="2"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="4" tstamp="2.5" n="4">
@@ -4976,8 +4976,8 @@
                   <sb/>
                </section>
                <section xml:id="estribillo" label="estribillo" restart="true">
-                  <app>
-                     <lem label="app_clefs">
+                  <app type="app_clefs">
+                     <lem type="app_clefs">
                         <scoreDef midi.bpm="180.0">
                            <staffGrp symbol="bracket">
                               <staffDef n="1" lines="5" keysig="1s" meter.count="3" meter.unit="2">
@@ -5008,7 +5008,7 @@
                            </staffGrp>
                         </scoreDef>
                      </lem>
-                     <rdg label="app_clefs">
+                     <rdg type="app_clefs">
                         <scoreDef midi.bpm="180.0">
                            <staffGrp symbol="bracket">
                               <staffDef n="1" lines="5" keysig="1s" meter.count="3" meter.unit="2">
@@ -5120,7 +5120,7 @@
                            <note dots="1" dur="1" pname="e" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="3" tstamp="3" n="6">
@@ -5180,7 +5180,7 @@
                            <note dots="1" dur="1" pname="e" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="3" tstamp="2" n="6">
@@ -5244,7 +5244,7 @@
                            <note dots="1" dur="1" pname="a" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="1" tstamp="3" n="10">
@@ -5308,7 +5308,7 @@
                            <note dots="1" dur="1" pname="a" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="3" tstamp="2" n="6">
@@ -5380,7 +5380,7 @@
                            <note dots="1" dur="1" pname="d" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="3" tstamp="3" n="6">
@@ -5443,7 +5443,7 @@
                            <note dots="1" dur="1" pname="d" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="3" tstamp="2" n="6">
@@ -5512,7 +5512,7 @@
                            <note dots="1" dur="1" pname="g" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="1" tstamp="3" n="10">
@@ -5565,7 +5565,7 @@
                            <note dots="1" dur="1" pname="g" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="1" tstamp="2" n="10">
@@ -5685,7 +5685,7 @@
                            <note dur="1" pname="e" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="4" tstamp="3" n="4">
@@ -5745,7 +5745,7 @@
                            <note dots="1" dur="1" pname="e" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="4" tstamp="2" n="4">
@@ -5809,7 +5809,7 @@
                            <note dots="1" dur="1" pname="a" oct="2"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="2" tstamp="3" n="8">
@@ -5883,7 +5883,7 @@
                            <note dots="1" dur="1" pname="a" oct="2"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="4" tstamp="2" n="4">
@@ -5972,7 +5972,7 @@
                            <note dur="4" pname="e" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="4" tstamp="3" n="4">
@@ -6065,7 +6065,7 @@
                            <note dur="2" pname="d" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="5" tstamp="3" n="2">
@@ -6157,7 +6157,7 @@
                         </layer>
                      </staff>
                      <tie startid="#nmc5f3y" endid="#n1f06frt"/>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="2" tstamp="3" n="8">
@@ -6238,7 +6238,7 @@
                            <note xml:id="n1f06frt" dots="1" dur="1" pname="e" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="2" tstamp="2" n="8">
@@ -6385,7 +6385,7 @@
                            <note xml:id="n1by382k" dots="1" dur="1" pname="a" oct="2"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="1" tstamp="2" n="10">
@@ -6470,7 +6470,7 @@
                         </layer>
                      </staff>
                      <tie startid="#n3krg0l" endid="#ndi12t6"/>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="2" tstamp="3" n="8">
@@ -6543,7 +6543,7 @@
                            <note xml:id="ndi12t6" dots="1" dur="1" pname="d" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="1" tstamp="2" n="10">
@@ -6693,7 +6693,7 @@
                            <note dur="2" pname="c" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="5" tstamp="1" n="2">
@@ -6786,7 +6786,7 @@
                         </layer>
                      </staff>
                      <tie startid="#n1hp21dl" endid="#n49qksd"/>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="3" tstamp="2" n="6">
@@ -6884,7 +6884,7 @@
                            <note dur="1" pname="c" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="3" tstamp="1" n="6">
@@ -6981,7 +6981,7 @@
                            <note dur="1" pname="g" oct="2"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="4" tstamp="3.5" n="4">
@@ -7044,7 +7044,7 @@
                            <note dots="1" dur="1" pname="g" oct="2"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="4" tstamp="2" n="4">
@@ -7182,7 +7182,7 @@
                            <note dur="2" pname="f" oct="3" accid.ges="s"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="5" tstamp="1" n="2">
@@ -7273,7 +7273,7 @@
                            <note dur="2" pname="f" oct="3" accid.ges="s"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="2" tstamp="2" n="8">
@@ -7357,7 +7357,7 @@
                            <note dur="2" pname="e" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="2" tstamp="2" n="8">
@@ -7450,7 +7450,7 @@
                            <note dur="2" pname="f" oct="3" accid.ges="s"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="5" tstamp="2" n="2">
@@ -8143,7 +8143,7 @@
                      </staff>
                      <tie startid="#n3bqwc3" endid="#np6shkt"/>
                      <tie startid="#nxpqmjf" endid="#n1ds3ah4"/>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="2" tstamp="3" n="8">
@@ -8400,7 +8400,7 @@
                            <note dur="2" pname="a" oct="2"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="1" tstamp="3" n="10">
@@ -8492,7 +8492,7 @@
                            <note dur="2" pname="e" oct="3"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="5" tstamp="3" n="2">
@@ -8549,7 +8549,7 @@
                            <note dots="1" dur="1" pname="f" oct="3" accid="n"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="2" tstamp="1" n="8">
@@ -8716,7 +8716,7 @@
                            <note dur="2" pname="f" oct="3" accid="n"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="5" tstamp="3" n="2">
@@ -8780,7 +8780,7 @@
                      </staff>
                      <tie startid="#nehhrf" endid="#n9bnwx8"/>
                      <tie startid="#n1xzi4t1" endid="#nn7aufe"/>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="2" tstamp="3" n="8">
@@ -8942,7 +8942,7 @@
                         </layer>
                      </staff>
                      <tie startid="#n1n77llp" endid="#npe8cpt"/>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="5" tstamp="3" n="2">
@@ -9009,7 +9009,7 @@
                         </layer>
                      </staff>
                      <tie startid="#no3wtxy" endid="#n1u11wb7"/>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="2" tstamp="3" n="8">
@@ -9082,7 +9082,7 @@
                         </layer>
                      </staff>
                      <slur startid="#n15g2hvv" endid="#n1uo43rw"/>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="5" tstamp="2" n="2">
@@ -9151,7 +9151,7 @@
                         </layer>
                      </staff>
                      <tie startid="#nhae665" endid="#ndvrws4"/>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="3" tstamp="1" n="6">
@@ -9328,7 +9328,7 @@
                      </staff>
                      <tie startid="#nrq0kxl" endid="#n1lce4rt"/>
                      <tie startid="#naw1x6x" endid="#n1t4p8n0"/>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="1" tstamp="2" n="10">
@@ -9395,7 +9395,7 @@
                         </layer>
                      </staff>
                      <tie startid="#n1lce4rt" endid="#n126n0sk"/>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="2" tstamp="3" n="8">

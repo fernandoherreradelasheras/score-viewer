@@ -110,9 +110,9 @@
                   </staffGrp>
                </scoreDef>
                <section xml:id="coplas" label="coplas">
-                  <app xml:id="a9823">
-                     <lem label="app_clefs"/>
-                     <rdg label="app_clefs">
+                  <app xml:id="a9823" type="app_clefs">
+                     <lem type="app_clefs"/>
+                     <rdg type="app_clefs">
                         <scoreDef midi.bpm="180.0">
                            <staffGrp>
                               <staffGrp symbol="bracket">
@@ -588,7 +588,7 @@
                            <note dur="2" oct="2" pname="a"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="5" tstamp="2" n="2">
@@ -738,7 +738,7 @@
                            <note dur="1" oct="3" pname="c" xml:id="n394466"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="3" tstamp="1" n="6">
@@ -1024,7 +1024,7 @@
                      <bracketSpan startid="#n901808" endid="#n713415" func="coloration" lwidth="0.5vu"/>
                      <tie startid="#n16uh86b" endid="#ndwy455"/>
                      <tie startid="#n1ycmpnw" endid="#n91jagp"/>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="5" tstamp="3.5" n="2">
@@ -2218,7 +2218,7 @@
                            <note dur="2" oct="3" pname="a"/>
                         </layer>
                      </staff>
-                     <app>
+                     <app type="dissonant_analysis">
                         <lem/>
                         <rdg type="dissonant_analysis">
                            <harm type="rdiss" place="above" staff="3" tstamp="1" n="6">

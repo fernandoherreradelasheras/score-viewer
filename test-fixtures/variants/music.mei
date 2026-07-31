@@ -70,9 +70,9 @@
                   </staffGrp>
                </scoreDef>
                <section xml:id="coplas" label="coplas">
-                  <app xml:id="akofi93">
-                     <lem label="app_clefs"/>
-                     <rdg label="app_clefs">
+                  <app xml:id="akofi93" type="app_clefs">
+                     <lem type="app_clefs"/>
+                     <rdg type="app_clefs">
                         <scoreDef midi.bpm="180.0">
                            <staffGrp>
                               <staffGrp symbol="bracket">

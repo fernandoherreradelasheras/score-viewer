@@ -21,12 +21,14 @@ import { EDITORIAL_COLORS } from '../types/colors';
 
 
 
+// Global readings are marked with @type, never @label: verovio renders @label as an
+// SVG <title>, which the browser shows as a tooltip, so the token leaked to the user.
 const APP_CLEFS_READING = {
   option: 'clefs',
-  app_attr_name: 'label',
+  app_attr_name: 'type',
   app_attr_value: 'app_clefs',
-  svg_extra_attributes: ['rdg@label', 'lem@label'],
-  svg_query_selector: '.app:has(> :is(.lem, .rdg)[data-label="app_clefs"])'
+  svg_extra_attributes: ['rdg@type', 'lem@type'],
+  svg_query_selector: '.app:has(> :is(.lem, .rdg)[data-type="app_clefs"])'
 }
 const APP_HARMONIC_ANALYSIS_READING = {
   option: 'analysis',
@@ -42,10 +44,10 @@ const GLOBAL_APP_READINGS = [
 ];
 
 
-const EXTRA_SVG_ATTRIBUTES = [
+const EXTRA_SVG_ATTRIBUTES = [...new Set([
   "measure@n", "staff@n", "clef@corresp", "verse@n", "note@dur",
   ...GLOBAL_APP_READINGS.flatMap(r => r.svg_extra_attributes)
-];
+])];
 
 
 
