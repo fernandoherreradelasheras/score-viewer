@@ -47,7 +47,12 @@ export type ScoreProperties = {
     sources: Sources;
     responsibilities: Record<string, string>;
     notes: string[];
-    hasEditorial: boolean;
+    // Anything score-viewer presents as an editorial intervention, i.e. what the
+    // editorial layer highlights and lists. The global apparatus does not count:
+    // original clefs and harmonic analysis are display options, and each has its own
+    // flag below. Narrower than "the MEI contains editorial elements" in verovio's
+    // sense, which also covers the global apparatus.
+    hasEditorialInterventions: boolean;
     hasOriginalClefs: boolean;
     hasHarmonicAnalysis: boolean;
     encodedTransposition?: Transposition | undefined

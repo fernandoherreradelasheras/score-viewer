@@ -69,9 +69,19 @@ class ScoreAnalyzer {
         return res != null
     }
 
-    hasEditorialElements() {
-        const typeExclusion = GLOBAL_APP_TYPES.map(type => `@type='${type}'`).join(" or ")
-        const it = this.document.evaluate(`//*[(${EDITORIAL_SELF_TEST}) and not(${typeExclusion})]`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+    // Whether the score carries anything score-viewer presents as an editorial
+    // intervention: what the editorial layer highlights and lists. The global
+    // apparatus is excluded along with everything inside it, because original clefs
+    // and harmonic analysis are display options, not interventions by the editor.
+    //
+    // This is narrower than "does this MEI contain editorial elements" in verovio's
+    // sense. That broader question mattered while repeat expansion was on the table,
+    // since verovio refuses to expand a score containing any editorial element,
+    // global apparatus included. If it is ever needed again it is a different query,
+    // not this one.
+    hasEditorialInterventions() {
+        const globalApp = GLOBAL_APP_TYPES.map(type => `@type='${type}'`).join(" or ")
+        const it = this.document.evaluate(`//*[(${EDITORIAL_SELF_TEST}) and not(ancestor-or-self::mei:app[${globalApp}])]`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
         return it.iterateNext() != null
     }
 
@@ -184,7 +194,7 @@ class ScoreAnalyzer {
             sections: this.getSections(),
             sources: this.getSources(),
             responsibilities: this.getResponsibilities(),
-            hasEditorial: this.hasEditorialElements(),
+            hasEditorialInterventions: this.hasEditorialInterventions(),
             hasOriginalClefs: this.hasOriginalClefs(),
             hasHarmonicAnalysis: this.hasHarmonicAnalysis(),
             tiedNotes: this.getTiedNotes(),
