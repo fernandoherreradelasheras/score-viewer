@@ -32,7 +32,9 @@ function ScoreViewerWrapper() {
         loadConfig()
     }, [])
 
-    return config ? <ScoreViewer width="100%" height="95vh" config={config} /> : null
+    // #root is already the full height of the iframe, so the viewer takes all of it:
+    // a vh fraction here would leave a dead band at the bottom of the embed.
+    return config ? <ScoreViewer width="100%" height="100%" config={config} /> : null
 }
 
 export default ScoreViewerWrapper;

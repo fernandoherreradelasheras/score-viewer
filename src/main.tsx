@@ -90,15 +90,17 @@ function TestSections() {
   const ref = useRef<ScoreViewerRef>(null)
 
   return (
-    <div>
-      <Space direction="horizontal" size="large" style={{ height: "3vh" }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <Space direction="horizontal" size="large" style={{ flex: 'none' }}>
         {sections.map((section) => (
           <Button key={section.id} onClick={() => ref.current?.goToSection(section.id)}>
             {section.label}
           </Button>
         ))}
       </Space>
-      <ScoreViewer ref={ref} width="100%" height="89vh" config={config} onScoreAnalyzed={onScoreAnalyzed} />
+      <div style={{ flex: 1, minHeight: 0 }}>
+        <ScoreViewer ref={ref} width="100%" height="100%" config={config} onScoreAnalyzed={onScoreAnalyzed} />
+      </div>
     </div>
   )
 }
@@ -116,8 +118,8 @@ function TestExternalSelector() {
   }, [ref.current])
 
   return (
-    <div>
-      <Space direction="horizontal" size="large" style={{ height: "3vh" }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <Space direction="horizontal" size="large" style={{ flex: 'none' }}>
         <Button onClick={() => ref.current?.selectScore(0)}>
           {t('test.score1')}
         </Button>
@@ -128,7 +130,9 @@ function TestExternalSelector() {
           {t('test.score3')}
         </Button>
       </Space>
-      <ScoreViewer ref={ref} width="100%" height="89vh" config={customSelectorConfig} />
+      <div style={{ flex: 1, minHeight: 0 }}>
+        <ScoreViewer ref={ref} width="100%" height="100%" config={customSelectorConfig} />
+      </div>
     </div>
   )
 }
@@ -136,7 +140,7 @@ function TestExternalSelector() {
 
 function TestBasic() {
   return (
-    <ScoreViewer width="100%" height="92vh" config={config} />
+    <ScoreViewer width="100%" height="100%" config={config} />
   )
 }
 
@@ -157,9 +161,13 @@ function TestSelector() {
     }
   }
 
+  // Laid out as a flex column rather than by adding up vh values: the bar's padding
+  // and border are not part of its height (box-sizing is only set on body), so a
+  // fixed vh split pushed the viewer past the bottom of the window, where
+  // body { overflow: hidden } simply cuts it off.
   return (
-    <div>
-      <div style={{ height: "4vh", padding: '20px', backgroundColor: '#f0f0f0', borderBottom: '1px solid #ddd' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <div style={{ flex: 'none', padding: '20px', backgroundColor: '#f0f0f0', borderBottom: '1px solid #ddd' }}>
         <Space>
           <span>{t('test.selectTest')}</span>
           <Button
@@ -182,7 +190,9 @@ function TestSelector() {
           </Button>
         </Space>
       </div>
-      {renderSelectedTest()}
+      <div style={{ flex: 1, minHeight: 0 }}>
+        {renderSelectedTest()}
+      </div>
     </div>
   )
 }
