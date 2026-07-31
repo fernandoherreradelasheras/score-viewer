@@ -1,4 +1,4 @@
-import { Button } from 'antd';
+import { Button, Grid, Tooltip } from 'antd';
 import Icon, { SettingOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { PlayingState } from '../types';
@@ -9,13 +9,22 @@ import useStore from '../store';
 export default function SettingsButton({ onClick }: { onClick: () => void }) {
   const { t } = useTranslation("common");
   const playingState = useStore.use.playingState();
+  const screens = Grid.useBreakpoint();
 
-  return (
+  // Icon only on narrow viewports: in the tab bar the label competes for width with
+  // the tab titles, and that is where horizontal space is scarcest.
+  const compact = !screens.md;
+  const label = t('scoreControls.settings');
+
+  const button = (
     <Button
       icon={<Icon component={SettingOutlined} />}
       onClick={onClick}
+      aria-label={label}
       disabled={playingState === PlayingState.PLAYING}>
-      {t('scoreControls.settings')}
+      {compact ? null : label}
     </Button>
   );
+
+  return compact ? <Tooltip title={label}>{button}</Tooltip> : button;
 }
