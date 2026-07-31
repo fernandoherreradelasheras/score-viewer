@@ -104,6 +104,13 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     }), [scoreRenderOptions, withoutTransposition, score?.properties?.encodedTransposition]);
     const loadedRenderKeyRef = useRef<string | null>(null);
 
+    // The store outlives this component, so `showingMei` and `renderedSvgData` may
+    // still describe what a previous instance rendered. Both no-op guards below rely
+    // on them, so they also check that the SVG is really in this container: on a
+    // remount it is empty and the score has to be rendered again.
+    const showsRenderedScore = () =>
+        renderedSvgData?.scoreUrl === score?.url && svgContainerRef.current?.querySelector("svg") != null
+
     const canSchedule = () => (score && verovio && svgContainerWidth > 0 && svgContainerHeight > 0)
     const isReady = () => (canSchedule() && !pendingAction)
 
@@ -317,7 +324,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         // count, removing coloration brackets that do not exist...), so there is
         // nothing to reload. Only skip when that MEI is what is actually on screen: a
         // previous load may have failed and left `showingMei` set with nothing rendered.
-        if (newShowingMei === showingMei && renderedSvgData?.scoreUrl === score?.url) {
+        if (newShowingMei === showingMei && showsRenderedScore()) {
             console.log(`[ScoreView] Skipping reload: the generated MEI is unchanged`);
             setShowSpinner(false);
             return;
@@ -457,7 +464,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         // Same reasoning as the MEI comparison in updateLoadedScore, on the other half
         // of the settings: if what reaches verovio is what is already rendered, the
         // change was a no-op for this score.
-        if (renderKey === loadedRenderKeyRef.current && renderedSvgData?.scoreUrl === score?.url) {
+        if (renderKey === loadedRenderKeyRef.current && showsRenderedScore()) {
             console.log(`[ScoreView] Skipping reload: verovio options unchanged`);
             return;
         }
