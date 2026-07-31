@@ -16,7 +16,8 @@
   "version": "1.1.5",
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "dev": "vite",
@@ -24,6 +25,7 @@
     "build": "tsc -b && vite build",
     "build:iframe": "vite build --mode iframe --config vite.config.ts",
     "build:all": "npm run build && npm run build:iframe",
+    "prepublishOnly": "npm run build",
     "lint": "eslint .",
     "preview": "vite preview",
     "preview:iframe": "vite preview --outDir dist/iframe"
