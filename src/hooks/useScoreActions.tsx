@@ -51,6 +51,26 @@ const EXTRA_SVG_ATTRIBUTES = [
 
 const AUTO_SCROLL_RENDERING_WIDTH_LIMIT = 60000;
 
+/**
+ * Workaround for https://github.com/rism-digital/verovio/issues/4240
+ *
+ * Since 5.4.0 `Doc::GetAdjustedDrawingPageHeight()` multiplies the content height by
+ * `scale / 100` when `scaleToPageSize` is on, and that value is what `shrinkToFit` is
+ * tested against. With our default scale of 50 the check only fires once the content
+ * is more than twice the page height, so a system that does not fit is drawn past the
+ * bottom of the page instead of being scaled down. The issue was closed without a fix.
+ *
+ * `scaleToPageSize` lays out over `pageSize * 1000 / scale` verovio units, so scaling
+ * the page up by `100 / scale` and rendering at scale 100 gives byte-identical
+ * pagination and layout while leaving the buggy factor at 1. Only the px dimensions of
+ * the root <svg> grow, and those are replaced by 100% before the SVG is inserted.
+ */
+const shrinkToFitPageSize = (width: number, height: number, scale: number) => ({
+  pageWidth: Math.round(width * 100 / scale),
+  pageHeight: Math.round(height * 100 / scale),
+  scale: 100,
+});
+
 const verovioBaseOptions: VerovioOptions = {
   breaks: 'auto',
   footer: 'none',
@@ -233,9 +253,7 @@ export default function useScoreActions({
       landscape: false,
       svgAdditionalAttribute: EXTRA_SVG_ATTRIBUTES,
       ...scoreRenderOptions,
-      pageHeight: loadedHeight,
-      pageWidth: loadedWidth,
-      scale: scale,
+      ...shrinkToFitPageSize(loadedWidth, loadedHeight, scale),
       transpose: config.transposition != null ? config.transposition : "",
     };
 
@@ -406,9 +424,10 @@ export default function useScoreActions({
     try {
 
       const svgStart = performance.now();
+      // The px size of the root svg is the compensated page size, not the container
+      // one (see shrinkToFitPageSize), so it is matched by shape rather than by value.
       const svgData = (await verovio.renderToSVG(renderPage))
-        .replace(`width="${loadedWidth}px"`, 'width="100%"')
-        .replace(`height="${loadedHeight}px"`, 'height="100%"');
+        .replace(/^<svg width="\d+px" height="\d+px"/, '<svg width="100%" height="100%"');
       console.log(`[useScoreActions] renderToSVG took ${(performance.now() - svgStart).toFixed(2)}ms`);
 
 
