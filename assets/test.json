@@ -68,7 +68,7 @@
             "meiFile": "music.mei",
             "introductionFile": "intro.md",
             "encodingProperties": {
-                "encodedTransposition": ""
+                "encodedTransposition": "-P4"
             }
         },
         {
