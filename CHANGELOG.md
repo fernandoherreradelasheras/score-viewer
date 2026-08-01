@@ -6,7 +6,7 @@ Incompatible changes on the 1.1.x line.
 may change without compatibility shims. Every such change is recorded here, newest
 first. Ordinary fixes and additions are not — see the git log for those.
 
-## Unreleased
+## 1.1.6
 
 ### MEI conventions
 
@@ -31,6 +31,16 @@ first. Ordinary fixes and additions are not — see the git log for those.
   On a score still encoding `label="app_clefs"`, the original clefs option no longer
   finds the apparatus, and an `<app>` without `@type` is listed as an editorial
   choice instead of being handled as a display option.
+
+- The heading of a poem block is taken from the `@label` of the `<lg>` itself, not
+  from a `<label>` child element:
+
+  ```xml
+  <lg type="coplas" label="Coplas glosadas" corresp="#coplas">
+  ```
+
+  Blocks without `@label` keep falling back to their capitalized `@type`, so only
+  the ones that were overriding the heading with a `<label>` child are affected.
 
 ### API
 

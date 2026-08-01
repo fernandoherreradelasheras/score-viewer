@@ -50,13 +50,12 @@ const findPoemDiv = (doc: Document): Element | null => {
   );
 };
 
-// Header shown for a block: the `<label>` text if present, otherwise the
-// capitalized `@type` ("coplas" -> "Coplas").
+// Header shown for a block: its own `@label` if present, otherwise the capitalized
+// `@type` ("coplas" -> "Coplas").
 const blockHeader = (block: Element): string => {
-  const label = childrenByLocalName(block, 'label')[0];
-  const labelText = label ? normalizeText(label) : '';
-  if (labelText.length > 0) {
-    return labelText;
+  const label = (block.getAttribute('label') ?? '').trim();
+  if (label.length > 0) {
+    return label;
   }
   return capitalize(block.getAttribute('type') ?? '');
 };
