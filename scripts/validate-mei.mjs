@@ -68,3 +68,24 @@ try {
 }
 
 console.log(`[validate-mei] ${files.length} MEI ${MEI_VERSION} files validate`);
+
+// The Schematron pass is opt-in: it costs ~25s against ~1s for the grammar, because
+// the reference rules (@startid, @endid, @plist...) scan the document once per
+// reference. Worth it before a release, too slow for every build.
+if (process.argv.includes('--schematron')) {
+    const { loadPatterns, validate } = await import('./schematron.mjs');
+    const patterns = loadPatterns(SCHEMA);
+
+    let failed = 0;
+    for (const file of files) {
+        for (const { where, message } of validate(patterns, file)) {
+            failed++;
+            console.error(`[validate-mei] ${relative(ROOT, file)}: ${where}\n               ${message}`);
+        }
+    }
+    if (failed > 0) {
+        console.error(`[validate-mei] ${failed} Schematron violation(s)`);
+        process.exit(1);
+    }
+    console.log(`[validate-mei] ${files.length} files pass the Schematron rules`);
+}
