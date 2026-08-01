@@ -12,6 +12,9 @@
                <persName xml:id="person2" role="reviewer" >Jean Reviewer</persName>
             </respStmt>
          </titleStmt>
+         <pubStmt>
+            <date isodate="2026-07-17"/>
+         </pubStmt>
          <sourceDesc>
             <source xml:id="sCdMtiple1" n="1" label="manuscript">
                <bibl>
@@ -25,9 +28,6 @@
                </bibl>
             </source>
          </sourceDesc>
-         <pubStmt>
-            <date isodate="2026-07-17"/>
-         </pubStmt>
       </fileDesc>
    </meiHead>
    <music>

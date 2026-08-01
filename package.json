@@ -13,7 +13,7 @@
     "./style.css": "./dist/style.css"
   },
   "private": false,
-  "version": "1.1.5",
+  "version": "1.1.6",
   "type": "module",
   "files": [
     "dist",
@@ -22,7 +22,8 @@
   "scripts": {
     "dev": "vite",
     "dev:iframe": "vite --config vite.config.ts --mode iframe --host",
-    "build": "tsc -b && vite build",
+    "validate:mei": "node scripts/validate-mei.mjs",
+    "build": "npm run validate:mei && tsc -b && vite build",
     "build:iframe": "vite build --mode iframe --config vite.config.ts",
     "build:all": "npm run build && npm run build:iframe",
     "prepublishOnly": "npm run build",
