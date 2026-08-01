@@ -9501,7 +9501,7 @@
       </body>
       <back>
          <div type="poem">
-            <lg type="coplas" corresp="#coplas">
+            <lg type="coplas" corresp="#coplas" label="Coplas glosadas">
                <lg type="copla" n="1">
                   <l>Al compás de un arroyuelo,</l>
                   <l>en el facistol de un sauce,
