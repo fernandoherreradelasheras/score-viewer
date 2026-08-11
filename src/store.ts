@@ -337,11 +337,17 @@ const createRenderedSvgStore = create<RenderedSvgState>((set, get) => ({
         const cache = new Map(get().pageCache);
         const MAX_CACHE_SIZE = 3;
 
-        // If cache is full and we're adding a new page, remove oldest
+        // Evict the page furthest from the one coming in
         if (cache.size >= MAX_CACHE_SIZE && !cache.has(page)) {
-            const firstKey = cache.keys().next().value;
-            if (firstKey !== undefined) {
-                cache.delete(firstKey);
+            let furthest: number | undefined;
+            for (const cachedPage of cache.keys()) {
+                if (furthest === undefined ||
+                    Math.abs(cachedPage - page) > Math.abs(furthest - page)) {
+                    furthest = cachedPage;
+                }
+            }
+            if (furthest !== undefined) {
+                cache.delete(furthest);
             }
         }
 

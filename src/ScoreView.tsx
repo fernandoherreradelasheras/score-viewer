@@ -67,6 +67,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const { ref: svgContainerRef, width: svgContainerWidth, height: svgContainerHeight } = useComponentSize();
 
     const [showSpinner, setShowSpinner] = useState(false);
+    const spinnerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const lastRenderedUrl = useRef<string | undefined | null>(null);
 
     // Serialization of the verovio pipeline. The worker holds a single toolkit
@@ -79,6 +80,30 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const generationRef = useRef(0);
     const queuedActionRef = useRef<Action | null>(null);
     const continuationRef = useRef<Action | null>(null);
+    const pendingActionRef = useRef<Action | null>(null);
+
+    pendingActionRef.current = pendingAction;
+
+    // The spinner must only ever be up while the pipeline still owes us a page.
+    const isPipelineBusy = () =>
+        runningRef.current || queuedActionRef.current != null || pendingActionRef.current != null;
+
+    const cancelSpinnerTimer = () => {
+        if (spinnerTimerRef.current != null) {
+            clearTimeout(spinnerTimerRef.current);
+            spinnerTimerRef.current = null;
+        }
+    };
+
+    const spinnerVisibleRef = useRef(false);
+    const setSpinner = useCallback((visible: boolean, reason: string) => {
+        cancelSpinnerTimer();
+        if (spinnerVisibleRef.current !== visible) {
+            console.log(`[ScoreView] Spinner ${visible ? "on" : "off"} (${reason})`);
+        }
+        spinnerVisibleRef.current = visible;
+        setShowSpinner(visible);
+    }, []);
 
     const {
         svgContainerClasses,
@@ -130,9 +155,9 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         if (!flushQueuedAction()) {
             setPendingAction(null);
             // Hide spinner when all actions complete
-            setShowSpinner(false);
+            setSpinner(false, "chain finished");
         }
-    }, [flushQueuedAction, setPendingAction]);
+    }, [flushQueuedAction, setPendingAction, setSpinner]);
 
     // Single entry point for every configuration-driven (re)load: it never drops a
     // request, so the last option the user picked is always the one rendered.
@@ -160,7 +185,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
         // Show spinner for heavy operations
         if (shouldShowSpinner) {
-            setShowSpinner(true);
+            setSpinner(true, `${action.type} action`);
         }
 
         // A newer configuration was requested while this chain was running, so its
@@ -307,7 +332,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const updateLoadedScore = useCallback((restoreAnchor: boolean, fadeIn: boolean) => {
         const startTime = performance.now();
 
-        setShowSpinner(true);  // Show spinner immediately
+        setSpinner(true, "rebuilding score");  // Show spinner immediately
 
         const newShowingMei = generateShowingScore();
         const preprocessTime = performance.now() - startTime;
@@ -315,7 +340,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
         if (!newShowingMei) {
             console.log(`Error generating showing MEI`);
-            setShowSpinner(false);
+            setSpinner(false, "could not generate MEI");
             return;
         }
 
@@ -326,7 +351,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         // previous load may have failed and left `showingMei` set with nothing rendered.
         if (newShowingMei === showingMei && showsRenderedScore()) {
             console.log(`[ScoreView] Skipping reload: the generated MEI is unchanged`);
-            setShowSpinner(false);
+            setSpinner(false, "reload skipped");
             return;
         }
 
@@ -345,21 +370,31 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     const fadeOutTransition = useCallback(() => {
         const currentSvg = svgContainerRef.current?.querySelector("svg") as SVGSVGElement | null;
+        const needsRender = !getCachedPage(currentPage);
+
         if (currentSvg) {
             currentSvg.style.transition = 'opacity 300ms ease-out';
             currentSvg.style.opacity = '0';
 
+            if (!needsRender) return;
+
             // Show spinner if page takes longer than fade out
-            setTimeout(() => {
-                if (!getCachedPage(currentPage)) {
-                    setShowSpinner(true);
+            cancelSpinnerTimer();
+            spinnerTimerRef.current = setTimeout(() => {
+                spinnerTimerRef.current = null;
+                if (isPipelineBusy()) {
+                    setSpinner(true, `page ${currentPage} still rendering`);
+                } else {
+                    console.log(`[ScoreView] Spinner not raised for page ${currentPage}: pipeline idle`);
                 }
             }, 300);
-        } else if (!getCachedPage(currentPage)) {
+        } else if (needsRender) {
             // There is nothing to fade out, and we are still not fading-in, so show spinner immediately
-            setShowSpinner(true);
+            setSpinner(true, `page ${currentPage} not rendered yet`);
         }
-    }, [setShowSpinner, currentPage, getCachedPage]);
+    }, [setSpinner, currentPage, getCachedPage]);
+
+    useEffect(() => cancelSpinnerTimer, []);
 
 
 
@@ -505,7 +540,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         if (cachedPage && cachedPage.svgHTML) {
             console.log(`[ScoreView] Using cached page ${currentPage}`);
 
-            // Get current SVG for fade out
+            setSpinner(false, `cached page ${currentPage}`);
             fadeOutTransition();
 
             // Create new SVG element for fade in
