@@ -207,10 +207,6 @@ class ScoreAnalyzer {
         return res?.iterateNext()?.nodeValue
     }
 
-    getFirstMeasureId() {
-        return this.document.evaluate(`(//mei:measure)[1]/@xml:id`, this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.nodeValue || null
-    }
-
     getEditorialNodesOfType = (editorialType: SimpleEditorialItem["type"]): SimpleEditorialItem[] => {
         const items: SimpleEditorialItem[] = []
         let matches = this.document.evaluate(`//mei:${editorialType}`, this.document, nsResolver, XPathResult.ANY_TYPE, null)

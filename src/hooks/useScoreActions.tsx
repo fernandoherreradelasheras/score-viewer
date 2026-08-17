@@ -461,12 +461,7 @@ export default function useScoreActions({
       }
       console.log(`[useScoreActions] DOM manipulation took ${(performance.now() - domStart).toFixed(2)}ms`);
 
-      const meiStart = performance.now();
-      const mei = await verovio.getMEI({ pageNo: renderPage });
-
-      const analyzer = new ScoreAnalyzer(0, mei);
-      const firstMeasureId = analyzer.getFirstMeasureId();
-      console.log(`[useScoreActions] getMEI + analysis took ${(performance.now() - meiStart).toFixed(2)}ms`);
+      const firstMeasureId = svgElement.querySelector(".measure[id]")?.id ?? null;
 
       const resolvedTimemap = resolveTimemapAnimations(timemap, score?.properties.noteStaffMap ?? {});
 
