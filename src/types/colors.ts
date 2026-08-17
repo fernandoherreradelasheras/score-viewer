@@ -21,6 +21,12 @@ export const EDITORIAL_COLORS = {
     annot: "#6699CC",
     ref: "#888888",
 
+    // apparatus readings. They sit inside the <app> container and override its color,
+    // so the reader sees which of the two is on show: the preferred reading in green,
+    // as the settled text, an alternative one in red, as a departure from it.
+    lem: "#2E9E6B",
+    rdg: "#CC6677",
+
     // container (desaturated, to allow children distinguisment)
     app: "#6F6F9E",
     choice: "#9E6F9E",

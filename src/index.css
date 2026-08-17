@@ -51,6 +51,14 @@
   cursor: pointer;
 }
 
+/* The global apparatus (original clefs / harmonic analysis) might get
+   a content-bounding-box generated spanning the whole measure.
+   Ensure those elements don't grab events that are indended for editorial elements  */
+.svg-container.static-score svg .mei-global-app .content-bounding-box,
+.svg-container.static-score svg .mei-global-app .bounding-box {
+  pointer-events: none;
+}
+
 /* Base frame: color and offset are inherited from the outer intervention <g> */
 .svg-container.editorial-active.static-score svg .mei-editorial>.content-bounding-box>rect {
   fill: var(--editorial-color);

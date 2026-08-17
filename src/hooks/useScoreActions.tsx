@@ -155,6 +155,7 @@ const setSvgClassesForEditorial = (svgElement: SVGElement) => {
   const globalApps = new Set(
     GLOBAL_APP_READINGS.flatMap(r => [...svgElement.querySelectorAll(r.svg_query_selector)])
   )
+  globalApps.forEach(app => app.classList.add("mei-global-app"))
 
   EDITORIAL_ALL_TAGS.forEach((tag: string) => {
     const color = EDITORIAL_COLORS[tag as keyof typeof EDITORIAL_COLORS];
