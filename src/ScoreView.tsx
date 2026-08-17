@@ -49,6 +49,8 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     const normalizeFicta = useStore.use.normalizeFicta();
     const showEditorial = useStore.use.showEditorial();
+    const showingEditorial = useStore.use.showingEditorial();
+    const setShowingEditorial = useStore.use.setShowingEditorial();
     const appOptions = useStore.use.appOptions();
     const choiceOptions = useStore.use.choiceOptions();
     const substOptions = useStore.use.substOptions();
@@ -165,6 +167,9 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     // Single entry point for every configuration-driven (re)load: it never drops a
     // request, so the last option the user picked is always the one rendered.
     const scheduleAction = useCallback((action: Action) => {
+        if (showingEditorial) {
+            setShowingEditorial(null);
+        }
         if (action.type === "load") {
             // A load repaginates the score, so every cached page becomes stale. Doing
             // it here rather than on every settings change means a change that ends up
@@ -179,7 +184,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         }
         queuedActionRef.current = null;
         setPendingAction(action);
-    }, [setPendingAction, renderKey, clearPageCache]);
+    }, [setPendingAction, renderKey, clearPageCache, showingEditorial, setShowingEditorial]);
 
     const processPendingAction = useCallback(async (action: Action) => {
 

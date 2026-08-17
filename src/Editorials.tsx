@@ -1,3 +1,4 @@
+import { useLayoutEffect, useState } from "react";
 import useStore from "./store";
 import { Button, Modal, Radio, Typography, Descriptions, Alert, Badge } from "antd";
 import { Tooltip } from "react-tooltip";
@@ -41,6 +42,10 @@ const DISPLAY_MENSURAL_DURATIONS = true;
 
 const TOOLTIP_SELECTOR = "svg .mei-editorial";
 
+
+const DIALOG_MARGIN = 16;
+const MIN_DIALOG_HEIGHT = 220;
+
 function Editorials() {
     const { t } = useTranslation("common");
     const score = useStore.use.score();
@@ -57,6 +62,31 @@ function Editorials() {
     const editorials = score?.editorialItems;
 
     const showingEditorialItem = showingEditorial ? editorials?.find(e => e.id == showingEditorial) : null;
+
+    // The dialog must not sit on top of the editorial item it targets.
+    // Measured once, when it opens: following the element as the score
+    // reflows would make the dialog jump under the reader's hand.
+    const [dialogPlacement, setDialogPlacement] = useState<{ top: number; maxHeight: number } | null>(null);
+
+    useLayoutEffect(() => {
+        const element = showingEditorial ? document.getElementById(showingEditorial) : null;
+        const rect = element?.getBoundingClientRect();
+        if (!element || !rect || (rect.width == 0 && rect.height == 0)) {
+            setDialogPlacement(null);
+            return;
+        }
+        const frame = element.closest(".svg-container")?.getBoundingClientRect()
+            ?? new DOMRect(0, 0, window.innerWidth, window.innerHeight);
+        const above = rect.top - frame.top - 2 * DIALOG_MARGIN;
+        const below = frame.bottom - rect.bottom - 2 * DIALOG_MARGIN;
+        if (Math.max(above, below) < MIN_DIALOG_HEIGHT) {
+            setDialogPlacement(null);
+        } else if (below >= above) {
+            setDialogPlacement({ top: rect.bottom + DIALOG_MARGIN, maxHeight: below });
+        } else {
+            setDialogPlacement({ top: frame.top + DIALOG_MARGIN, maxHeight: above });
+        }
+    }, [showingEditorial]);
 
     const titleKey = (type: string): string => {
         if (EDITORIAL_ALL_TAGS.includes(type)) {
@@ -406,9 +436,13 @@ function Editorials() {
                     }
                     open={showingEditorialItem != null && showingEditorialItem != undefined}
                     onCancel={() => setShowingEditorial(null)}
-                    footer={
-                        <Button type="primary" onClick={() => setShowingEditorial(null)}>{t('ok')}</Button>
-                    }>
+                    style={dialogPlacement ? { top: dialogPlacement.top } : undefined}
+                    styles={dialogPlacement ? {
+                        content: { maxHeight: dialogPlacement.maxHeight, display: 'flex', flexDirection: 'column' },
+                        body: { overflowY: 'auto' },
+                    } : undefined}
+                    footer={null}
+                >
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 4 }}>
                         <Descriptions size="small" column={1} items={buildMetaItems(showingEditorialItem)} />
