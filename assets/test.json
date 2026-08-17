@@ -122,6 +122,15 @@
             "encodingProperties": {
                 "encodedTransposition": ""
             }
+        },
+        {
+            "_covers": "grupos de variantes (@class -> <category>): un grupo por varios compases, otro por varias voces, y otro con dos <rdg> por <app> que sólo se distinguen por @n",
+            "title": "Grupos de variantes",
+            "path": "grouped-apps",
+            "meiFile": "music.mei",
+            "encodingProperties": {
+                "encodedTransposition": ""
+            }
         }
     ]
 }

@@ -6,6 +6,68 @@ Incompatible changes on the 1.1.x line.
 may change without compatibility shims. Every such change is recorded here, newest
 first. Ordinary fixes and additions are not — see the git log for those.
 
+## 1.1.9
+
+### MEI conventions
+
+- The readings of an `<app>` are selected by the variant group they classify under.
+  A group is a `<category>` declared in `<classDecls>`, and each reading points at it
+  with `@class`:
+
+  ```xml
+  <encodingDesc>
+     <classDecls>
+        <taxonomy xml:id="variant-groups">
+           <category xml:id="vgrp-tiple1-c9-14">
+              <label>Tiple 1º, cc. 9-14</label>
+              <desc>El Cancionero Poético-Musical Hispánico de Lisboa da al tiple 1º
+              una melodía distinta desde el compás 9 hasta el 14.</desc>
+           </category>
+        </taxonomy>
+     </classDecls>
+  </encodingDesc>
+
+  <app xml:id="av-c9">
+     <lem class="#vgrp-tiple1-c9-14" source="#P-Ln_MM4802-1"> ... </lem>
+     <rdg class="#vgrp-tiple1-c9-14" source="#P-La_47-VI-11"> ... </rdg>
+  </app>
+  ```
+
+  Every `<app>` whose readings point at the same category is one editorial decision:
+  choosing a reading in any of them switches all of them at once. That is what a
+  variant spanning several measures, or the same variant across voices, needs — until
+  now each `<app>` was selected on its own and only the one the reader clicked changed.
+
+  When an `<app>` offers several readings of the same group, `@n` is what pairs each
+  one with its counterpart in the other `<app>` elements of the group, and without it
+  only the first reading of the group can be reached:
+
+  ```xml
+  <rdg n="1" class="#vgrp-tiple1-c9-14" source="#P-La_47-VI-11"> ... </rdg>
+  <rdg n="2" class="#vgrp-tiple1-c9-14" source="#P-La_47-VI-12"> ... </rdg>
+  ```
+
+  The `<label>` of the category names the decision in the tooltip and in the dialog
+  title, and its `<desc>` is shown the way an `<annot>` would be, so a group no longer
+  needs an annotation attached to it just to explain itself.
+
+  `@label` on a reading takes no part in selection or grouping. It is a display string,
+  and verovio renders it as an SVG `<title>` that the browser shows as a tooltip, so a
+  grouping token written there leaked into the interface.
+
+  On a score with no taxonomy nothing breaks: readings are then selected one by one by
+  `@xml:id`, which is the previous behaviour, so grouped `<app>` elements switch
+  separately. A `@class` pointing at a category that is not declared is ignored — and
+  MEI's own Schematron rules reject it, so the encoding is checked by `npm run
+  validate:mei:schematron`.
+
+### API
+
+- `ScoreProperties.categories` is added: the terms declared in `<classDecls>`, keyed by
+  `xml:id`, each with its `label` and `desc`.
+- `Option.categoryId` is added: the variant group a reading belongs to, or `null` when
+  it stands on its own.
+
 ## 1.1.6
 
 ### MEI conventions

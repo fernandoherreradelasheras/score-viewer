@@ -34,6 +34,9 @@ export type Transposition = "" | "P4" | "+P4" | "-P4" | "M3" | "+M3" | "-M3" | "
 
 export type Sources = { [id: string]: { title: string } }
 
+// Terms declared in <classDecls>, keyed by the xml:id that @class points at.
+export type Categories = { [id: string]: { label: string; desc: string | null } }
+
 
 export type ScoreProperties = {
     hasFicta: boolean;
@@ -45,6 +48,7 @@ export type ScoreProperties = {
     reconstructionBy: string | null;
     sections: { label: string; id: string }[];
     sources: Sources;
+    categories: Categories;
     responsibilities: Record<string, string>;
     notes: string[];
     // Anything score-viewer presents as an editorial intervention, i.e. what the

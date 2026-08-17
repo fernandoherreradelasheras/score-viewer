@@ -136,8 +136,19 @@ function Editorials() {
         return `${sourceTitle ? sourceTitle : ''}${contentDescription ? ': ' + contentDescription : ''}`;
     }
 
+    // The variant group of an editorial item: the <classDecls> category its readings
+    // point at with @class. Only when every reading on offer classifies under the same
+    // one, since it names the decision as a whole, not what each option says.
+    const getItemCategory = (item: EditorialItem) => {
+        if (!('choice' in item)) {
+            return null;
+        }
+        const ids = new Set(item.choice.options.map(o => o.categoryId));
+        const [id] = [...ids];
+        return (ids.size == 1 && id) ? score?.properties.categories[id] ?? null : null;
+    };
+
     const getAppChoiceText = (subtype: string, options: Option[], option: Option, includeDescription: boolean) => {
-        const extraText = includeDescription ? getOptionDescription(option) : null;
         let text = '';
         if (subtype == "lem") {
             text = t("editorial.preferredReading")
@@ -149,7 +160,12 @@ function Editorials() {
                 text = `${t("editorial.alternativeReadingNumber")}${1 + rdgs.findIndex(r => r == option)}`;
             }
         }
-        return extraText ? `${text} ${extraText}` : text;
+        const sourceTitle = option.source && score?.properties.sources[option.source]?.title;
+        if (sourceTitle) {
+            text = t("editorial.readingFromSource", { reading: text, source: sourceTitle });
+        }
+        const contentDescription = includeDescription ? describeContentAsString(option.contentDescription) : null;
+        return contentDescription ? `${text}: ${contentDescription}` : text;
     }
 
     const getSubstChoiceText = (subtype: string, options: Option[], index: number, includeDescription: boolean) => {
@@ -316,7 +332,9 @@ function Editorials() {
     }
 
     const getEditorialItemTypeName = (item: EditorialItem) => {
-        return t(titleKey(item.type))
+        const type = t(titleKey(item.type))
+        const group = getItemCategory(item)?.label
+        return group ? t("editorial.forGroup", { type, group }) : type
     }
 
     // Resolve a @resp / @source pointer to a readable name/title, falling back to
@@ -338,7 +356,7 @@ function Editorials() {
     const buildMetaItems = (item: EditorialItem) => [
         ...(item.reason ? [{ key: 'reason', label: t('editorial.reason'), children: item.reason }] : []),
         { key: 'resp', label: t('editorial.resp'), children: resolveResp(item.resp) },
-        { key: 'source', label: t('editorial.source'), children: resolveSource(item.source) },
+        ...(item.type == 'app' ? [] : [{ key: 'source', label: t('editorial.source'), children: resolveSource(item.source) }]),
     ];
 
 
@@ -396,6 +414,9 @@ function Editorials() {
                         <Descriptions size="small" column={1} items={buildMetaItems(showingEditorialItem)} />
                         {getAnnotationText(showingEditorialItem) && (
                             <Alert type="info" showIcon message={getAnnotationText(showingEditorialItem)} />
+                        )}
+                        {getItemCategory(showingEditorialItem)?.desc && (
+                            <Alert type="info" showIcon message={getItemCategory(showingEditorialItem)?.desc} />
                         )}
                         {'choice' in showingEditorialItem ? getChoices(showingEditorialItem) : getSimpleEditorialContent(showingEditorialItem)}
                     </div>

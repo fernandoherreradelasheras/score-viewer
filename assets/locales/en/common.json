@@ -20,6 +20,8 @@
     "preferredReading": "preferred reading",
     "alternativeReading": "alternative reading",
     "alternativeReadingNumber": "alternative reading #",
+    "readingFromSource": "{{reading}} from {{source}}",
+    "forGroup": "{{type}} for {{group}}",
     "currentlyShowing": "Currently showing the {{what}}",
     "availableOptions": "Available options",
     "reason": "Reason",

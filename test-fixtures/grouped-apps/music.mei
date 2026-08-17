@@ -1,0 +1,343 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?xml-model href="https://music-encoding.org/schema/5.1/mei-all.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="https://music-encoding.org/schema/5.1/mei-all.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<mei xmlns="http://www.music-encoding.org/ns/mei" meiversion="5.1">
+   <meiHead>
+      <fileDesc>
+         <titleStmt>
+            <title type="main">Grupos de variantes</title>
+            <respStmt>
+               <persName xml:id="FHH" role="encoder">Fernando Herrera</persName>
+            </respStmt>
+         </titleStmt>
+         <pubStmt>
+            <date isodate="2026-08-21T00:00:00"/>
+         </pubStmt>
+         <sourceDesc>
+            <source xml:id="src-A" n="1" type="principal" label="manuscript">
+               <bibl>
+                  <title>Fuente A (lectura principal)</title>
+               </bibl>
+            </source>
+            <source xml:id="src-B" n="2" type="complementary" label="manuscript">
+               <bibl>
+                  <title>Fuente B (primera alternativa)</title>
+               </bibl>
+            </source>
+            <source xml:id="src-C" n="3" type="complementary" label="manuscript">
+               <bibl>
+                  <title>Fuente C (segunda alternativa)</title>
+               </bibl>
+            </source>
+         </sourceDesc>
+      </fileDesc>
+      <encodingDesc>
+         <classDecls>
+            <taxonomy xml:id="variant-groups">
+               <category xml:id="vgrp-tiple1-c2-4">
+                  <label>Tiple 1º, cc. 2-4</label>
+                  <desc>Pasaje de tres compases que la Fuente B lee de otra manera: los tres &lt;app&gt; son una sola decisión editorial y cambian juntos.</desc>
+               </category>
+               <category xml:id="vgrp-tiple1-c5">
+                  <label>Tiple 1º, c. 5</label>
+                  <desc>Control: variante independiente, no debe moverse al cambiar la del pasaje anterior.</desc>
+               </category>
+               <category xml:id="vgrp-final">
+                  <label>sección final</label>
+                  <desc>Las tres voces acortan la nota final en la Fuente B: un solo grupo repartido por pentagramas.</desc>
+               </category>
+               <category xml:id="vgrp-tiple1-c6">
+                  <label>Tiple 1º, c. 6</label>
+                  <desc>Control: variante de una sola voz, no debe moverse al cambiar la del final.</desc>
+               </category>
+               <category xml:id="vgrp-tiple1-c8-9">
+                  <label>Tiple 1º, cc. 8-9</label>
+                  <desc>Grupo de dos compases con tres lecturas. El @n de cada &lt;rdg&gt; empareja la lectura de un compás con la de la misma fuente en el otro; sin él la segunda alternativa no sería direccionable.</desc>
+               </category>
+            </taxonomy>
+         </classDecls>
+      </encodingDesc>
+   </meiHead>
+   <music>
+      <body>
+         <mdiv>
+            <score>
+               <scoreDef midi.bpm="180.0">
+                  <staffGrp symbol="bracket">
+                     <staffDef n="1" lines="5" meter.count="3" meter.unit="2">
+                        <label>Tiple 1º</label>
+                        <labelAbbr>Ti.1</labelAbbr>
+                        <clef shape="G" line="2"/>
+                     </staffDef>
+                     <staffDef n="2" lines="5" meter.count="3" meter.unit="2">
+                        <label>Tiple 2º</label>
+                        <labelAbbr>Ti.2</labelAbbr>
+                        <clef shape="G" line="2"/>
+                     </staffDef>
+                     <staffDef n="3" lines="5" meter.count="3" meter.unit="2">
+                        <label>Tenor</label>
+                        <labelAbbr>Tn.</labelAbbr>
+                        <clef shape="F" line="4"/>
+                     </staffDef>
+                  </staffGrp>
+               </scoreDef>
+               <section xml:id="multicompas" label="varias medidas">
+                  <measure n="1" xml:id="m1">
+                     <staff n="1">
+                        <layer n="1">
+                           <note xml:id="n-s1-m1a" dur="2" pname="d" oct="5"/>
+                           <note xml:id="n-s1-m1b" dur="1" pname="c" oct="5"/>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note xml:id="n-s2-m1" dots="1" dur="1" pname="a" oct="4"/>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note xml:id="n-s3-m1" dots="1" dur="1" pname="d" oct="3"/>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure n="2" xml:id="m2">
+                     <staff n="1">
+                        <layer n="1">
+                           <app xml:id="app-grupo-m2">
+                              <lem class="#vgrp-tiple1-c2-4" source="#src-A">
+                                 <note xml:id="n-lem-m2a" dur="2" pname="f" oct="5"/>
+                                 <note xml:id="n-lem-m2b" dur="1" pname="e" oct="5"/>
+                              </lem>
+                              <rdg class="#vgrp-tiple1-c2-4" source="#src-B">
+                                 <rest xml:id="r-rdg-m2a" dur="2"/>
+                                 <note xml:id="n-rdg-m2b" dur="1" pname="f" oct="5"/>
+                              </rdg>
+                           </app>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note xml:id="n-s2-m2" dots="1" dur="1" pname="b" oct="4"/>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note xml:id="n-s3-m2" dots="1" dur="1" pname="g" oct="3"/>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure n="3" xml:id="m3">
+                     <staff n="1">
+                        <layer n="1">
+                           <app xml:id="app-grupo-m3">
+                              <lem class="#vgrp-tiple1-c2-4" source="#src-A">
+                                 <note xml:id="n-lem-m3a" dur="2" pname="e" oct="5"/>
+                                 <note xml:id="n-lem-m3b" dur="1" pname="d" oct="5"/>
+                              </lem>
+                              <rdg class="#vgrp-tiple1-c2-4" source="#src-B">
+                                 <note xml:id="n-rdg-m3a" dur="2" pname="g" oct="5"/>
+                                 <note xml:id="n-rdg-m3b" dur="1" pname="e" oct="5"/>
+                              </rdg>
+                           </app>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note xml:id="n-s2-m3" dots="1" dur="1" pname="a" oct="4"/>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note xml:id="n-s3-m3" dots="1" dur="1" pname="c" oct="3"/>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure n="4" xml:id="m4">
+                     <staff n="1">
+                        <layer n="1">
+                           <app xml:id="app-grupo-m4">
+                              <lem class="#vgrp-tiple1-c2-4" source="#src-A">
+                                 <note xml:id="n-lem-m4a" dots="1" dur="1" pname="d" oct="5"/>
+                              </lem>
+                              <rdg class="#vgrp-tiple1-c2-4" source="#src-B">
+                                 <note xml:id="n-rdg-m4a" dur="2" pname="d" oct="5"/>
+                                 <note xml:id="n-rdg-m4b" dur="2" pname="c" oct="5"/>
+                                 <note xml:id="n-rdg-m4c" dur="2" pname="d" oct="5"/>
+                              </rdg>
+                           </app>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note xml:id="n-s2-m4" dots="1" dur="1" pname="g" oct="4"/>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note xml:id="n-s3-m4" dots="1" dur="1" pname="b" oct="2"/>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure n="5" xml:id="m5" right="dbl">
+                     <staff n="1">
+                        <layer n="1">
+                           <app xml:id="app-suelto-m5">
+                              <lem class="#vgrp-tiple1-c5" source="#src-A">
+                                 <note xml:id="n-lem-m5a" dots="1" dur="1" pname="c" oct="5"/>
+                              </lem>
+                              <rdg class="#vgrp-tiple1-c5" source="#src-B">
+                                 <note xml:id="n-rdg-m5a" dots="1" dur="1" pname="e" oct="5"/>
+                              </rdg>
+                           </app>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note xml:id="n-s2-m5" dots="1" dur="1" pname="g" oct="4"/>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note xml:id="n-s3-m5" dots="1" dur="1" pname="c" oct="3"/>
+                        </layer>
+                     </staff>
+                  </measure>
+               </section>
+               <sb/>
+               <section xml:id="varias-voces" label="varias voces" restart="true">
+                  <measure n="6" xml:id="m6">
+                     <staff n="1">
+                        <layer n="1">
+                           <app xml:id="app-suelto-m6">
+                              <lem class="#vgrp-tiple1-c6" source="#src-A">
+                                 <note xml:id="n-lem-m6a" dur="2" pname="d" oct="5"/>
+                                 <note xml:id="n-lem-m6b" dur="1" pname="c" oct="5"/>
+                              </lem>
+                              <rdg class="#vgrp-tiple1-c6" source="#src-B">
+                                 <note xml:id="n-rdg-m6a" dur="2" pname="f" oct="5"/>
+                                 <note xml:id="n-rdg-m6b" dur="1" pname="d" oct="5"/>
+                              </rdg>
+                           </app>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note xml:id="n-s2-m6" dots="1" dur="1" pname="a" oct="4"/>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note xml:id="n-s3-m6" dots="1" dur="1" pname="d" oct="3"/>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure n="7" xml:id="m7" right="dbl">
+                     <staff n="1">
+                        <layer n="1">
+                           <app xml:id="app-final-s1">
+                              <lem class="#vgrp-final" source="#src-A">
+                                 <note xml:id="n-lem-s1-m7" dots="1" dur="1" pname="d" oct="5"/>
+                              </lem>
+                              <rdg class="#vgrp-final" source="#src-B">
+                                 <note xml:id="n-rdg-s1-m7" dur="1" pname="d" oct="5"/>
+                                 <rest xml:id="r-rdg-s1-m7" dur="2"/>
+                              </rdg>
+                           </app>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <app xml:id="app-final-s2">
+                              <lem class="#vgrp-final" source="#src-A">
+                                 <note xml:id="n-lem-s2-m7" dots="1" dur="1" pname="a" oct="4"/>
+                              </lem>
+                              <rdg class="#vgrp-final" source="#src-B">
+                                 <note xml:id="n-rdg-s2-m7" dur="1" pname="a" oct="4"/>
+                                 <rest xml:id="r-rdg-s2-m7" dur="2"/>
+                              </rdg>
+                           </app>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <app xml:id="app-final-s3">
+                              <lem class="#vgrp-final" source="#src-A">
+                                 <note xml:id="n-lem-s3-m7" dots="1" dur="1" pname="d" oct="3"/>
+                              </lem>
+                              <rdg class="#vgrp-final" source="#src-B">
+                                 <note xml:id="n-rdg-s3-m7" dur="1" pname="d" oct="3"/>
+                                 <rest xml:id="r-rdg-s3-m7" dur="2"/>
+                              </rdg>
+                           </app>
+                        </layer>
+                     </staff>
+                  </measure>
+               </section>
+               <sb/>
+               <section xml:id="tres-lecturas" label="tres lecturas" restart="true">
+                  <measure n="8" xml:id="m8">
+                     <staff n="1">
+                        <layer n="1">
+                           <app xml:id="app-tres-m8">
+                              <lem class="#vgrp-tiple1-c8-9" source="#src-A">
+                                 <note xml:id="n-lem-m8a" dur="2" pname="f" oct="5"/>
+                                 <note xml:id="n-lem-m8b" dur="1" pname="e" oct="5"/>
+                              </lem>
+                              <rdg n="1" class="#vgrp-tiple1-c8-9" source="#src-B">
+                                 <rest xml:id="r-rdg1-m8a" dur="2"/>
+                                 <note xml:id="n-rdg1-m8b" dur="1" pname="f" oct="5"/>
+                              </rdg>
+                              <rdg n="2" class="#vgrp-tiple1-c8-9" source="#src-C">
+                                 <note xml:id="n-rdg2-m8a" dur="2" pname="g" oct="5"/>
+                                 <note xml:id="n-rdg2-m8b" dur="1" pname="f" oct="5"/>
+                              </rdg>
+                           </app>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note xml:id="n-s2-m8" dots="1" dur="1" pname="a" oct="4"/>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note xml:id="n-s3-m8" dots="1" dur="1" pname="d" oct="3"/>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure n="9" xml:id="m9" right="end">
+                     <staff n="1">
+                        <layer n="1">
+                           <app xml:id="app-tres-m9">
+                              <lem class="#vgrp-tiple1-c8-9" source="#src-A">
+                                 <note xml:id="n-lem-m9a" dots="1" dur="1" pname="d" oct="5"/>
+                              </lem>
+                              <rdg n="1" class="#vgrp-tiple1-c8-9" source="#src-B">
+                                 <note xml:id="n-rdg1-m9a" dur="2" pname="e" oct="5"/>
+                                 <note xml:id="n-rdg1-m9b" dur="1" pname="d" oct="5"/>
+                              </rdg>
+                              <rdg n="2" class="#vgrp-tiple1-c8-9" source="#src-C">
+                                 <note xml:id="n-rdg2-m9a" dur="2" pname="g" oct="5"/>
+                                 <note xml:id="n-rdg2-m9b" dur="2" pname="f" oct="5"/>
+                                 <note xml:id="n-rdg2-m9c" dur="2" pname="e" oct="5"/>
+                              </rdg>
+                           </app>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <note xml:id="n-s2-m9" dots="1" dur="1" pname="g" oct="4"/>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <note xml:id="n-s3-m9" dots="1" dur="1" pname="g" oct="2"/>
+                        </layer>
+                     </staff>
+                  </measure>
+               </section>
+            </score>
+         </mdiv>
+      </body>
+   </music>
+</mei>

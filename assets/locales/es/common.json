@@ -22,6 +22,8 @@
     "regReading": "lectura regularizada",
     "origReading": "lectura original",
     "alternativeReadingNumber": "lectura alternativa nº",
+    "readingFromSource": "{{reading}} de {{source}}",
+    "forGroup": "{{type}} para {{group}}",
     "currentlyShowing": "Actualmente se muestra la opción: '{{what}}'",
     "availableOptions": "opciones disponibles",
     "reason": "Razón",

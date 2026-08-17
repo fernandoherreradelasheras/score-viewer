@@ -64,6 +64,7 @@ export interface Option {
     id: string | null
     type: string
     label: string | null
+    categoryId: string | null
     selector: string
     source: string | null
     contentDescription: ContentDescription[] | undefined

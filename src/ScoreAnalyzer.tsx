@@ -1,4 +1,4 @@
-import { Annotation, Choice, ChoiceEditorialItem, ContentDescription, EDITORIAL_ALL_TAGS, EDITORIAL_SELECTION_TAGS, EDITORIAL_TRANSPARENT_TAGS, EditorialItem, GLOBAL_APP_TYPES, Option, ScoreProperties, SimpleEditorialItem, Sources } from "./types";
+import { Annotation, Categories, Choice, ChoiceEditorialItem, ContentDescription, EDITORIAL_ALL_TAGS, EDITORIAL_SELECTION_TAGS, EDITORIAL_TRANSPARENT_TAGS, EditorialItem, GLOBAL_APP_TYPES, Option, ScoreProperties, SimpleEditorialItem, Sources } from "./types";
 
 
 
@@ -13,12 +13,14 @@ const EDITORIAL_SELF_TEST = EDITORIAL_ALL_TAGS.map(tag => `self::mei:${tag}`).jo
 class ScoreAnalyzer {
     tonoNumber: number
     document: Document
+    categories: Categories
 
 
     constructor(tonoNumber: number, score: string) {
         const parser = new DOMParser();
         this.document = parser.parseFromString(score, "application/xml")
         this.tonoNumber = tonoNumber
+        this.categories = this.getCategories()
     }
 
 
@@ -160,6 +162,22 @@ class ScoreAnalyzer {
     }
 
 
+    getCategories(): Categories {
+        const categories: Categories = {}
+        const matches = this.document.evaluate(`//mei:classDecls//mei:category[@xml:id]`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        let node = matches.iterateNext()
+        while (node != null) {
+            const category = node as Element
+            const id = category.getAttribute("xml:id")!
+            const child = (tag: string) => [...category.childNodes.values()]
+                .find(c => c instanceof Element && c.tagName == tag)?.textContent?.trim() || null
+            categories[id] = { label: child("label") || id, desc: child("desc") }
+            node = matches.iterateNext()
+        }
+        return categories
+    }
+
+
     getResponsibilities() {
         const responsibilities: Record<string, string> = {}
         let matches = this.document.evaluate(`//mei:respStmt/mei:persName[@xml:id]`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
@@ -193,6 +211,7 @@ class ScoreAnalyzer {
             notes: this.getMeiNotes(),
             sections: this.getSections(),
             sources: this.getSources(),
+            categories: this.getCategories(),
             responsibilities: this.getResponsibilities(),
             hasEditorialInterventions: this.hasEditorialInterventions(),
             hasOriginalClefs: this.hasOriginalClefs(),
@@ -259,6 +278,42 @@ class ScoreAnalyzer {
         }
     }
 
+    // The variant group a reading belongs to: the first @class pointer that resolves to
+    // a <category> declared in <classDecls>. Other class tokens are left alone, they
+    // classify the reading for something else.
+    optionCategoryId(element: Element): string | null {
+        const tokens = (element.getAttribute("class") || "").split(/\s+/).filter(Boolean)
+        const id = tokens.map(t => t.replace(/^#/, "")).find(t => t in this.categories)
+        return (id && !id.includes("'")) ? id : null
+    }
+
+    // Selecting an <app> reading by its variant group instead of by its id is what makes
+    // several <app> elements one editorial decision: verovio applies the query to every
+    // <app>, so a single query on the group flips all of them at once (a variant spanning
+    // measures, or the same variant across voices). Only <app> works this way; <choice>
+    // and <subst> readings are selected one by one.
+    // When an <app> offers several readings of the same group, @n is what tells them
+    // apart, and it pairs each one with its counterpart in the other <app> elements.
+    appOptionSelector(app: Element, tag: string, categoryId: string | null, n: string | null): string | null {
+        if (!categoryId) {
+            return null
+        }
+        // @class is a list, hence the surrounding spaces: they keep '#var-c2' from matching
+        // inside '#var-c2-3'.
+        const inGroup = `contains(concat(' ',@class,' '),' #${categoryId} ')`
+        const sameGroup = [...app.childNodes.values()]
+            .filter(c => c.nodeType == Node.ELEMENT_NODE)
+            .map(c => c as Element)
+            .filter(e => e.tagName == tag && this.optionCategoryId(e) == categoryId)
+        if (sameGroup.length == 1) {
+            return `./${tag}[${inGroup}]`
+        }
+        if (!n || sameGroup.filter(e => e.getAttribute("n") == n).length != 1) {
+            return null
+        }
+        return `./${tag}[${inGroup}][@n='${n}']`
+    }
+
     choiceNodeToEditorialItem(node: Element, type: "app" | "choice" | "subst"): ChoiceEditorialItem {
         const choiceId = node.getAttribute("xml:id")
         const options: Option[] = []
@@ -270,7 +325,9 @@ class ScoreAnalyzer {
             const choiceId = choiceElement.getAttribute("xml:id") || null
 
             const label = choiceElement.getAttribute("label") || null
-            const selector = `./${nodeType}[@xml:id='${choiceId}']`
+            const categoryId = this.optionCategoryId(choiceElement)
+            const selector = (type == "app" && this.appOptionSelector(node, nodeType, categoryId, choiceElement.getAttribute("n")))
+                || `./${nodeType}[@xml:id='${choiceId}']`
             const source = choiceElement.getAttribute("source")?.slice(1) || null
             const descriptions: ContentDescription[] = [];
             const description = this.getNoteOrRestDescription(choiceElement)
@@ -291,6 +348,7 @@ class ScoreAnalyzer {
                     id: choiceId,
                     type: nodeType,
                     label: label,
+                    categoryId: categoryId,
                     selector: selector,
                     source: source,
                     contentDescription: descriptions.length > 0 ? descriptions : undefined
