@@ -10,6 +10,7 @@ import { Action, Transition, loadAction, renderAction } from './types';
 import LoadingSpinner from './components/LoadingSpinner';
 import useIdleCallback from './hooks/useIdleCallback';
 import { getReverseTransposition } from './utils/score-utils';
+import { preRenderOrder } from './utils/page-cache';
 
 export interface ScoreViewProps {
     backgroundColor?: string | undefined;
@@ -59,6 +60,8 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const getCachedPage = useStore.use.getCachedPage();
     const setCachedPage = useStore.use.setCachedPage();
     const clearPageCache = useStore.use.clearPageCache();
+    const pageCacheAccepts = useStore.use.pageCacheAccepts();
+    const pageCache = useStore.use.pageCache();
 
     const showMusicAnalysis = useStore.use.showMusicAnalysis();
     const measureNumberInterval = useStore.use.measureNumberInterval();
@@ -620,27 +623,24 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         scheduleAction(action);
     }, [currentPage, getCachedPage, setRenderedSvgData, setIsLoading]);
 
-    // Pre-render adjacent pages when idle
+    // Reading position at which a pre-rendered page was evicted as soon as it was cached:
+    // the cache is full here, and every page left is further from the reader than the one
+    // just dropped, so the fill stops until the reader moves.
+    const preRenderStalledAt = useRef<number | null>(null);
+
+    // Fill the cache outwards from the page on screen, one page per idle slot: caching a
+    // page changes `pageCache`, which schedules the next idle callback for the page after
+    // it, so the browser keeps a say between pages and a page turn always comes first.
     useIdleCallback(() => {
         if (!verovio || !svgContainerRef.current || !renderedSvgData || !isReady()) return;
+        if (preRenderStalledAt.current === renderedSvgData.page) return;
 
-        const currentRenderedPage = renderedSvgData.page;
-        const nextPage = currentRenderedPage + 1;
-        const prevPage = currentRenderedPage - 1;
+        const page = preRenderOrder(renderedSvgData.page, pageCount).find(p => !getCachedPage(p));
+        if (page === undefined || !pageCacheAccepts(page)) return;
 
-        // One at a time: each pre-render holds the pipeline while it runs
-        (async () => {
-            if (nextPage <= pageCount && !getCachedPage(nextPage)) {
-                console.log(`[ScoreView] Pre-rendering page ${nextPage}`);
-                await preRenderPage(nextPage);
-            }
-
-            if (prevPage >= 1 && !getCachedPage(prevPage)) {
-                console.log(`[ScoreView] Pre-rendering page ${prevPage}`);
-                await preRenderPage(prevPage);
-            }
-        })();
-    }, [renderedSvgData, pageCount, verovio, getCachedPage]);
+        console.log(`[ScoreView] Pre-rendering page ${page}`);
+        preRenderPage(page);
+    }, [renderedSvgData, pageCache, pageCount, verovio]);
 
     const preRenderPage = async (page: number) => {
         if (!verovio || !renderedSvgData || runningRef.current) return;
@@ -685,7 +685,12 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                 // cleared for the new settings.
                 if (generation === generationRef.current) {
                     setCachedPage(page, svgDataWithHTML);
-                    console.log(`[ScoreView] Pre-rendered page ${page} in ${(performance.now() - startTime).toFixed(0)}ms`);
+                    if (getCachedPage(page)) {
+                        console.log(`[ScoreView] Pre-rendered page ${page} in ${(performance.now() - startTime).toFixed(0)}ms`);
+                    } else {
+                        console.log(`[ScoreView] Page cache full at page ${renderedSvgData.page}: page ${page} was evicted on arrival`);
+                        preRenderStalledAt.current = renderedSvgData.page;
+                    }
                 }
             }
 

@@ -421,7 +421,6 @@ export default function useScoreActions({
     const { transition, loadedHeight, loadedWidth, renderPage, scale, loadedPagesCount, scoreUrl, timemap } = config;
     console.log(`Rendering score: mode=normal page=${renderPage} scale=${scale} transition=${transition}`);
     const startTime = performance.now();
-    console.log(`[useScoreActions] performRenderAction started`);
 
     try {
 
@@ -483,8 +482,7 @@ export default function useScoreActions({
       };
 
       const duration = performance.now() - startTime;
-      console.log(`[useScoreActions] Rendering + post-processing took ${duration.toFixed(0)}ms`);
-      console.log(`[useScoreActions] performRenderAction completed in ${duration.toFixed(2)}ms`);
+      console.log(`[useScoreActions] total performRenderAction took ${duration.toFixed(0)}ms`);
 
       return { newSvg, loadedPagesCount, scale, renderPage } as RenderActionResult;
     } catch (error) {

@@ -117,8 +117,6 @@ function TextView(props: TextViewProps) {
             </div>
         } /> : null
 
-    console.log(markdownText)
-
     return (
         <div>
             {splitView ?

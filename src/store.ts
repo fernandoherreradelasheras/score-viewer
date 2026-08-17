@@ -11,9 +11,11 @@ import {
     PlayingState,
     TextPartsCache,
     FetchError,
+    TimeMapEvent,
 } from './types'
 
 import { RenderedData } from './hooks/useScoreRenderer'
+import { MAX_CACHE_BYTES, cacheAccepts, cacheSizeInBytes, evictToBudget, formatBytes } from './utils/page-cache'
 import { NoteVisualizationId } from './visualizations'
 
 
@@ -321,45 +323,50 @@ const createScoreSettingsStore = create<ScoreSettings>()(persist((set) => ({
 interface RenderedSvgState {
     renderedSvgData: RenderedData | null;
     pageCache: Map<number, RenderedData>;
+    cachedTimemap: TimeMapEvent[] | null;
     setRenderedSvgData: (data: RenderedData) => void;
     setCachedPage: (page: number, data: RenderedData) => void;
     getCachedPage: (page: number) => RenderedData | null;
+    pageCacheAccepts: (page: number) => boolean;
     clearPageCache: () => void;
 }
 
 const createRenderedSvgStore = create<RenderedSvgState>((set, get) => ({
     renderedSvgData: null,
     pageCache: new Map(),
+    cachedTimemap: null,
 
     setRenderedSvgData: (data: RenderedData) => set(() => ({ renderedSvgData: data })),
 
     setCachedPage: (page: number, data: RenderedData) => {
         const cache = new Map(get().pageCache);
-        const MAX_CACHE_SIZE = 3;
 
-        // Evict the page furthest from the one coming in
-        if (cache.size >= MAX_CACHE_SIZE && !cache.has(page)) {
-            let furthest: number | undefined;
-            for (const cachedPage of cache.keys()) {
-                if (furthest === undefined ||
-                    Math.abs(cachedPage - page) > Math.abs(furthest - page)) {
-                    furthest = cachedPage;
-                }
-            }
-            if (furthest !== undefined) {
-                cache.delete(furthest);
-            }
+        // Every page of a load resolves the same timemap, so all the cached pages share
+        // the first array instead of each keeping its own copy: on a long score that copy
+        // is the part of an entry that grows with the score rather than with the page.
+        const timemap = get().cachedTimemap ?? data.timemap;
+        cache.set(page, data.timemap === timemap ? data : { ...data, timemap });
+
+        const evicted = evictToBudget(cache, get().renderedSvgData?.page ?? page);
+        if (evicted.length) {
+            console.log(`[pageCache] Evicted page${evicted.length > 1 ? "s" : ""} ${evicted.join(", ")}`);
         }
+        console.log(`[pageCache] Cached page ${page}: ${cache.size} pages, ` +
+            `${formatBytes(cacheSizeInBytes(cache))} of ${formatBytes(MAX_CACHE_BYTES)}`);
 
-        cache.set(page, data);
-        set({ pageCache: cache });
+        set({ pageCache: cache, cachedTimemap: timemap });
     },
 
     getCachedPage: (page: number) => {
         return get().pageCache.get(page) || null;
     },
 
-    clearPageCache: () => set({ pageCache: new Map() }),
+    pageCacheAccepts: (page: number) => {
+        const { pageCache, renderedSvgData } = get();
+        return cacheAccepts(pageCache, page, renderedSvgData?.page ?? page);
+    },
+
+    clearPageCache: () => set({ pageCache: new Map(), cachedTimemap: null }),
 }))
 
 
@@ -471,6 +478,7 @@ class ScoreViewerStoreApi {
         pageCache: createRenderedSvgStoreWithSelectors.use.pageCache,
         setCachedPage: createRenderedSvgStoreWithSelectors.use.setCachedPage,
         getCachedPage: createRenderedSvgStoreWithSelectors.use.getCachedPage,
+        pageCacheAccepts: createRenderedSvgStoreWithSelectors.use.pageCacheAccepts,
         clearPageCache: createRenderedSvgStoreWithSelectors.use.clearPageCache,
     }
 }
