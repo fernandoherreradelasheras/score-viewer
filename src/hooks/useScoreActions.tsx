@@ -302,7 +302,6 @@ export default function useScoreActions({
 
       await verovio.setOptions(options);
       const timemap = await loadAndBuildTimemap(meiStr);
-      console.log("timemap duration: ", timemap.slice(-1)[0].tstamp)
 
       const loadedPagesCount = await verovio.getPageCount();
 
@@ -381,7 +380,6 @@ export default function useScoreActions({
 
       await verovio.setOptions(options);
       const timemap = await loadAndBuildTimemap(meiStr);
-      console.log("timemap duration: ", timemap.slice(-1)[0].tstamp)
       return renderAutoScrollAction({ height, timemap: await resolveTimemap(timemap) });
     } catch (error) {
       console.error("Error performing auto-scroll load action:", error);

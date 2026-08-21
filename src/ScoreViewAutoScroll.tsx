@@ -45,7 +45,6 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
         showEditorial,
         playingState,
         svgContainerRef,
-        svgContainerHeight
     });
 
     const {

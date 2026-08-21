@@ -6,7 +6,6 @@ interface SvgRendererConfig {
   showEditorial: boolean | null;
   playingState: PlayingState;
   svgContainerRef: RefObject<HTMLDivElement>;
-  svgContainerHeight: number;
 }
 
 export interface RenderedData {
@@ -29,47 +28,27 @@ export default function useScoreRenderer({
   showEditorial,
   playingState,
   svgContainerRef,
-  svgContainerHeight
 }: SvgRendererConfig) {
 
-  // Maximum remaining height for which we consider a score at max scale
-  const MAX_SCALE_AT_REMAINING_HEIGHT = 20;
+  // Rounding of the requested page size leaves the two ratios a hair apart at the
+  // boundary; below this they count as equal.
+  const MAX_SCALE_ASPECT_TOLERANCE = 0.01;
 
-  /**
-   * Calculate the height of the rendered SVG page
-   */
-  const svgPageHeight = useCallback(() => {
-    if (!svgContainerRef.current) return 0;
 
-    const pageElement = svgContainerRef.current.querySelector("svg .page-margin");
-    if (!pageElement) return 0;
-    const boundingBox = pageElement.getBoundingClientRect();
-
-    return Math.floor(boundingBox.bottom - boundingBox.top);
+  const calculateEffectiveMaxScale = useCallback(() => {
+    const container = svgContainerRef.current;
+    const viewBox = container?.querySelector("svg .definition-scale")
+      ?.getAttribute("viewBox")?.split(/\s+/).map(Number);
+    if (!container || viewBox?.length !== 4) {
+      return false;
+    }
+    const [, , pageWidth, pageHeight] = viewBox;
+    const pane = container.getBoundingClientRect();
+    if (!pageWidth || !pane.width || !pane.height) {
+      return false;
+    }
+    return pageHeight / pageWidth > (pane.height / pane.width) * (1 + MAX_SCALE_ASPECT_TOLERANCE);
   }, [svgContainerRef]);
-
-  /**
-   * Determine if the rendered SVG has a single system
-   */
-  const svgSingleSystem = useCallback(() => {
-    if (!svgContainerRef.current) return false;
-    return svgContainerRef.current.querySelectorAll("svg .system.content-bounding-box")?.length === 1;
-  }, [svgContainerRef]);
-
-  /**
-   * Determine if the scale has reached its effective maximum
-   * (used for UI feedback when zooming)
-   */
-  const calculateEffectiveMaxScale = useCallback((currentEffectiveMaxScale: boolean) => {
-    const scoreEffectiveHeight = svgPageHeight();
-    const singleSystem = svgSingleSystem();
-    const newReachedEffectiveMaxScale = singleSystem &&
-      (scoreEffectiveHeight > (svgContainerHeight - MAX_SCALE_AT_REMAINING_HEIGHT));
-
-    return newReachedEffectiveMaxScale !== currentEffectiveMaxScale
-      ? newReachedEffectiveMaxScale
-      : currentEffectiveMaxScale;
-  }, [svgPageHeight, svgSingleSystem, svgContainerHeight]);
 
   /**
    * Get CSS classes for the SVG container
@@ -99,8 +78,6 @@ export default function useScoreRenderer({
   );
 
   return {
-    svgPageHeight,
-    svgSingleSystem,
     calculateEffectiveMaxScale,
     svgContainerClasses,
     getSvgElement,

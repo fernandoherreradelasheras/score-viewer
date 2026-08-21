@@ -91,7 +91,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         showEditorial,
         playingState,
         svgContainerRef,
-        svgContainerHeight
     });
 
     const { executeAction, scoreRenderOptions } = useScoreActions({
@@ -170,9 +169,9 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
         // Calculate max scale after transition completes
         setTimeout(() => {
-            const newMaxScale = calculateEffectiveMaxScale(reachedEffectiveMaxScale);
-            if (newMaxScale !== reachedEffectiveMaxScale) {
-                setReachedEffectiveMaxScale(newMaxScale);
+            const reached = calculateEffectiveMaxScale();
+            if (reached !== reachedEffectiveMaxScale) {
+                setReachedEffectiveMaxScale(reached);
             }
         }, 400);
     }, [svgContainerRef, setRenderedSvgData, setCachedPage, setIsLoading, setScale, calculateEffectiveMaxScale, reachedEffectiveMaxScale, setReachedEffectiveMaxScale]);

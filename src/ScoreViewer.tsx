@@ -78,6 +78,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   const [facsimileItems, setFacsimileItems] = useState<FacsimileItem[]>([]);
 
   const scoreViewContainerRef = useRef<ScoreViewContainerRef>(null);
+  const loadingScoreIndexRef = useRef<number | null>(null);
   const [openDrawer, setOpenDrawer] = useState(false);
 
 
@@ -152,8 +153,9 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     setAppOptions([], true)
     setSubstOptions([], true)
     setFetchScoreError(null);
-    setIntroAvailable(hasIntro(scoreIndex));
-    setFacsimileItems(config.scores[scoreIndex].facsimileItems || []);
+    // Which sections the new score offers is settled when it arrives, not here: see the
+    // effect below.
+    loadingScoreIndexRef.current = scoreIndex;
     setSelectedAudioIndex(0);
     await fetchTextParts(scoreIndex);
     // Allow the container to get the final size (might depend on having tabs content)
@@ -233,12 +235,20 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   }, [config.settings.backgroundColor, config.settings.showDownloadButton, containerHeight, fetchScoreError, t])
 
 
-  // Whether the current score carries poetic text. Updated only once a score is
-  // loaded (not while `score` is transiently null during a tono switch) so the
-  // Text tab does not flicker out and steal focus to another tab mid-load.
+  // Which sections the current score carries. Updated only once a score is loaded (not
+  // while `score` is transiently null during a tono switch) so a tab does not flicker
+  // out and steal focus to another tab mid-load: dropping the facsimile the moment the
+  // switch starts sent a reader looking at it to the music tab, where what was still on
+  // screen was the previous score, until the new one came in and replaced it. The
+  // sections of the score being left stand until the one arriving can replace them.
   useEffect(() => {
     if (score) {
       setTextAvailable(!!(score.scoreText && score.scoreText.length > 0))
+      const loaded = loadingScoreIndexRef.current;
+      if (loaded != null) {
+        setIntroAvailable(hasIntro(loaded));
+        setFacsimileItems(config.scores[loaded].facsimileItems || []);
+      }
     }
   }, [score])
 
