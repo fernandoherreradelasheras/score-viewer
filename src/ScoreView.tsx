@@ -4,13 +4,23 @@ import { Context } from './Context';
 import { useComponentSize } from "react-use-size";
 import ScoreProcessor from './ScoreProcessor';
 import { useEditorialHandler } from './hooks/useEditorialHandler';
-import useScoreActions, { RenderActionResult } from './hooks/useScoreActions';
+import useScoreActions, { RenderActionResult, shouldShowSpinner } from './hooks/useScoreActions';
 import useScoreRenderer from './hooks/useScoreRenderer';
-import { Action, Transition, loadAction, renderAction } from './types';
+import { Action, RenderConfig, Transition, loadAction, renderAction } from './types';
 import LoadingSpinner from './components/LoadingSpinner';
 import useIdleCallback from './hooks/useIdleCallback';
 import { getReverseTransposition } from './utils/score-utils';
 import { preRenderOrder } from './utils/page-cache';
+import { clearEditorialPending, markEditorialPending } from './SvgUtils';
+import {
+    PENDING_HANDLED, PendingPlan, describeExpected, describeFade, describeSpinner,
+    expectedTotalWaitTime, forgetLastCost, planPendingTransition, recordCost,
+} from './utils/pending-wait';
+
+
+// How long the score takes to fade out under a cached page being crossfaded in.
+const FADE_OUT_MS = 300;
+
 
 export interface ScoreViewProps {
     backgroundColor?: string | undefined;
@@ -100,6 +110,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         }
     };
 
+
     const spinnerVisibleRef = useRef(false);
     const setSpinner = useCallback((visible: boolean, reason: string) => {
         cancelSpinnerTimer();
@@ -109,6 +120,79 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         spinnerVisibleRef.current = visible;
         setShowSpinner(visible);
     }, []);
+
+    // The spinner is never raised on the spot: something is always covering the first
+    // moments of a wait — a fade out, an editorial element dimming — and a spinner on
+    // top of it only adds a flash of dimmed score for a change that was already through.
+    const showSpinnerAfter = useCallback((delay: number, reason: string) => {
+        cancelSpinnerTimer();
+        console.log(`[ScoreView] Spinner scheduled in ${delay}ms (${reason})`);
+        spinnerTimerRef.current = setTimeout(() => {
+            spinnerTimerRef.current = null;
+            if (isPipelineBusy()) {
+                setSpinner(true, reason);
+            } else {
+                console.log(`[ScoreView] Spinner not raised (${reason}): pipeline idle`);
+            }
+        }, delay);
+    }, []);
+
+    // What covers a wait and when the spinner takes over, decided on what the same
+    // work took last time. Logged here so every plan shows up once, wherever it is made.
+    // `canFade` widens the default (an editorial element being dimmed) for callers that
+    // also fade the rendered score out.
+    const planFor = useCallback((
+        actionType: Action["type"],
+        wantsSpinner: boolean,
+        canFade: boolean = showingEditorial !== null,
+    ): PendingPlan => {
+        const expectedMs = expectedTotalWaitTime(actionType);
+        const plan = planPendingTransition(expectedMs, canFade, wantsSpinner);
+        console.log(
+            `[waiting plan for ${actionType}] expected time: ${describeExpected(expectedMs)}, ` +
+            `fade: ${describeFade(plan)}, showing spinner: ${describeSpinner(plan)}`
+        );
+
+        return plan;
+    }, [showingEditorial]);
+
+    const fadeOutScore = useCallback((fadeMs: number) => {
+        const currentSvg = svgContainerRef.current?.querySelector("svg") as SVGSVGElement | null;
+        if (currentSvg) {
+            currentSvg.style.transition = `opacity ${fadeMs}ms ease-out`;
+            currentSvg.style.opacity = '0';
+        }
+    }, [svgContainerRef]);
+
+    // `raiseNow` puts a spinner due at 0ms up synchronously instead of through a timer,
+    // for callers about to block the thread with work the spinner should be seen during.
+    // `fadeScore` fades the rendered score out over the plan's fade, for the paths that
+    // replace the page on screen (a page turn, a zoom, a resize) rather than redraw it.
+    const applyPendingPlan = useCallback((
+        plan: PendingPlan,
+        reason: string,
+        opts: { raiseNow?: boolean, fadeScore?: boolean } = {},
+    ) => {
+        if (opts.fadeScore && plan.fadeMs !== null) {
+            fadeOutScore(plan.fadeMs);
+        }
+        if (showingEditorial) {
+            if (plan.fadeMs !== null) {
+                markEditorialPending(showingEditorial, plan.fadeMs);
+            }
+            setShowingEditorial(null);
+        }
+        if (plan.spinnerAfterMs === null) {
+            return;
+        }
+        if (plan.spinnerAfterMs === 0 && opts.raiseNow) {
+            setSpinner(true, reason);
+        } else {
+            showSpinnerAfter(plan.spinnerAfterMs, reason);
+        }
+    }, [showingEditorial, setShowingEditorial, setSpinner, showSpinnerAfter, fadeOutScore]);
+
+
 
     const {
         svgContainerClasses,
@@ -161,15 +245,21 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             setPendingAction(null);
             // Hide spinner when all actions complete
             setSpinner(false, "chain finished");
+            // Nothing else is coming: a chain that failed left the old SVG on screen,
+            // and with it the spinner marking a change that is no longer on its way.
+            clearEditorialPending(svgContainerRef.current);
         }
-    }, [flushQueuedAction, setPendingAction, setSpinner]);
+    }, [flushQueuedAction, setPendingAction, setSpinner, svgContainerRef]);
 
     // Single entry point for every configuration-driven (re)load: it never drops a
     // request, so the last option the user picked is always the one rendered.
-    const scheduleAction = useCallback((action: Action) => {
-        if (showingEditorial) {
-            setShowingEditorial(null);
-        }
+    const scheduleAction = useCallback((action: Action, plan?: PendingPlan) => {
+
+        applyPendingPlan(
+            plan ?? planFor(action.type, shouldShowSpinner(action)),
+            `${action.type} action`,
+        );
+
         if (action.type === "load") {
             // A load repaginates the score, so every cached page becomes stale. Doing
             // it here rather than on every settings change means a change that ends up
@@ -183,18 +273,24 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             return;
         }
         queuedActionRef.current = null;
+        // isPipelineBusy() reads this ref, which is otherwise only refreshed on render:
+        // a spinner scheduled with no delay would fire before that and find the pipeline
+        // idle, so it would never come up.
+        pendingActionRef.current = action;
         setPendingAction(action);
-    }, [setPendingAction, renderKey, clearPageCache, showingEditorial, setShowingEditorial]);
+    }, [setPendingAction, renderKey, clearPageCache, showingEditorial, setShowingEditorial, showSpinnerAfter]);
 
     const processPendingAction = useCallback(async (action: Action) => {
 
         const generation = generationRef.current;
-        const { success, nextAction, result, showSpinner: shouldShowSpinner } = await executeAction(action, svgContainerRef.current!);
+        const startedAt = performance.now();
+        const { success, nextAction, result } = await executeAction(action, svgContainerRef.current!);
+        const elapsed = performance.now() - startedAt;
 
-        // Show spinner for heavy operations
-        if (shouldShowSpinner) {
-            setSpinner(true, `${action.type} action`);
+        if (action.type === "load" || action.type === "render") {
+            recordCost(action.type, elapsed);
         }
+
 
         // A newer configuration was requested while this chain was running, so its
         // results describe a state the user already moved away from. Drop them and
@@ -226,9 +322,13 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                 // Cache the current page for instant back navigation
                 setCachedPage(svgDataWithHTML.page, svgDataWithHTML);
 
-                // Apply fade-in animation for non-cached pages
+                // Fade in only what asked for it: the paths that fade the old score out
+                // first (a page turn, a zoom, a resize) and the ones that put a different
+                // score on screen. A reload that only changes what is drawn — a reading,
+                // a verse count — replaces a score the reader is still looking at, and
+                // there is nothing to fade from.
                 const svgElement = svgContainerRef.current?.querySelector("svg") as SVGSVGElement | null;
-                if (svgElement) {
+                if (svgElement && (action.config as RenderConfig).transition != undefined) {
                     svgElement.style.opacity = '0';
                     svgElement.style.transition = 'opacity 300ms ease-in';
                     setTimeout(() => {
@@ -301,6 +401,12 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         }
         console.log(`[ScoreView] Reloading score for new target size ${targetWidth}x${targetHeight}`);
 
+        // The old layout is replaced wholesale, so its fade covers the wait; the load's
+        // FADE_IN then crossfades the new one in.
+        const plan = planFor("load", true,
+            showingEditorial !== null || svgContainerRef.current?.querySelector("svg") != null);
+        applyPendingPlan(plan, "new target size", { fadeScore: true });
+
         const anchor = (renderedSvgData.scoreUrl == score.url && renderedSvgData.anchorElement) ? renderedSvgData.anchorElement : undefined
         const action = loadAction({
             scoreUrl: score.url,
@@ -311,7 +417,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             transposition: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null,
             restorePositionForAchor: anchor
         });
-        scheduleAction(action);
+        scheduleAction(action, PENDING_HANDLED);
 
     }, [targetHeight, targetWidth]);
 
@@ -340,11 +446,17 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const updateLoadedScore = useCallback((restoreAnchor: boolean, fadeIn: boolean) => {
         const startTime = performance.now();
 
-        setSpinner(true, "rebuilding score");  // Show spinner immediately
+        // Rebuilding the MEI, loading it and rendering it is the whole wait here, and the
+        // rebuild runs synchronously: whatever covers the wait has to be in place before
+        // it starts, or it will not paint until it is over. The load scheduled below is
+        // told so, rather than planning again for a wait that is already covered.
+        const plan = planFor("generate", true);
+        applyPendingPlan(plan, "rebuilding score", { raiseNow: true });
 
         const newShowingMei = generateShowingScore();
-        const preprocessTime = performance.now() - startTime;
-        console.log(`[ScoreView] generateShowingScore took ${preprocessTime.toFixed(2)}ms`);
+        const generateMs = performance.now() - startTime;
+        recordCost("generate", generateMs);
+        console.log(`[ScoreView] generateShowingScore took ${generateMs.toFixed(2)}ms`);
 
         if (!newShowingMei) {
             console.log(`Error generating showing MEI`);
@@ -372,35 +484,9 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             transposition: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null,
             restorePositionForAchor: restoreAnchor && renderedSvgData?.anchorElement ? renderedSvgData.anchorElement : undefined
         });
-        scheduleAction(action);
+        scheduleAction(action, PENDING_HANDLED);
         setShowingMei(newShowingMei);
     }, [score, renderedSvgData?.anchorElement, renderedSvgData?.scoreUrl, showingMei, scale, scheduleAction, setShowingMei, generateShowingScore]);
-
-    const fadeOutTransition = useCallback(() => {
-        const currentSvg = svgContainerRef.current?.querySelector("svg") as SVGSVGElement | null;
-        const needsRender = !getCachedPage(currentPage);
-
-        if (currentSvg) {
-            currentSvg.style.transition = 'opacity 300ms ease-out';
-            currentSvg.style.opacity = '0';
-
-            if (!needsRender) return;
-
-            // Show spinner if page takes longer than fade out
-            cancelSpinnerTimer();
-            spinnerTimerRef.current = setTimeout(() => {
-                spinnerTimerRef.current = null;
-                if (isPipelineBusy()) {
-                    setSpinner(true, `page ${currentPage} still rendering`);
-                } else {
-                    console.log(`[ScoreView] Spinner not raised for page ${currentPage}: pipeline idle`);
-                }
-            }, 300);
-        } else if (needsRender) {
-            // There is nothing to fade out, and we are still not fading-in, so show spinner immediately
-            setSpinner(true, `page ${currentPage} not rendered yet`);
-        }
-    }, [setSpinner, currentPage, getCachedPage]);
 
     useEffect(() => cancelSpinnerTimer, []);
 
@@ -409,7 +495,14 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     useEffect(() => {
         if (!score) return;
 
-        updateLoadedScore(false, lastRenderedUrl.current != score.url);
+        const isNewScore = lastRenderedUrl.current != score.url;
+        if (isNewScore) {
+            // Its size, its editorial apparatus and its page count are all different, so
+            // there is nothing to carry over: the wait is unknown again, and unknown is
+            // what gives the spinner the benefit of the doubt.
+            forgetLastCost();
+        }
+        updateLoadedScore(false, isNewScore);
         return () => {
             lastRenderedUrl.current = score?.url
         }
@@ -466,9 +559,8 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                 renderedSvgData?.scale == scale) {
                 return
             }
-            // As we have rendered data, fade out
-            fadeOutTransition();
         }
+        // Covering the wait is left to the reload this triggers, which plans it.
         setTargetHeight(svgContainerHeight);
         setTargetWidth(svgContainerWidth);
     }, [svgContainerHeight, svgContainerWidth]);
@@ -484,21 +576,23 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     useEffect(() => {
         if (!canSchedule() || !showingMei) return;
 
-        // Start fade out for crossfade effect
-        fadeOutTransition();
+        // Fade the old scale out for the crossfade with the load's FADE_IN below.
+        const plan = planFor("load", true,
+            showingEditorial !== null || svgContainerRef.current?.querySelector("svg") != null);
+        applyPendingPlan(plan, "scale change", { fadeScore: true });
 
         const anchorElement = renderedSvgData?.anchorElement || undefined;
 
         const action = loadAction({
             scoreUrl: score?.url || "",
-            postLoadTransition: undefined, // Use standard fade-in
+            postLoadTransition: Transition.FADE_IN, // crossfades with the fade out above
             meiStr: showingMei,
             page: currentPage,
             scale,
             transposition: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null,
             restorePositionForAchor: anchorElement
         });
-        scheduleAction(action);
+        scheduleAction(action, PENDING_HANDLED);
     }, [scale]);
 
     const reloadScore = () => {
@@ -549,7 +643,8 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             console.log(`[ScoreView] Using cached page ${currentPage}`);
 
             setSpinner(false, `cached page ${currentPage}`);
-            fadeOutTransition();
+            // No wait to plan for: just crossfade with the cached page appended below.
+            fadeOutScore(FADE_OUT_MS);
 
             // Create new SVG element for fade in
             const tempDiv = document.createElement('div');
@@ -607,17 +702,16 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             return;
         }
 
-        // Not in cache, start fade out and render
+        // Not in cache: the fade of the outgoing page covers the render. The spinner is
+        // asked for explicitly, since the action's FADE_IN only covers the end of the
+        // wait, not its middle.
         const currentSvg = svgContainerRef.current?.querySelector("svg") as SVGSVGElement | null;
-
-        if (currentSvg) {
-            // Start fade out immediately for responsive feel
-            fadeOutTransition();
-        }
+        const plan = planFor("render", true, showingEditorial !== null || currentSvg != null);
+        applyPendingPlan(plan, `page ${currentPage} render`, { fadeScore: true });
 
         const action = renderAction({
             scoreUrl: renderedSvgData.scoreUrl,
-            transition: undefined,  // No slide transition, we're using fade
+            transition: Transition.FADE_IN,  // crossfades with the fade out above
             renderPage: currentPage,
             loadedWidth: renderedSvgData.width || svgContainerWidth,
             loadedHeight: renderedSvgData.height || svgContainerHeight,
@@ -625,7 +719,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             loadedPagesCount: pageCount,
             timemap: renderedSvgData.timemap
         });
-        scheduleAction(action);
+        scheduleAction(action, PENDING_HANDLED);
     }, [currentPage, getCachedPage, setRenderedSvgData, setIsLoading]);
 
     // Reading position at which a pre-rendered page was evicted as soon as it was cached:

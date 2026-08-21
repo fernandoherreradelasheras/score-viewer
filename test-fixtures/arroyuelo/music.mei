@@ -8624,15 +8624,24 @@
                         <layer n="1">
                            <rest dur="2"/>
                            <rest dur="2"/>
-                           <corr xml:id="a98d09ik">
-                              <note xml:id="nawcna9" dur="2" pname="c" oct="5">
-                                 <verse n="1">
-                                    <syl con="d" wordpos="i">e</syl>
-                                 </verse>
-                              </note>
-                           </corr>
+                           <choice xml:id="choi23">
+                              <corr xml:id="a98d09ik">
+                                 <note xml:id="nawcna9" dur="2" pname="c" oct="5">
+                                    <verse n="1">
+                                       <syl con="d" wordpos="i">e</syl>
+                                    </verse>
+                                 </note>
+                              </corr>
+                              <sic xml:id="s2938902">
+                                 <note xml:id="nawcna7" dur="2" pname="d" oct="5">
+                                    <verse n="1">
+                                       <syl con="d" wordpos="i">e</syl>
+                                    </verse>
+                                 </note>
+                              </sic>
+                           </choice>
                         </layer>
-                        <annot plist="#a98d09ik">Sol en el Cancionero de Miranda (Re con la transposición). Tomamos la lectura del CPMHL.</annot>
+                        <annot plist="#choi23">Sol en el Cancionero de Miranda (Re con la transposición). Tomamos la lectura del CPMHL.</annot>
                      </staff>
                      <staff n="3">
                         <layer n="1">

@@ -101,6 +101,15 @@ const verovioBaseOptions: VerovioOptions = {
   expandAlways: false
 };
 
+/**
+ * Whether an action needs the spinner: the ones that carry a transition of their own
+ * already tell the reader that something is happening.
+ */
+export const shouldShowSpinner = (action: Action): boolean => {
+  const config = action.config as any;
+  return !(config.transition || config.postLoadTransition);
+};
+
 // Helper to get the appropriate CSS class for a transition
 const initialClassForTransition = (transition: Transition) => {
   switch (transition) {
@@ -265,24 +274,17 @@ export default function useScoreActions({
 
     try {
       const startTime = performance.now();
-      console.log(`[useScoreActions] performLoadAction started`);
 
       await verovio.setOptions(options);
       const timemap = await loadAndBuildTimemap(meiStr);
       console.log("timemap duration: ", timemap.slice(-1)[0].tstamp)
 
-
-      const countStart = performance.now();
       const loadedPagesCount = await verovio.getPageCount();
-      console.log(`[useScoreActions] getPageCount took ${(performance.now() - countStart).toFixed(2)}ms`);
 
       // Build the section -> page map only after the data is loaded and
       // paginated.
       const analyzer = new ScoreAnalyzer(0, meiStr);
       const sectionMap = await getSectionMap(analyzer);
-
-      console.log(`Score loaded in ${(performance.now() - startTime).toFixed(0)}ms, page count: ${loadedPagesCount}`);
-      console.log(`[useScoreActions] performLoadAction completed in ${(performance.now() - startTime).toFixed(2)}ms`);
 
       let renderPage = undefined;
       if (restorePositionForAchor) {
@@ -296,6 +298,9 @@ export default function useScoreActions({
       }
 
       setScoreLayout({ currentPage: renderPage, pageCount: loadedPagesCount, sectionPageMap: sectionMap });
+
+      console.log(`[useScoreActions] performLoadAction for ${loadedPagesCount} pages completed in ${(performance.now() - startTime).toFixed(2)}ms`);
+
 
       return renderAction({
         scoreUrl,
@@ -430,8 +435,7 @@ export default function useScoreActions({
       // one (see shrinkToFitPageSize), so it is matched by shape rather than by value.
       const svgData = (await verovio.renderToSVG(renderPage))
         .replace(/^<svg width="\d+px" height="\d+px"/, '<svg width="100%" height="100%"');
-      console.log(`[useScoreActions] renderToSVG took ${(performance.now() - svgStart).toFixed(2)}ms`);
-
+      const svgTime = performance.now() - svgStart;
 
       const domStart = performance.now();
       element.innerHTML = svgData;
@@ -448,8 +452,12 @@ export default function useScoreActions({
         renderPage
       );
 
-      // Set initial opacity to 0 for fade-in animation (will be animated in ScoreView)
-      svgElement.style.opacity = '0';
+      // A transition starts from a hidden score, which ScoreView then fades in. Without
+      // one the score is left visible: it replaces a score that was never faded out, and
+      // fading it in would be a flash of nothing in the middle of, say, picking a reading.
+      if (transition != undefined) {
+        svgElement.style.opacity = '0';
+      }
 
       if (svgElement.classList.contains("transition-zero-end")) {
         svgElement.classList.remove("transition-zero-end");
@@ -460,7 +468,7 @@ export default function useScoreActions({
           svgElement.classList.add("transition-end");
         }, 0);
       }
-      console.log(`[useScoreActions] DOM manipulation took ${(performance.now() - domStart).toFixed(2)}ms`);
+      const domTime = performance.now() - domStart;
 
       const firstMeasureId = svgElement.querySelector(".measure[id]")?.id ?? null;
 
@@ -478,7 +486,7 @@ export default function useScoreActions({
       };
 
       const duration = performance.now() - startTime;
-      console.log(`[useScoreActions] total performRenderAction took ${duration.toFixed(0)}ms`);
+      console.log(`[useScoreActions] performRenderAction took ${duration.toFixed(0)}ms (renderToSVG ${svgTime.toFixed(0)}ms, DOM manipulation ${domTime.toFixed(0)}ms)`);
 
       return { newSvg, loadedPagesCount, scale, renderPage } as RenderActionResult;
     } catch (error) {
@@ -529,22 +537,6 @@ export default function useScoreActions({
       return null;
     }
   }, [verovio]);
-
-  /**
-   * Determine if spinner should be shown for this action
-   */
-  const shouldShowSpinner = (action: Action): boolean => {
-    const config = action.config as any;
-    const transition = config.transition || config.postLoadTransition;
-
-    // Always show for operations without transitions
-    if (!transition) {
-      return true;
-    }
-
-    // Don't show for other transitions (SLIDE, FADE)
-    return false;
-  };
 
   /**
    * Execute an action based on its type

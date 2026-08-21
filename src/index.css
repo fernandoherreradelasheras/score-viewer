@@ -51,6 +51,12 @@
   cursor: pointer;
 }
 
+/* Waiting for a editorial item option to be applied */
+.svg-container.static-score svg .editorial-pending {
+  opacity: 0.2;
+  transition: opacity var(--editorial-pending-fade, 500ms) ease-out;
+}
+
 /* The global apparatus (original clefs / harmonic analysis) might get
    a content-bounding-box generated spanning the whole measure.
    Ensure those elements don't grab events that are indended for editorial elements  */

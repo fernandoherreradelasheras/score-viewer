@@ -31,3 +31,25 @@ export const SVG_EDITORIAL_FILTERS =
 
 
 
+
+const PENDING_CLASS = "editorial-pending";
+
+
+export const EDITORIAL_PENDING_MAX_FADE_MS = 500;
+export const EDITORIAL_PENDING_MIN_FADE_MS = 200;
+
+export const markEditorialPending = (id: string, duration: number) => {
+    const element = document.getElementById(id);
+    if (!element) {
+        return;
+    }
+    console.log(`Marking editorial element ${id} as pending for ${duration}ms`);
+    // Set before the class, so the transition starts with the duration it is meant to
+    // have rather than with the fallback.
+    element.style.setProperty("--editorial-pending-fade", `${Math.round(duration)}ms`);
+    element.classList.add(PENDING_CLASS);
+};
+
+export const clearEditorialPending = (container: HTMLElement | null) => {
+    container?.querySelectorAll(`.${PENDING_CLASS}`).forEach(e => e.classList.remove(PENDING_CLASS));
+};

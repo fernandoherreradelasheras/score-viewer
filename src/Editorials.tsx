@@ -1,6 +1,6 @@
 import { useLayoutEffect, useState } from "react";
 import useStore from "./store";
-import { Button, Modal, Radio, Typography, Descriptions, Alert, Badge } from "antd";
+import { Modal, Radio, Typography, Descriptions, Alert, Badge } from "antd";
 import { Tooltip } from "react-tooltip";
 import { EditorialItem, Choice, Option, ContentDescription, EDITORIAL_ALL_TAGS, EDITORIAL_SELECTION_TAGS, ChoiceEditorialItem, SimpleEditorialItem, PlayingState } from "./types";
 import { EDITORIAL_COLORS } from "./types/colors";

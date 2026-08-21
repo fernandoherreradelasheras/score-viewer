@@ -174,7 +174,9 @@
                      </staff>
                      <staff n="3">
                         <layer n="1">
-                           <note xml:id="n-s3-m4" dots="1" dur="1" pname="b" oct="2"/>
+                           <note xml:id="n-s3-m4" dots="1" dur="1" pname="b" oct="2">
+                              <accid accid="f" func="edit" enclose="paren"/>
+                           </note>
                         </layer>
                      </staff>
                   </measure>

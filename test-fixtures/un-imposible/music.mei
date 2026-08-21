@@ -1962,24 +1962,42 @@
                      <staff n="2">
                         <layer n="1">
                            <note xml:id="neyc6c7" dur="2" oct="4" pname="g"/>
-                           <corr xml:id="c9809fk">
-                              <note xml:id="n1c9809fk" dur="1" oct="4" pname="g">
-                                 <verse n="1">
-                                    <syl wordpos="t">ro,</syl>
-                                 </verse>
-                                 <verse n="2">
-                                    <syl wordpos="t">to?</syl>
-                                 </verse>
-                                 <verse n="3">
-                                    <syl wordpos="t">is,</syl>
-                                 </verse>
-                                 <verse n="4">
-                                    <syl wordpos="t">pre,</syl>
-                                 </verse>
-                              </note>
-                           </corr>
+                           <choice xml:id="ch29839">
+                              <corr xml:id="c9809fk">
+                                 <note xml:id="n1c9809fk" dur="1" oct="4" pname="g">
+                                    <verse n="1">
+                                       <syl wordpos="t">ro,</syl>
+                                    </verse>
+                                    <verse n="2">
+                                       <syl wordpos="t">to?</syl>
+                                    </verse>
+                                    <verse n="3">
+                                       <syl wordpos="t">is,</syl>
+                                    </verse>
+                                    <verse n="4">
+                                       <syl wordpos="t">pre,</syl>
+                                    </verse>
+                                 </note>
+                              </corr>
+                              <sic xml:id="s92839">
+                                 <note xml:id="n1c9809fk22" dur="1" oct="4" pname="b" accid="f">
+                                    <verse n="1">
+                                       <syl wordpos="t">ro,</syl>
+                                    </verse>
+                                    <verse n="2">
+                                       <syl wordpos="t">to?</syl>
+                                    </verse>
+                                    <verse n="3">
+                                       <syl wordpos="t">is,</syl>
+                                    </verse>
+                                    <verse n="4">
+                                       <syl wordpos="t">pre,</syl>
+                                    </verse>
+                                 </note>
+                              </sic>
+                           </choice>
                         </layer>
-                        <annot plist="#c9809fk">Mi bemol en el original (transpuesto a Si bemol). Corregimos para evitar la disonancia con el Do del tiple 1º</annot>
+                        <annot plist="#ch29839">Mi bemol en el original (transpuesto a Si bemol). Corregimos para evitar la disonancia con el Do del tiple 1º</annot>
                      </staff>
                      <staff n="3">
                         <layer n="1">
