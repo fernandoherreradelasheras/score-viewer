@@ -23,6 +23,7 @@ import LayoutManager, { rendersTabBar } from './components/LayoutManager';
 import ScoreViewerHeader from './components/ScoreViewerHeader';
 import SettingsButton from './components/SettingsButton';
 import { useScoreViewerEffects } from './hooks/useScoreViewerEffects';
+import { useFullscreenElement } from './hooks/useFullscreenElement';
 
 
 export interface ScoreViewerProps {
@@ -67,6 +68,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
 
   const verovio = useVerovio()
   const mobileOrientation = useMobileOrientation()
+  const fullscreenElement = useFullscreenElement()
 
   const [fetchScoreError, setFetchScoreError] = useState<FetchError | null>(null);
 
@@ -93,8 +95,13 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     isMobile && mobileOrientation.isLandscape ? "scroll" : "hidden"
     , [isMobile, mobileOrientation, height])
 
+  // Every overlay hangs off the fullscreen element while there is one: the editorial
+  // dialog and the player tooltips are portalled out of the tree, and outside the top
+  // layer they would not be painted at all. Modal takes its container from here too,
+  // falling back to this when it has no `getContainer` of its own.
   const renderMainContent = (content: React.ReactNode) =>
     <ConfigProvider
+      getPopupContainer={() => fullscreenElement ?? document.body}
       theme={{
         algorithm: theme.defaultAlgorithm,
         token: {
