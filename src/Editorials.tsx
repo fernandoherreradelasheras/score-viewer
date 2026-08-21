@@ -1,10 +1,11 @@
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import useStore from "./store";
 import { Modal, Radio, Typography, Descriptions, Alert, Badge } from "antd";
 import { Tooltip } from "react-tooltip";
 import { EditorialItem, Choice, Option, ContentDescription, EDITORIAL_ALL_TAGS, EDITORIAL_SELECTION_TAGS, ChoiceEditorialItem, SimpleEditorialItem, PlayingState } from "./types";
 import { EDITORIAL_COLORS } from "./types/colors";
 import { useTranslation } from 'react-i18next';
+import { clearEditorialGroup, markEditorialGroup } from "./SvgUtils";
 
 const { Text, Paragraph } = Typography;
 
@@ -44,10 +45,11 @@ const TOOLTIP_SELECTOR = "svg .mei-editorial";
 
 
 const DIALOG_MARGIN = 16;
+const DIALOG_WIDTH = 720;
 const MIN_DIALOG_HEIGHT = 220;
 
 function Editorials() {
-    const { t } = useTranslation("common");
+    const { t, i18n } = useTranslation("common");
     const score = useStore.use.score();
     const showingEditorial = useStore.use.showingEditorial();
     const setShowingEditorial = useStore.use.setShowingEditorial();
@@ -86,6 +88,22 @@ function Editorials() {
         } else {
             setDialogPlacement({ top: frame.top + DIALOG_MARGIN, maxHeight: above });
         }
+    }, [showingEditorial]);
+
+    // While the dialog is open, every <app> the decision reaches is marked, the clicked
+    // one included: a grouped reading changes together with its siblings elsewhere in
+    // the score, and the ring is what makes that reach visible before the reader takes
+    // the choice. The container is reached through the element the dialog targets, the
+    // same way the placement above frames it.
+    useEffect(() => {
+        const element = showingEditorial ? document.getElementById(showingEditorial) : null;
+        const container = element?.closest(".svg-container") as HTMLElement | null;
+        const group = showingEditorialItem ? getVariantGroup(showingEditorialItem) : null;
+        if (!container || !group) {
+            return;
+        }
+        markEditorialGroup(container, group.id);
+        return () => clearEditorialGroup(container);
     }, [showingEditorial]);
 
     const titleKey = (type: string): string => {
@@ -169,13 +187,54 @@ function Editorials() {
     // The variant group of an editorial item: the <classDecls> category its readings
     // point at with @class. Only when every reading on offer classifies under the same
     // one, since it names the decision as a whole, not what each option says.
-    const getItemCategory = (item: EditorialItem) => {
+    const getItemGroup = (item: EditorialItem) => {
         if (!('choice' in item)) {
             return null;
         }
         const ids = new Set(item.choice.options.map(o => o.categoryId));
         const [id] = [...ids];
-        return (ids.size == 1 && id) ? score?.properties.categories[id] ?? null : null;
+        const category = (ids.size == 1 && id) ? score?.properties.categories[id] : null;
+        return category ? { id: id!, category } : null;
+    };
+
+    const getItemCategory = (item: EditorialItem) => getItemGroup(item)?.category ?? null;
+
+    // The group an item is flipped as part of, or null when it is decided on its own.
+    // Only <app> groups: a <choice> or a <subst> reading is selected by its id, so it
+    // moves nothing else even where its @class classifies it with something.
+    const getVariantGroup = (item: EditorialItem) => {
+        const group = item.type == 'app' ? getItemGroup(item) : null;
+        return group && group.category.apps.length > 1 ? group : null;
+    };
+
+    const formatList = (values: string[]) =>
+        new Intl.ListFormat(i18n.language, { style: "long", type: "conjunction" }).format(values);
+
+    const distinct = (values: (string | null)[]): string[] =>
+        [...new Set(values.filter((value): value is string => value != null))];
+
+    // What else the decision reaches, named by whichever of the two the reader cannot
+    // see for themselves. A group spread over measures is announced by measure; one that
+    // stays in the measure on screen is the same variant across voices, and there naming
+    // the measure again would say nothing, so the other voices are named instead.
+    const describeGroupScope = (item: EditorialItem): string | null => {
+        const apps = getVariantGroup(item)?.category.apps ?? [];
+        const current = apps.find(app => app.id == item.id);
+        const others = apps.filter(app => app.id != item.id);
+        const measures = distinct(others.map(app => app.measure));
+        if (measures.length == 0) {
+            return null;
+        }
+        if (measures.every(measure => measure == current?.measure)) {
+            const voices = distinct(others.map(app => app.voice));
+            return voices.length > 0
+                ? t("editorial.groupAffectsVoices", { voices: formatList(voices) })
+                : t("editorial.groupAffectsSameMeasure");
+        }
+        return t("editorial.groupAffects", {
+            count: measures.length,
+            measures: formatList(measures),
+        });
     };
 
     const getAppChoiceText = (subtype: string, options: Option[], option: Option, includeDescription: boolean) => {
@@ -436,6 +495,10 @@ function Editorials() {
                     }
                     open={showingEditorialItem != null && showingEditorialItem != undefined}
                     onCancel={() => setShowingEditorial(null)}
+                    // Wider than the antd default: the readings on offer are lines of
+                    // prose, and at 520px they wrapped to a column. Capped by the
+                    // viewport, keeping the same margin the placement above leaves.
+                    width={`min(${DIALOG_WIDTH}px, calc(100vw - ${2 * DIALOG_MARGIN}px))`}
                     style={dialogPlacement ? { top: dialogPlacement.top } : undefined}
                     styles={dialogPlacement ? {
                         content: { maxHeight: dialogPlacement.maxHeight, display: 'flex', flexDirection: 'column' },
@@ -446,11 +509,16 @@ function Editorials() {
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 4 }}>
                         <Descriptions size="small" column={1} items={buildMetaItems(showingEditorialItem)} />
+
+                        {getItemCategory(showingEditorialItem)?.desc && (
+                            <Alert type="info" message={getItemCategory(showingEditorialItem)?.desc} />
+                        )}
+
+                        {describeGroupScope(showingEditorialItem) && (
+                            <Alert type="warning" showIcon message={describeGroupScope(showingEditorialItem)} />
+                        )}
                         {getAnnotationText(showingEditorialItem) && (
                             <Alert type="info" showIcon message={getAnnotationText(showingEditorialItem)} />
-                        )}
-                        {getItemCategory(showingEditorialItem)?.desc && (
-                            <Alert type="info" showIcon message={getItemCategory(showingEditorialItem)?.desc} />
                         )}
                         {'choice' in showingEditorialItem ? getChoices(showingEditorialItem) : getSimpleEditorialContent(showingEditorialItem)}
                     </div>

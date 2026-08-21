@@ -21,6 +21,7 @@ class ScoreAnalyzer {
         this.document = parser.parseFromString(score, "application/xml")
         this.tonoNumber = tonoNumber
         this.categories = this.getCategories()
+        this.collectCategoryApps()
     }
 
 
@@ -171,10 +172,52 @@ class ScoreAnalyzer {
             const id = category.getAttribute("xml:id")!
             const child = (tag: string) => [...category.childNodes.values()]
                 .find(c => c instanceof Element && c.tagName == tag)?.textContent?.trim() || null
-            categories[id] = { label: child("label") || id, desc: child("desc") }
+            categories[id] = { label: child("label") || id, desc: child("desc"), apps: [] }
             node = matches.iterateNext()
         }
         return categories
+    }
+
+
+    // The @n of the nearest ancestor of the given tag. Walked rather than queried: the
+    // same lookup by XPath would need the element as context node.
+    ancestorNumber(element: Element, tag: string): string | null {
+        for (let e: Element | null = element; e != null; e = e.parentElement) {
+            if (e.tagName == tag) {
+                return e.getAttribute("n")
+            }
+        }
+        return null
+    }
+
+    // Record every <app> under the category its readings classify with, so a dialog on
+    // one of them can tell what else changes with it. An <app> counts only when all its
+    // readings agree on the category, the same rule that names the decision as a whole
+    // (see getItemCategory in Editorials); global apparatus <app>s are display options,
+    // not editorial decisions, and stay out.
+    collectCategoryApps() {
+        const matches = this.document.evaluate(`//mei:app`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        let node = matches.iterateNext()
+        while (node != null) {
+            const app = node as Element
+            const id = app.getAttribute("xml:id")
+            const type = app.getAttribute("type")
+            if (id && (type == null || !GLOBAL_APP_TYPES.includes(type))) {
+                const ids = new Set([...app.childNodes.values()]
+                    .filter(c => c.nodeType == Node.ELEMENT_NODE)
+                    .map(c => this.optionCategoryId(c as Element)))
+                const [categoryId] = [...ids]
+                if (ids.size == 1 && categoryId && this.categories[categoryId]) {
+                    const staff = this.ancestorNumber(app, "staff")
+                    this.categories[categoryId].apps.push({
+                        id,
+                        measure: this.ancestorNumber(app, "measure"),
+                        voice: staff ? this.getVoiceName(staff) : null,
+                    })
+                }
+            }
+            node = matches.iterateNext()
+        }
     }
 
 
@@ -211,7 +254,8 @@ class ScoreAnalyzer {
             notes: this.getMeiNotes(),
             sections: this.getSections(),
             sources: this.getSources(),
-            categories: this.getCategories(),
+            // The instance's own, not a fresh parse: this one has its <app> members.
+            categories: this.categories,
             responsibilities: this.getResponsibilities(),
             hasEditorialInterventions: this.hasEditorialInterventions(),
             hasOriginalClefs: this.hasOriginalClefs(),

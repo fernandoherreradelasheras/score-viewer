@@ -114,6 +114,8 @@
                               </rdg>
                            </app>
                         </layer>
+                        <annot plist="#app-grupo-m2">Nota app para el m2 staff 1</annot>
+
                      </staff>
                      <staff n="2">
                         <layer n="1">

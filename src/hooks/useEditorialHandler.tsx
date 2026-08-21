@@ -1,6 +1,7 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import useStore from '../store';
 import { EDITORIAL_TRANSPARENT_TAGS, EDITORIAL_SELECTION_TAGS, EditorialItem, SUBST_ALLOWED_CHILD_TAGS, CHOICE_ALLOWED_CHILD_TAGS, PlayingState } from '../types';
+import { clearEditorialGroupHover, markEditorialGroupHover } from '../SvgUtils';
 
 
 const PARENTS_OF_ELEMENTS = [...EDITORIAL_SELECTION_TAGS, ...SUBST_ALLOWED_CHILD_TAGS, ...CHOICE_ALLOWED_CHILD_TAGS]
@@ -63,10 +64,32 @@ export function useEditorialHandler() {
   }, [showEditorial, playingState, getEditorialAttached, setShowingEditorial]);
 
 
+  // The group the pointer is on, so the marks are only rewritten when it moves from one
+  // group to another: mouseover fires for every element it crosses on the way.
+  const hoveredGroupRef = useRef<string | null>(null);
+
+  const handleElementHover = useCallback((event: React.MouseEvent<HTMLElement>) => {
+    if (!showEditorial || playingState !== PlayingState.STOPPED) return;
+
+    const group = (event.target instanceof Element ? event.target.closest("[data-group]") : null)
+      ?.getAttribute("data-group") ?? null;
+    if (group === hoveredGroupRef.current) {
+      return;
+    }
+    hoveredGroupRef.current = markEditorialGroupHover(event.currentTarget, event.target);
+  }, [showEditorial, playingState]);
+
+  const handleElementLeave = useCallback((event: React.MouseEvent<HTMLElement>) => {
+    hoveredGroupRef.current = null;
+    clearEditorialGroupHover(event.currentTarget);
+  }, []);
+
   return {
     showEditorial,
     editorials,
     handleElementClick,
+    handleElementHover,
+    handleElementLeave,
     getEditorialAttached
   };
 }

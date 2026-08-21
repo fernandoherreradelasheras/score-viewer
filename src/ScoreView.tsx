@@ -74,7 +74,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const showMusicAnalysis = useStore.use.showMusicAnalysis();
     const measureNumberInterval = useStore.use.measureNumberInterval();
 
-    const { handleElementClick } = useEditorialHandler();
+    const { handleElementClick, handleElementHover, handleElementLeave } = useEditorialHandler();
     const { ref: svgContainerRef, width: svgContainerWidth, height: svgContainerHeight } = useComponentSize();
 
     const lastRenderedUrl = useRef<string | undefined | null>(null);
@@ -625,7 +625,9 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                     background: backgroundColor || 'white',
                     "--score-bg-color": backgroundColor
                 } as React.CSSProperties}
-                onClick={handleElementClick} />
+                onClick={handleElementClick}
+                onMouseOver={handleElementHover}
+                onMouseLeave={handleElementLeave} />
             <LoadingSpinner visible={showSpinner} />
         </div>
 
