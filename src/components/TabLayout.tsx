@@ -32,14 +32,20 @@ export default function TabLayout({
   const activeTab = useStore.use.activeTab()
   const setActiveTab = useStore.use.setActiveTab();
 
+  // The music pane is always present, even alone with the tab bar hidden: the tabs
+  // must not appear and disappear as a score switch settles which sections the new
+  // score has, because each change of tree shape would remount the score view (and
+  // with it the whole verovio pipeline). Panes are keyed, so the score keeps its
+  // mounted instance while sibling tabs come and go.
+  const showAnySection = showIntroductionSection || showTextSection || showFacsimileSection;
   const tabsItems: TabsProps['items'] = useMemo(() =>
-    showIntroductionSection || showTextSection || showFacsimileSection ? [
-      introView ? {
+    [
+      showAnySection && introView ? {
         key: 'intro',
         label: <Space direction='horizontal'>{t('tab.introduction')}</Space>,
         children: introView
       } : null,
-      textView ? {
+      showAnySection && textView ? {
         key: 'text',
         label: <Space direction='horizontal'><FileTextOutlined />{t('tab.text')}</Space>,
         children: textView
@@ -49,35 +55,37 @@ export default function TabLayout({
         label: <Space direction='horizontal'><Icon component={MusicSvg} />{t('tab.music')}</Space>,
         children: scoreView
       },
-      facsimileView ? {
+      showAnySection && facsimileView ? {
         key: 'facsimile',
         label: <Space direction='horizontal'> <FileImageOutlined />{t('tab.facsimile')}</Space>,
         children: facsimileView
       } : null
-    ].filter(tab => tab != null) : [],
-    [scoreView, textView, introView, facsimileView, showIntroductionSection, showTextSection, showFacsimileSection, t]
+    ].filter(tab => tab != null),
+    [scoreView, textView, introView, facsimileView, showAnySection, t]
   );
 
   const onTabChange = useCallback((key: string) => {
     setActiveTab(key);
   }, [setActiveTab]);
 
-  const shouldShowTabs = tabsItems.length > 1;
+  const shouldShowTabBar = tabsItems.length > 1;
 
-  if (!shouldShowTabs) {
-    return <>{scoreView}</>;
-  }
+  // The store may briefly point at a tab the current items no longer carry (switching
+  // away from a score that had it); LayoutManager resets it to music an effect later,
+  // but the pane on screen must never be a missing one.
+  const effectiveTab = tabsItems.some(tab => tab.key === activeTab) ? activeTab : 'music';
 
   return (
     <Tabs
       items={tabsItems}
-      defaultActiveKey="music"
+      activeKey={effectiveTab}
+      renderTabBar={shouldShowTabBar ? undefined : () => <></>}
       onChange={onTabChange}
       tabBarExtraContent={tabBarExtra ? { right: tabBarExtra } : undefined}
       style={{
         width: "100%",
         flex: "1",
-        ...(activeTab === "text" || activeTab === "intro" ? { height: "100%" } : {})
+        ...(effectiveTab === "text" || effectiveTab === "intro" ? { height: "100%" } : {})
       }}
     />
   );

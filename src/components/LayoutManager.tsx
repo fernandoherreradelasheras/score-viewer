@@ -97,12 +97,6 @@ export default function LayoutManager({
     }
   }, [isSplitView, facsimileView, introView, textView, splitViewContentNotAvailable, tabContentNotAvailable, getAvailableViews, setActiveSplitView, setActiveTab]);
 
-  // Determine what to render
-  const shouldShowTabs = rendersTabBar(
-    { introView, textView, facsimileView, showIntroductionSection, showTextSection, showFacsimileSection },
-    isSplitView
-  );
-
   if (isSplitView) {
     return (
       <SplitViewLayout
@@ -114,24 +108,24 @@ export default function LayoutManager({
         setSizes={setSizes}
       />
     );
-  } else if (shouldShowTabs) {
-    return (
-      <TabLayout
-        scoreView={scoreView}
-        textView={textView}
-        introView={introView}
-        facsimileView={facsimileView}
-        showIntroductionSection={showIntroductionSection}
-        showTextSection={showTextSection}
-        showFacsimileSection={showFacsimileSection}
-        tabBarExtra={tabBarExtra}
-      />
-    );
-  } else {
-    return (
-      scoreView
-    );
   }
+
+  // Always through TabLayout, even when the score is the only content: it renders the
+  // single pane with the tab bar hidden, so the tree keeps the same shape whichever
+  // tabs the current score turns out to have and the score view is never remounted by
+  // a score switch.
+  return (
+    <TabLayout
+      scoreView={scoreView}
+      textView={textView}
+      introView={introView}
+      facsimileView={facsimileView}
+      showIntroductionSection={showIntroductionSection}
+      showTextSection={showTextSection}
+      showFacsimileSection={showFacsimileSection}
+      tabBarExtra={tabBarExtra}
+    />
+  );
 }
 
 export { type LayoutManagerProps };

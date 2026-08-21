@@ -551,7 +551,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         const page = preRenderOrder(renderedSvgData.page, pageCount).find(p => !getCachedPage(p));
         if (page === undefined || !pageCacheAccepts(page)) return;
 
-        console.log(`[ScoreView] Pre-rendering page ${page}`);
         preRenderPage(page);
     }, [renderedSvgData, pageCache, pageCount, verovio]);
 
