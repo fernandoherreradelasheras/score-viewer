@@ -43,6 +43,7 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
     const pageCount = useStore.use.pageCount();
     const resetPlayerPosition = useStore.use.resetPlayerPosition();
     const showEditorial = useStore.use.showEditorial();
+    const showingEditorial = useStore.use.showingEditorial();
     const renderedSvgData = useStore.use.renderedSvgData();
 
     const [mouseOver, setMouseOver] = useState(false);
@@ -140,7 +141,9 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
 
             <AudioPlayer />
 
-            {showEditorial && renderedSvgData?.id ? <Editorials /> : null}
+            {/* Without showing editorial content we still want to show the Editorials element
+             for the editorial popup launched from score info dialog  */}
+            {(showEditorial || showingEditorial) && renderedSvgData?.id ? <Editorials /> : null}
 
             {scoreViewerRef.current && mouseOver && <MouseTracker
                 track={scoreViewerRef.current}

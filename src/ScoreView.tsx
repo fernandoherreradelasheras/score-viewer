@@ -13,12 +13,13 @@ import LoadingSpinner from './components/LoadingSpinner';
 import useIdleCallback from './hooks/useIdleCallback';
 import { getReverseTransposition } from './utils/score-utils';
 import { preRenderOrder } from './utils/page-cache';
-import { clearEditorialPending } from './SvgUtils';
+import { clearEditorialPending, clearHighlighted, markHighlighted } from './SvgUtils';
 import { PENDING_HANDLED, PendingPlan, forgetLastCost, recordCost } from './utils/pending-wait';
 
 
 // How long the score takes to fade out under a cached page being crossfaded in.
 const FADE_OUT_MS = 300;
+
 
 
 export interface ScoreViewProps {
@@ -70,6 +71,9 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const clearPageCache = useStore.use.clearPageCache();
     const pageCacheAccepts = useStore.use.pageCacheAccepts();
     const pageCache = useStore.use.pageCache();
+    const setShowingEditorial = useStore.use.setShowingEditorial();
+    const navigationCommand = useStore.use.navigationCommand();
+    const clearNavigationCommand = useStore.use.clearNavigationCommand();
 
     const showMusicAnalysis = useStore.use.showMusicAnalysis();
     const measureNumberInterval = useStore.use.measureNumberInterval();
@@ -187,10 +191,11 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             // and with it the spinner marking a change that is no longer on its way.
             clearEditorialPending(svgContainerRef.current);
         },
-        canRun: () => !!verovio && svgContainerRef.current != null,
-        // A layout change zeroes the target size on purpose; an action pending from
-        // before describes a pane that no longer exists.
-        shouldDiscard: () => targetHeight <= 0,
+        // A layout change zeroes the target size on purpose, to hold everything until
+        // the reflow settles. Holding, rather than dropping what was asked for: a load
+        // reads the target size when it runs, so it comes out right, and a request the
+        // reader made is never lost to a transient size.
+        canRun: !!verovio && svgContainerRef.current != null && targetHeight > 0,
     });
 
     // Single entry point for every configuration-driven (re)load: covers the wait,
@@ -367,7 +372,12 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         // only re-runs when the container changes, so bailing out here used to lose the
         // final size of a layout change for good (closing the split view left the score
         // laid out for the old pane). scheduleAction coalesces it against what is running.
-        if (renderedSvgData && renderedSvgData?.scoreUrl == score?.url) {
+        //
+        // showsRenderedScore(), and not just the store, decides whether there is nothing
+        // to do because on a remount the store still describes what the previous instance drew
+        // but this container is empty, so taking the shortcut would leave the target
+        // size at whatever a layout change zeroed it to, with nothing left to restore it.
+        if (showsRenderedScore()) {
             if (renderedSvgData?.height && renderedSvgData?.width &&
                 Math.abs(renderedSvgData.height - svgContainerHeight) < 100 &&
                 Math.abs(renderedSvgData.width - svgContainerWidth) < 100 &&
@@ -535,6 +545,19 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         });
         scheduleAction(action, PENDING_HANDLED);
     }, [currentPage, getCachedPage, setRenderedSvgData, setIsLoading]);
+
+
+    useEffect(() => {
+        if (navigationCommand?.type !== "element") {
+            return;
+        }
+        const target = String(navigationCommand.target);
+        clearHighlighted(svgContainerRef.current);
+        if (markHighlighted(svgContainerRef.current, target)) {
+            clearNavigationCommand();
+            setShowingEditorial(target);
+        }
+    }, [navigationCommand, renderedSvgData]);
 
     // Reading position at which a pre-rendered page was evicted as soon as it was cached:
     // the cache is full here, and every page left is further from the reader than the one

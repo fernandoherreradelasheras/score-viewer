@@ -97,3 +97,16 @@ export const markEditorialGroupHover = (container: HTMLElement | null, target: E
 export const clearEditorialGroupHover = (container: HTMLElement | null) => {
     container?.querySelectorAll(`.${GROUP_HOVER_CLASS}`).forEach(e => e.classList.remove(GROUP_HOVER_CLASS));
 };
+
+
+const HIGHLIGHTED_CLASS = "highlighted";
+
+export const markHighlighted = (container: HTMLElement | null, elementId: string) => {
+    const element = container?.querySelector("svg")?.querySelector(`[id="${CSS.escape(elementId)}"]`);
+    element?.classList.add(HIGHLIGHTED_CLASS);
+    return element != null;
+};
+
+export const clearHighlighted = (container: HTMLElement | null) => {
+    container?.querySelectorAll(`.${HIGHLIGHTED_CLASS}`).forEach(e => e.classList.remove(HIGHLIGHTED_CLASS));
+};

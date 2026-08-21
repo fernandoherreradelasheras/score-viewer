@@ -16,17 +16,20 @@ interface LayoutManagerProps {
   tabBarExtra?: React.ReactNode;
 }
 
+type ContentProps = Pick<LayoutManagerProps, 'introView' | 'textView' | 'facsimileView'
+  | 'showIntroductionSection' | 'showTextSection' | 'showFacsimileSection'>
+
+
+export function hasSecondaryContent(props: ContentProps) {
+  return (props.showIntroductionSection || props.showTextSection || props.showFacsimileSection)
+    && [props.introView, props.textView, props.facsimileView].filter(Boolean).length > 0
+}
+
 // Whether this layout will end up drawing a tab bar, i.e. whether there is anything to
 // switch to besides the score. Exported so callers can decide what to put in it without
 // restating the condition.
-export function rendersTabBar(
-  props: Pick<LayoutManagerProps, 'introView' | 'textView' | 'facsimileView'
-    | 'showIntroductionSection' | 'showTextSection' | 'showFacsimileSection'>,
-  isSplitView: boolean
-) {
-  return !isSplitView
-    && (props.showIntroductionSection || props.showTextSection || props.showFacsimileSection)
-    && [props.introView, props.textView, props.facsimileView].filter(Boolean).length > 0
+export function rendersTabBar(props: ContentProps, isSplitView: boolean) {
+  return !isSplitView && hasSecondaryContent(props)
 }
 
 export default function LayoutManager({
@@ -97,7 +100,15 @@ export default function LayoutManager({
     }
   }, [isSplitView, facsimileView, introView, textView, splitViewContentNotAvailable, tabContentNotAvailable, getAvailableViews, setActiveSplitView, setActiveTab]);
 
-  if (isSplitView) {
+  const content = {
+    introView, textView, facsimileView,
+    showIntroductionSection, showTextSection, showFacsimileSection
+  };
+
+  // A split view needs two things to put side by side. With nothing to place next to
+  // the music there is nothing to split, and splitting anyway leaves half the screen
+  // blank. In this case the layout manager falls back to the tab layout, which is a single pane
+  if (isSplitView && hasSecondaryContent(content)) {
     return (
       <SplitViewLayout
         scoreView={scoreView}

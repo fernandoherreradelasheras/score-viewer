@@ -21,11 +21,15 @@
     "alternativeReading": "alternative reading",
     "alternativeReadingNumber": "alternative reading #",
     "readingFromSource": "{{reading}} from {{source}}",
-    "forGroup": "{{type}} for {{group}}",
+    "forGroup": "{{type}} \"{{group}}\"",
     "groupAffects_one": "This reading does not change on its own: the same editorial decision also reaches measure {{measures}}.",
     "groupAffects_other": "This reading does not change on its own: the same editorial decision also reaches measures {{measures}}.",
     "groupAffectsVoices": "This reading does not change on its own: the same editorial decision also reaches {{voices}} in this measure.",
     "groupAffectsSameMeasure": "This reading does not change on its own: the same editorial decision also reaches other elements in this measure.",
+    "place": "Location",
+    "placeAtVoice": "Measure {{measure}}, {{voice}}",
+    "placeAtMeasure": "Measure {{measure}}",
+    "placeAtStaff": "Measure {{measure}}, staff {{staff}}",
     "currentlyShowing": "Currently showing the {{what}}",
     "availableOptions": "Available options",
     "reason": "Reason",
@@ -61,7 +65,6 @@
     "substOptionAdd": "show added material",
     "substSubstFirstChild": "first substitution element",
     "substSubstOtherChild": "#{{ position }} substitution element",
-    "source": "Source",
     "notSpecified": "Not specified"
   },
   "error": {
@@ -88,6 +91,32 @@
   "anonymous": "Anonymous",
   "scoreControls": {
     "settings": "Settings"
+  },
+  "scoreInfo": {
+    "title": "Score information",
+    "button": "Properties",
+    "download": "Download MEI",
+    "identification": "Identification",
+    "composer": "Composer",
+    "lyricist": "Lyricist",
+    "editor": "Transcription",
+    "reconstructionBy": "Reconstruction",
+    "responsibilities": "Contributors",
+    "scoreData": "Score data",
+    "numMeasures": "Measures",
+    "sections": "Sections",
+    "numVerses": "Strophes",
+    "transposition": "Encoded transposition",
+    "sources": "Sources",
+    "readings": "Editorial aparatus",
+    "open": "Open",
+    "currentReadingShort": "Current",
+    "readingsChanged_one": "You have changed 1 reading, out of {{total}} available.",
+    "readingsChanged_other": "You have changed {{count}} readings, out of {{total}} available.",
+    "readingsUnchanged": "You have not changed any reading, out of {{total}} available.",
+    "reset": "Restore the default readings",
+    "resetConfirm": "All your readings will be discarded and the score will go back to the preferred ones. Continue?",
+    "noEditorial": "This score has no critical apparatus with alternative readings."
   },
   "scoreOptions": {
     "title": "Display options",
@@ -132,7 +161,8 @@
     },
     "uiLayout": {
       "title": "UI Layout",
-      "description": "Define how components are arranged on the screen"
+      "description": "Define how components are arranged on the screen",
+      "onlyMusic": "This score has only music, so layout change is not applicable."
     },
     "measureNumberInterval": {
       "title": "Measure number",

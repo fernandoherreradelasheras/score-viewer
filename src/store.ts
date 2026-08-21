@@ -94,7 +94,8 @@ interface ScoreNavigationState {
     goToPreviousPage: () => void
 
     goToSection: (sectionId: string) => void
-    navigationCommand: { type: 'section' | 'page', target: string | number } | null
+    goToElement: (elementId: string, page: number) => void
+    navigationCommand: { type: 'section' | 'page' | 'element', target: string | number } | null
 
     clearNavigationCommand: () => void
 }
@@ -140,6 +141,14 @@ export const createScoreViewerStore = create<ScoreNavigationState>((set, get) =>
             });
         }
     },
+
+    // Send the reader to an element and ask for it to be pointed out once its page is
+    // on screen: the page turn is asynchronous, so what to do on arrival travels as a
+    // command rather than being done here (ScoreView picks it up).
+    goToElement: (elementId, page) => set({
+        navigationCommand: { type: 'element', target: elementId },
+        currentPage: Math.max(1, Math.min(page, get().pageCount))
+    }),
 
     navigationCommand: null,
 
@@ -273,6 +282,7 @@ interface ScoreSettings {
     setMeasureNumberInterval: (interval: number) => void
     setShowColoredNotes: (showColoredNotes: boolean) => void
     setNoteVisualization: (noteVisualization: NoteVisualizationId) => void
+    resetEditorialOptions: () => void
     resetScoreSettings: () => void
 }
 
@@ -314,6 +324,9 @@ const createScoreSettingsStore = create<ScoreSettings>()(persist((set) => ({
     setMeasureNumberInterval: (interval: number) => set(() => ({ measureNumberInterval: interval })),
     setShowColoredNotes: (showColoredNotes: boolean) => set(() => ({ showColoredNotes })),
     setNoteVisualization: (noteVisualization: NoteVisualizationId) => set(() => ({ noteVisualization })),
+    // The reader's readings, and only those: the rest of this slice is viewer settings,
+    // which belong to the options panel and outlive the score on screen.
+    resetEditorialOptions: () => set(() => ({ appOptions: [], choiceOptions: [], substOptions: [] })),
     resetScoreSettings: () => set({ ...DEFAULT_SCORE_SETTINGS }),
 }), {
     name: 'score-settings-store'
@@ -427,6 +440,7 @@ class ScoreViewerStoreApi {
         goToNextPage: createScoreViewerStoreWithSelectors.use.goToNextPage,
         goToPreviousPage: createScoreViewerStoreWithSelectors.use.goToPreviousPage,
         goToSection: createScoreViewerStoreWithSelectors.use.goToSection,
+        goToElement: createScoreViewerStoreWithSelectors.use.goToElement,
         navigationCommand: createScoreViewerStoreWithSelectors.use.navigationCommand,
         clearNavigationCommand: createScoreViewerStoreWithSelectors.use.clearNavigationCommand,
 
@@ -469,6 +483,7 @@ class ScoreViewerStoreApi {
         setMeasureNumberInterval: createScoreSettingsStoreWithSelectors.use.setMeasureNumberInterval,
         setShowColoredNotes: createScoreSettingsStoreWithSelectors.use.setShowColoredNotes,
         setNoteVisualization: createScoreSettingsStoreWithSelectors.use.setNoteVisualization,
+        resetEditorialOptions: createScoreSettingsStoreWithSelectors.use.resetEditorialOptions,
         resetScoreSettings: createScoreSettingsStoreWithSelectors.use.resetScoreSettings,
 
 

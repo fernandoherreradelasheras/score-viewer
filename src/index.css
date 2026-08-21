@@ -86,13 +86,48 @@
 
 /* Every <app> of the variant group whose dialog is open, the one clicked included:
    they are a single decision, so the reader sees its whole reach at once. Comes after
-   the container rule, and outweighs it, to paint a ring the dashed one leaves hollow. */
-.svg-container.editorial-active.static-score svg .app.editorial-group-member>.content-bounding-box>rect {
-  fill: var(--editorial-color);
+   the container rule, and outweighs it, to paint a ring the dashed one leaves hollow.
+   The second selector is for a dialog reached from the score info list with the
+   editorial layer off: there is a highlighted element on the page but no layer to lean
+   on, so the box is painted in full here rather than inherited from the base rule. */
+.svg-container.editorial-active.static-score svg .app.editorial-group-member>.content-bounding-box>rect,
+.svg-container.static-score svg:has(.highlighted) .app.editorial-group-member>.content-bounding-box>rect {
+  fill: var(--editorial-color, #6F6F9E);
   fill-opacity: 0.28;
-  outline-style: solid;
-  outline-width: 55px;
+  outline: 55px solid var(--editorial-color, #6F6F9E);
+  outline-offset: var(--editorial-offset, 120px);
+  stroke: transparent !important;
+  visibility: visible;
   transition: fill-opacity 0.15s ease, outline-width 0.15s ease;
+}
+
+/* An intervention the reader asked to be taken to, from the score info list. It has to
+   be findable whether or not the editorial layer is on, so it paints its own box
+   instead of leaning on the editorial rules. It pulses a couple of times to catch the
+   eye and then stays put, marking the element for as long as the page is on screen.
+   Comes after the editorial-mode-off rule and ties with it on specificity, so source
+   order is what keeps the box visible. */
+.svg-container.static-score svg .mei-editorial.highlighted>.content-bounding-box>rect {
+  fill: var(--editorial-color, #6F6F9E);
+  fill-opacity: 0.28;
+  outline: 40px solid var(--editorial-color, #6F6F9E);
+  outline-offset: var(--editorial-offset, 120px);
+  stroke: transparent !important;
+  visibility: visible;
+  /* Ends on the resting values above, so the pulse settles into the mark instead of
+     snapping out of it. */
+  animation: editorial-highlight 1s ease-in-out 2;
+}
+
+@keyframes editorial-highlight {
+  0%, 100% {
+    fill-opacity: 0.28;
+    outline-width: 40px;
+  }
+  50% {
+    fill-opacity: 0.5;
+    outline-width: 70px;
+  }
 }
 
 /* Hovering one <app> of a variant group lights every <app> the decision moves, not

@@ -19,7 +19,7 @@ import { useConfigValidation } from './hooks/useConfigValidation';
 import { useTranslation } from 'react-i18next';
 import ErrorView from './ErrorView';
 import ScoreOptionsPanel from './ScoreOptionsPanel';
-import LayoutManager, { rendersTabBar } from './components/LayoutManager';
+import LayoutManager, { hasSecondaryContent, rendersTabBar } from './components/LayoutManager';
 import ScoreViewerHeader from './components/ScoreViewerHeader';
 import SettingsButton from './components/SettingsButton';
 import { useScoreViewerEffects } from './hooks/useScoreViewerEffects';
@@ -299,12 +299,23 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     setOpenDrawer(false);
   }, []);
 
+  // A score with nothing but music is shown the same way whichever layout is picked,
+  // so the panel says so instead of offering a setting with nothing to act on.
+  const scoreHasSecondaryContent = useMemo(() => hasSecondaryContent({
+    introView, textView, facsimileView,
+    showIntroductionSection: config.settings.showIntroductionSection,
+    showTextSection: config.settings.showTextSection,
+    showFacsimileSection: config.settings.showFacsimileSection
+  }), [introView, textView, facsimileView, config.settings.showIntroductionSection,
+    config.settings.showTextSection, config.settings.showFacsimileSection]);
+
   const drawer = useMemo(() =>
     openDrawer ? <ScoreOptionsPanel
       allowUserLanguageChange={config.settings.allowUserLanguageChange}
+      hasSecondaryContent={scoreHasSecondaryContent}
       onClose={onDrawerClose}
       open={openDrawer} /> : null
-    , [openDrawer, config.settings.allowUserLanguageChange, onDrawerClose])
+    , [openDrawer, config.settings.allowUserLanguageChange, scoreHasSecondaryContent, onDrawerClose])
 
 
   // settingsInTabBar already implies the header would have nothing else to show

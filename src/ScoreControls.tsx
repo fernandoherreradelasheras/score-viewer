@@ -1,11 +1,12 @@
-import { useMemo } from 'react';
-import { Space, Pagination, Button, Col, Row } from 'antd';
-import { ZoomInOutlined, ZoomOutOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined } from '@ant-design/icons';
+import { useMemo, useState } from 'react';
+import { Space, Pagination, Button, Col, Row, Tooltip } from 'antd';
+import { ZoomInOutlined, ZoomOutOutlined, FullscreenOutlined, FullscreenExitOutlined, ProfileOutlined } from '@ant-design/icons';
 import { PlayingState } from './types';
 import PlayerControls from './PlayerControls';
 import useScoreControls from './hooks/useScoreControls';
 import { useTranslation } from 'react-i18next';
 import useStore from './store';
+import ScoreInfo from './components/ScoreInfo';
 
 export enum PlayerControlEventType {
     SEEK,
@@ -25,13 +26,15 @@ interface ScoreControlProps {
 
 const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDuration }: ScoreControlProps) => {
     const { t } = useTranslation("common")
-  const splitView = useStore.use.isSplitView();
+    const splitView = useStore.use.isSplitView();
+    const score = useStore.use.score();
+
+    const [showScoreInfo, setShowScoreInfo] = useState(false);
 
     // Use our custom hook for all score controls logic
     const {
         // State and derived state
         currentPageNumber,
-        scoreUrl,
         pageCount,
         playingState,
         shouldShowPagination,
@@ -56,12 +59,15 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDura
                 onClick={handleFullScreenToggle}
                 disabled={playingState === PlayingState.PLAYING} />
 
-
-            {showDownloadButton ?
-                <Button type="default" icon={<DownloadOutlined />} download href={scoreUrl || ''}>MEI</Button> : null}
+            <Tooltip title={t('scoreInfo.button')}>
+                <Button
+                    icon={<ProfileOutlined />}
+                    onClick={() => setShowScoreInfo(true)}
+                    disabled={!score} >{t('scoreInfo.button')}</Button>
+            </Tooltip>
 
         </Space>
-    ), [canZoomIn, canZoomOut, playingState, isFullScreen, scoreUrl, t]);
+    ), [canZoomIn, canZoomOut, playingState, isFullScreen, score, t]);
 
     const pagination = useMemo(() => (
         shouldShowPagination ?
@@ -92,6 +98,11 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDura
 
             {playingState === PlayingState.STOPPED ?
                 viewingControls : <PlayerControls audioDuration={audioDuration} />}
+
+            <ScoreInfo
+                open={showScoreInfo}
+                onClose={() => setShowScoreInfo(false)}
+                showDownload={showDownloadButton ?? false} />
         </div>
     );
 };

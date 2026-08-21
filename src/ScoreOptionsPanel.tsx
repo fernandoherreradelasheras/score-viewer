@@ -10,7 +10,7 @@ import { useCallback, useMemo } from "react";
 
 
 
-function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUserLanguageChange: boolean, onClose: () => void, open: boolean }) {
+function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClose, open }: { allowUserLanguageChange: boolean, hasSecondaryContent: boolean, onClose: () => void, open: boolean }) {
     const { t, i18n } = useTranslation("common")
 
     const score = useStore.use.score();
@@ -165,11 +165,11 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
         <Row align={"middle"}>
             <Col span={16}>
                 <Space direction="vertical">
-                    <Typography.Text strong={true}>
+                    <Typography.Text strong={true} {...(!hasSecondaryContent ? { type: 'secondary' } : {})}>
                         {t('scoreOptions.uiLayout.title')}
                     </Typography.Text>
-                    <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }}>
-                        {t('scoreOptions.uiLayout.description')}
+                    <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!hasSecondaryContent ? { type: 'secondary' } : {})}>
+                        {t(hasSecondaryContent ? 'scoreOptions.uiLayout.description' : 'scoreOptions.uiLayout.onlyMusic')}
                     </Typography.Text>
                 </Space>
             </Col>
@@ -178,6 +178,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, onClose, open }: { allowUs
                     defaultValue={isSplitView ? `${splitViewOrientation}-split` : "tabs"}
                     options={layoutOptions}
                     onSelect={onLayoutSelected}
+                    disabled={!hasSecondaryContent}
                 />
             </Col>
         </Row> : null

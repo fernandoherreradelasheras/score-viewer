@@ -473,8 +473,10 @@ export default function useScoreActions({
       setSvgClassesForEditorial(svgElement)
       setSvgGroupsForEditorial(svgElement, new Set(Object.keys(score?.properties?.categories ?? {})))
 
+      // Map to easily go to the page with an editorial element from the score info dialog
+      // without asking verovio. The classes were just set above.
       setElementPages(
-        [...svgElement.querySelectorAll(".note[id], .rest[id], .chord[id]")].map(e => e.id),
+        [...svgElement.querySelectorAll(".note[id], .rest[id], .chord[id], .mei-editorial[id]")].map(e => e.id),
         renderPage
       );
 

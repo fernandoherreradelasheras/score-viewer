@@ -190,6 +190,16 @@ class ScoreAnalyzer {
         return null
     }
 
+    // Where an intervention sits, for anything that has to place it for the reader.
+    locationOf(element: Element): { measure: string | null, voice: string | null, partN: number | null } {
+        const staff = this.ancestorNumber(element, "staff")
+        return {
+            measure: this.ancestorNumber(element, "measure"),
+            voice: staff ? this.getVoiceName(staff) : null,
+            partN: staff ? parseInt(staff) : null
+        }
+    }
+
     // Record every <app> under the category its readings classify with, so a dialog on
     // one of them can tell what else changes with it. An <app> counts only when all its
     // readings agree on the category, the same rule that names the decision as a whole
@@ -208,12 +218,7 @@ class ScoreAnalyzer {
                     .map(c => this.optionCategoryId(c as Element)))
                 const [categoryId] = [...ids]
                 if (ids.size == 1 && categoryId && this.categories[categoryId]) {
-                    const staff = this.ancestorNumber(app, "staff")
-                    this.categories[categoryId].apps.push({
-                        id,
-                        measure: this.ancestorNumber(app, "measure"),
-                        voice: staff ? this.getVoiceName(staff) : null,
-                    })
+                    this.categories[categoryId].apps.push(id)
                 }
             }
             node = matches.iterateNext()
@@ -304,7 +309,8 @@ class ScoreAnalyzer {
                     type: editorialType,
                     annotations: new Set(),
                     childIds: childIds,
-                    contentDescription: descriptions
+                    contentDescription: descriptions,
+                    ...this.locationOf(element)
                 })
             }
             node = matches.iterateNext()
@@ -398,7 +404,10 @@ class ScoreAnalyzer {
                     contentDescription: descriptions.length > 0 ? descriptions : undefined
                 })
         }
-        return { id: choiceId!!, type: type, resp: "", reason: "", source: "", choice: choice, annotations: new Set() }
+        return {
+            id: choiceId!!, type: type, resp: "", reason: "", source: "",
+            choice: choice, annotations: new Set(), ...this.locationOf(node)
+        }
     }
 
 

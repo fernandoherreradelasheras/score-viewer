@@ -21,13 +21,12 @@ interface ActionPipelineConfig {
     onFailure: () => void;
     /** The pipeline went idle: the chain is over and nothing was queued behind it. */
     onIdle: () => void;
-    /** Whether actions can be processed at all; while false they stay pending. */
-    canRun: () => boolean;
     /**
-     * Whether the pending action describes a state not worth rendering (say, a zeroed
-     * target size); such an action is dropped rather than held.
+     * Whether actions can be processed at all; while false they stay pending. A value
+     * rather than a predicate on purpose. It is what tells the dispatch below to run
+     * again once what it was waiting for (the toolkit, the container) is there.
      */
-    shouldDiscard: () => boolean;
+    canRun: boolean;
 }
 
 /**
@@ -42,6 +41,7 @@ interface ActionPipelineConfig {
  * with the caller, behind the config callbacks.
  */
 export default function useActionPipeline(config: ActionPipelineConfig) {
+    const { canRun } = config;
     const pendingAction = useStore.use.pendingAction();
     const setPendingAction = useStore.use.setPendingAction();
 
@@ -155,13 +155,16 @@ export default function useActionPipeline(config: ActionPipelineConfig) {
         return true;
     }, [flushQueuedAction]);
 
+    // Announced onIdle when nothing is pending.
+    useEffect(() => {
+        if (!pendingAction && !runningRef.current && queuedActionRef.current == null) {
+            configRef.current.onIdle();
+        }
+    }, [pendingAction]);
+
     // Process pending actions
     useEffect(() => {
-        if (!pendingAction || !configRef.current.canRun()) {
-            return;
-        }
-        if (configRef.current.shouldDiscard()) {
-            setPendingAction(null);
+        if (!pendingAction || !canRun) {
             return;
         }
         // Never start a second chain on top of a running one: both would interleave
@@ -174,7 +177,7 @@ export default function useActionPipeline(config: ActionPipelineConfig) {
         continuationRef.current = null;
         runningRef.current = true;
         runChainStep(pendingAction);
-    }, [pendingAction]);
+    }, [pendingAction, canRun]);
 
     return { schedule, isBusy, runExclusive };
 }

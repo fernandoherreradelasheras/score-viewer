@@ -42,6 +42,9 @@ interface BaseEditorialItem {
     source: string
     annotations: Set<Annotation>
     correspIds?: string[]
+    measure: string | null
+    voice: string | null
+    partN: number | null
 }
 
 

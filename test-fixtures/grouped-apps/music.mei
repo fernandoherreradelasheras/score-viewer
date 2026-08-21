@@ -16,17 +16,17 @@
          <sourceDesc>
             <source xml:id="src-A" n="1" type="principal" label="manuscript">
                <bibl>
-                  <title>Fuente A (lectura principal)</title>
+                  <title>Fuente A</title>
                </bibl>
             </source>
             <source xml:id="src-B" n="2" type="complementary" label="manuscript">
                <bibl>
-                  <title>Fuente B (primera alternativa)</title>
+                  <title>Fuente B</title>
                </bibl>
             </source>
             <source xml:id="src-C" n="3" type="complementary" label="manuscript">
                <bibl>
-                  <title>Fuente C (segunda alternativa)</title>
+                  <title>Fuente C</title>
                </bibl>
             </source>
          </sourceDesc>
