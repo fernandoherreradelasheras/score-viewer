@@ -129,7 +129,7 @@
             "path": "grouped-apps",
             "meiFile": "music.mei",
             "encodingProperties": {
-                "encodedTransposition": ""
+                "encodedTransposition": "-P4"
             }
         }
     ]

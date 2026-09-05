@@ -3,6 +3,7 @@ import useStore from '../store';
 import {
     ChoiceEditorialItem, ContentDescription, EDITORIAL_ALL_TAGS, EditorialItem, Option,
 } from '../types';
+import { getReverseTransposition, transposeNote } from '../utils/score-utils';
 
 
 const ACCIDENTAL_SYMBOLS: Record<string, string> = {
@@ -49,8 +50,15 @@ export default function useEditorialText() {
     const appOptions = useStore.use.appOptions();
     const choiceOptions = useStore.use.choiceOptions();
     const substOptions = useStore.use.substOptions();
+    const withoutTransposition = useStore.use.withoutTransposition();
 
     const editorials = score?.editorialItems;
+
+    // Content descriptions carry the pitches as encoded; when the score is shown with
+    // its transposition undone, they must read as the notes the reader sees.
+    const displayedTransposition = withoutTransposition
+        ? getReverseTransposition(score?.properties?.encodedTransposition)
+        : "";
 
     const titleKey = (type: string): string => {
         if (EDITORIAL_ALL_TAGS.includes(type)) {
@@ -90,12 +98,13 @@ export default function useEditorialText() {
                 defaultValue: `${duration} rest`,
             });
         }
-        const pitch = t(`note.pitch.${item.pname}`, { defaultValue: item.pname.toUpperCase() });
-        const accidental = item.accid ? ACCIDENTAL_SYMBOLS[item.accid] ?? "" : "";
+        const note = displayedTransposition ? transposeNote(item, displayedTransposition) : item;
+        const pitch = t(`note.pitch.${note.pname}`, { defaultValue: note.pname.toUpperCase() });
+        const accidental = note.accid ? ACCIDENTAL_SYMBOLS[note.accid] ?? "" : "";
         return t("note.description", {
             pitch,
             accidental,
-            octave: item.oct,
+            octave: note.oct,
             duration,
             defaultValue: `${pitch}${accidental}${item.oct}, ${duration}`,
         });
