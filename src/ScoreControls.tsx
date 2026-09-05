@@ -7,6 +7,7 @@ import useScoreControls from './hooks/useScoreControls';
 import { useTranslation } from 'react-i18next';
 import useStore from './store';
 import ScoreInfo from './components/ScoreInfo';
+import PagePreview from './components/PagePreview';
 
 export enum PlayerControlEventType {
     SEEK,
@@ -78,6 +79,11 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDura
                 defaultPageSize={1}
                 total={pageCount}
                 simple={false}
+                // Only the numbered items: the arrows and the ellipses stand for no page
+                // in particular, so there is nothing to preview on them.
+                itemRender={(page, type, element) => type === 'page'
+                    ? <PagePreview page={page}>{element}</PagePreview>
+                    : element}
                 onChange={handlePageClick} />
             : null
     ), [shouldShowPagination, playingState, currentPageNumber, pageCount]);

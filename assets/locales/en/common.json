@@ -188,7 +188,8 @@
     "resetSettings": "Reset settings to default"
   },
   "score": {
-    "measureNumber": "Measure {{number}}"
+    "measureNumber": "Measure {{number}}",
+    "pageNumber": "Page {{number}}"
   },
   "textView": {
     "intro": "Introduction",

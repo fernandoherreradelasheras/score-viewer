@@ -214,7 +214,8 @@
     "resetSettings": "Restablecer configuración por defecto"
   },
   "score": {
-    "measureNumber": "Compás {{number}}"
+    "measureNumber": "Compás {{number}}",
+    "pageNumber": "Página {{number}}"
   },
   "textView": {
     "intro": "Introducción",

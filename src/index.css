@@ -101,6 +101,14 @@
   transition: fill-opacity 0.15s ease, outline-width 0.15s ease;
 }
 
+/* A page of the score drawn small, as the preview of a paginator button. The markup is
+   the cached page as it was rendered, so it arrives ready to fade in — opacity 0 — and
+   with no room to be reset before it paints; here it is simply always shown. */
+.page-thumbnail>svg {
+  opacity: 1 !important;
+  transition: none !important;
+}
+
 /* An intervention the reader asked to be taken to, from the score info list. It has to
    be findable whether or not the editorial layer is on, so it paints its own box
    instead of leaning on the editorial rules. It pulses a couple of times to catch the
