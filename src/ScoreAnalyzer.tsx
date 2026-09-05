@@ -25,11 +25,22 @@ class ScoreAnalyzer {
     }
 
 
+    soundingAccidental(note: Element): { accid: string, editorialAccid: boolean } {
+        const carriers = [note, ...Array.from(note.children).filter(c => c.localName == "accid")];
+        for (const name of ["accid.ges", "accid"]) {
+            const carrier = carriers.find(c => c.getAttribute(name));
+            if (carrier) {
+                return { accid: carrier.getAttribute(name)!, editorialAccid: carrier.getAttribute("func") == "edit" };
+            }
+        }
+        return { accid: "", editorialAccid: false };
+    }
+
     describeNoteElement(element: Element): ContentDescription {
         return {
             kind: "note",
             pname: element.getAttribute("pname") || "",
-            accid: element.getAttribute("accid") || "",
+            ...this.soundingAccidental(element),
             oct: element.getAttribute("oct") || "",
             dur: element.getAttribute("dur") || "",
         };

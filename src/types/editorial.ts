@@ -22,6 +22,7 @@ export interface NoteContentDescription {
     kind: "note"
     pname: string
     accid: string
+    editorialAccid: boolean
     oct: string
     dur: string
 }

@@ -12,6 +12,7 @@ const ACCIDENTAL_SYMBOLS: Record<string, string> = {
     n: "♮",
     ff: "𝄫",
     ss: "𝄪",
+    x: "𝄪",
 };
 
 const MEI_DURATIONS: Record<string, { mensuralKey: string; commonKey: string }> = {
@@ -100,7 +101,8 @@ export default function useEditorialText() {
         }
         const note = displayedTransposition ? transposeNote(item, displayedTransposition) : item;
         const pitch = t(`note.pitch.${note.pname}`, { defaultValue: note.pname.toUpperCase() });
-        const accidental = note.accid ? ACCIDENTAL_SYMBOLS[note.accid] ?? "" : "";
+        const symbol = note.accid ? ACCIDENTAL_SYMBOLS[note.accid] ?? "" : "";
+        const accidental = symbol && note.editorialAccid ? `(${symbol})` : symbol;
         return t("note.description", {
             pitch,
             accidental,

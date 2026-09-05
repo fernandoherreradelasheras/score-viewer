@@ -17,7 +17,7 @@ interface NotePitch {
 
 const PITCH_NAMES = ["c", "d", "e", "f", "g", "a", "b"];
 const NATURAL_SEMITONES = [0, 2, 4, 5, 7, 9, 11];
-const ACCIDENTAL_OFFSETS: Record<string, number> = { ff: -2, f: -1, "": 0, n: 0, s: 1, ss: 2 };
+const ACCIDENTAL_OFFSETS: Record<string, number> = { ff: -2, f: -1, "": 0, n: 0, s: 1, ss: 2, x: 2 };
 const ACCIDENTALS_BY_OFFSET: Record<number, string> = { [-2]: "ff", [-1]: "f", 0: "", 1: "s", 2: "ss" };
 
 // Verovio's interval syntax ("-P4", "+M3", "P8"): a sign, a quality and a number.
