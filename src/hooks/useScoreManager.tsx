@@ -84,13 +84,11 @@ export function useScoreManager({
     }
   };
 
+  // `score` here is the one on show before loadAll cleared the store, so it only says
+  // whether the old page must fade; the store has to be set again either way.
   const updateScore = (scoreIndex: number, newScore: Score) => {
-    if (score) {
-      if (newScore == score) {
-        return;
-      } else {
-        fadeOut()
-      }
+    if (score && newScore != score) {
+      fadeOut()
     }
 
     setScore(newScore);

@@ -176,7 +176,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
         await loadAll(scoreIndex);
       }
     }
-  }));
+  }), [goToSection, unloadScore, loadAll]);
 
   // All effects moved to useScoreViewerEffects hook
   useScoreViewerEffects({
