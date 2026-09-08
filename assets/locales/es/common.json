@@ -39,6 +39,7 @@
     "optionNumber": "opción nº{{number}}",
     "formatType": {
       "corr": "corrección aplicada",
+      "annot": "anotación",
       "unclear": "elemento poco claro en la fuente",
       "choice": "opciones alternativas",
       "app": "lecturas alternativas",
@@ -59,11 +60,12 @@
     "formatHeaderSingle": "Elemento $t(editorial.appliedTypeSingle.{{ type }}): ",
     "formatHeaderSeveral": "Elementos $t(editorial.appliedTypeSeveral.{{ type }}): ",
     "appliedTypeSingle": {
+      "annot": "anotado",
       "corr": "corregido",
       "unclear": "poco claro",
       "add": "añadido",
       "del": "eliminado",
-      "orig": "originale",
+      "orig": "original",
       "reg": "regularizado",
       "sic": "evidente",
       "supplied": "provisto",
@@ -71,6 +73,7 @@
       "damage": "dañado"
     },
     "appliedTypeSeveral": {
+      "annot": "anotados",
       "corr": "corregidos",
       "unclear": "poco claros",
       "add": "añadidos",

@@ -12,6 +12,7 @@ import {
   RenderAutoScrollConfig,
   renderAction,
   renderAutoScrollAction,
+  ANNOTATION_TARGET_TYPE,
   EDITORIAL_ALL_TAGS,
   EDITORIAL_SELECTION_TAGS,
 } from '../types';
@@ -208,6 +209,13 @@ const setSvgClassesForEditorial = (svgElement: SVGElement) => {
         }
       });
   });
+
+  // The wrapper around an annotated element is a <reg> for want of a neutral container;
+  // it stands for the annotation, so it takes the annotation's colour and not the one
+  // its tag was given above.
+  svgElement
+    .querySelectorAll(`.${ANNOTATION_TARGET_TYPE}:not(.content-bounding-box):not(.bounding-box)`)
+    .forEach(e => (e as SVGGElement).style.setProperty("--editorial-color", EDITORIAL_COLORS.annot));
 }
 
 /**

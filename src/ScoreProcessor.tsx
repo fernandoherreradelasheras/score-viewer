@@ -1,4 +1,4 @@
-import { EDITORIAL_ALL_TAGS } from "./types/editorial";
+import { ANNOTATION_TARGET_TYPE, ANNOTATION_TARGET_WRAPPER, EDITORIAL_ALL_TAGS } from "./types/editorial";
 
 type FilterFunc = (doc: Document, params: any) => void
 
@@ -9,10 +9,6 @@ const XPATH_FICTA_ACCIDS = '//mei:accid[@func="edit"]'
 const MEI_NS = "http://www.music-encoding.org/ns/mei"
 
 const nsResolver = (prefix: string | null) => { return { mei: MEI_NS, xml: "http://www.w3.org/XML/1998/namespace" }[prefix || ''] || null }
-
-// Editorial element used to wrap an annotation target that is not already
-// editorial.
-const ANNOTATION_TARGET_WRAPPER = "reg"
 
 // Elements it is valid and meaningful to wrap in an editorial element (layer-level
 // events). Non-musical annotation targets are left untouched.
@@ -164,6 +160,7 @@ const WrapAnnotationTargetsFilter: FilterFunc = (doc: Document, _: {}) => {
     toWrap.forEach(el => {
         const wrapper = doc.createElementNS(MEI_NS, ANNOTATION_TARGET_WRAPPER)
         wrapper.setAttribute("xml:id", `${ANNOTATION_TARGET_WRAPPER}-${el.getAttribute("xml:id")}`)
+        wrapper.setAttribute("type", ANNOTATION_TARGET_TYPE)
         el.parentNode?.insertBefore(wrapper, el)
         wrapper.appendChild(el)
     })

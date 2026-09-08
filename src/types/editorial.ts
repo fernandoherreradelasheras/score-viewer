@@ -13,6 +13,14 @@ export const EDITORIAL_ALL_TAGS = [...new Set([
     ...EDITORIAL_SELECTION_TAGS, ...EDITORIAL_APP_CHILD_TAGS, ...EDITORIAL_TRANSPARENT_TAGS
 ])]
 
+// An <annot> may point at plain notes, which verovio draws as ordinary music: nothing
+// there for the reader to hover or click. The score processor wraps each such target in
+// an editorial element carrying this @type, and the type is what keeps the wrapper from
+// being read as what its tag says: it is an annotation, not a regularization. Verovio
+// copies @type into the SVG class list, so it also names the wrapper in the rendered score.
+export const ANNOTATION_TARGET_WRAPPER = "reg"
+export const ANNOTATION_TARGET_TYPE = "annotation-target"
+
 // <app> types handled as global options (the options panel) rather than as editorial
 // choices. Kept in sync with GLOBAL_APP_READINGS in useScoreActions.
 export const GLOBAL_APP_TYPES = ["app_clefs", "dissonant_analysis"]
@@ -55,7 +63,7 @@ export interface ChoiceEditorialItem extends BaseEditorialItem {
 }
 
 export interface SimpleEditorialItem extends BaseEditorialItem {
-    type: "abbr" | "add" | "corr" | "damage" | "del" | "expan" | "orig" | "ref" | "reg" | "restore" | "sic" | "supplied" | "unclear"
+    type: "abbr" | "add" | "annot" | "corr" | "damage" | "del" | "expan" | "orig" | "ref" | "reg" | "restore" | "sic" | "supplied" | "unclear"
     childIds: string[]
     contentDescription: ContentDescription[]
 }

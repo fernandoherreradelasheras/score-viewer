@@ -1,4 +1,4 @@
-import { Annotation, Categories, Choice, ChoiceEditorialItem, ContentDescription, EDITORIAL_ALL_TAGS, EDITORIAL_SELECTION_TAGS, EDITORIAL_TRANSPARENT_TAGS, EditorialItem, GLOBAL_APP_TYPES, Option, ScoreProperties, SimpleEditorialItem, Sources } from "./types";
+import { Annotation, ANNOTATION_TARGET_TYPE, Categories, Choice, ChoiceEditorialItem, ContentDescription, EDITORIAL_ALL_TAGS, EDITORIAL_SELECTION_TAGS, EDITORIAL_TRANSPARENT_TAGS, EditorialItem, GLOBAL_APP_TYPES, Option, ScoreProperties, SimpleEditorialItem, Sources } from "./types";
 
 
 
@@ -317,7 +317,10 @@ class ScoreAnalyzer {
                     reason: reason || "",
                     resp: resp || "",
                     source: source || "",
-                    type: editorialType,
+                    // A wrapper the processor put around an annotated element carries no
+                    // editorial reading of its own: it is there to make the annotation
+                    // reachable, so it is named as an annotation and not as its tag.
+                    type: element.getAttribute("type") == ANNOTATION_TARGET_TYPE ? "annot" : editorialType,
                     annotations: new Set(),
                     childIds: childIds,
                     contentDescription: descriptions,

@@ -37,6 +37,7 @@
     "optionNumber": "option #{{number}}",
     "formatType": {
       "corr": "applied correction",
+      "annot": "annotation",
       "unclear": "unclear element in the source",
       "choice": "alternative options",
       "app": "alternative readings",
@@ -53,6 +54,34 @@
       "damage": "damaged material",
       "clefChange": "clef change",
       "default": "type: {{type}}"
+    },
+    "formatHeaderSingle": "$t(editorial.appliedTypeSingle.{{ type }}) element: ",
+    "formatHeaderSeveral": "$t(editorial.appliedTypeSeveral.{{ type }}) elements: ",
+    "appliedTypeSingle": {
+      "annot": "Annotated",
+      "corr": "Corrected",
+      "unclear": "Unclear",
+      "add": "Added",
+      "del": "Deleted",
+      "orig": "Original",
+      "reg": "Regularized",
+      "sic": "Erroneous",
+      "supplied": "Supplied",
+      "restore": "Restored",
+      "damage": "Damaged"
+    },
+    "appliedTypeSeveral": {
+      "annot": "Annotated",
+      "corr": "Corrected",
+      "unclear": "Unclear",
+      "add": "Added",
+      "del": "Deleted",
+      "orig": "Original",
+      "reg": "Regularized",
+      "sic": "Erroneous",
+      "supplied": "Supplied",
+      "restore": "Restored",
+      "damage": "Damaged"
     },
     "elementTitle": "Editorial intervention: $t(editorial.formatType.{{ type }})",
     "tooltip": {
