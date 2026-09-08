@@ -36,6 +36,9 @@
     "resp": "Responsible person",
     "optionNumber": "option #{{number}}",
     "formatType": {
+      "abbr": "abbreviation",
+      "expan": "expanded abbreviation",
+      "ref": "reference",
       "corr": "applied correction",
       "annot": "annotation",
       "unclear": "unclear element in the source",
@@ -122,7 +125,7 @@
     "settings": "Settings"
   },
   "scoreInfo": {
-    "title": "Score information",
+    "header": "Score information",
     "button": "Properties",
     "download": "Download MEI",
     "identification": "Identification",

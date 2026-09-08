@@ -286,12 +286,24 @@ class ScoreAnalyzer {
         return res?.iterateNext()?.nodeValue
     }
 
+    isCommentary(element: Element): boolean {
+        for (let ancestor: Element | null = element; ancestor != null; ancestor = ancestor.parentElement) {
+            if (ancestor.localName == "annot") {
+                return true
+            }
+        }
+        return false
+    }
+
     getEditorialNodesOfType = (editorialType: SimpleEditorialItem["type"]): SimpleEditorialItem[] => {
         const items: SimpleEditorialItem[] = []
         let matches = this.document.evaluate(`//mei:${editorialType}`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
         while (node != null) {
-            if (node.parentElement?.tagName && !EDITORIAL_SELECTION_TAGS.includes(node.parentElement?.tagName)) {
+            // An annotation is shown on the element it points at, so taking the <annot>
+            // for an item of its own duplicated it, next to the real one and saying less.
+            if (node.parentElement?.tagName && !EDITORIAL_SELECTION_TAGS.includes(node.parentElement?.tagName)
+                && !this.isCommentary(node as Element)) {
                 const element = node as Element
                 const id = element.getAttribute("xml:id")
                 const reason = element.getAttribute("reason")

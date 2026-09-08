@@ -1,5 +1,5 @@
 import { useContext, useMemo } from "react";
-import { Modal, Descriptions, Divider, Typography, Button, List, Space } from "antd";
+import { Modal, Descriptions, Divider, Typography, Button, List, Space, Badge } from "antd";
 import { DownloadOutlined, SelectOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import useStore from "../store";
@@ -17,6 +17,9 @@ const DIALOG_WIDTH = 720;
 // What getEditor() yields when the MEI names no transcriber.
 const MISSING = "<missing>";
 
+const SOURCES_MAX_HEIGHT = "min(200px, 25vh)";
+const APPARATUS_MAX_HEIGHT = "min(380px, 45vh)";
+
 const isChoice = (item: EditorialItem): item is ChoiceEditorialItem => 'choice' in item;
 
 
@@ -28,13 +31,25 @@ function ScoreInfo({ open, onClose, showDownload }: { open: boolean, onClose: ()
     const goToElement = useStore.use.goToElement();
     const { verovio } = useContext(Context);
 
-    const { describeItemType, describeCurrentOption, describePlaceWithStaff, isChanged } = useEditorialText();
+    const {
+        describeItemType, describeCurrentOption, describeContentAsString, describePlaceWithStaff,
+        getAnnotationText, isChanged,
+    } = useEditorialText();
 
     const properties = score?.properties;
 
-    const decisions = useMemo(
-        () => (score?.editorialItems ?? []).filter(isChoice),
-        [score?.editorialItems]);
+    // The analyzer collects the apparatus one tag at a time, so its order is by kind of
+    // element rather than by place in the score.
+    const editorialItems = useMemo(() => {
+        const measureOf = (item: EditorialItem) => {
+            const measure = Number(item.measure);
+            return Number.isFinite(measure) ? measure : Number.MAX_SAFE_INTEGER;
+        };
+        return [...(score?.editorialItems ?? [])].sort((a, b) =>
+            measureOf(a) - measureOf(b) || (a.partN ?? 0) - (b.partN ?? 0));
+    }, [score?.editorialItems]);
+
+    const decisions = editorialItems.filter(isChoice);
     const changed = decisions.filter(isChanged);
 
 
@@ -76,6 +91,40 @@ function ScoreInfo({ open, onClose, showDownload }: { open: boolean, onClose: ()
         }
     };
 
+    const itemTitle = (item: EditorialItem) => {
+        const place = describePlaceWithStaff(item);
+        return [describeItemType(item), place && `(${place})`].filter(Boolean).join(" ");
+    };
+
+    const currentReading = (item: ChoiceEditorialItem) => (
+        <>
+            {t('scoreInfo.currentReadingShort')}: <Text style={{ color: !isChanged(item) ? EDITORIAL_COLORS["lem"] : EDITORIAL_COLORS["rdg"] }}>
+                {describeCurrentOption(item, true)}
+            </Text>
+        </>
+    );
+
+    const itemDescription = (item: EditorialItem) => {
+        const content = isChoice(item)
+            ? currentReading(item)
+            : describeContentAsString(item.contentDescription);
+        const annotation = getAnnotationText(item);
+
+        if (!content && !annotation) {
+            return null;
+        }
+        return (
+            <>
+                {content}
+                {annotation && <div><Text type="secondary" italic>{annotation}</Text></div>}
+            </>
+        );
+    };
+
+    const scrollBox = (maxHeight: string, content: React.ReactNode) => (
+        <div style={{ maxHeight, overflowY: 'auto' }}>{content}</div>
+    );
+
     const section = (title: string | null, content: React.ReactNode) => (
         <>
             {title && <Divider orientation="left" style={{ marginTop: 24 }}><Text strong>{title}</Text></Divider>}
@@ -83,11 +132,11 @@ function ScoreInfo({ open, onClose, showDownload }: { open: boolean, onClose: ()
         </>
     );
 
-
+    const title = score?.title ? `${score.title} - ${t('scoreInfo.header')}` : t('scoreInfo.header')
 
     return (
         <Modal
-            title={t('scoreInfo.title')}
+            title={<Text strong style={{ fontSize: "1.1em" }}>{title}</Text>}
             open={open}
             onCancel={onClose}
             width={`min(${DIALOG_WIDTH}px, calc(100vw - ${2 * DIALOG_MARGIN}px))`}
@@ -98,19 +147,18 @@ function ScoreInfo({ open, onClose, showDownload }: { open: boolean, onClose: ()
                     display: 'flex',
                     flexDirection: 'column',
                 },
-                body: { overflowY: 'auto' },
+                body: { overflowY: 'auto' }
             }}
             footer={null}
         >
 
-            <Space align="start" style={{ width: "100%", justifyContent: "space-between" }}>
-                {score?.title && <Text strong style={{ fontSize: "1.1em" }}>{score.title}</Text>}
-                {showDownload && score?.url && (
+            {showDownload && score?.url && (
+                <Space align="start" style={{ width: "100%", justifyContent: "right" }}>
                     <Button size="small" icon={<DownloadOutlined />} download href={score.url}>
                         {t('scoreInfo.download')}
                     </Button>
-                )}
-            </Space>
+                </Space>
+            )}
 
             {identification.length > 0 && section(null,
                 <Descriptions size="small" column={1} items={identification} />)}
@@ -119,37 +167,35 @@ function ScoreInfo({ open, onClose, showDownload }: { open: boolean, onClose: ()
                 <Descriptions size="small" column={1} items={scoreData} />)}
 
             {sources.length > 0 && section(t('scoreInfo.sources'),
-                <List size="small" dataSource={sources}
-                    renderItem={source => <List.Item>{source}</List.Item>} />)}
+                scrollBox(SOURCES_MAX_HEIGHT,
+                    <List size="small" dataSource={sources}
+                        renderItem={source => <List.Item>{source}</List.Item>} />))}
 
-            {decisions.length > 0 && section(t('scoreInfo.readings'),
+            {editorialItems.length > 0 && section(t('scoreInfo.readings'),
                 <>
-                    {
-                        <List
-                            size="small"
-                            dataSource={decisions}
-                            renderItem={item => (
-                                <List.Item>
-                                    <List.Item.Meta
-                                        title={
-                                            <Space size="small">
-                                                <Text>{[describeItemType(item), `(${describePlaceWithStaff(item)})`].filter(Boolean).join(" ")}</Text>
-                                                <Button size="small" type="link" icon={<SelectOutlined />}
-                                                    onClick={() => openThere(item)}>
-                                                    {t('scoreInfo.open')}
-                                                </Button>
-                                            </Space>
-                                        }
-                                        description={<>
-                                            {t('scoreInfo.currentReadingShort')}: <Text style={{ color: !isChanged(item) ? EDITORIAL_COLORS["lem"] : EDITORIAL_COLORS["rdg"] }}>
-                                                {describeCurrentOption(item, true)}
-                                            </Text>
-                                        </>}
-                                    />
-                                </List.Item>
-                            )} />
-                    }
-                    <Button onClick={resetEditorialOptions} danger disabled={changed.length === 0} style={{ marginTop: 12 }}>{t('scoreInfo.reset')}</Button>
+                    {scrollBox(APPARATUS_MAX_HEIGHT, <List
+                        size="small"
+                        dataSource={editorialItems}
+                        renderItem={item => (
+                            <List.Item>
+                                <List.Item.Meta
+                                    title={
+                                        <Space size="small">
+                                            <Badge
+                                                color={EDITORIAL_COLORS[item.type as keyof typeof EDITORIAL_COLORS] ?? undefined}
+                                                text={<Text>{itemTitle(item)}</Text>} />
+                                            <Button size="small" type="link" icon={<SelectOutlined />}
+                                                onClick={() => openThere(item)}>
+                                                {t('scoreInfo.open')}
+                                            </Button>
+                                        </Space>
+                                    }
+                                    description={itemDescription(item)}
+                                />
+                            </List.Item>
+                        )} />)}
+                    {decisions.length > 0 &&
+                        <Button onClick={resetEditorialOptions} danger disabled={changed.length === 0} style={{ marginTop: 12 }}>{t('scoreInfo.reset')}</Button>}
                 </>
             )}
         </Modal>

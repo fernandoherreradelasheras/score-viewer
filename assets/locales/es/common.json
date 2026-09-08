@@ -38,6 +38,9 @@
     "resp": "Responsable",
     "optionNumber": "opción nº{{number}}",
     "formatType": {
+      "abbr": "abreviatura",
+      "expan": "abreviatura desarrollada",
+      "ref": "referencia",
       "corr": "corrección aplicada",
       "annot": "anotación",
       "unclear": "elemento poco claro en la fuente",
@@ -122,7 +125,7 @@
     "settings": "Configuración"
   },
   "scoreInfo": {
-    "title": "Información de la partitura",
+    "header": "Información de la partitura",
     "button": "Propiedades",
     "download": "Descargar MEI",
     "identification": "Identificación",
