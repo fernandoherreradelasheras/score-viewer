@@ -9,10 +9,11 @@ const THUMBNAIL_WIDTH = 200;
 
 interface PagePreviewProps {
     page: number;
+    backgroundColor?: string | undefined;
     children: React.ReactNode;
 }
 
-function PagePreview({ page, children }: PagePreviewProps) {
+function PagePreview({ page, backgroundColor, children }: PagePreviewProps) {
     const { t } = useTranslation("common");
     const score = useStore.use.score();
     const sectionPageMap = useStore.use.sectionPageMap();
@@ -51,6 +52,7 @@ function PagePreview({ page, children }: PagePreviewProps) {
                         width: THUMBNAIL_WIDTH,
                         height: Math.round(THUMBNAIL_WIDTH * thumbnail.aspect),
                         marginTop: 8,
+                        background: backgroundColor,
                     }}
                     dangerouslySetInnerHTML={{ __html: thumbnail.svgHTML }} />
             )}

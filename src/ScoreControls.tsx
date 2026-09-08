@@ -22,10 +22,11 @@ interface ScoreControlProps {
     style?: React.CSSProperties | undefined;
     fullScreenElement: HTMLElement | null;
     showDownloadButton?: boolean | undefined;
+    backgroundColor?: string | undefined;
     audioDuration: number;
 }
 
-const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDuration }: ScoreControlProps) => {
+const ScoreControls = ({ style, fullScreenElement, showDownloadButton, backgroundColor, audioDuration }: ScoreControlProps) => {
     const { t } = useTranslation("common")
     const splitView = useStore.use.isSplitView();
     const score = useStore.use.score();
@@ -82,7 +83,7 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDura
                 showTitle={false}
                 itemRender={(page, type, element) => {
                     if (type === 'page') {
-                        return <PagePreview page={page}>{element}</PagePreview>
+                        return <PagePreview page={page} backgroundColor={backgroundColor}>{element}</PagePreview>
                     }
                     if (type === 'prev' || type === 'next') {
                         return cloneElement(element as React.ReactElement<{ title?: string }>,
@@ -92,7 +93,7 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDura
                 }}
                 onChange={handlePageClick} />
             : null
-    ), [shouldShowPagination, playingState, currentPageNumber, pageCount, t]);
+    ), [shouldShowPagination, playingState, currentPageNumber, pageCount, backgroundColor, t]);
 
     const viewingControls = useMemo(() => {
         return <Row style={{ justifyContent: "left", backgroundColor: "white" }} gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>

@@ -122,6 +122,7 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
                     style={{ flex: "0" }}
                     fullScreenElement={scoreViewerRef.current}
                     showDownloadButton={scoreViewContainerProps.showDownloadButton ?? false}
+                    backgroundColor={backgroundColor}
                     audioDuration={audioDuration} /> : null}
 
                 <div className="score-container swipeable-container"
