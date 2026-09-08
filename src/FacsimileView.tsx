@@ -1,12 +1,12 @@
 import { Button, Pagination, Space } from 'antd';
 import { FacsimileItem } from './types';
 import useStore from "./store";
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { cloneElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pan-pinch";
 import { CloseOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import FacsimilePreview from './components/FacsimilePreview';
 
-// Room left around the image inside its container
 const IMAGE_PADDING = 12;
 
 function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }) {
@@ -49,17 +49,29 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
         defaultPageSize={1}
         total={items.length}
         simple={false}
+        showTitle={false}
+        itemRender={(page, type, element) => {
+          if (type === 'page' && items[page - 1]) {
+            return <FacsimilePreview
+              page={page}
+              name={items[page - 1].name}
+              src={path + items[page - 1].file}>{element}</FacsimilePreview>
+          }
+          if (type === 'prev' || type === 'next') {
+            return cloneElement(element as React.ReactElement<{ title?: string }>,
+              { title: t(type === 'prev' ? 'pagination.previousPage' : 'pagination.nextPage') })
+          }
+          return element;
+        }}
         onChange={handlePageClick} /> : null}
       {splitView ? <Button icon={<CloseOutlined />} onClick={() => close()} /> : null}
 
     </div>
-  }, [items, currentItem, splitView, splitViewOrientation, close, t, setSplitView]);
+  }, [items, path, currentItem, splitView, splitViewOrientation, close, t, setSplitView]);
 
 
-  // How much room is left for the image once the controls row has taken its own. A split
-  // view panel has a height of its own, so it can be measured; a tab pane instead grows
-  // with its content, and measuring it would only give back the height of the image
-  // already in it, so there the fit is computed against the bottom of the window.
+  // A tab pane grows with its content, so measuring it would only give back the height of
+  // the image already in it; the window is what bounds the image there.
   useEffect(() => {
     if (!root || !controlsRow) {
       return;
@@ -167,9 +179,8 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
         step: 0.1,
       }}
     >
-      {/* The zoomable area takes the room the controls row leaves, and no more: given a
-          height of its own it would add up with that row to more than the split view
-          panel holds, and the panel would scroll the controls out of sight. */}
+      {/* With a height of its own the zoomable area would add up with the controls row to
+          more than the split view panel holds, and the panel would scroll them away. */}
       <div style={{
         display: "flex",
         flexDirection: "column",

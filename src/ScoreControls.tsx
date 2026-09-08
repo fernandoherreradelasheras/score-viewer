@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { cloneElement, useMemo, useState } from 'react';
 import { Space, Pagination, Button, Col, Row, Tooltip } from 'antd';
 import { ZoomInOutlined, ZoomOutOutlined, FullscreenOutlined, FullscreenExitOutlined, ProfileOutlined } from '@ant-design/icons';
 import { PlayingState } from './types';
@@ -79,14 +79,20 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, audioDura
                 defaultPageSize={1}
                 total={pageCount}
                 simple={false}
-                // Only the numbered items: the arrows and the ellipses stand for no page
-                // in particular, so there is nothing to preview on them.
-                itemRender={(page, type, element) => type === 'page'
-                    ? <PagePreview page={page}>{element}</PagePreview>
-                    : element}
+                showTitle={false}
+                itemRender={(page, type, element) => {
+                    if (type === 'page') {
+                        return <PagePreview page={page}>{element}</PagePreview>
+                    }
+                    if (type === 'prev' || type === 'next') {
+                        return cloneElement(element as React.ReactElement<{ title?: string }>,
+                            { title: t(type === 'prev' ? 'pagination.previousPage' : 'pagination.nextPage') })
+                    }
+                    return element;
+                }}
                 onChange={handlePageClick} />
             : null
-    ), [shouldShowPagination, playingState, currentPageNumber, pageCount]);
+    ), [shouldShowPagination, playingState, currentPageNumber, pageCount, t]);
 
     const viewingControls = useMemo(() => {
         return <Row style={{ justifyContent: "left", backgroundColor: "white" }} gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>

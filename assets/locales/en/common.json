@@ -216,6 +216,10 @@
     },
     "resetSettings": "Reset settings to default"
   },
+  "pagination": {
+    "previousPage": "Previous page",
+    "nextPage": "Next page"
+  },
   "score": {
     "measureNumber": "Measure {{number}}",
     "pageNumber": "Page {{number}}"

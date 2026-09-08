@@ -216,6 +216,10 @@
     },
     "resetSettings": "Restablecer configuración por defecto"
   },
+  "pagination": {
+    "previousPage": "Página anterior",
+    "nextPage": "Página siguiente"
+  },
   "score": {
     "measureNumber": "Compás {{number}}",
     "pageNumber": "Página {{number}}"
