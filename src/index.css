@@ -274,6 +274,11 @@
   text-align: center;
 }
 
+.text-view .line-number {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 
 .mouse-tracker {
   transform-origin: center;
