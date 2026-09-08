@@ -263,13 +263,14 @@
 }
 
 
-/* Poem */
+/* Poem: a box as wide as its longest verse, centred. The floor keeps a short-versed poem
+   from collapsing into a column, and gives way before the box can overflow a narrow pane. */
 .text-view section:has(span.line-number) {
   display: table;
-  min-width: 40vw;
-}
-
-.text-view section:has(span.line-number) p {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100%;
+  min-width: min(24em, 100%);
   text-align: center;
 }
 

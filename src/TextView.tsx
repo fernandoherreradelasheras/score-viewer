@@ -128,7 +128,7 @@ function TextView(props: TextViewProps) {
             {errorView ? errorView : null}
             <div style={{ display: "flex", flexDirection: "row" }}>
 
-                <div className="text-view" style={{ textAlign: "left", maxWidth: "1000px" }}>
+                <div className="text-view" style={{ textAlign: "left", flex: 1, minWidth: 0, maxWidth: "1000px" }}>
                     <Markdown
                         remarkPlugins={[remarkGfm, sectionize]}
                         rehypePlugins={[
