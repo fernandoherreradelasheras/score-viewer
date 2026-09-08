@@ -6,6 +6,8 @@ import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pa
 import { CloseOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
+// Room left around the image inside its container
+const IMAGE_PADDING = 12;
 
 function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }) {
   const { t } = useTranslation("common");
@@ -14,7 +16,8 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
   const setSplitView = useStore.use.setIsSplitView();
 
   const [currentItem, setCurrentItem] = useState(0);
-  const [container, setContainer] = useState<HTMLDivElement | null>(null);
+  const [root, setRoot] = useState<HTMLDivElement | null>(null);
+  const [controlsRow, setControlsRow] = useState<HTMLDivElement | null>(null);
   const [containerHeight, setContainerHeight] = useState<number>(0);
 
   const Controls = useCallback(() => {
@@ -53,20 +56,38 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
   }, [items, currentItem, splitView, splitViewOrientation, close, t, setSplitView]);
 
 
+  // How much room is left for the image once the controls row has taken its own. A split
+  // view panel has a height of its own, so it can be measured; a tab pane instead grows
+  // with its content, and measuring it would only give back the height of the image
+  // already in it, so there the fit is computed against the bottom of the window.
   useEffect(() => {
-    if (container) {
-      const { top } = container.getBoundingClientRect();
-      const height = window.innerHeight - top - 24;
-      setContainerHeight(height);
+    if (!root || !controlsRow) {
+      return;
     }
-  }, [container])
+
+    const measure = () => {
+      const available = splitView
+        ? root.clientHeight - controlsRow.offsetHeight
+        : window.innerHeight - root.getBoundingClientRect().top - controlsRow.offsetHeight;
+      setContainerHeight(Math.max(0, available - 2 * IMAGE_PADDING));
+    };
+
+    measure();
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(root);
+    observer.observe(controlsRow);
+    window.addEventListener('resize', measure);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [root, controlsRow, splitView, splitViewOrientation])
 
   useEffect(() => {
     setCurrentItem(0)
   }, [items])
-
-  useEffect(() => {
-  }, [splitViewOrientation])
 
   const transformKey = useMemo(() =>
     `transform-${splitView ? 'split' : 'tab'}-${splitViewOrientation}`,
@@ -113,7 +134,7 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
     const baseStyle = {
       width: "100%",
       height: "100%",
-      padding: "12px"
+      padding: `${IMAGE_PADDING}px`
     };
 
     if (isHorizontalSplit) {
@@ -127,7 +148,9 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
     } else {
       return baseStyle;
     }
-  }, [splitView, splitViewOrientation]); return (
+  }, [splitView, splitViewOrientation]);
+
+  return (
     <TransformWrapper
       key={transformKey}
       initialScale={initialScale}
@@ -144,15 +167,28 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
         step: 0.1,
       }}
     >
-      <>
-        <Controls />
+      {/* The zoomable area takes the room the controls row leaves, and no more: given a
+          height of its own it would add up with that row to more than the split view
+          panel holds, and the panel would scroll the controls out of sight. */}
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        height: "100%",
+        minHeight: 0,
+        overflow: "hidden"
+      }}
+        ref={(el: HTMLDivElement | null) => setRoot(el)}>
+        <div style={{ flex: "0 0 auto" }} ref={(el: HTMLDivElement | null) => setControlsRow(el)}>
+          <Controls />
+        </div>
         <TransformComponent
-          wrapperStyle={{ width: "100%", height: "100%" }}>
-          <div style={containerStyle} ref={(el: HTMLDivElement | null) => setContainer(el)}>
+          wrapperStyle={{ width: "100%", flex: "1 1 auto", minHeight: 0 }}>
+          <div style={containerStyle}>
             <img src={imageFile} alt={imageTitle} style={imageStyle} />
           </div>
         </TransformComponent>
-      </>
+      </div>
     </TransformWrapper>
   );
 }
