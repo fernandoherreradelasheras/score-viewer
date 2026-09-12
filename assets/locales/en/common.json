@@ -52,7 +52,7 @@
       "del": "removed material",
       "orig": "original reading",
       "reg": "regularized reading",
-      "sic": "obvious error",
+      "sic": "literal reading",
       "supplied": "added part",
       "restore": "restored material",
       "damage": "damaged material",
@@ -69,7 +69,7 @@
       "del": "Deleted",
       "orig": "Original",
       "reg": "Regularized",
-      "sic": "Erroneous",
+      "sic": "Literal",
       "supplied": "Supplied",
       "restore": "Restored",
       "damage": "Damaged"
@@ -82,7 +82,7 @@
       "del": "Deleted",
       "orig": "Original",
       "reg": "Regularized",
-      "sic": "Erroneous",
+      "sic": "Literal",
       "supplied": "Supplied",
       "restore": "Restored",
       "damage": "Damaged"

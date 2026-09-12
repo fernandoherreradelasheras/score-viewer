@@ -54,7 +54,7 @@
       "del": "material eliminado",
       "orig": "lectura original",
       "reg": "lectura regularizada",
-      "sic": "error evidente",
+      "sic": "lectura literal",
       "supplied": "parte añadida",
       "restore": "material resituido",
       "damage": "material dañado",
@@ -71,7 +71,7 @@
       "del": "eliminado",
       "orig": "original",
       "reg": "regularizado",
-      "sic": "evidente",
+      "sic": "literal",
       "supplied": "provisto",
       "restore": "resituido",
       "damage": "dañado"
@@ -84,7 +84,7 @@
       "del": "eliminados",
       "orig": "originales",
       "reg": "regularizados",
-      "sic": "evidentes",
+      "sic": "literales",
       "supplied": "provistos",
       "restore": "resituidos",
       "damage": "dañados"
