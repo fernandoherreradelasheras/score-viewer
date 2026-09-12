@@ -86,7 +86,11 @@
                            </subst>
                            <supplied><note xml:id="n_supplied" dur="4" pname="f" oct="4"/></supplied>
                            <unclear>
-                              <note xml:id="n_unclear_1" dur="16" pname="e" oct="4"/>
+                              <note xml:id="n_unclear_1" dur="16" pname="e" oct="4">
+                                 <verse n="1">
+                                    <syl>ey</syl>
+                                 </verse>
+                              </note>
                               <note xml:id="n_unclear_2" dur="16" pname="e" oct="4"/>
                               <note xml:id="n_unclear_3" dur="16" pname="e" oct="4"/>
                               <note xml:id="n_unclear_4" dur="16" pname="e" oct="4"/>
@@ -123,9 +127,9 @@
                            <note xml:id="n_m5_a" dur="1" pname="c" oct="5">
                               <verse n="1">
                                  <syl>
-                                    <choice>
-                                       <abbr>abbr.</abbr>
-                                       <expan>abbreviatura</expan>
+                                    <choice xml:id="c2983">
+                                       <abbr xml:id="ab231">abbr.</abbr>
+                                       <expan xml:id="ex9823">abbreviatura</expan>
                                     </choice>
                                  </syl>
                               </verse>
@@ -151,7 +155,14 @@
                               <lem><note xml:id="n_s2_lem" dur="4" pname="d" oct="5"/></lem>
                               <rdg><note xml:id="n_s2_rdg" dur="4" pname="e" oct="5"/></rdg>
                            </app>
-                           <note xml:id="n_s2_c" dur="4" pname="e" oct="5"/>
+                           <!-- CASE: editorial wrapping a whole verse (text-level, no content-bounding-box) -->
+                           <note xml:id="n_s2_c" dur="4" pname="e" oct="5">
+                              <supplied xml:id="supplied_verse" resp="#person1">
+                                 <verse n="1">
+                                    <syl>su</syl>
+                                 </verse>
+                              </supplied>
+                           </note>
                            <!-- CASE: subst with other children (verovio needs at least one add / del) -->
                            <subst>
                               <add><note xml:id="n_s2_d_subst_first" dur="4" pname="e" oct="5"/></add>

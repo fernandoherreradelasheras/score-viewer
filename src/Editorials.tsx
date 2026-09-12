@@ -11,7 +11,9 @@ import useEditorialText from "./hooks/useEditorialText";
 const { Text, Paragraph } = Typography;
 
 
-const TOOLTIP_SELECTOR = "svg .mei-editorial";
+// Firefox gives a <tspan> an empty client rect, which would anchor the tooltip at the
+// origin of the page: an intervention within the lyrics anchors on its <text> instead.
+const TOOLTIP_SELECTOR = "svg .mei-editorial:not(tspan), svg text:has(>.mei-editorial)";
 
 
 const DIALOG_MARGIN = 16;
@@ -179,7 +181,10 @@ function Editorials() {
 
 
     const getContentForTooltip = (render: { content: string | null; activeAnchor: HTMLElement | null }) => {
-        const id = render.activeAnchor?.id;
+        const anchor = render.activeAnchor instanceof SVGTextElement
+            ? render.activeAnchor.querySelector(":scope > .mei-editorial")
+            : render.activeAnchor;
+        const id = anchor?.id;
         if (id) {
             const editorialItem = editorials?.find((item) =>
                 item.id === id ||
@@ -199,7 +204,7 @@ function Editorials() {
             }
         }
 
-        const cls = (render.activeAnchor?.className as SVGAnimatedString | undefined)?.baseVal;
+        const cls = (anchor?.className as SVGAnimatedString | undefined)?.baseVal;
         return cls ? <span>{t(titleKey(cls))}</span> : null
     }
 

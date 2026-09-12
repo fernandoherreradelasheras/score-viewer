@@ -206,6 +206,11 @@ const setSvgClassesForEditorial = (svgElement: SVGElement) => {
         }
         if (color) {
           el.style.setProperty("--editorial-color", color);
+          // A <tspan> paints no outline and it goes on its <text>,
+          // so it needs the colour too.
+          if (el.parentElement instanceof SVGTextElement) {
+            el.parentElement.style.setProperty("--editorial-color", color);
+          }
         }
       });
   });

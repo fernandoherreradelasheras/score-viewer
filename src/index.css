@@ -84,6 +84,21 @@
   outline-style: dashed;
 }
 
+/* Interventions within the lyrics are drawn as text, and verovio gives them no
+   content-bounding-box: the ring goes on the <g> itself or, for a <tspan>, which paints
+   no outline, on its <text>. No fill, since it would be inherited by the text and
+   recolour it. */
+.svg-container.editorial-active.static-score svg g.mei-editorial:not(:has(>.content-bounding-box)),
+.svg-container.editorial-active.static-score svg text:has(>.mei-editorial) {
+  outline: 30px solid var(--editorial-color);
+  outline-offset: var(--editorial-offset, 120px);
+}
+
+.svg-container.editorial-active.static-score svg g.mei-editorial-container:not(:has(>.content-bounding-box)),
+.svg-container.editorial-active.static-score svg text:has(>.mei-editorial-container) {
+  outline-style: dashed;
+}
+
 /* Every <app> of the variant group whose dialog is open, the one clicked included:
    they are a single decision, so the reader sees its whole reach at once. Comes after
    the container rule, and outweighs it, to paint a ring the dashed one leaves hollow.
@@ -138,6 +153,13 @@
   }
 }
 
+/* The same for an intervention with no content-bounding-box, without the pulse. */
+.svg-container.static-score svg g.mei-editorial.highlighted:not(:has(>.content-bounding-box)),
+.svg-container.static-score svg text:has(.mei-editorial.highlighted) {
+  outline: 40px solid var(--editorial-color, #6F6F9E);
+  outline-offset: var(--editorial-offset, 120px);
+}
+
 /* Hovering one <app> of a variant group lights every <app> the decision moves, not
    only the one under the pointer: the reader sees the reach before clicking. Matches
    what hovering a lone intervention does, so the group reads as a single target. */
@@ -151,6 +173,12 @@
   fill-opacity: 0.38;
   outline-width: 55px;
   transition: fill-opacity 0.15s ease, outline-width 0.15s ease;
+}
+
+.score-viewer:not(.player-active) .svg-container.editorial-active.static-score svg g.mei-editorial:not(:has(>.content-bounding-box)):hover:not(:has(.mei-editorial:hover)),
+.score-viewer:not(.player-active) .svg-container.editorial-active.static-score svg text:has(>.mei-editorial):hover {
+  outline-width: 55px;
+  transition: outline-width 0.15s ease;
 }
 
 .svg-container.static-score svg g.harm.rdiss tspan {
