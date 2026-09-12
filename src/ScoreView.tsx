@@ -19,6 +19,7 @@ import { PENDING_HANDLED, PendingPlan, forgetLastCost, recordCost } from './util
 
 // How long the score takes to fade out under a cached page being crossfaded in.
 const FADE_OUT_MS = 300;
+const TARGET_SIZE_SETTLE_MS = 120;
 
 
 
@@ -216,7 +217,15 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     }, [applyPendingPlan, planFor, renderKey, clearPageCache, pipeline.schedule]);
 
     useEffect(() => {
-        if (!verovio || !showingMei || !renderedSvgData || !score) {
+        if (!verovio || !showingMei || !score) {
+            return
+        }
+        // With nothing rendered yet the initial load below takes care of the first size,
+        // and one still waiting to start will read this size when it does. But a load
+        // already running read a size this one has just replaced (the split view hands
+        // the facsimile its share once its image is known), so it is asked for again and
+        // the pipeline lets the newer request win.
+        if (!renderedSvgData && !pipeline.isRunning()) {
             return
         }
         // A layout change zeroes the target size on purpose, to hold the reload until
@@ -231,7 +240,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         const plan = planFor("load", true, canFadeScore());
         applyPendingPlan(plan, "new target size", { fadeScore: true });
 
-        const anchor = (renderedSvgData.scoreUrl == score.url && renderedSvgData.anchorElement) ? renderedSvgData.anchorElement : undefined
+        const anchor = (renderedSvgData?.scoreUrl == score.url && renderedSvgData?.anchorElement) ? renderedSvgData.anchorElement : undefined
         const action = loadAction({
             scoreUrl: score.url,
             postLoadTransition: Transition.FADE_IN,
@@ -367,27 +376,33 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         if (svgContainerHeight <= 0 || svgContainerWidth <= 0) {
             return;
         }
-        // The measured size is always recorded, even with a load in flight: this effect
-        // only re-runs when the container changes, so bailing out here used to lose the
-        // final size of a layout change for good (closing the split view left the score
-        // laid out for the old pane). scheduleAction coalesces it against what is running.
-        //
-        // showsRenderedScore(), and not just the store, decides whether there is nothing
-        // to do because on a remount the store still describes what the previous instance drew
-        // but this container is empty, so taking the shortcut would leave the target
-        // size at whatever a layout change zeroed it to, with nothing left to restore it.
-        if (showsRenderedScore()) {
-            if (renderedSvgData?.height && renderedSvgData?.width &&
-                Math.abs(renderedSvgData.height - svgContainerHeight) < 100 &&
-                Math.abs(renderedSvgData.width - svgContainerWidth) < 100 &&
-                renderedSvgData?.page == currentPage &&
-                renderedSvgData?.scale == scale) {
-                return
+        // A layout change settles in several steps (the split, then its bars, then the
+        // share the facsimile asks for), each a container size of its own; recording
+        // every one would schedule a load per step. The last one is the size that counts.
+        const timer = setTimeout(() => {
+            // The measured size is always recorded, even with a load in flight: this effect
+            // only re-runs when the container changes, so bailing out here used to lose the
+            // final size of a layout change for good (closing the split view left the score
+            // laid out for the old pane). scheduleAction coalesces it against what is running.
+            //
+            // showsRenderedScore(), and not just the store, decides whether there is nothing
+            // to do because on a remount the store still describes what the previous instance drew
+            // but this container is empty, so taking the shortcut would leave the target
+            // size at whatever a layout change zeroed it to, with nothing left to restore it.
+            if (showsRenderedScore()) {
+                if (renderedSvgData?.height && renderedSvgData?.width &&
+                    Math.abs(renderedSvgData.height - svgContainerHeight) < 100 &&
+                    Math.abs(renderedSvgData.width - svgContainerWidth) < 100 &&
+                    renderedSvgData?.page == currentPage &&
+                    renderedSvgData?.scale == scale) {
+                    return
+                }
             }
-        }
-        // Covering the wait is left to the reload this triggers, which plans it.
-        setTargetHeight(svgContainerHeight);
-        setTargetWidth(svgContainerWidth);
+            // Covering the wait is left to the reload this triggers, which plans it.
+            setTargetHeight(svgContainerHeight);
+            setTargetWidth(svgContainerWidth);
+        }, TARGET_SIZE_SETTLE_MS);
+        return () => clearTimeout(timer);
     }, [svgContainerHeight, svgContainerWidth]);
 
     useEffect(() => {

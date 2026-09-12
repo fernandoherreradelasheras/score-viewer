@@ -64,6 +64,9 @@ export default function useActionPipeline(config: ActionPipelineConfig) {
         runningRef.current || queuedActionRef.current != null || pendingActionRef.current != null,
         []);
 
+    /** Whether a chain is executing right now, as opposed to waiting to start. */
+    const isRunning = useCallback(() => runningRef.current, []);
+
     // Dispatch whatever request was coalesced while the pipeline was busy.
     const flushQueuedAction = useCallback(() => {
         const queued = queuedActionRef.current;
@@ -179,5 +182,5 @@ export default function useActionPipeline(config: ActionPipelineConfig) {
         runChainStep(pendingAction);
     }, [pendingAction, canRun]);
 
-    return { schedule, isBusy, runExclusive };
+    return { schedule, isBusy, isRunning, runExclusive };
 }

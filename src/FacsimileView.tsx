@@ -14,6 +14,7 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
   const splitView = useStore.use.isSplitView();
   const splitViewOrientation = useStore.use.splitViewOrientation();
   const setSplitView = useStore.use.setIsSplitView();
+  const setLayoutHint = useStore.use.setSecondaryViewLayoutHint();
 
   const [currentItem, setCurrentItem] = useState(0);
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
@@ -97,9 +98,30 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
     };
   }, [root, controlsRow, splitView, splitViewOrientation])
 
+  // The image's own proportion, declared for the split layout as soon as it is known:
+  // the layout cannot measure what a panel would leave empty without first drawing it.
+  // Withdrawn when the set of images changes, so the layout does not act on the old one.
+  const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null);
+
   useEffect(() => {
     setCurrentItem(0)
+    setImageAspectRatio(null)
   }, [items])
+
+  const onImageLoad = useCallback((event: React.SyntheticEvent<HTMLImageElement>) => {
+    const { naturalWidth, naturalHeight } = event.currentTarget;
+    setImageAspectRatio(naturalHeight > 0 ? naturalWidth / naturalHeight : null);
+  }, []);
+
+  useEffect(() => {
+    if (!controlsRow) {
+      return;
+    }
+    setLayoutHint(imageAspectRatio == null ? null
+      : { aspectRatio: imageAspectRatio, chromeHeight: controlsRow.offsetHeight + 2 * IMAGE_PADDING });
+  }, [imageAspectRatio, controlsRow, setLayoutHint]);
+
+  useEffect(() => () => setLayoutHint(null), [setLayoutHint]);
 
   const transformKey = useMemo(() =>
     `transform-${splitView ? 'split' : 'tab'}-${splitViewOrientation}`,
@@ -127,11 +149,6 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
       return { height: `${containerHeight}px`, width: "auto" };
     }
   }, [splitView, splitViewOrientation, containerHeight]);
-
-  const initialScale = useMemo(() => {
-    const isVerticalSplit = splitView && splitViewOrientation === 'vertical';
-    return isVerticalSplit ? 0.7 : 1;
-  }, [splitView, splitViewOrientation]);
 
   const shouldCenterOnInit = useMemo(() => {
     const isVerticalSplit = splitView && splitViewOrientation === 'vertical';
@@ -165,7 +182,6 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
   return (
     <TransformWrapper
       key={transformKey}
-      initialScale={initialScale}
       minScale={0.1}
       maxScale={5}
       centerOnInit={shouldCenterOnInit}
@@ -196,7 +212,7 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
         <TransformComponent
           wrapperStyle={{ width: "100%", flex: "1 1 auto", minHeight: 0 }}>
           <div style={containerStyle}>
-            <img src={imageFile} alt={imageTitle} style={imageStyle} />
+            <img src={imageFile} alt={imageTitle} style={imageStyle} onLoad={onImageLoad} />
           </div>
         </TransformComponent>
       </div>

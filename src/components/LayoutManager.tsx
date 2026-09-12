@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import TabLayout from './TabLayout';
 import SplitViewLayout from './SplitViewLayout';
-import useStore from "../store";
+import useStore, { SecondaryViewLayoutHint } from "../store";
 
 
 interface LayoutManagerProps {
@@ -32,6 +32,28 @@ export function rendersTabBar(props: ContentProps, isSplitView: boolean) {
   return !isSplitView && hasSecondaryContent(props)
 }
 
+const MIN_SECONDARY_PERCENT = 25;
+const MAX_SECONDARY_PERCENT = 50;
+
+// The share of the split, in percent, that fits the secondary view's content along the
+// split axis: in a horizontal split the image takes the whole height and needs the width
+// that follows, in a vertical one it takes the whole width and needs the height.
+function secondaryPanelSize(
+  container: { width: number, height: number },
+  orientation: 'horizontal' | 'vertical',
+  hint: SecondaryViewLayoutHint,
+): number | null {
+  if (container.width <= 0 || container.height <= 0) {
+    return null;
+  }
+  const needed = orientation === 'horizontal'
+    ? (container.height - hint.chromeHeight) * hint.aspectRatio
+    : container.width / hint.aspectRatio + hint.chromeHeight;
+  const total = orientation === 'horizontal' ? container.width : container.height;
+  const percent = Math.ceil(100 * needed / total);
+  return Math.min(MAX_SECONDARY_PERCENT, Math.max(MIN_SECONDARY_PERCENT, percent));
+}
+
 export default function LayoutManager({
   scoreView,
   textView,
@@ -50,13 +72,52 @@ export default function LayoutManager({
   const setActiveSplitView = useStore.use.setActiveSplitView();
   const activeTab = useStore.use.activeTab()
   const setActiveTab = useStore.use.setActiveTab();
+  const layoutHint = useStore.use.secondaryViewLayoutHint();
+  const scoreUrl = useStore.use.score()?.url;
 
 
   const [sizes, setSizes] = useState<(number | string)[]>(['50%', '50%']);
+  const [container, setContainer] = useState<{ width: number, height: number } | null>(null);
+
+  // The split is settled once per sitting: entering the split view, turning it on its
+  // side or opening another score starts one, and within it the divider moves only until
+  // the secondary view has declared its content once, or the reader has dragged it. A
+  // later hint (the facsimile turned to a page of another shape) leaves it alone: the
+  // music beside it has not changed, so a divider that jumps would only get in the way.
+  const userResized = useRef(false);
+  const hintApplied = useRef(false);
+  const onResizeEnd = useCallback(() => { userResized.current = true; }, []);
 
   useEffect(() => {
+    userResized.current = false;
+    hintApplied.current = false;
     setSizes(['50%', '50%']);
   }, [isSplitView, splitViewOrientation]);
+
+  // Another score keeps the divider where it is until its own facsimile has spoken: the
+  // hint still in the store describes the previous one.
+  useEffect(() => {
+    userResized.current = false;
+    hintApplied.current = false;
+  }, [scoreUrl]);
+
+  // The secondary view gets what its content fills, never more than half. A hint that
+  // goes away means the content is being replaced, and the next one is the one to wait for.
+  useEffect(() => {
+    if (!layoutHint) {
+      hintApplied.current = false;
+      return;
+    }
+    if (userResized.current || hintApplied.current || !container) {
+      return;
+    }
+    const secondary = secondaryPanelSize(container, splitViewOrientation, layoutHint);
+    if (secondary == null) {
+      return;
+    }
+    hintApplied.current = true;
+    setSizes([`${100 - secondary}%`, `${secondary}%`]);
+  }, [isSplitView, splitViewOrientation, container, layoutHint]);
 
 
   const checkContentAvailable = useCallback((key: string | null) => {
@@ -117,6 +178,8 @@ export default function LayoutManager({
         facsimileView={facsimileView}
         sizes={sizes}
         setSizes={setSizes}
+        onResizeEnd={onResizeEnd}
+        onContainerResize={setContainer}
       />
     );
   }

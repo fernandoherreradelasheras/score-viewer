@@ -165,6 +165,7 @@ interface UILayoutState {
     activeSplitView: string
     splitViewOrientation: 'horizontal' | 'vertical'
     activeTab: string
+    secondaryViewLayoutHint: SecondaryViewLayoutHint | null
 
 
     setIsLoading: (isLoading: boolean) => void
@@ -177,8 +178,15 @@ interface UILayoutState {
     setActiveSplitView: (view: string) => void
     setSplitViewOrientation: (orientation: 'horizontal' | 'vertical') => void
     setActiveTab: (tab: string) => void
+    setSecondaryViewLayoutHint: (hint: SecondaryViewLayoutHint | null) => void
     reset: () => void
 }
+
+// What the view beside the score needs to be laid out well, declared by the view itself
+// so the layout can hand it the space it will fill instead of a blind half. The aspect
+// ratio is that of its content (an image: width over height); chromeHeight is what it
+// adds above and around that content.
+export type SecondaryViewLayoutHint = { aspectRatio: number, chromeHeight: number }
 
 const DEFAULT_UI_LAYOUT_STATE = {
     isSplitView: false,
@@ -193,6 +201,7 @@ const createUILayoutStore = create<UILayoutState>()(persist((set) => ({
     scoreSvg: null,
     scale: DEFAULT_SCALE,
     reachedEffectiveMaxScale: false,
+    secondaryViewLayoutHint: null,
     ...DEFAULT_UI_LAYOUT_STATE,
 
 
@@ -212,6 +221,7 @@ const createUILayoutStore = create<UILayoutState>()(persist((set) => ({
     setActiveSplitView: (view: string) => set(() => ({ activeSplitView: view })),
     setSplitViewOrientation: (orientation: 'horizontal' | 'vertical') => set(() => ({ splitViewOrientation: orientation })),
     setActiveTab: (tab: string) => set(() => ({ activeTab: tab })),
+    setSecondaryViewLayoutHint: (hint: SecondaryViewLayoutHint | null) => set(() => ({ secondaryViewLayoutHint: hint })),
     reset: () => set(DEFAULT_UI_LAYOUT_STATE),
 }), {
     name: 'ui-layout-store',
@@ -425,6 +435,8 @@ class ScoreViewerStoreApi {
         setReachedEffectiveMaxScale: createUILayoutStoreWithSelectors.use.setReachedEffectiveMaxScale,
         setIsSplitView: createUILayoutStoreWithSelectors.use.setIsSplitView,
         setSplitViewOrientation: createUILayoutStoreWithSelectors.use.setSplitViewOrientation,
+        secondaryViewLayoutHint: createUILayoutStoreWithSelectors.use.secondaryViewLayoutHint,
+        setSecondaryViewLayoutHint: createUILayoutStoreWithSelectors.use.setSecondaryViewLayoutHint,
         setActiveTab: createUILayoutStoreWithSelectors.use.setActiveTab,
         setActiveSplitView: createUILayoutStoreWithSelectors.use.setActiveSplitView,
         resetUILayout: createUILayoutStoreWithSelectors.use.reset,
