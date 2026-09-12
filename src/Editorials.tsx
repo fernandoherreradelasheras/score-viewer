@@ -68,10 +68,10 @@ function Editorials() {
         }
     }, [showingEditorial]);
 
-    // While the dialog is open, every <app> the decision reaches is marked, the clicked
-    // one included: a grouped reading changes together with its siblings elsewhere in
-    // the score, and the ring is what makes that reach visible before the reader takes
-    // the choice. The container is reached through the element the dialog targets, the
+    // While the dialog is open, every <app>, <choice> or <subst> the decision reaches is
+    // marked, the clicked one included: a grouped reading changes together with its
+    // siblings elsewhere in the score, and the ring is what makes that reach visible
+    // before the reader takes the choice. The container is reached through the element the dialog targets, the
     // same way the placement above frames it.
     useEffect(() => {
         const element = showingEditorial ? document.getElementById(showingEditorial) : null;

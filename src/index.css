@@ -99,14 +99,14 @@
   outline-style: dashed;
 }
 
-/* Every <app> of the variant group whose dialog is open, the one clicked included:
+/* Every <app>, <choice> or <subst> of the variant group whose dialog is open, the one clicked included:
    they are a single decision, so the reader sees its whole reach at once. Comes after
    the container rule, and outweighs it, to paint a ring the dashed one leaves hollow.
    The second selector is for a dialog reached from the score info list with the
    editorial layer off: there is a highlighted element on the page but no layer to lean
    on, so the box is painted in full here rather than inherited from the base rule. */
-.svg-container.editorial-active.static-score svg .app.editorial-group-member>.content-bounding-box>rect,
-.svg-container.static-score svg:has(.highlighted) .app.editorial-group-member>.content-bounding-box>rect {
+.svg-container.editorial-active.static-score svg :is(.app, .choice, .subst).editorial-group-member>.content-bounding-box>rect,
+.svg-container.static-score svg:has(.highlighted) :is(.app, .choice, .subst).editorial-group-member>.content-bounding-box>rect {
   fill: var(--editorial-color, #6F6F9E);
   fill-opacity: 0.28;
   outline: 55px solid var(--editorial-color, #6F6F9E);
@@ -160,10 +160,10 @@
   outline-offset: var(--editorial-offset, 120px);
 }
 
-/* Hovering one <app> of a variant group lights every <app> the decision moves, not
+/* Hovering one member of a variant group lights every member the decision moves, not
    only the one under the pointer: the reader sees the reach before clicking. Matches
    what hovering a lone intervention does, so the group reads as a single target. */
-.score-viewer:not(.player-active) .svg-container.editorial-active.static-score svg .app.editorial-group-hover>.content-bounding-box>rect {
+.score-viewer:not(.player-active) .svg-container.editorial-active.static-score svg :is(.app, .choice, .subst).editorial-group-hover>.content-bounding-box>rect {
   outline-width: 55px;
   transition: outline-width 0.15s ease;
 }

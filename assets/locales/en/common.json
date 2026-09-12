@@ -35,6 +35,7 @@
     "reason": "Reason",
     "resp": "Responsible person",
     "optionNumber": "option #{{number}}",
+    "optionOfTypeNumber": "{{type}} #{{number}}",
     "formatType": {
       "abbr": "abbreviation",
       "expan": "expanded abbreviation",

@@ -58,14 +58,15 @@ export const clearEditorialPending = (container: HTMLElement | null) => {
 const GROUP_CLASS = "editorial-group-member";
 const GROUP_HOVER_CLASS = "editorial-group-hover";
 
-// Every <app> of a variant group carries the group on `data-group`, stamped when the
-// page is rendered (see setSvgGroupsForEditorial): both marks below are that one lookup.
+// Every <app>, <choice> or <subst> of a variant group carries the group on `data-group`,
+// stamped when the page is rendered (see setSvgGroupsForEditorial): both marks below are
+// that one lookup.
 const groupApps = (container: HTMLElement | null, group: string) =>
     [...container?.querySelectorAll("svg [data-group]") ?? []]
         .filter(app => app.getAttribute("data-group") == group);
 
 /**
- * Mark every <app> a decision reaches while its dialog is open, the clicked one
+ * Mark every container a decision reaches while its dialog is open, the clicked one
  * included, so the reader sees the whole of what the choice moves before taking it.
  */
 export const markEditorialGroup = (container: HTMLElement | null, group: string) => {
@@ -79,7 +80,7 @@ export const clearEditorialGroup = (container: HTMLElement | null) => {
 };
 
 /**
- * The group under the pointer, lit as a whole: hovering one <app> of a group is
+ * The group under the pointer, lit as a whole: hovering one member of a group is
  * hovering the decision, and the reader should see its reach before clicking rather
  * than only once the dialog is up. Returns the group now marked, so a caller that
  * tracks it can skip the work while the pointer stays within the same one.

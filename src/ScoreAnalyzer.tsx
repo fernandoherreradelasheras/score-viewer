@@ -21,7 +21,7 @@ class ScoreAnalyzer {
         this.document = parser.parseFromString(score, "application/xml")
         this.tonoNumber = tonoNumber
         this.categories = this.getCategories()
-        this.collectCategoryApps()
+        this.collectCategoryMembers()
     }
 
 
@@ -183,7 +183,7 @@ class ScoreAnalyzer {
             const id = category.getAttribute("xml:id")!
             const child = (tag: string) => [...category.childNodes.values()]
                 .find(c => c instanceof Element && c.tagName == tag)?.textContent?.trim() || null
-            categories[id] = { label: child("label") || id, desc: child("desc"), apps: [] }
+            categories[id] = { label: child("label") || id, desc: child("desc"), members: [] }
             node = matches.iterateNext()
         }
         return categories
@@ -211,25 +211,25 @@ class ScoreAnalyzer {
         }
     }
 
-    // Record every <app> under the category its readings classify with, so a dialog on
-    // one of them can tell what else changes with it. An <app> counts only when all its
-    // readings agree on the category, the same rule that names the decision as a whole
-    // (see getItemCategory in Editorials); global apparatus <app>s are display options,
-    // not editorial decisions, and stay out.
-    collectCategoryApps() {
-        const matches = this.document.evaluate(`//mei:app`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+    // Record every <app>, <choice> and <subst> under the category its readings classify
+    // with, so a dialog on one of them can tell what else changes with it. An element
+    // counts only when all its readings agree on the category, the same rule that names
+    // the decision as a whole (see itemGroup in useEditorialText); global apparatus
+    // <app>s are display options, not editorial decisions, and stay out.
+    collectCategoryMembers() {
+        const matches = this.document.evaluate(`//mei:app | //mei:choice | //mei:subst`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
         while (node != null) {
-            const app = node as Element
-            const id = app.getAttribute("xml:id")
-            const type = app.getAttribute("type")
-            if (id && (type == null || !GLOBAL_APP_TYPES.includes(type))) {
-                const ids = new Set([...app.childNodes.values()]
+            const container = node as Element
+            const id = container.getAttribute("xml:id")
+            const type = container.getAttribute("type")
+            if (id && (container.tagName != "app" || type == null || !GLOBAL_APP_TYPES.includes(type))) {
+                const ids = new Set([...container.childNodes.values()]
                     .filter(c => c.nodeType == Node.ELEMENT_NODE)
                     .map(c => this.optionCategoryId(c as Element)))
                 const [categoryId] = [...ids]
                 if (ids.size == 1 && categoryId && this.categories[categoryId]) {
-                    this.categories[categoryId].apps.push(id)
+                    this.categories[categoryId].members.push(id)
                 }
             }
             node = matches.iterateNext()
@@ -363,21 +363,21 @@ class ScoreAnalyzer {
         return (id && !id.includes("'")) ? id : null
     }
 
-    // Selecting an <app> reading by its variant group instead of by its id is what makes
-    // several <app> elements one editorial decision: verovio applies the query to every
-    // <app>, so a single query on the group flips all of them at once (a variant spanning
-    // measures, or the same variant across voices). Only <app> works this way; <choice>
-    // and <subst> readings are selected one by one.
-    // When an <app> offers several readings of the same group, @n is what tells them
-    // apart, and it pairs each one with its counterpart in the other <app> elements.
-    appOptionSelector(app: Element, tag: string, categoryId: string | null, n: string | null): string | null {
+    // Selecting a reading by its variant group instead of by its id is what makes several
+    // <app>, <choice> or <subst> elements one editorial decision: verovio applies the
+    // query to every container of that kind, so a single query on the group flips all of
+    // them at once (a variant spanning measures, or the same variant across voices).
+    // When a container offers several readings of the same tag in the same group, @n is
+    // what tells them apart, and it pairs each one with its counterpart in the other
+    // containers.
+    groupOptionSelector(container: Element, tag: string, categoryId: string | null, n: string | null): string | null {
         if (!categoryId) {
             return null
         }
         // @class is a list, hence the surrounding spaces: they keep '#var-c2' from matching
         // inside '#var-c2-3'.
         const inGroup = `contains(concat(' ',@class,' '),' #${categoryId} ')`
-        const sameGroup = [...app.childNodes.values()]
+        const sameGroup = [...container.childNodes.values()]
             .filter(c => c.nodeType == Node.ELEMENT_NODE)
             .map(c => c as Element)
             .filter(e => e.tagName == tag && this.optionCategoryId(e) == categoryId)
@@ -402,7 +402,7 @@ class ScoreAnalyzer {
 
             const label = choiceElement.getAttribute("label") || null
             const categoryId = this.optionCategoryId(choiceElement)
-            const selector = (type == "app" && this.appOptionSelector(node, nodeType, categoryId, choiceElement.getAttribute("n")))
+            const selector = this.groupOptionSelector(node, nodeType, categoryId, choiceElement.getAttribute("n"))
                 || `./${nodeType}[@xml:id='${choiceId}']`
             const source = choiceElement.getAttribute("source")?.slice(1) || null
             const descriptions: ContentDescription[] = [];

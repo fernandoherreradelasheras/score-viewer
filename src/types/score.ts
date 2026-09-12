@@ -35,11 +35,11 @@ export type Transposition = "" | "P4" | "+P4" | "-P4" | "M3" | "+M3" | "-M3" | "
 export type Sources = { [id: string]: { title: string } }
 
 // Terms declared in <classDecls>, keyed by the xml:id that @class points at.
-// `apps` holds the xml:ids of the <app> elements whose readings all classify under the
-// term, in document order. More than one is a variant group: several apparatus entries
-// that verovio flips together, so they are a single editorial decision for the reader.
-// Where each one sits is the editorial item's business, not this map's.
-export type Categories = { [id: string]: { label: string; desc: string | null; apps: string[] } }
+// `members` holds the xml:ids of the <app>, <choice> and <subst> elements whose readings
+// all classify under the term, in document order. More than one is a variant group:
+// several entries that verovio flips together, so they are a single editorial decision
+// for the reader. Where each one sits is the editorial item's business, not this map's.
+export type Categories = { [id: string]: { label: string; desc: string | null; members: string[] } }
 
 
 export type ScoreProperties = {

@@ -13,8 +13,10 @@ import {
   renderAction,
   renderAutoScrollAction,
   ANNOTATION_TARGET_TYPE,
+  CHOICE_ALLOWED_CHILD_TAGS,
   EDITORIAL_ALL_TAGS,
   EDITORIAL_SELECTION_TAGS,
+  SUBST_ALLOWED_CHILD_TAGS,
 } from '../types';
 import { RenderedData } from './useScoreRenderer';
 import useStore from '../store';
@@ -48,7 +50,8 @@ const GLOBAL_APP_READINGS = [
 // `rdg@class` / `lem@class` carry the variant group a reading belongs to, so the
 // rendered SVG can be asked which <app> elements move together with a given one.
 const EXTRA_SVG_ATTRIBUTES = [...new Set([
-  "measure@n", "staff@n", "clef@corresp", "verse@n", "note@dur", "rdg@class", "lem@class",
+  "measure@n", "staff@n", "clef@corresp", "verse@n", "note@dur",
+  ...[...CHOICE_ALLOWED_CHILD_TAGS, ...SUBST_ALLOWED_CHILD_TAGS, "lem", "rdg"].map(tag => `${tag}@class`),
   ...GLOBAL_APP_READINGS.flatMap(r => r.svg_extra_attributes)
 ])];
 
@@ -162,17 +165,18 @@ const buildAppOptions = (appOptions: string[], showOriginalClefs: boolean, showM
 
 
 /**
- * Stamp each <app> with the variant group its readings classify under, so the reader's
- * hover and the open dialog can light every <app> that one editorial decision moves.
- * The group only reaches the SVG through the rendered <lem>/<rdg>, as `data-class`
- * alongside whatever else @class carries, and only a term declared in <classDecls>
- * names a group: hence the score's own categories decide which token is the one.
+ * Stamp each <app>, <choice> and <subst> with the variant group its readings classify
+ * under, so the reader's hover and the open dialog can light every container that one
+ * editorial decision moves. The group only reaches the SVG through the rendered reading
+ * (<lem>, <corr>, <add>...), as `data-class` alongside whatever else @class carries, and
+ * only a term declared in <classDecls> names a group: hence the score's own categories
+ * decide which token is the one.
  */
 const setSvgGroupsForEditorial = (svgElement: SVGElement, categoryIds: Set<string>) => {
   if (categoryIds.size == 0) {
     return;
   }
-  svgElement.querySelectorAll(".app:not(.content-bounding-box):not(.bounding-box)").forEach(app => {
+  svgElement.querySelectorAll(":is(.app, .choice, .subst):not(.content-bounding-box):not(.bounding-box)").forEach(app => {
     const group = [...app.querySelectorAll("[data-class]")]
       .flatMap(e => (e.getAttribute("data-class") || "").split(/\s+/))
       .map(token => token.replace(/^#/, ""))

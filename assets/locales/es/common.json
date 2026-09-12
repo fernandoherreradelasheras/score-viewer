@@ -37,6 +37,7 @@
     "reason": "Razón",
     "resp": "Responsable",
     "optionNumber": "opción nº{{number}}",
+    "optionOfTypeNumber": "{{type}} nº{{number}}",
     "formatType": {
       "abbr": "abreviatura",
       "expan": "abreviatura desarrollada",

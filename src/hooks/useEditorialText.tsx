@@ -157,8 +157,8 @@ export default function useEditorialText() {
     const itemCategory = (item: EditorialItem) => itemGroup(item)?.category ?? null;
 
     const variantGroup = (item: EditorialItem) => {
-        const group = item.type == 'app' ? itemGroup(item) : null;
-        return group && group.category.apps.length > 1 ? group : null;
+        const group = itemGroup(item);
+        return group && group.category.members.length > 1 ? group : null;
     };
 
     const formatList = (values: string[]) =>
@@ -168,11 +168,11 @@ export default function useEditorialText() {
         [...new Set(values.filter((value): value is string => value != null))];
 
     const describeGroupScope = (item: EditorialItem): string | null => {
-        const others = (variantGroup(item)?.category.apps ?? [])
-            .filter(appId => appId != item.id)
-            .map(appId => editorials?.find(e => e.id == appId))
-            .filter((app): app is EditorialItem => app != null);
-        const measures = distinct(others.map(app => app.measure));
+        const others = (variantGroup(item)?.category.members ?? [])
+            .filter(memberId => memberId != item.id)
+            .map(memberId => editorials?.find(e => e.id == memberId))
+            .filter((member): member is EditorialItem => member != null);
+        const measures = distinct(others.map(member => member.measure));
         if (measures.length == 0) {
             return null;
         }
@@ -255,7 +255,11 @@ export default function useEditorialText() {
         if (item.type == "app") {
             return getAppChoiceText(subtype, options, options[index], includeDescription);
         } else if (item.type == "choice") {
-            const choiceText = t(titleKey(subtype), { defaultValue: t('editorial.optionNumber', { 'number': 1 + index }) });
+            const typeText = t(titleKey(subtype), { defaultValue: t('editorial.optionNumber', { 'number': 1 + index }) });
+            const sameType = options.filter(o => o.type == subtype);
+            const choiceText = sameType.length > 1
+                ? t('editorial.optionOfTypeNumber', { type: typeText, number: 1 + sameType.indexOf(options[index]) })
+                : typeText;
             const extraText = includeDescription ? getOptionDescription(options[index]) : null;
             return extraText ? `${choiceText} ${extraText}` : choiceText;
         } else if (item.type == "subst") {

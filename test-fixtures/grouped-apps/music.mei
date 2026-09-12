@@ -54,6 +54,14 @@
                   <label>Tiple 1º, cc. 8-9</label>
                   <desc>Grupo de dos compases con tres lecturas. El @n de cada &lt;rdg&gt; empareja la lectura de un compás con la de la misma fuente en el otro; sin él la segunda alternativa no sería direccionable.</desc>
                </category>
+               <category xml:id="choice-group">
+                  <label>Tiple 1º, cc. 10-11</label>
+                  <desc>Grupo de dos compases con dos &lt;choice&gt;: el @class va en &lt;corr&gt; y &lt;sic&gt;, como en los &lt;app&gt;.</desc>
+               </category>
+               <category xml:id="choice-tres">
+                  <label>Tiple 1º, cc. 12-13</label>
+                  <desc>Grupo de dos compases con &lt;choice&gt; de tres opciones: un &lt;sic&gt; y dos &lt;corr&gt;. El @n de cada &lt;corr&gt; empareja la corrección de un compás con la del otro; sin él la segunda no sería direccionable.</desc>
+               </category>
             </taxonomy>
          </classDecls>
       </encodingDesc>
@@ -336,6 +344,126 @@
                      <staff n="3">
                         <layer n="1">
                            <note xml:id="n-s3-m9" dots="1" dur="1" pname="g" oct="2"/>
+                        </layer>
+                     </staff>
+                  </measure>
+               </section>
+               <section xml:id="grupo-choices" label="grupo choices" restart="true">
+                  <measure n="10" xml:id="m10">
+                     <staff n="1">
+                        <layer n="1">
+                           <choice xml:id="choice-m10">
+                              <corr xml:id="corr-m10" class="#choice-group">
+                                 <note xml:id="n-corr-m10a" dur="2" pname="f" oct="5"/>
+                                 <note xml:id="n-corr-m10b" dur="1" pname="e" oct="5"/>
+                              </corr>
+                              <sic xml:id="sic-m10" class="#choice-group">
+                                 <rest xml:id="r-sic-m10a" dur="2"/>
+                                 <note xml:id="n-sic-m10b" dur="1" pname="e" oct="5"/>
+                              </sic>
+                           </choice>
+                           <annot plist="#choice-m10 #choice-m11">Intercambiamos la duración</annot>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <mRest/>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <mRest/>
+                        </layer>
+                     </staff>
+                     <tie startid="#n-corr-m10b" endid="#n-corr-m11a"/>
+                     <tie startid="#n-sic-m10b" endid="#n-sic-m11a"/>
+                  </measure>
+                  <measure n="11" xml:id="m11" right="dbl">
+                     <staff n="1">
+                        <layer n="1">
+                           <choice xml:id="choice-m11">
+                              <corr xml:id="corr-m11" class="#choice-group">
+                                 <note xml:id="n-corr-m11a" dur="2" pname="e" oct="5"/>
+                                 <note xml:id="n-corr-m11b" dur="1" pname="f" oct="5"/>
+                              </corr>
+                              <sic xml:id="sic-m11" class="#choice-group">
+                                 <note xml:id="n-sic-m11a" dur="1" pname="e" oct="5"/>
+                                 <note xml:id="n-sic-m11b" dur="2" pname="f" oct="5"/>
+                              </sic>
+                           </choice>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <mRest/>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <mRest/>
+                        </layer>
+                     </staff>
+                  </measure>
+               </section>
+               <section xml:id="choice-tres-opciones" label="choice con tres opciones" restart="true">
+                  <measure n="12" xml:id="m12">
+                     <staff n="1">
+                        <layer n="1">
+                           <choice xml:id="choice-tres-m12">
+                              <sic xml:id="sic-tres-m12" class="#choice-tres">
+                                 <note xml:id="n-sic-tres-m12a" dur="2" pname="f" oct="5"/>
+                                 <note xml:id="n-sic-tres-m12b" dur="1" pname="e" oct="5"/>
+                              </sic>
+                              <corr n="1" xml:id="corr1-tres-m12" class="#choice-tres">
+                                 <note xml:id="n-corr1-tres-m12a" dur="2" pname="g" oct="5"/>
+                                 <note xml:id="n-corr1-tres-m12b" dur="1" pname="e" oct="5"/>
+                              </corr>
+                              <corr n="2" xml:id="corr2-tres-m12" class="#choice-tres">
+                                 <note xml:id="n-corr2-tres-m12a" dur="2" pname="a" oct="5"/>
+                                 <note xml:id="n-corr2-tres-m12b" dur="1" pname="f" oct="5"/>
+                              </corr>
+                           </choice>
+                           <annot plist="#choice-tres-m12 #choice-tres-m13">Dos correcciones posibles para el mismo error</annot>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <mRest/>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <mRest/>
+                        </layer>
+                     </staff>
+                  </measure>
+                  <measure n="13" xml:id="m13" right="end">
+                     <staff n="1">
+                        <layer n="1">
+                           <choice xml:id="choice-tres-m13">
+                              <sic xml:id="sic-tres-m13" class="#choice-tres">
+                                 <note xml:id="n-sic-tres-m13a" dots="1" dur="1" pname="d" oct="5"/>
+                              </sic>
+                              <corr n="1" xml:id="corr1-tres-m13" class="#choice-tres">
+                                 <note xml:id="n-corr1-tres-m13a" dur="2" pname="e" oct="5"/>
+                                 <note xml:id="n-corr1-tres-m13b" dur="1" pname="d" oct="5"/>
+                              </corr>
+                              <corr n="2" xml:id="corr2-tres-m13" class="#choice-tres">
+                                 <note xml:id="n-corr2-tres-m13a" dur="2" pname="g" oct="5"/>
+                                 <note xml:id="n-corr2-tres-m13b" dur="2" pname="f" oct="5"/>
+                                 <note xml:id="n-corr2-tres-m13c" dur="2" pname="e" oct="5"/>
+                              </corr>
+                           </choice>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <mRest/>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <mRest/>
                         </layer>
                      </staff>
                   </measure>
