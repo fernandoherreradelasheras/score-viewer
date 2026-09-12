@@ -26,19 +26,22 @@ import { EDITORIAL_COLORS } from '../types/colors';
 
 // Global readings are marked with @type, never @label: verovio renders @label as an
 // SVG <title>, which the browser shows as a tooltip, so the token leaked to the user.
+// Verovio copies @type into the SVG class, and the selector leans on that rather than
+// on the tree: an <app> at section level is drawn as a system milestone whose <lem>
+// and <rdg> come out as its siblings, not its children.
 const APP_CLEFS_READING = {
   option: 'clefs',
   app_attr_name: 'type',
   app_attr_value: 'app_clefs',
   svg_extra_attributes: ['rdg@type', 'lem@type'],
-  svg_query_selector: '.app:has(> :is(.lem, .rdg)[data-type="app_clefs"])'
+  svg_query_selector: ':is(.app, .lem, .rdg).app_clefs'
 }
 const APP_HARMONIC_ANALYSIS_READING = {
   option: 'analysis',
   app_attr_name: 'type',
   app_attr_value: 'dissonant_analysis',
   svg_extra_attributes: ['rdg@type', 'lem@type'],
-  svg_query_selector: '.app:has(> :is(.lem, .rdg)[data-type="dissonant_analysis"])'
+  svg_query_selector: ':is(.app, .lem, .rdg).dissonant_analysis'
 }
 
 const GLOBAL_APP_READINGS = [
@@ -188,6 +191,12 @@ const setSvgGroupsForEditorial = (svgElement: SVGElement, categoryIds: Set<strin
 }
 
 
+const drawsAnything = (el: Element) => [...el.childNodes].some(n =>
+  n.nodeType == Node.TEXT_NODE
+    ? !!n.textContent?.trim()
+    : n instanceof Element && !n.classList.contains("bounding-box") && !["title", "desc"].includes(n.tagName)
+);
+
 const setSvgClassesForEditorial = (svgElement: SVGElement) => {
   // Global apps (original clefs / harmonic analysis) and everything inside them are
   // excluded from editorial highlighting.
@@ -196,14 +205,18 @@ const setSvgClassesForEditorial = (svgElement: SVGElement) => {
   )
   globalApps.forEach(app => app.classList.add("mei-global-app"))
 
-  EDITORIAL_ALL_TAGS.forEach((tag: string) => {
+  EDITORIAL_ALL_TAGS.filter(tag => tag != "annot").forEach((tag: string) => {
     const color = EDITORIAL_COLORS[tag as keyof typeof EDITORIAL_COLORS];
     svgElement
       .querySelectorAll(`.${tag}:not(.content-bounding-box):not(.bounding-box)`)
       .forEach(e => {
         const el = e as SVGGElement;
         const app = el.closest(".app");
-        if (app && globalApps.has(app)) return;
+        if (globalApps.has(el) || (app && globalApps.has(app))) return;
+        // A reading not on show is still in the SVG, as a group holding nothing but its
+        // bounding box and, given a @label, a <title>: with nothing drawn there is nothing
+        // we want to get styled by the editorial CSS class.
+        if (!drawsAnything(el)) return;
         el.classList.add("mei-editorial");
         if (EDITORIAL_SELECTION_TAGS.includes(tag)) {
           el.classList.add("mei-editorial-container");
