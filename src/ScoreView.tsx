@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import useStore from "./store";
 import { Context } from './Context';
 import { useComponentSize } from "react-use-size";
@@ -177,12 +177,22 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         }, 400);
     }, [svgContainerRef, setRenderedSvgData, setCachedPage, setIsLoading, setScale, calculateEffectiveMaxScale, reachedEffectiveMaxScale, setReachedEffectiveMaxScale]);
 
+    // An exception from the toolkit happens in a worker callback, out of reach of the
+    // ErrorBoundary, so it is kept here and thrown again from the render.
+    const [actionError, setActionError] = useState<Error | null>(null);
+    if (actionError) {
+        throw actionError;
+    }
+
     const pipeline = useActionPipeline({
         execute: executeChainAction,
         onResult: applyRenderResult,
-        onFailure: () => {
+        onFailure: (error) => {
             console.error("Action execution failed");
             setIsLoading(false);
+            if (error != null) {
+                setActionError(error instanceof Error ? error : new Error(String(error)));
+            }
         },
         onIdle: () => {
             // Hide spinner when all actions complete

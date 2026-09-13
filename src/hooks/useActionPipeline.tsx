@@ -7,6 +7,7 @@ export interface ActionOutcome {
     success: boolean;
     nextAction: Action | null;
     result: unknown;
+    error?: unknown;
 }
 
 interface ActionPipelineConfig {
@@ -18,7 +19,7 @@ interface ActionPipelineConfig {
      */
     onResult: (action: Action, result: unknown) => void;
     /** A chain step failed. The chain is closed regardless. */
-    onFailure: () => void;
+    onFailure: (error?: unknown) => void;
     /** The pipeline went idle: the chain is over and nothing was queued behind it. */
     onIdle: () => void;
     /**
@@ -106,7 +107,7 @@ export default function useActionPipeline(config: ActionPipelineConfig) {
 
     const runChainStep = useCallback(async (action: Action) => {
         const generation = generationRef.current;
-        const { success, nextAction, result } = await configRef.current.execute(action);
+        const { success, nextAction, result, error } = await configRef.current.execute(action);
 
         // A newer configuration was requested while this chain was running, so its
         // results describe a state the user already moved away from. Drop them and
@@ -131,7 +132,7 @@ export default function useActionPipeline(config: ActionPipelineConfig) {
         } else {
             // Always close the chain, otherwise isBusy() stays true and every later
             // request is silently queued behind a step that will never end.
-            configRef.current.onFailure();
+            configRef.current.onFailure(error);
             finishChain();
         }
     }, [finishChain, setPendingAction]);

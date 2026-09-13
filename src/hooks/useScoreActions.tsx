@@ -368,7 +368,7 @@ export default function useScoreActions({
       });
     } catch (error) {
       console.error("Error performing load action:", error);
-      return null;
+      throw error;
     }
   }, [
     verovio,
@@ -413,7 +413,7 @@ export default function useScoreActions({
       return renderAutoScrollAction({ height, timemap: await resolveTimemap(timemap) });
     } catch (error) {
       console.error("Error performing auto-scroll load action:", error);
-      return null;
+      throw error;
     }
   }, [
     verovio,
@@ -546,8 +546,8 @@ export default function useScoreActions({
 
       return { newSvg, loadedPagesCount, scale, renderPage } as RenderActionResult;
     } catch (error) {
-      console.log(`Error rendering page: ${error}`);
-      return null;
+      console.error("Error rendering page:", error);
+      throw error;
     }
   }, [verovio, resolveTimemap, score, setElementPages]);
 
@@ -589,8 +589,8 @@ export default function useScoreActions({
 
       return { newSvg };
     } catch (error) {
-      console.log(`Error rendering auto-scroll page: ${error}`);
-      return null;
+      console.error("Error rendering auto-scroll page:", error);
+      throw error;
     }
   }, [verovio]);
 
@@ -646,8 +646,7 @@ export default function useScoreActions({
       console.warn(`Unknown action type: ${action.type}`);
       return { success: false, nextAction: null, result: null, showSpinner: false };
     } catch (error) {
-      console.error(`Error executing action ${action.type}:`, error);
-      return { success: false, nextAction: null, result: null, showSpinner: false };
+      return { success: false, nextAction: null, result: null, showSpinner: false, error };
     }
   }, [
     verovio,
