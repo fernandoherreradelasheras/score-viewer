@@ -1,0 +1,209 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?xml-model href="https://music-encoding.org/schema/5.1/mei-all.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="https://music-encoding.org/schema/5.1/mei-all.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<mei xmlns="http://www.music-encoding.org/ns/mei" meiversion="5.1">
+   <meiHead>
+      <fileDesc>
+         <titleStmt>
+            <title/>
+         </titleStmt>
+         <pubStmt/>
+      </fileDesc>
+      <workList>
+         <work>
+            <title>Test original clefs</title>
+            <perfMedium>
+               <perfResList>
+                  <perfRes>Tiple 1º</perfRes>
+                  <perfRes>Tiple 2º</perfRes>
+                  <perfRes type="reconstructed">Alto</perfRes>
+                  <perfRes>Tenor</perfRes>
+                  <perfRes>Guion</perfRes>
+               </perfResList>
+            </perfMedium>
+         </work>
+      </workList>
+   </meiHead>
+   <music>
+      <body>
+         <mdiv>
+            <score>
+               <scoreDef xml:id="sd.initial" keysig="1s" meter.sym="common" midi.bpm="80.0">
+                  <staffGrp symbol="bracket">
+                     <staffDef n="1" lines="5">
+                        <label>Tiple 1º</label>
+                        <labelAbbr>T. 1</labelAbbr>
+                        <clef shape="G" line="2"/>
+                     </staffDef>
+                     <staffDef n="2" lines="5">
+                        <label>Tiple 2º</label>
+                        <labelAbbr>T. 2</labelAbbr>
+                        <clef shape="G" line="2"/>
+                     </staffDef>
+                     <staffDef n="3" lines="5">
+                        <label>[Alto]</label>
+                        <labelAbbr>[A.]</labelAbbr>
+                        <clef shape="G" line="2"/>
+                     </staffDef>
+                     <staffDef n="4" lines="5">
+                        <label>Tenor</label>
+                        <labelAbbr>Tn.</labelAbbr>
+                        <clef xml:id="cjkdud3" shape="G" line="2" dis="8" dis.place="below"/>
+                     </staffDef>
+                  </staffGrp>
+               </scoreDef>
+               <section label="scoreDef with 1s. app scoreDef with nothing">
+                  <app xml:id="acdkjf9" type="app_clefs">
+                     <lem type="app_clefs" corresp="#sd.initial"/>
+                     <rdg type="app_clefs">
+                        <scoreDef>
+                           <staffGrp>
+                              <staffDef n="4">
+                                 <clef corresp="#cjkdud3" shape="C" line="3"/>
+                              </staffDef>
+                           </staffGrp>
+                        </scoreDef>
+                     </rdg>
+                  </app>
+                  <annot plist="#acdkjf9 #cjkdud3">Claves modernizadas</annot>
+                  <measure n="1">
+                     <staff n="1">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <rest dur="4"/>
+                           <note dur="8" pname="e" oct="4">
+                              <verse n="1">
+                                 <syl>Ya</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <rest dur="2"/>
+                           <note xml:id="n4mw2tq" dur="2" pname="a" oct="4">
+                              <verse n="1">
+                                 <syl>Al</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <rest dur="2"/>
+                           <note xml:id="n1ql8yg9" dur="2" pname="e" oct="4">
+                              <verse n="1">
+                                 <syl>Al</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <rest dur="2"/>
+                           <note xml:id="nefn9p3" dur="2" pname="a" oct="3">
+                              <verse n="1">
+                                 <syl>Al</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                  </measure>
+               </section>
+            </score>
+         </mdiv>
+         <mdiv>
+            <score>
+               <scoreDef xml:id="sd.initial2" keysig="1s" meter.sym="common" midi.bpm="80.0">
+                  <staffGrp symbol="bracket">
+                     <staffDef n="1" lines="5">
+                        <label>Tiple 1º</label>
+                        <labelAbbr>T. 1</labelAbbr>
+                        <clef shape="G" line="2"/>
+                     </staffDef>
+                     <staffDef n="2" lines="5">
+                        <label>Tiple 2º</label>
+                        <labelAbbr>T. 2</labelAbbr>
+                        <clef shape="G" line="2"/>
+                     </staffDef>
+                     <staffDef n="3" lines="5">
+                        <label>[Alto]</label>
+                        <labelAbbr>[A.]</labelAbbr>
+                        <clef shape="G" line="2"/>
+                     </staffDef>
+                     <staffDef n="4" lines="5">
+                        <label>Tenor</label>
+                        <labelAbbr>Tn.</labelAbbr>
+                        <clef xml:id="cjkdud32" shape="G" line="2" dis="8" dis.place="below"/>
+                     </staffDef>
+                  </staffGrp>
+               </scoreDef>
+               <section label="scoreDef with 1s. app scoreDef with 1s">
+                  <app xml:id="acdkjf92" type="app_clefs">
+                     <lem type="app_clefs" corresp="#sd.initial"/>
+                     <rdg type="app_clefs">
+                        <scoreDef keysig="1s">
+                           <staffGrp>
+                              <staffDef n="4">
+                                 <clef corresp="#cjkdud32" shape="C" line="3"/>
+                              </staffDef>
+                           </staffGrp>
+                        </scoreDef>
+                     </rdg>
+                  </app>
+                  <annot plist="#acdkjf92 #cjkdud32">Claves modernizadas</annot>
+                  <measure n="1">
+                     <staff n="1">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <rest dur="4"/>
+                           <note dur="8" pname="e" oct="4">
+                              <verse n="1">
+                                 <syl>Ya</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="2">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <rest dur="2"/>
+                           <note xml:id="n4mw2tq2" dur="2" pname="a" oct="4">
+                              <verse n="1">
+                                 <syl>Al</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="3">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <rest dur="2"/>
+                           <note xml:id="n1ql8yg92" dur="2" pname="e" oct="4">
+                              <verse n="1">
+                                 <syl>Al</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                     <staff n="4">
+                        <layer n="1">
+                           <rest dur="2"/>
+                           <rest dur="2"/>
+                           <note xml:id="nefn9p32" dur="2" pname="a" oct="3">
+                              <verse n="1">
+                                 <syl>Al</syl>
+                              </verse>
+                           </note>
+                        </layer>
+                     </staff>
+                  </measure>
+               </section>
+            </score>
+         </mdiv>
+      </body>
+   </music>
+</mei>

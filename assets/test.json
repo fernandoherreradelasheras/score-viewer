@@ -146,6 +146,15 @@
             "encodingProperties": {
                 "encodedTransposition": "-P4"
             }
+        },
+        {
+            "_covers": "Original clefs and keysig",
+            "title": "original clefs",
+            "path": "original-clefs",
+            "meiFile": "music.mei",
+            "encodingProperties": {
+                "encodedTransposition": "-P4"
+            }
         }
     ]
 }
