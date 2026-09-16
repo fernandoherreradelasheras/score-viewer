@@ -4,7 +4,7 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from 'rehype-raw'
 import rehypeExternalLinks from 'rehype-external-links';
 import sectionize from 'remark-sectionize'
-import { FetchError, LyricItem } from './types';
+import { FetchError, LyricItem, PlayingState } from './types';
 import ErrorView from './ErrorView';
 import { useTranslation } from 'react-i18next';
 import { Button } from 'antd';
@@ -53,6 +53,7 @@ function TextView(props: TextViewProps) {
     const { t } = useTranslation("common");
     const splitView = useStore.use.isSplitView();
     const setSplitView = useStore.use.setIsSplitView();
+    const playingState = useStore.use.playingState();
     const { title, intro, items, comments } = props
     const [markdownText, setMarkdownText] = useState<string>("")
 
@@ -121,7 +122,8 @@ function TextView(props: TextViewProps) {
         <div>
             {splitView ?
                 <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                    <Button icon={<CloseOutlined />} onClick={() => close()} />
+                    <Button icon={<CloseOutlined />} onClick={() => close()}
+                        disabled={playingState === PlayingState.PLAYING} />
                 </div>
                 : null}
 

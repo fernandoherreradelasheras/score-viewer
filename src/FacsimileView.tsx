@@ -1,5 +1,5 @@
 import { Button, Pagination, Space } from 'antd';
-import { FacsimileItem } from './types';
+import { FacsimileItem, PlayingState } from './types';
 import useStore from "./store";
 import { cloneElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pan-pinch";
@@ -14,6 +14,7 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
   const splitView = useStore.use.isSplitView();
   const splitViewOrientation = useStore.use.splitViewOrientation();
   const setSplitView = useStore.use.setIsSplitView();
+  const playingState = useStore.use.playingState();
   const setLayoutHint = useStore.use.setSecondaryViewLayoutHint();
 
   const [currentItem, setCurrentItem] = useState(0);
@@ -65,10 +66,11 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
           return element;
         }}
         onChange={handlePageClick} /> : null}
-      {splitView ? <Button icon={<CloseOutlined />} onClick={() => close()} /> : null}
+      {splitView ? <Button icon={<CloseOutlined />} onClick={() => close()}
+        disabled={playingState === PlayingState.PLAYING} /> : null}
 
     </div>
-  }, [items, path, currentItem, splitView, splitViewOrientation, close, t, setSplitView]);
+  }, [items, path, currentItem, splitView, splitViewOrientation, playingState, close, t, setSplitView]);
 
 
   // A tab pane grows with its content, so measuring it would only give back the height of
