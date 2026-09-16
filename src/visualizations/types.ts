@@ -10,6 +10,9 @@ export type NoteAttack = {
     color: string;
     durationMs: number;
     durationQuarters: number;
+    /** How long the note has already been sounding, when it is re-attacked on a
+     *  freshly rendered page mid-note. */
+    elapsedMs?: number;
 };
 
 /**

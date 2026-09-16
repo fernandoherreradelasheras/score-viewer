@@ -63,7 +63,7 @@ export const createDurationBarVisualization = (ties: TieLinks): NoteVisualizatio
 
         styles: `.${BAR_CLASS} { transform-box: fill-box; transform-origin: left center; }`,
 
-        attack: ({ noteId, element, color, durationMs, durationQuarters }: NoteAttack) => {
+        attack: ({ noteId, element, color, durationMs, durationQuarters, elapsedMs = 0 }: NoteAttack) => {
             const anchor = noteAnchor(element);
             // A tie continuation is covered by the bar of the note it continues from;
             // drawing its own would break the illusion of one sustained sound.
@@ -100,6 +100,7 @@ export const createDurationBarVisualization = (ties: TieLinks): NoteVisualizatio
                 ],
                 { duration: totalMs, easing: "linear" }
             );
+            animation.currentTime = elapsedMs;
 
             running.set(noteId, { bar, animation });
             animation.finished.then(() => clear(noteId)).catch(() => { });

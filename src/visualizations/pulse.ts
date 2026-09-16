@@ -52,7 +52,7 @@ export const createPulseVisualization = (): NoteVisualization => {
 
         styles: `.${PULSE_CLASS} { ${SHARED_TRANSFORM_STYLE} }`,
 
-        attack: ({ noteId, element, durationMs, durationQuarters }: NoteAttack) => {
+        attack: ({ noteId, element, durationMs, durationQuarters, elapsedMs = 0 }: NoteAttack) => {
             const anchor = noteAnchor(element);
             const parts = element ? [...element.querySelectorAll(PULSE_PARTS)] : [];
             if (anchor == null || parts.length === 0 || durationMs <= 0) {
@@ -77,7 +77,9 @@ export const createPulseVisualization = (): NoteVisualization => {
 
             const animations = parts.map(part => {
                 part.classList.add(PULSE_CLASS);
-                return part.animate(keyframes, { duration: durationMs });
+                const animation = part.animate(keyframes, { duration: durationMs });
+                animation.currentTime = elapsedMs;
+                return animation;
             });
 
             running.set(noteId, animations);

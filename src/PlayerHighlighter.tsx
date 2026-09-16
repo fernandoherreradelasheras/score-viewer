@@ -78,7 +78,9 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
         })
     }
 
-    const attackNote = (id: string, staff: number) => {
+    // Attacked at `position`, not at the onset: after a seek into the middle of a
+    // note its animation must end with the note, not a whole duration later.
+    const attackNote = (id: string, staff: number, position: number) => {
         const timing = noteTimings.get(id)
         visualization.attack({
             noteId: id,
@@ -87,26 +89,39 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
             color: playerStaffColor(staff),
             durationMs: timing?.durationMs ?? 0,
             durationQuarters: timing?.durationQuarters ?? 0,
+            elapsedMs: Math.max(0, position - (timing?.onsetMs ?? position)),
         })
     }
 
-    const higlightNotesAtPosition = (position: number) => {
-        // Replay the whole timemap up to `position`: notes that started earlier and are
-        // still sounding must stay lit, not only the ones of the last event.
-        const sounding = new Set<string>()
+    // Replay the whole timemap up to `position`: notes that started earlier and are
+    // still sounding must stay lit, not only the ones of the last event.
+    const soundingNotesAtPosition = (position: number) => {
+        const sounding = new Map<string, number>()
         for (const event of timemap) {
             if (event.tstamp > position) {
                 break
             }
             event.off?.forEach(id => sounding.delete(id))
-            event.on?.forEach(id => sounding.add(id))
+            event.on?.forEach((id, i) => sounding.set(id, event.stavesOn?.[i] ?? 1))
         }
-        sounding.forEach(id => highlightNote(id))
+        return sounding
     }
 
+    const higlightNotesAtPosition = (position: number) => {
+        soundingNotesAtPosition(position).forEach((_, id) => highlightNote(id))
+    }
+
+    // A new SVG comes without the highlights and animations of the notes already
+    // sounding, so they are put back with their animations advanced to the present.
     useEffect(() => {
         if (playingState == PlayingState.PAUSED) {
             higlightNotesAtPosition(playingPosition)
+        }
+        if (playingState == PlayingState.PLAYING) {
+            soundingNotesAtPosition(playingPosition).forEach((staff, id) => {
+                highlightNote(id)
+                attackNote(id, staff, playingPosition)
+            })
         }
     }, [renderedSvgData])
 
@@ -171,7 +186,7 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
         on.forEach((staff, id) => {
             highlightNote(id)
             if (playingState == PlayingState.PLAYING) {
-                attackNote(id, staff)
+                attackNote(id, staff, currentPlayingPosition)
             }
         })
 

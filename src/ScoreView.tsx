@@ -521,16 +521,19 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                     newSvg.style.opacity = '1';
                 }, 10);
 
-                // Clean up after animation
+                // Clean up after animation. The faded-in SVG stays as the page: rebuilding
+                // it from the cached HTML would drop the highlights and the running note
+                // animations the player has put on it during the crossfade.
                 setTimeout(() => {
                     if (svgContainerRef.current) {
-                        svgContainerRef.current.innerHTML = cachedPage.svgHTML;
-                        // Reset opacity on the final SVG
-                        const finalSvg = svgContainerRef.current.querySelector("svg") as SVGSVGElement | null;
-                        if (finalSvg) {
-                            finalSvg.style.opacity = '1';
-                            finalSvg.style.transition = '';
-                        }
+                        [...svgContainerRef.current.children]
+                            .filter(child => child !== newSvg)
+                            .forEach(child => child.remove());
+                        newSvg.style.position = '';
+                        newSvg.style.top = '';
+                        newSvg.style.left = '';
+                        newSvg.style.opacity = '1';
+                        newSvg.style.transition = '';
                     }
                     setRenderedSvgData(cachedPage);
                     setIsLoading(false);

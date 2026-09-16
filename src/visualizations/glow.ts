@@ -59,7 +59,7 @@ export const createGlowVisualization = (): NoteVisualization => {
 
         styles: `.${HALO_CLASS} { ${SHARED_TRANSFORM_STYLE} pointer-events: none; }`,
 
-        attack: ({ noteId, element, color, durationMs }: NoteAttack) => {
+        attack: ({ noteId, element, color, durationMs, elapsedMs = 0 }: NoteAttack) => {
             const anchor = noteAnchor(element);
             if (anchor == null || durationMs <= 0) {
                 return;
@@ -77,6 +77,7 @@ export const createGlowVisualization = (): NoteVisualization => {
             anchor.parent.insertBefore(halo, element);
 
             const animation = halo.animate(haloKeyframes(anchor.cx, anchor.cy), { duration: durationMs });
+            animation.currentTime = elapsedMs;
 
             running.set(noteId, { halo, animation });
             animation.finished.then(() => clear(noteId)).catch(() => { });

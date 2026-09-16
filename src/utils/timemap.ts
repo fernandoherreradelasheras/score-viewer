@@ -1,6 +1,8 @@
 import { TimeMapEvent } from "../types";
 
 export type NoteTiming = {
+    /** Position in the timemap at which the note starts sounding. */
+    onsetMs: number;
     /** Sounding length in milliseconds, for animation timing. */
     durationMs: number;
     /** Sounding length in quarter notes, for tempo-independent visual sizing. */
@@ -25,6 +27,7 @@ export const buildNoteTimings = (timemap: TimeMapEvent[]): Map<string, NoteTimin
             }
             pending.delete(id);
             timings.set(id, {
+                onsetMs: start.tstamp,
                 durationMs: event.tstamp - start.tstamp,
                 durationQuarters: event.qstamp - start.qstamp,
             });

@@ -300,7 +300,11 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
     }, [pausePlayback]);
 
     const startPlayback = useCallback((startPosition: number) => {
-        stopPlayback();
+        // Not stopPlayback: its transient position 0 would make the highlighter play
+        // the notes at the start of the score before the sources resume.
+        pausePlayback();
+        pausedPositionRef.current = startPosition;
+        setPlayingPosition(startPosition);
 
         const context = getAudioContext();
         if (!context || audioBuffersRef.current.size === 0) return;
@@ -322,7 +326,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
             });
             updatePlaybackPosition();
         });
-    }, [stopPlayback, getAudioContext, resumeAudioContext, playingState]);
+    }, [pausePlayback, setPlayingPosition, getAudioContext, resumeAudioContext, playingState]);
 
 
     const timemap = useMemo(() => {
