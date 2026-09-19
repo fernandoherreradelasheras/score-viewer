@@ -42,22 +42,22 @@ export default function TabLayout({
     [
       showAnySection && introView ? {
         key: 'intro',
-        label: <Space direction='horizontal'>{t('tab.introduction')}</Space>,
+        label: <Space orientation='horizontal'>{t('tab.introduction')}</Space>,
         children: introView
       } : null,
       showAnySection && textView ? {
         key: 'text',
-        label: <Space direction='horizontal'><FileTextOutlined />{t('tab.text')}</Space>,
+        label: <Space orientation='horizontal'><FileTextOutlined />{t('tab.text')}</Space>,
         children: textView
       } : null,
       {
         key: 'music',
-        label: <Space direction='horizontal'><Icon component={MusicSvg} />{t('tab.music')}</Space>,
+        label: <Space orientation='horizontal'><Icon component={MusicSvg} />{t('tab.music')}</Space>,
         children: scoreView
       },
       showAnySection && facsimileView ? {
         key: 'facsimile',
-        label: <Space direction='horizontal'> <FileImageOutlined />{t('tab.facsimile')}</Space>,
+        label: <Space orientation='horizontal'> <FileImageOutlined />{t('tab.facsimile')}</Space>,
         children: facsimileView
       } : null
     ].filter(tab => tab != null),

@@ -91,7 +91,7 @@ function TestSections() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Space direction="horizontal" size="large" style={{ flex: 'none' }}>
+      <Space orientation="horizontal" size="large" style={{ flex: 'none' }}>
         {sections.map((section) => (
           <Button key={section.id} onClick={() => ref.current?.goToSection(section.id)}>
             {section.label}
@@ -119,7 +119,7 @@ function TestExternalSelector() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Space direction="horizontal" size="large" style={{ flex: 'none' }}>
+      <Space orientation="horizontal" size="large" style={{ flex: 'none' }}>
         <Button onClick={() => ref.current?.selectScore(0)}>
           {t('test.score1')}
         </Button>

@@ -55,7 +55,7 @@ function AudioPlayer() {
     const playControls = useMemo(() =>
         audioUrl ?
             <div style={{ position: "absolute", bottom: 0, right: 0, padding: "8px" }}>
-                <Space direction="horizontal" size="small">
+                <Space orientation="horizontal" size="small">
                     {playingState !== PlayingState.STOPPED ? stopButton : null}
                     {playingState === PlayingState.PLAYING ? pauseButton : playButton}
                 </Space>

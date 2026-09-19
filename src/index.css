@@ -2,11 +2,11 @@
   pointer-events: none;
 }
 
-.ant-tabs-content-top:has(.score-viewer) {
+.ant-tabs-body-top:has(.score-viewer) {
   height: 100%;
 }
 
-.ant-tabs-tabpane-active:has(.score-viewer) {
+.ant-tabs-content-active:has(.score-viewer) {
   height: 100%;
   overflow: hidden !important;
 }
@@ -257,7 +257,7 @@
 }
 
 
-.score-viewer-top-element .ant-tabs .ant-tabs-content-holder {
+.score-viewer-top-element .ant-tabs .ant-tabs-body-holder {
   overflow-y: auto;
   overflow-x: hidden;
 }

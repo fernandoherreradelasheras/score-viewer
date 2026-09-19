@@ -3,7 +3,7 @@ import { Alert } from "antd";
 function ErrorView({ message, description }: { message: string, description: React.ReactNode }) {
     return (
         <Alert
-            message={message}
+            title={message}
             description={description}
             type="error"
             showIcon

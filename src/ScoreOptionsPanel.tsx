@@ -89,7 +89,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
     const noteVisualizationRow = audioFiles.length > 0 ?
         <Row align={"middle"}>
             <Col span={12}>
-                <Space direction="vertical">
+                <Space orientation="vertical">
                     <Typography.Text strong={true}>
                         {t('scoreOptions.noteVisualization.title')}
                     </Typography.Text>
@@ -147,7 +147,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
     const languageRow = allowUserLanguageChange ?
         <Row align={"middle"}>
             <Col span={16}>
-                <Space direction="vertical">
+                <Space orientation="vertical">
                     <Typography.Text strong={true} >
                         {t('scoreOptions.language.title')}
                     </Typography.Text>
@@ -164,7 +164,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
     const iuLayoutRow = !isMobile ?
         <Row align={"middle"}>
             <Col span={16}>
-                <Space direction="vertical">
+                <Space orientation="vertical">
                     <Typography.Text strong={true} {...(!hasSecondaryContent ? { type: 'secondary' } : {})}>
                         {t('scoreOptions.uiLayout.title')}
                     </Typography.Text>
@@ -193,7 +193,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
 
     return (
         <Drawer title={t('scoreOptions.title')} open={open} onClose={onClose}>
-            <Space direction="vertical" size="large">
+            <Space orientation="vertical" size="large">
 
                 {/* UI Settings Section */}
                 {(languageRow || iuLayoutRow) &&
@@ -201,7 +201,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
                         <Typography.Title level={5} style={{ margin: 0 }}>
                             {t('scoreOptions.uiSettings.title')}
                         </Typography.Title>
-                        <Space direction="vertical" size="middle">
+                        <Space orientation="vertical" size="middle">
                             {languageRow}
                             {iuLayoutRow}
                         </Space>
@@ -211,11 +211,11 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
                 <Typography.Title level={5} style={{ margin: 0 }}>
                     {t('scoreOptions.scoreViewerSettings.title')}
                 </Typography.Title>
-                <Space direction="vertical" size="middle">
+                <Space orientation="vertical" size="middle">
                     {noteVisualizationRow}
                     <Row align={"middle"}>
                         <Col span={20}>
-                            <Space direction="vertical">
+                            <Space orientation="vertical">
                                 <Typography.Text strong={true}  {...(!showEditorial ? { type: 'secondary' } : {})}>
                                     {t('scoreOptions.editorialNotes.title')}
                                 </Typography.Text>
@@ -231,7 +231,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
 
                     <Row align={"middle"}>
                         <Col span={20}>
-                            <Space direction="vertical">
+                            <Space orientation="vertical">
                                 <Typography.Text strong={true}  {...(!normalizeFicta ? { type: 'secondary' } : {})}>
                                     {t('scoreOptions.normalizeFicta.title')}
                                 </Typography.Text>
@@ -247,7 +247,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
 
                     <Row align={"middle"}>
                         <Col span={20}>
-                            <Space direction="vertical">
+                            <Space orientation="vertical">
                                 <Typography.Text strong={true} {...(!showColoredNotes ? { type: 'secondary' } : {})}>
                                     {t('scoreOptions.coloredNotes.title')}
                                 </Typography.Text>
@@ -266,7 +266,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
 
                     <Row align={"middle"}>
                         <Col span={20}>
-                            <Space direction="vertical">
+                            <Space orientation="vertical">
                                 <Typography.Text strong={true} {...(!showOriginalClefs ? { type: 'secondary' } : {})}>
                                     {t('scoreOptions.originalClefs.title')}
                                 </Typography.Text>
@@ -285,7 +285,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
 
                     <Row align={"middle"}>
                         <Col span={20}>
-                            <Space direction="vertical">
+                            <Space orientation="vertical">
                                 <Typography.Text strong={true} {...(!withoutTransposition ? { type: 'secondary' } : {})}>
                                     {t('scoreOptions.noTransposition.title')}
                                 </Typography.Text>
@@ -305,7 +305,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
 
                     <Row align={"middle"}>
                         <Col span={20}>
-                            <Space direction="vertical">
+                            <Space orientation="vertical">
                                 <Typography.Text strong={true} {...(!showMusicAnalysis ? { type: 'secondary' } : {})}>
                                     {t('scoreOptions.harmonicAnalysis.title')}
                                 </Typography.Text>
@@ -325,7 +325,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
 
                     <Row align={"middle"}>
                         <Col span={16}>
-                            <Space direction="vertical">
+                            <Space orientation="vertical">
                                 <Typography.Text strong={true} {...(!showNVerses ? { type: 'secondary' } : {})}>
                                     {t('scoreOptions.limitVerses.title')}
                                 </Typography.Text>
@@ -347,7 +347,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
 
                     <Row align={"middle"}>
                         <Col span={12}>
-                            <Space direction="vertical">
+                            <Space orientation="vertical">
                                 <Typography.Text strong={true}>
                                     {t('scoreOptions.measureNumberInterval.title')}
                                 </Typography.Text>

@@ -127,7 +127,7 @@ function ScoreInfo({ open, onClose, showDownload }: { open: boolean, onClose: ()
 
     const section = (title: string | null, content: React.ReactNode) => (
         <>
-            {title && <Divider orientation="left" style={{ marginTop: 24 }}><Text strong>{title}</Text></Divider>}
+            {title && <Divider titlePlacement="start" style={{ marginTop: 24 }}><Text strong>{title}</Text></Divider>}
             {content}
         </>
     );
@@ -142,7 +142,7 @@ function ScoreInfo({ open, onClose, showDownload }: { open: boolean, onClose: ()
             width={`min(${DIALOG_WIDTH}px, calc(100vw - ${2 * DIALOG_MARGIN}px))`}
             centered
             styles={{
-                content: {
+                container: {
                     maxHeight: `calc(100vh - ${2 * DIALOG_MARGIN}px)`,
                     display: 'flex',
                     flexDirection: 'column',

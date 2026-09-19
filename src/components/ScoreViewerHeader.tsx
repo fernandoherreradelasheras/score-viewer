@@ -38,7 +38,7 @@ export default function ScoreViewerHeader({
 
   const scoreSelector = useMemo(() =>
     showScoreSelector ?
-      <Space direction='horizontal' style={{ marginBottom: "10px", textAlign: "start", flex: "0" }}>
+      <Space orientation='horizontal' style={{ marginBottom: "10px", textAlign: "start", flex: "0" }}>
         <Typography.Text style={{ marginLeft: "10px" }}>{label}:</Typography.Text>
         <Select
           style={{ minWidth: "200px", marginRight: "10px" }}
@@ -58,7 +58,7 @@ export default function ScoreViewerHeader({
     , [isSplitView, facsimileView, introView, textView]);
 
   return (
-    <Space direction='horizontal' style={{
+    <Space orientation='horizontal' style={{
       width: "100%",
       justifyContent: scoreSelector || splitViewSelector ? "space-between" : "flex-end",
       alignItems: "center"

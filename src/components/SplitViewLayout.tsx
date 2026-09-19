@@ -55,7 +55,7 @@ export default function SplitViewLayout({
         // antd (5.26) measures the container only from its ResizeObserver; a layout change
         // alone leaves the panels sized against the previous axis, so it must remount.
         key={orientation}
-        layout={orientation}
+        orientation={orientation}
         onResize={setSizes}
         onResizeEnd={onResizeEnd}
         style={{ flex: 1, minHeight: 0, boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}

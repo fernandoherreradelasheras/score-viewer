@@ -39,7 +39,7 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
     }, [splitView, splitViewOrientation, resetTransform]);
 
     return <div style={{ display: "flex", justifyContent: "space-between" }}>
-      <Space direction="horizontal" size={12} style={{ flex: "0", marginLeft: "12px" }}>
+      <Space orientation="horizontal" size={12} style={{ flex: "0", marginLeft: "12px" }}>
         <Button icon={<ZoomInOutlined />} onClick={() => zoomIn()} />
         <Button icon={<ZoomOutOutlined />} onClick={() => zoomOut()} />
         <Button onClick={() => resetTransform()}>{t('reset')}</Button>

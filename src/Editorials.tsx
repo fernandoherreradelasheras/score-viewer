@@ -235,7 +235,7 @@ function Editorials() {
                     width={`min(${DIALOG_WIDTH}px, calc(100vw - ${2 * DIALOG_MARGIN}px))`}
                     style={dialogPlacement ? { top: dialogPlacement.top } : undefined}
                     styles={dialogPlacement ? {
-                        content: { maxHeight: dialogPlacement.maxHeight, display: 'flex', flexDirection: 'column' },
+                        container: { maxHeight: dialogPlacement.maxHeight, display: 'flex', flexDirection: 'column' },
                         body: { overflowY: 'auto' },
                     } : undefined}
                     footer={null}
@@ -245,14 +245,14 @@ function Editorials() {
                         <Descriptions size="small" column={1} items={buildMetaItems(showingEditorialItem)} />
 
                         {itemCategory(showingEditorialItem)?.desc && (
-                            <Alert type="info" message={itemCategory(showingEditorialItem)?.desc} />
+                            <Alert type="info" title={itemCategory(showingEditorialItem)?.desc} />
                         )}
 
                         {describeGroupScope(showingEditorialItem) && (
-                            <Alert type="warning" showIcon message={describeGroupScope(showingEditorialItem)} />
+                            <Alert type="warning" showIcon title={describeGroupScope(showingEditorialItem)} />
                         )}
                         {getAnnotationText(showingEditorialItem) && (
-                            <Alert type="info" showIcon message={getAnnotationText(showingEditorialItem)} />
+                            <Alert type="info" showIcon title={getAnnotationText(showingEditorialItem)} />
                         )}
                         {'choice' in showingEditorialItem ? getChoices(showingEditorialItem) : getSimpleEditorialContent(showingEditorialItem)}
                     </div>

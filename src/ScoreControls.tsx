@@ -53,7 +53,7 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, backgroun
 
 
     const mainControls = useMemo(() => (
-        <Space direction='horizontal'>
+        <Space orientation='horizontal'>
             <Button shape="circle" icon={<ZoomOutOutlined />} onClick={zoomOut} disabled={!canZoomOut} />
             <Button shape="circle" icon={<ZoomInOutlined />} onClick={zoomIn} disabled={!canZoomIn} />
             <Button

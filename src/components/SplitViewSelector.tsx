@@ -41,7 +41,7 @@ export default function SplitViewSelector({
   }
 
   return (
-    <Space direction='horizontal' style={{ marginBottom: "10px", textAlign: "start", flex: "0" }}>
+    <Space orientation='horizontal' style={{ marginBottom: "10px", textAlign: "start", flex: "0" }}>
       <Typography.Text style={{ marginLeft: "10px" }}>{splitViewContentSelectorLabel}:</Typography.Text>
       <Select
         style={{ minWidth: "200px", marginRight: "10px" }}

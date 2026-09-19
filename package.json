@@ -33,9 +33,9 @@
     "preview:iframe": "vite preview --outDir dist/iframe"
   },
   "dependencies": {
-    "@ant-design/icons": "^5.6.1",
+    "@ant-design/icons": "^6.3.4",
     "@microflash/rehype-figure": "^2.1.4",
-    "antd": "^5.24.6",
+    "antd": "^6.6.4",
     "i18next-browser-languagedetector": "^8.2.0",
     "react-device-detect": "^2.2.3",
     "react-i18next": "^15.6.1",
@@ -50,7 +50,6 @@
     "remark-sectionize": "^2.1.0",
     "unist-util-visit": "^5.0.0",
     "verovio": "~6.1.0",
-    "vite-plugin-dts": "^4.5.3",
     "zustand": "^5.0.3"
   },
   "peerDependencies": {
@@ -61,6 +60,7 @@
     "@eslint/js": "^9.21.0",
     "@svgr/rollup": "^8.1.0",
     "@svgr/webpack": "^8.1.0",
+    "@types/node": "^22.20.4",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@types/verovio": "^5.1.0",
@@ -74,6 +74,7 @@
     "tsx": "^4.23.1",
     "typescript": "^5.4.5",
     "vite": "^5.2.8",
+    "vite-plugin-dts": "^4.5.4",
     "vite-plugin-svgr": "^4.2.0"
   },
   "eslintConfig": {
