@@ -405,6 +405,10 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                     Math.abs(renderedSvgData.width - svgContainerWidth) < 100 &&
                     renderedSvgData?.page == currentPage &&
                     renderedSvgData?.scale == scale) {
+                    // While hidden behind another tab the container measures zero, so
+                    // reloadScore dropped any settings change made meanwhile, and the
+                    // unchanged target size will not trigger a load to pick it up.
+                    reloadScore();
                     return
                 }
             }
