@@ -36,14 +36,15 @@
     "@ant-design/icons": "^6.3.4",
     "@microflash/rehype-figure": "^2.1.4",
     "antd": "^6.6.4",
+    "i18next": "^26.4.2",
     "i18next-browser-languagedetector": "^8.2.0",
     "react-device-detect": "^2.2.3",
-    "react-i18next": "^15.6.1",
+    "react-i18next": "^17.0.14",
     "react-markdown": "^10.1.0",
     "react-swipeable": "^7.0.2",
-    "react-tooltip": "^5.28.1",
+    "react-tooltip": "^6.0.8",
     "react-use-size": "^5.0.1",
-    "react-zoom-pan-pinch": "^3.7.0",
+    "react-zoom-pan-pinch": "^4.2.0",
     "rehype-external-links": "^3.0.0",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
@@ -57,46 +58,24 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.21.0",
-    "@svgr/rollup": "^8.1.0",
-    "@svgr/webpack": "^8.1.0",
+    "@eslint/js": "^10.0.1",
     "@types/node": "^22.20.4",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@types/verovio": "^5.1.0",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@vitejs/plugin-react": "^6.1.1",
     "@xmldom/xmldom": "^0.9.10",
-    "eslint": "^9.21.0",
-    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint": "^10.11.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "fontoxpath": "^3.34.0",
-    "globals": "^15.13.0",
+    "globals": "^17.12.0",
     "slimdom": "^4.3.5",
     "tsx": "^4.23.1",
-    "typescript": "^5.4.5",
-    "vite": "^5.2.8",
-    "vite-plugin-dts": "^4.5.4",
-    "vite-plugin-svgr": "^4.2.0"
-  },
-  "eslintConfig": {
-    "extends": [
-      "eslint:recommended",
-      "plugin:react-hooks/recommended"
-    ],
-    "overrides": [
-      {
-        "files": [
-          "**/*.ts?(x)"
-        ],
-        "rules": {
-          "react-hooks/exhaustive-deps": "warn",
-          "no-unused-vars": "off"
-        }
-      }
-    ],
-    "ignorePatterns": [
-      "node_modules/",
-      "dist/"
-    ]
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.70.0",
+    "vite": "^8.3.0",
+    "vite-plugin-dts": "^5.1.0",
+    "vite-plugin-svgr": "^5.2.0"
   },
   "keywords": [
     "mei",
@@ -105,5 +84,8 @@
     "viewer",
     "player",
     "musicology"
-  ]
+  ],
+  "overrides": {
+    "@babel/plugin-transform-runtime": "^7.29.0"
+  }
 }

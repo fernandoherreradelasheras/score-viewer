@@ -180,7 +180,7 @@ function Editorials() {
     ];
 
 
-    const getContentForTooltip = (render: { content: string | null; activeAnchor: HTMLElement | null }) => {
+    const getContentForTooltip = (render: { activeAnchor: Element | null }) => {
         const anchor = render.activeAnchor instanceof SVGTextElement
             ? render.activeAnchor.querySelector(":scope > .mei-editorial")
             : render.activeAnchor;

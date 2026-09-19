@@ -20,11 +20,11 @@ export default defineConfig(({ mode }) => {
         jsxRuntime: 'automatic'
       }),
       dts({
-        rollupTypes: true,
+        bundleTypes: true,
         insertTypesEntry: true,
         staticImport: true,
         include: ['lib/**/*', 'src/**/*'],
-        outDir: 'dist/types'
+        outDirs: 'dist/types'
       }),
       svgr({ svgrOptions: { icon: false } })
     ],
@@ -57,8 +57,8 @@ export default defineConfig(({ mode }) => {
         ...config.build,
         outDir: 'dist/iframe',
         target: 'es2015',
-        minify: isDev ? false : 'esbuild',
-        rollupOptions: {
+        minify: isDev ? false : 'oxc',
+        rolldownOptions: {
           input: {
             main: resolve(__dirname, 'iframe/index.html'),
           },
@@ -83,7 +83,7 @@ export default defineConfig(({ mode }) => {
           fileName: 'score-viewer',
           formats: ['es', 'umd'],
         },
-        rollupOptions: {
+        rolldownOptions: {
           external: ['react', 'react-dom', 'react/jsx-runtime'],
           output: {
             globals: {
