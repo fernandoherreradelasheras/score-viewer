@@ -4,7 +4,7 @@ import { Context } from './Context';
 import { useComponentSize } from "react-use-size";
 import useScoreAnimation from './hooks/useScoreAnimation';
 import useScoreActions from './hooks/useScoreActions';
-import useScoreRenderer from './hooks/useScoreRenderer';
+import useScoreRenderer, { RenderedData } from './hooks/useScoreRenderer';
 import { PlayingState, Score, loadAutoScrollAction } from './types';
 import { ScoreViewProps } from './ScoreView';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -111,7 +111,7 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
                     // Handle the results of render actions
                     if (result) {
                         if (pendingAction.type === "renderAutoScroll") {
-                            const autoScrollResult = result as { newSvg: any };
+                            const autoScrollResult = result as { newSvg: RenderedData };
                             const { newSvg } = autoScrollResult;
                             setRenderedSvgData(newSvg);
                             setIsLoading(false);

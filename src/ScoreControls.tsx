@@ -9,15 +9,6 @@ import useStore from './store';
 import ScoreInfo from './components/ScoreInfo';
 import PagePreview from './components/PagePreview';
 
-export enum PlayerControlEventType {
-    SEEK,
-}
-
-export type PlayerControlEvent = {
-    type: PlayerControlEventType,
-    value?: any
-}
-
 interface ScoreControlProps {
     style?: React.CSSProperties | undefined;
     fullScreenElement: HTMLElement | null;

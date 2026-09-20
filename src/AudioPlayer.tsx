@@ -7,17 +7,6 @@ import useWebAudioPlayer from "./hooks/useWebAudioPlayer";
 import { useMemo } from "react";
 
 
-export enum PlayerEventType {
-    ERROR,
-    SEEK
-}
-
-export type PlayerEvent = {
-    type: PlayerEventType,
-    value?: any
-}
-
-
 function AudioPlayer() {
     const score = useStore.use.score();
     const playingState = useStore.use.playingState();

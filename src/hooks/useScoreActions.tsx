@@ -19,6 +19,7 @@ import {
   SUBST_ALLOWED_CHILD_TAGS,
 } from '../types';
 import { RenderedData } from './useScoreRenderer';
+import { VerovioWorkerProxy } from '../types/verovio-worker';
 import useStore from '../store';
 import { EDITORIAL_COLORS } from '../types/colors';
 
@@ -115,7 +116,7 @@ const verovioBaseOptions: VerovioOptions = {
  * already tell the reader that something is happening.
  */
 export const shouldShowSpinner = (action: Action): boolean => {
-  const config = action.config as any;
+  const config = action.config as Partial<LoadConfig & RenderConfig>;
   return !(config.transition || config.postLoadTransition);
 };
 
@@ -142,7 +143,7 @@ interface RenderAutoScrollResult {
 }
 
 interface ScoreActionsConfig {
-  verovio: any; // Verovio toolkit instance
+  verovio: VerovioWorkerProxy | null;
 }
 
 /**
@@ -262,6 +263,7 @@ export default function useScoreActions({
 
 
   const getSectionMap = async (analyzer: ScoreAnalyzer) => {
+    if (!verovio) throw new Error("Verovio is not ready");
     const sections = analyzer.getSections()
     const sectionsMap: Record<string, number> = {}
     for (const section of sections) {
@@ -276,6 +278,7 @@ export default function useScoreActions({
 
 
   const loadAndBuildTimemap = useCallback(async (meiStr: string): Promise<TimeMapEvent[]> => {
+    if (!verovio) throw new Error("Verovio is not ready");
     await verovio.loadData(meiStr);
     const timemap = await verovio.renderToTimemap({ includeMeasures: true });
     return timemap;
@@ -340,7 +343,7 @@ export default function useScoreActions({
       const analyzer = new ScoreAnalyzer(0, meiStr);
       const sectionMap = await getSectionMap(analyzer);
 
-      let renderPage = undefined;
+      let renderPage: number | undefined = undefined;
       if (restorePositionForAchor) {
         const pageForMeasureOnView = await verovio?.getPageWithElement(restorePositionForAchor);
         if (pageForMeasureOnView != null && pageForMeasureOnView > 0) {
@@ -351,7 +354,9 @@ export default function useScoreActions({
         renderPage = (page <= loadedPagesCount) ? page : loadedPagesCount;
       }
 
-      setScoreLayout({ currentPage: renderPage, pageCount: loadedPagesCount, sectionPageMap: sectionMap });
+      const pageToRender = renderPage ?? 1;
+
+      setScoreLayout({ currentPage: pageToRender, pageCount: loadedPagesCount, sectionPageMap: sectionMap });
 
       console.log(`[useScoreActions] performLoadAction for ${loadedPagesCount} pages completed in ${(performance.now() - startTime).toFixed(2)}ms`);
 
@@ -361,7 +366,7 @@ export default function useScoreActions({
         transition: postLoadTransition,
         loadedHeight,
         loadedWidth,
-        renderPage,
+        renderPage: pageToRender,
         scale,
         loadedPagesCount,
         timemap: await resolveTimemap(timemap)
@@ -464,6 +469,7 @@ export default function useScoreActions({
 
 
   const resolveTimemap = useCallback(async (timemap: TimeMapEvent[]): Promise<TimeMapEvent[]> => {
+    if (!verovio) throw new Error("Verovio is not ready");
     const mei = await verovio.getMEI()
     const analyzer = new ScoreAnalyzer(0, mei)
     return mergeTimemapTies(timemap, analyzer.getTiedNotes())

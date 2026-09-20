@@ -1,8 +1,10 @@
 import { ANNOTATION_TARGET_TYPE, ANNOTATION_TARGET_WRAPPER, EDITORIAL_ALL_TAGS } from "./types/editorial";
 
-type FilterFunc = (doc: Document, params: any) => void
+type FilterParams = { n?: number }
 
-type Filters = [FilterFunc, any][];
+type FilterFunc = (doc: Document, params: FilterParams) => void
+
+type Filters = [FilterFunc, FilterParams][];
 
 const XPATH_FICTA_ACCIDS = '//mei:accid[@func="edit"]'
 
@@ -50,8 +52,11 @@ const AddSectionTitlesFilter: FilterFunc = (doc: Document) => {
 }
 
 
-const FilterToNVerses: FilterFunc = (doc: Document, params: { n: number }) => {
+const FilterToNVerses: FilterFunc = (doc: Document, params: FilterParams) => {
     const numVerses = params.n
+    if (numVerses == null) {
+        return
+    }
     const matches = doc?.evaluate(`//mei:verse[@n > "${numVerses}"]`, doc, nsResolver, XPathResult.ANY_TYPE, null)
     if (matches == null) {
         return

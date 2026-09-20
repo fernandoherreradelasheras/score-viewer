@@ -58,7 +58,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         }
 
         try {
-            const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+            const AudioContext = window.AudioContext || (window as unknown as { webkitAudioContext: typeof window.AudioContext }).webkitAudioContext;
             audioContextRef.current = new AudioContext();
             sharedAudioContext = audioContextRef.current;
             if (audioContextRef.current.state === 'suspended') {

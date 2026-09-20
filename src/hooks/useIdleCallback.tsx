@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
+import { DependencyList, useEffect } from 'react';
 
 /**
  * Hook to execute a callback during browser idle time
  * Uses requestIdleCallback to avoid blocking the main thread
  */
-export default function useIdleCallback(callback: () => void, deps: any[]) {
+export default function useIdleCallback(callback: () => void, deps: DependencyList) {
     useEffect(() => {
         // Check if requestIdleCallback is supported
         if (typeof requestIdleCallback === 'undefined') {

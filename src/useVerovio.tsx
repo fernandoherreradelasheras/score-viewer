@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { VerovioWorkerProxy, VerovioWorkerRequest, VerovioWorkerResponse, VerovioWorkerInitMessage } from './types/verovio-worker';
+import { TimeMapEvent } from './types/player';
 
 import VerovioWorker from './workers/verovio.worker?worker';
 
@@ -10,7 +11,7 @@ let workerVersion: string | null = null;
 
 // Queue for pending requests
 const pendingRequests = new Map<string, {
-    resolve: (value: any) => void;
+    resolve: (value: unknown) => void;
     reject: (error: Error) => void;
 }>();
 
@@ -90,7 +91,7 @@ function handleWorkerMessage(event: MessageEvent) {
 /**
  * Call a method on the Verovio worker
  */
-async function callWorkerMethod(method: string, ...args: any[]): Promise<any> {
+async function callWorkerMethod<T>(method: string, ...args: unknown[]): Promise<T> {
     if (!sharedWorker) {
         throw new Error('Worker not initialized');
     }
@@ -104,14 +105,14 @@ async function callWorkerMethod(method: string, ...args: any[]): Promise<any> {
         throw new Error('Worker not ready');
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise<T>((resolve, reject) => {
         if (!sharedWorker) {
             reject(new Error('Worker not initialized'));
             return;
         }
 
         const id = `req_${++requestIdCounter}`;
-        pendingRequests.set(id, { resolve, reject });
+        pendingRequests.set(id, { resolve: resolve as (value: unknown) => void, reject });
 
         const request: VerovioWorkerRequest = {
             id,
@@ -131,15 +132,15 @@ function createWorkerProxy(): VerovioWorkerProxy {
         get isReady() {
             return workerReady;
         },
-        setOptions: (options) => callWorkerMethod('setOptions', options),
-        loadData: (data) => callWorkerMethod('loadData', data),
-        getPageCount: () => callWorkerMethod('getPageCount'),
-        renderToSVG: (page) => callWorkerMethod('renderToSVG', page),
-        renderToTimemap: (options) => callWorkerMethod('renderToTimemap', options),
-        getMEI: (options) => callWorkerMethod('getMEI', options),
-        getPageWithElement: (elementId) => callWorkerMethod('getPageWithElement', elementId),
-        getElementsAtTime: (time) => callWorkerMethod('getElementsAtTime', time),
-        getVersion: () => callWorkerMethod('getVersion')
+        setOptions: (options) => callWorkerMethod<void>('setOptions', options),
+        loadData: (data) => callWorkerMethod<boolean>('loadData', data),
+        getPageCount: () => callWorkerMethod<number>('getPageCount'),
+        renderToSVG: (page) => callWorkerMethod<string>('renderToSVG', page),
+        renderToTimemap: (options) => callWorkerMethod<TimeMapEvent[]>('renderToTimemap', options),
+        getMEI: (options) => callWorkerMethod<string>('getMEI', options),
+        getPageWithElement: (elementId) => callWorkerMethod<number>('getPageWithElement', elementId),
+        getElementsAtTime: (time) => callWorkerMethod<{ notes: string[]; page: number }>('getElementsAtTime', time),
+        getVersion: () => callWorkerMethod<string>('getVersion')
     };
 }
 

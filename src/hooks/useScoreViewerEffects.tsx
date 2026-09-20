@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import type { i18n as I18n } from 'i18next';
 import { isMobile, useMobileOrientation } from 'react-device-detect';
 import { ScoreViewContainerRef } from '../ScoreViewContainer';
 import { VisualizationOptions } from '../types';
@@ -13,7 +14,7 @@ interface UseScoreViewerEffectsProps {
   scoreViewContainerRef: React.RefObject<ScoreViewContainerRef | null>;
   showOriginalClefs: boolean | null;
   onVisualizationOptionsChanged?: (options: VisualizationOptions) => void;
-  i18n: any;
+  i18n: I18n;
   loadAll: (scoreIndex: number) => void;
 }
 

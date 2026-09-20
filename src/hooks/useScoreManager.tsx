@@ -162,10 +162,10 @@ export function useScoreManager({
         )
         updateScore(scoreIndex, newScore);
         console.log(`Score fetched from network: ${meiUrl} took ${performance.now() - timestamp}ms`);
-      } catch (error: Error | any) {
+      } catch (error) {
         if (onFetchScoreError) {
           console.error(`Error fetching score MEI from ${meiUrl}:`, error);
-          onFetchScoreError(meiUrl, error);
+          onFetchScoreError(meiUrl, error instanceof Error ? error : new Error(String(error)));
         }
       }
     }

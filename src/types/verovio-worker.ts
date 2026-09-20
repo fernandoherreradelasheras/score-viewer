@@ -1,4 +1,5 @@
-import { VerovioOptions } from 'verovio';
+import { GetMeiOptions, TimeMapOptions, VerovioOptions } from 'verovio';
+import { TimeMapEvent } from './player';
 
 /**
  * Message types for communication between main thread and Verovio worker
@@ -8,13 +9,13 @@ import { VerovioOptions } from 'verovio';
 export interface VerovioWorkerRequest {
     id: string;
     method: string;
-    args: any[];
+    args: unknown[];
 }
 
 // Response message from worker
 export interface VerovioWorkerResponse {
     id: string;
-    result?: any;
+    result?: unknown;
     error?: string;
 }
 
@@ -36,9 +37,9 @@ export interface VerovioWorkerProxy {
     loadData: (data: string) => Promise<boolean>;
     getPageCount: () => Promise<number>;
     renderToSVG: (page: number) => Promise<string>;
-    renderToTimemap: (options?: any) => Promise<any>;
-    getMEI: (options?: any) => Promise<string>;
+    renderToTimemap: (options?: TimeMapOptions) => Promise<TimeMapEvent[]>;
+    getMEI: (options?: GetMeiOptions) => Promise<string>;
     getPageWithElement: (elementId: string) => Promise<number>;
-    getElementsAtTime: (time: number) => Promise<any>;
+    getElementsAtTime: (time: number) => Promise<{ notes: string[]; page: number }>;
     getVersion: () => Promise<string>;
 }

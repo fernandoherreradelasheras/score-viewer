@@ -47,9 +47,18 @@ self.onmessage = async (event: MessageEvent<VerovioWorkerRequest>) => {
         return;
     }
 
+    const toolkitMethod = (verovioToolkit as unknown as Record<string, ((...args: unknown[]) => unknown) | undefined>)[method];
+    if (typeof toolkitMethod !== 'function') {
+        const response: VerovioWorkerResponse = {
+            id,
+            error: `Unknown Verovio method: ${method}`
+        };
+        self.postMessage(response);
+        return;
+    }
+
     try {
-        // Call the requested method on the Verovio toolkit
-        const result = (verovioToolkit as any)[method](...args);
+        const result = toolkitMethod.apply(verovioToolkit, args);
 
         const response: VerovioWorkerResponse = {
             id,

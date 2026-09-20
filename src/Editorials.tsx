@@ -103,15 +103,15 @@ function Editorials() {
     const onOptionSelected = (type: string, choice: Choice, selectedOptionIndex: number) => {
         const removeEntries = choice.options.filter((_, index) => index != selectedOptionIndex).map(o => o.selector);
         if (type == "app") {
-            const newOptions = appOptions.filter((o: any) => !removeEntries.includes(o));
+            const newOptions = appOptions.filter((o) => !removeEntries.includes(o));
             newOptions.push(choice.options[selectedOptionIndex].selector);
             setAppOptions(newOptions, true);
         } else if (type == "choice") {
-            const newOptions = choiceOptions.filter((o: any) => !removeEntries.includes(o));
+            const newOptions = choiceOptions.filter((o) => !removeEntries.includes(o));
             newOptions.push(choice.options[selectedOptionIndex].selector);
             setChoiceOptions(newOptions, true);
         } else if (type == "subst") {
-            const newOptions = substOptions.filter((o: any) => !removeEntries.includes(o));
+            const newOptions = substOptions.filter((o) => !removeEntries.includes(o));
             newOptions.push(choice.options[selectedOptionIndex].selector);
             setSubstOptions(newOptions, true);
         }
