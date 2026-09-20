@@ -57,6 +57,9 @@ function Editorials() {
         const element = showingEditorial ? document.getElementById(showingEditorial) : null;
         const rect = element?.getBoundingClientRect();
         if (!element || !rect || (rect.width == 0 && rect.height == 0)) {
+            // The placement is measured from the laid-out score, which cannot be read
+            // while rendering, so it is settled here and applied on the next paint.
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setDialogPlacement(null);
             return;
         }

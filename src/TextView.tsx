@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from 'rehype-raw'
@@ -56,7 +56,6 @@ function TextView(props: TextViewProps) {
     const setSplitView = useStore.use.setIsSplitView();
     const playingState = useStore.use.playingState();
     const { title, intro, items, comments } = props
-    const [markdownText, setMarkdownText] = useState<string>("")
 
     const renderIntro = useCallback((intro: string | FetchError) => {
         let introText = markdownSubtitle(t("textView.intro"))
@@ -95,7 +94,7 @@ function TextView(props: TextViewProps) {
         setSplitView(false);
     }, [setSplitView]);
 
-    useEffect(() => {
+    const markdownText = useMemo(() => {
         let text = title ? markdownTitle(title) : ""
         if (intro) {
             text += renderIntro(intro)
@@ -103,7 +102,7 @@ function TextView(props: TextViewProps) {
             text += renderPoem(items, comments)
         }
 
-        setMarkdownText(text);
+        return text
     }, [intro, title, items, comments, renderIntro, renderPoem])
 
 

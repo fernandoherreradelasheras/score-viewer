@@ -52,12 +52,17 @@ export default function useActionPipeline(config: ActionPipelineConfig) {
     const continuationRef = useRef<Action | null>(null);
     const pendingActionRef = useRef<Action | null>(null);
 
+    // Refreshed while rendering rather than in an effect: isBusy() is called from the
+    // same render pass that schedules an action, and a spinner asked for with no delay
+    // would otherwise find the pipeline idle and never come up.
+    // eslint-disable-next-line react-hooks/refs
     pendingActionRef.current = pendingAction;
 
     // The callbacks are read through a ref refreshed on every render, so a chain that
     // spans several renders always sees the caller's latest closures instead of the
     // ones captured when it started.
     const configRef = useRef(config);
+    // eslint-disable-next-line react-hooks/refs
     configRef.current = config;
 
     /** Whether the pipeline still owes a page for a request already made. */

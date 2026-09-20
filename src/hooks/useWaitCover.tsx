@@ -30,6 +30,9 @@ export default function useWaitCover({ svgContainerRef, isBusy }: WaitCoverConfi
     const spinnerVisibleRef = useRef(false);
 
     const isBusyRef = useRef(isBusy);
+    // Refreshed while rendering so a timer that fires between this render and the next
+    // asks the pipeline it belongs to, not the one of the render that set it.
+    // eslint-disable-next-line react-hooks/refs
     isBusyRef.current = isBusy;
 
     const cancelSpinnerTimer = () => {

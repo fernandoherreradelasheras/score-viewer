@@ -82,6 +82,16 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const { handleElementClick, handleElementHover, handleElementLeave } = useEditorialHandler();
     const { ref: svgContainerRef, width: svgContainerWidth, height: svgContainerHeight } = useComponentSize();
 
+    // The pipeline is gated on the container being mounted, which is a decision taken
+    // while rendering: the element is held as state so that mounting it is what lets the
+    // first chain run, instead of whatever renders this component next.
+    const [svgContainerElement, setSvgContainerElement] = useState<HTMLDivElement | null>(null);
+
+    const attachSvgContainer = useCallback((node: HTMLDivElement | null) => {
+        svgContainerRef.current = node;
+        setSvgContainerElement(node);
+    }, [svgContainerRef]);
+
     const lastRenderedUrl = useRef<string | undefined | null>(null);
 
     const {
@@ -212,7 +222,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         // the reflow settles. Holding, rather than dropping what was asked for: a load
         // reads the target size when it runs, so it comes out right, and a request the
         // reader made is never lost to a transient size.
-        canRun: !!verovio && svgContainerRef.current != null && targetHeight > 0,
+        canRun: !!verovio && svgContainerElement != null && targetHeight > 0,
     });
 
     // Single entry point for every configuration-driven (re)load: covers the wait,
@@ -632,16 +642,6 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     // Fill the cache outwards from the page on screen, one page per idle slot: caching a
     // page changes `pageCache`, which schedules the next idle callback for the page after
     // it, so the browser keeps a say between pages and a page turn always comes first.
-    useIdleCallback(() => {
-        if (!verovio || !svgContainerRef.current || !renderedSvgData || !isReady()) return;
-        if (preRenderStalledAt.current === renderedSvgData.page) return;
-
-        const page = preRenderOrder(renderedSvgData.page, pageCount).find(p => !getCachedPage(p));
-        if (page === undefined || !pageCacheAccepts(page)) return;
-
-        preRenderPage(page);
-    }, [renderedSvgData, pageCache, pageCount, verovio]);
-
     const preRenderPage = async (page: number) => {
         if (!verovio || !renderedSvgData) return;
 
@@ -701,11 +701,22 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         });
     };
 
+    useIdleCallback(() => {
+        if (!verovio || !svgContainerRef.current || !renderedSvgData || !isReady()) return;
+        if (preRenderStalledAt.current === renderedSvgData.page) return;
+
+        const page = preRenderOrder(renderedSvgData.page, pageCount).find(p => !getCachedPage(p));
+        if (page === undefined || !pageCacheAccepts(page)) return;
+
+        preRenderPage(page);
+    }, [renderedSvgData, pageCache, pageCount, verovio]);
+
+
 
 
     return (
         <div style={{ width: "100%", height: "100%", position: "relative" }}>
-            <div ref={svgContainerRef}
+            <div ref={attachSvgContainer}
                 className={"static-score " + svgContainerClasses.join(" ")}
                 style={{
                     width: "100%",

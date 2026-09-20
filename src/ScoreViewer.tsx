@@ -229,6 +229,9 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
   // sections of the score being left stand until the one arriving can replace them.
   useEffect(() => {
     if (score) {
+      // Deferred on purpose, for the reason above: the tabs are settled once the score
+      // has arrived, not while it is being switched.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTextAvailable(!!(score.scoreText && score.scoreText.length > 0))
       const loaded = loadingScoreIndexRef.current;
       if (loaded != null) {

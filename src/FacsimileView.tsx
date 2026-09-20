@@ -104,10 +104,14 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
 
   const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null);
 
-  useEffect(() => {
-    setCurrentItem(0)
-    setImageAspectRatio(null)
-  }, [items])
+  // A different set of images starts again at its first page, adjusted while rendering
+  // rather than in an effect so the previous page is never painted with the new set.
+  const [renderedItems, setRenderedItems] = useState(items);
+  if (items !== renderedItems) {
+    setRenderedItems(items);
+    setCurrentItem(0);
+    setImageAspectRatio(null);
+  }
 
   const onImageLoad = useCallback((event: React.SyntheticEvent<HTMLImageElement>) => {
     const { naturalWidth, naturalHeight } = event.currentTarget;

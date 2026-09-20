@@ -40,13 +40,18 @@ function PlayerControls({ audioDuration = 0 }: PlayerControlProps) {
     const seekValue = useRef(0)
     const isChanging = useRef(false)
 
-    useEffect(() => {
+    // The duration on show is the last one that was known: while a score is being
+    // switched the player reports none, and blanking the transport for that moment would
+    // only flicker. Adjusted while rendering so the new duration and the new score are
+    // painted together.
+    const [renderedAudioDuration, setRenderedAudioDuration] = useState(audioDuration);
+    if (audioDuration !== renderedAudioDuration) {
+        setRenderedAudioDuration(audioDuration);
         if (audioDuration > 0) {
             setCurrentDuration(audioDuration);
-            const durationStr = formatTime(audioDuration);
-            setDurationString(durationStr);
+            setDurationString(formatTime(audioDuration));
         }
-    }, [audioDuration]);
+    }
 
     const updateTime = useCallback((position: number) => {
         seekValue.current = position
@@ -138,6 +143,10 @@ function PlayerControls({ audioDuration = 0 }: PlayerControlProps) {
                     max={currentDuration}
                     step={1}
                     tooltip={ { formatter: tooltipNullFormater, open: false } }
+                    // The position moves with every audio frame while the transport is
+                    // repainted once a second, when the displayed time changes: holding
+                    // it as state would re-render the player at the frame rate.
+                    // eslint-disable-next-line react-hooks/refs
                     value={seekValue.current}
                     onChange={handleSliderChange}
                     onChangeComplete={handleSliderChangeComplete} />

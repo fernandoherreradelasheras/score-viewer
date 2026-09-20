@@ -91,6 +91,9 @@ export default function LayoutManager({
   useEffect(() => {
     userResized.current = false;
     hintApplied.current = false;
+    // The divider is recentred once the new layout is committed: the panes have to be
+    // laid out before their split means anything.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSizes(['50%', '50%']);
   }, [isSplitView, splitViewOrientation]);
 
@@ -116,6 +119,9 @@ export default function LayoutManager({
       return;
     }
     hintApplied.current = true;
+    // The share comes from the measured container and the content's own hint, neither of
+    // which can be read while rendering.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSizes([`${100 - secondary}%`, `${secondary}%`]);
   }, [isSplitView, splitViewOrientation, container, layoutHint]);
 

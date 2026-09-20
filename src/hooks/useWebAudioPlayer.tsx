@@ -93,6 +93,153 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         return false; // Handle any other state appropriately
     }, [getAudioContext]);
 
+    const fetchAudioBuffer = useCallback(async (url: string, context: AudioContext): Promise<AudioBuffer> => {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        return await context.decodeAudioData(arrayBuffer);
+    }, []);
+
+    const checkPageForPosition = useCallback(async (position: number) => {
+        if (autoScroll || playingState === PlayingState.STOPPED) return;
+
+        const timemap = timemapRef.current;
+        let elementId: string | undefined;
+        for (let i = timemap.length - 1; i >= 0; i--) {
+            const e = timemap[i];
+            if (e.tstamp <= position && e.on && e.on.length > 0) { elementId = e.on[0]; break; }
+        }
+        if (!elementId) return;
+
+        const playingPage: number | undefined = elementPagesRef.current[elementId]
+            ?? await verovio?.getPageWithElement(elementId);
+        if (playingPage && playingPage > 0 && playingPage !== currentPageRef.current) {
+            goToPage(playingPage);
+        }
+    }, [autoScroll, playingState, verovio, goToPage])
+
+
+    const handlePlayPause = useCallback(() => {
+        if (playingState === PlayingState.PLAYING) {
+            setPlayingState(PlayingState.PAUSED);
+        } else if (playingState === PlayingState.PAUSED) {
+            setPlayingState(PlayingState.PLAYING);
+        }
+    }, [playingState, setPlayingState]);
+
+    const handlePlay = useCallback(() => {
+        setPlayingState(PlayingState.PLAYING);
+    }, [setPlayingState]);
+
+    const onAudioEnded = useCallback(() => {
+        setPlayingState(PlayingState.STOPPED);
+        setSeekPosition(0);
+    }, [setPlayingState, setSeekPosition]);
+
+    const getCurrentPosition = useCallback(() => {
+        const context = getAudioContext();
+        if (!context || startTimeRef.current === 0) return pausedPositionRef.current;
+
+        const positionSeconds = context.currentTime - startTimeRef.current;
+        return Math.max(0, positionSeconds * 1000);
+    }, [getAudioContext]);
+
+
+    const pausePlayback = useCallback(() => {
+        if (animationFrameRef.current) {
+            cancelAnimationFrame(animationFrameRef.current);
+            animationFrameRef.current = null;
+        }
+
+        const context = getAudioContext();
+        if (!context) return;
+
+        pausedPositionRef.current = getCurrentPosition();
+        sourceNodesRef.current.forEach(source => {
+            try {
+                source.stop();
+            } catch (e) {
+                // Ignore errors if source is already stopped
+            }
+        });
+        sourceNodesRef.current.clear();
+    }, [getAudioContext, getCurrentPosition]);
+
+    const stopPlayback = useCallback(() => {
+        pausePlayback();
+        pausedPositionRef.current = 0;
+        setPlayingPosition(0);
+    }, [pausePlayback, setPlayingPosition]);
+
+    const timemap = useMemo(() => {
+        if (renderedSvgData?.timemap) {
+            return renderedSvgData.timemap as TimeMapEvent[];
+        }
+        return [];
+    }, [renderedSvgData]);
+
+    const updatePlaybackPosition = useCallback(function tick() {
+        if (playingState !== PlayingState.PLAYING) return;
+
+        const position = getCurrentPosition();
+        setPlayingPosition(position);
+
+        if (timemap && timemap.length > 0 && position > timemap[timemap.length - 1].tstamp + MS_OVER_LAST_TIMESTAMP) {
+            stopPlayback();
+            onAudioEnded();
+            return;
+        }
+
+        checkPageForPosition(position);
+
+        animationFrameRef.current = requestAnimationFrame(tick);
+    }, [getCurrentPosition, setPlayingPosition, timemap, stopPlayback, onAudioEnded, checkPageForPosition, playingState]);
+
+    const startPlayback = useCallback((startPosition: number) => {
+        // Not stopPlayback: its transient position 0 would make the highlighter play
+        // the notes at the start of the score before the sources resume.
+        pausePlayback();
+        pausedPositionRef.current = startPosition;
+        setPlayingPosition(startPosition);
+
+        const context = getAudioContext();
+        if (!context || audioBuffersRef.current.size === 0) return;
+
+        resumeAudioContext().then(success => {
+            if (!success) return;
+
+            pausedPositionRef.current = startPosition;
+            const startSeconds = startPosition / 1000;
+            startTimeRef.current = context.currentTime - startSeconds;
+
+            audioBuffersRef.current.forEach((buffer, trackId) => {
+                const source = context.createBufferSource();
+                source.buffer = buffer;
+                source.connect(context.destination);
+
+                source.start(0, startSeconds);
+                sourceNodesRef.current.set(trackId, source);
+            });
+            updatePlaybackPosition();
+        });
+    }, [pausePlayback, setPlayingPosition, getAudioContext, resumeAudioContext, updatePlaybackPosition]);
+
+
+
+
+    const playPauseTooltip = useCallback(() => {
+        return playingState === PlayingState.PLAYING ? "Pause" : "Play";
+    }, [playingState]);
+
+
+    const handleStop = useCallback(() => {
+        stopPlayback();
+        onAudioEnded();
+    }, [stopPlayback, onAudioEnded]);
+
+
     useEffect(() => {
         const context = getAudioContext();
         if (!context) return;
@@ -183,34 +330,6 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    const fetchAudioBuffer = useCallback(async (url: string, context: AudioContext): Promise<AudioBuffer> => {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const arrayBuffer = await response.arrayBuffer();
-        return await context.decodeAudioData(arrayBuffer);
-    }, []);
-
-    const checkPageForPosition = useCallback(async (position: number) => {
-        if (autoScroll || playingState === PlayingState.STOPPED) return;
-
-        const timemap = timemapRef.current;
-        let elementId: string | undefined;
-        for (let i = timemap.length - 1; i >= 0; i--) {
-            const e = timemap[i];
-            if (e.tstamp <= position && e.on && e.on.length > 0) { elementId = e.on[0]; break; }
-        }
-        if (!elementId) return;
-
-        const playingPage: number | undefined = elementPagesRef.current[elementId]
-            ?? await verovio?.getPageWithElement(elementId);
-        if (playingPage && playingPage > 0 && playingPage !== currentPageRef.current) {
-            goToPage(playingPage);
-        }
-    }, [autoScroll, playingState, verovio, goToPage])
-
-
     useEffect(() => {
         if (seekPosition <= 0) {
             return
@@ -257,125 +376,6 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         // as the position moves, and reacting to them would restart the audio.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [playingState, resumeAudioContext]);
-
-    const handlePlayPause = useCallback(() => {
-        if (playingState === PlayingState.PLAYING) {
-            setPlayingState(PlayingState.PAUSED);
-        } else if (playingState === PlayingState.PAUSED) {
-            setPlayingState(PlayingState.PLAYING);
-        }
-    }, [playingState, setPlayingState]);
-
-    const handlePlay = useCallback(() => {
-        setPlayingState(PlayingState.PLAYING);
-    }, [setPlayingState]);
-
-    const onAudioEnded = useCallback(() => {
-        setPlayingState(PlayingState.STOPPED);
-        setSeekPosition(0);
-    }, [setPlayingState, setSeekPosition]);
-
-    const getCurrentPosition = useCallback(() => {
-        const context = getAudioContext();
-        if (!context || startTimeRef.current === 0) return pausedPositionRef.current;
-
-        const positionSeconds = context.currentTime - startTimeRef.current;
-        return Math.max(0, positionSeconds * 1000);
-    }, [getAudioContext]);
-
-
-    const pausePlayback = useCallback(() => {
-        if (animationFrameRef.current) {
-            cancelAnimationFrame(animationFrameRef.current);
-            animationFrameRef.current = null;
-        }
-
-        const context = getAudioContext();
-        if (!context) return;
-
-        pausedPositionRef.current = getCurrentPosition();
-        sourceNodesRef.current.forEach(source => {
-            try {
-                source.stop();
-            } catch (e) {
-                // Ignore errors if source is already stopped
-            }
-        });
-        sourceNodesRef.current.clear();
-    }, [getAudioContext, getCurrentPosition]);
-
-    const stopPlayback = useCallback(() => {
-        pausePlayback();
-        pausedPositionRef.current = 0;
-        setPlayingPosition(0);
-    }, [pausePlayback, setPlayingPosition]);
-
-    const timemap = useMemo(() => {
-        if (renderedSvgData?.timemap) {
-            return renderedSvgData.timemap as TimeMapEvent[];
-        }
-        return [];
-    }, [renderedSvgData]);
-
-    const updatePlaybackPosition = useCallback(() => {
-        if (playingState !== PlayingState.PLAYING) return;
-
-        const position = getCurrentPosition();
-        setPlayingPosition(position);
-
-        if (timemap && timemap.length > 0 && position > timemap[timemap.length - 1].tstamp + MS_OVER_LAST_TIMESTAMP) {
-            stopPlayback();
-            onAudioEnded();
-            return;
-        }
-
-        checkPageForPosition(position);
-
-        animationFrameRef.current = requestAnimationFrame(updatePlaybackPosition);
-    }, [getCurrentPosition, setPlayingPosition, timemap, stopPlayback, onAudioEnded, checkPageForPosition, playingState]);
-
-    const startPlayback = useCallback((startPosition: number) => {
-        // Not stopPlayback: its transient position 0 would make the highlighter play
-        // the notes at the start of the score before the sources resume.
-        pausePlayback();
-        pausedPositionRef.current = startPosition;
-        setPlayingPosition(startPosition);
-
-        const context = getAudioContext();
-        if (!context || audioBuffersRef.current.size === 0) return;
-
-        resumeAudioContext().then(success => {
-            if (!success) return;
-
-            pausedPositionRef.current = startPosition;
-            const startSeconds = startPosition / 1000;
-            startTimeRef.current = context.currentTime - startSeconds;
-
-            audioBuffersRef.current.forEach((buffer, trackId) => {
-                const source = context.createBufferSource();
-                source.buffer = buffer;
-                source.connect(context.destination);
-
-                source.start(0, startSeconds);
-                sourceNodesRef.current.set(trackId, source);
-            });
-            updatePlaybackPosition();
-        });
-    }, [pausePlayback, setPlayingPosition, getAudioContext, resumeAudioContext, updatePlaybackPosition]);
-
-
-
-
-    const playPauseTooltip = useCallback(() => {
-        return playingState === PlayingState.PLAYING ? "Pause" : "Play";
-    }, [playingState]);
-
-
-    const handleStop = useCallback(() => {
-        stopPlayback();
-        onAudioEnded();
-    }, [stopPlayback, onAudioEnded]);
-
 
     return {
         canPlay,

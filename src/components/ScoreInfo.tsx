@@ -47,6 +47,9 @@ function ScoreInfo({ open, onClose, showDownload }: { open: boolean, onClose: ()
         };
         return [...(score?.editorialItems ?? [])].sort((a, b) =>
             measureOf(a) - measureOf(b) || (a.partN ?? 0) - (b.partN ?? 0));
+        // The apparatus is replaced with the score that carries it, never edited in
+        // place, so sorting it once per score is safe.
+        // eslint-disable-next-line react-hooks/preserve-manual-memoization
     }, [score?.editorialItems]);
 
     const decisions = editorialItems.filter(isChoice);

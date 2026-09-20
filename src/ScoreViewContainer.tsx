@@ -6,7 +6,7 @@ import ScoreView from './ScoreView';
 import ScoreViewAutoScroll from './ScoreViewAutoScroll';
 import useStore from "./store";
 import { TimeMapEvent, PlayingState } from './types';
-import { forwardRef, Ref, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { forwardRef, Ref, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useIsVisible } from './hooks/useIsVisible';
 import MouseTracker from './MouseTracker';
 import { useTranslation } from 'react-i18next';
@@ -50,6 +50,15 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
 
 
     const scoreViewerRef = useRef<HTMLDivElement>(null);
+    // The controls and the mouse tracker need the container element itself, so it is
+    // held as state as well: reading the ref while rendering would leave them waiting
+    // for whatever renders the component next.
+    const [scoreViewerElement, setScoreViewerElement] = useState<HTMLDivElement | null>(null);
+
+    const attachScoreViewer = useCallback((node: HTMLDivElement | null) => {
+        scoreViewerRef.current = node;
+        setScoreViewerElement(node);
+    }, []);
 
     const isScoreVisible = useIsVisible(scoreViewerRef);
 
@@ -118,7 +127,7 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
 
 
     return (
-        <div ref={scoreViewerRef}
+        <div ref={attachScoreViewer}
             className={"score-viewer" + (playingState !== PlayingState.STOPPED ? " player-active" : "")}
             onMouseEnter={() => setMouseOver(true)} onMouseLeave={() => setMouseOver(false)}
             style={{
@@ -127,9 +136,9 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
                 height: height
             }}>
             <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "100%" }}>
-                {scoreViewerRef.current ? <ScoreControls
+                {scoreViewerElement ? <ScoreControls
                     style={{ flex: "0" }}
-                    fullScreenElement={scoreViewerRef.current}
+                    fullScreenElement={scoreViewerElement}
                     showDownloadButton={scoreViewContainerProps.showDownloadButton ?? false}
                     backgroundColor={backgroundColor}
                     audioDuration={audioDuration} /> : null}
@@ -155,8 +164,8 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
              for the editorial popup launched from score info dialog  */}
             {(showEditorial || showingEditorial) && renderedSvgData?.id ? <Editorials /> : null}
 
-            {scoreViewerRef.current && mouseOver && <MouseTracker
-                track={scoreViewerRef.current}
+            {scoreViewerElement && mouseOver && <MouseTracker
+                track={scoreViewerElement}
                 getContent={(e) => {
                     const staffBB = (e.target as Element)?.closest('g.staff.content-bounding-box');
                     const measure = (e.target as Element)?.closest('g.measure');
