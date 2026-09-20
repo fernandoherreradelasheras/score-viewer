@@ -37,6 +37,10 @@ export default defineConfig(({ mode }) => {
       sourcemap: true,
       minify: !isDev,
       copyPublicDir: false,
+      // What Vite 5 built for by default. Vite 8 follows the browser baseline
+      // instead, which moves forward on its own and would silently drop browsers
+      // this component still supports, both here and in the generated CSS.
+      target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
     },
     // Enable detailed source maps in development
     css: {

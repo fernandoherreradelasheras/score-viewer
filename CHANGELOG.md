@@ -6,6 +6,42 @@ Incompatible changes on the 1.1.x line.
 may change without compatibility shims. Every such change is recorded here, newest
 first. Ordinary fixes and additions are not — see the git log for those.
 
+## 1.1.13
+
+### Browser support
+
+- The score, the player, the text sections and the settings run on Chrome 88, Edge 88,
+  Firefox 78 and Safari 14 (iOS 14) or newer. `build.target` is pinned to those browsers
+  so that a Vite upgrade cannot raise the floor on its own, and antd 6 wraps its runtime
+  styles in `:where()`, which needs the same versions.
+
+- Text and introduction sections used to need Chrome 93, Firefox 92 or Safari 15.4, since
+  react-markdown calls `Object.hasOwn` without checking for it. It is now defined where
+  the browser lacks it, and they work down to the floor above.
+
+- Editorial highlighting needs `:has()`, which raises its own floor to Chrome 105,
+  Safari 15.4 (iOS 15.4) and Firefox 121. Below those versions nothing errors and the
+  score, the player and the text still work, but an intervention drawn within the lyrics
+  is not ringed on the score and its tooltip does not reach it, and hovering a reading
+  does not widen its ring. Everything else (the ring of a whole variant group, the mark
+  left by a reading opened from the score information, and the poem laid out around its
+  longest verse) works all the way down to the floor above.
+
+
+### Packaging
+
+- antd is upgraded to 6 and stays bundled, as does `@ant-design/icons` 6. Applications
+  styling score-viewer through antd's own class names have to follow its renames: the
+  containers holding the score are now `.ant-tabs-body-holder`, `.ant-tabs-body-top` and
+  `.ant-tabs-content-active`.
+
+- `Object.hasOwn` is defined on the page when the browser does not have it, which is a
+  global the component did not touch before.
+
+- The bundled type declarations now carry the `verovio` module augmentation, which adds
+  the optional `svgContentBoundingBoxes`, `svgAria`, `expandNever` and `expandAlways`
+  options to `VerovioOptions`.
+
 ## 1.1.9
 
 ### MEI conventions

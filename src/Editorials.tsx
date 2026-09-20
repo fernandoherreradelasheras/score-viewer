@@ -13,7 +13,12 @@ const { Text, Paragraph } = Typography;
 
 // Firefox gives a <tspan> an empty client rect, which would anchor the tooltip at the
 // origin of the page: an intervention within the lyrics anchors on its <text> instead.
-const TOOLTIP_SELECTOR = "svg .mei-editorial:not(tspan), svg text:has(>.mei-editorial)";
+// That half is dropped where :has() is missing, since react-tooltip hands the selector
+// to querySelectorAll, which throws on a selector it cannot parse.
+const supportsHas = typeof CSS !== "undefined" && CSS.supports?.("selector(:has(*))");
+const TOOLTIP_SELECTOR = supportsHas
+    ? "svg .mei-editorial:not(tspan), svg text:has(>.mei-editorial)"
+    : "svg .mei-editorial:not(tspan)";
 
 
 const DIALOG_MARGIN = 16;

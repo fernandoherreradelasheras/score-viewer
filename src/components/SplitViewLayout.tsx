@@ -60,7 +60,7 @@ export default function SplitViewLayout({
         onResizeEnd={onResizeEnd}
         style={{ flex: 1, minHeight: 0, boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}
       >
-        <Splitter.Panel size={sizes[0]} resizable={true}>
+        <Splitter.Panel size={sizes[0]} resizable={true} className="score-splitter-panel">
           {scoreView}
         </Splitter.Panel>
         <Splitter.Panel size={sizes[1]}>

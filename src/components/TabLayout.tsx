@@ -81,6 +81,7 @@ export default function TabLayout({
       activeKey={effectiveTab}
       renderTabBar={shouldShowTabBar ? undefined : () => <></>}
       onChange={onTabChange}
+      classNames={effectiveTab === "music" ? { body: "score-tabs-body", content: "score-tabs-pane" } : {}}
       tabBarExtraContent={tabBarExtra ? { right: tabBarExtra } : undefined}
       style={{
         width: "100%",

@@ -11,6 +11,7 @@ import { Button } from 'antd';
 import useStore from './store';
 import { CloseOutlined } from '@ant-design/icons';
 import rehypeImages from './utils/rehype-images'
+import rehypePoemBlock from './utils/rehype-poem-block'
 import rehypeFigure from "@microflash/rehype-figure";
 
 const markdownTitle = (title: string) => `# ${title}\n\n`
@@ -135,6 +136,7 @@ function TextView(props: TextViewProps) {
                         remarkPlugins={[remarkGfm, sectionize]}
                         rehypePlugins={[
                             rehypeRaw,
+                            rehypePoemBlock,
                             rehypeImages,
                             rehypeFigure,
                             [rehypeExternalLinks, { target: "_blank", rel: "noopener noreferrer" }]

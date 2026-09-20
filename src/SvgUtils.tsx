@@ -102,12 +102,23 @@ export const clearEditorialGroupHover = (container: HTMLElement | null) => {
 
 const HIGHLIGHTED_CLASS = "highlighted";
 
+// Carried by the <svg> itself while it holds a highlighted element, so the rules that
+// need to know about it do not have to ask for it with :has(), which Firefox only
+// understands from 121 on.
+const WITH_HIGHLIGHTED_CLASS = "with-highlighted";
+
 export const markHighlighted = (container: HTMLElement | null, elementId: string) => {
-    const element = container?.querySelector("svg")?.querySelector(`[id="${CSS.escape(elementId)}"]`);
-    element?.classList.add(HIGHLIGHTED_CLASS);
-    return element != null;
+    const svg = container?.querySelector("svg");
+    const element = svg?.querySelector(`[id="${CSS.escape(elementId)}"]`);
+    if (element == null) {
+        return false;
+    }
+    element.classList.add(HIGHLIGHTED_CLASS);
+    svg?.classList.add(WITH_HIGHLIGHTED_CLASS);
+    return true;
 };
 
 export const clearHighlighted = (container: HTMLElement | null) => {
     container?.querySelectorAll(`.${HIGHLIGHTED_CLASS}`).forEach(e => e.classList.remove(HIGHLIGHTED_CLASS));
+    container?.querySelectorAll(`svg.${WITH_HIGHLIGHTED_CLASS}`).forEach(e => e.classList.remove(WITH_HIGHLIGHTED_CLASS));
 };
