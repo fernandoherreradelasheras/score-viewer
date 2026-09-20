@@ -27,7 +27,7 @@
     "build": "npm run validate:mei && tsc -b && vite build",
     "build:iframe": "vite build --mode iframe --config vite.config.ts",
     "build:all": "npm run build && npm run build:iframe",
-    "prepublishOnly": "npm whoami && npm run build",
+    "prepublishOnly": "npm whoami && npm run lint && npm run build",
     "lint": "eslint .",
     "preview": "vite preview",
     "preview:iframe": "vite preview --outDir dist/iframe"
