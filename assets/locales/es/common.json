@@ -107,6 +107,7 @@
       "title": "Error al obtener la partitura",
       "details": "Error al cargar la partitura de la red: {{url}}"
     },
+    "configValidation": "Configuración del ScoreViewer no válida",
     "fetchIntroError": "Error al obtener el texto de introducción",
     "fetchErrorDescription": "Se produjeron los siguientes errores al obtener elementos de la red",
     "fetchTextSeeErrorAbove": "Error: ver arriba para más detalles"
@@ -263,7 +264,7 @@
     "scoreAudioFilesArray": "audioFiles debe ser un array si se proporciona",
     "scoreFacsimileItemsArray": "facsimileItems debe ser un array si se proporciona",
     "configurationError": "Error de Configuración",
-    "configurationErrorDescription": "La configuración del ScoreViewer contiene errores:"
+    "configurationErrorDescription": "La configuración de ScoreViewer contiene errores:"
   },
   "note": {
     "pitch": {

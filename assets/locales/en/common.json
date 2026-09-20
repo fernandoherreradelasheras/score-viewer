@@ -107,6 +107,7 @@
       "title": "Error fetching the score",
       "details": "Error loading the score from the network: {{url}}"
     },
+    "configValidation": "Invalid ScoreViewer configuration",
     "fetchIntroError": "Error fetching the introduction text",
     "fetchErrorDescription": "The following errors occurred fetching items from the network",
     "fetchTextSeeErrorAbove": "Error: see above for details"

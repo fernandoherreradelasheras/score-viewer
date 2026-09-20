@@ -45,11 +45,53 @@ type FetchError = {
   error: Error;
 }
 
+type ScoreViewerContentProps = Omit<ScoreViewerProps, "width">
 
-const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOptionsChanged }: ScoreViewerProps, ref: Ref<ScoreViewerRef>) => {
+
+// Every overlay hangs off the fullscreen element while there is one: the editorial
+// dialog and the player tooltips are portalled out of the tree, and outside the top
+// layer they would not be painted at all. Modal takes its container from here too,
+// falling back to this when it has no `getContainer` of its own.
+const ViewerShell = ({ width, height, children }: { width: string, height: string, children: React.ReactNode }) => {
+  const verovio = useVerovio()
+  const fullscreenElement = useFullscreenElement()
+  const mobileOrientation = useMobileOrientation()
+
+  const overflow = useMemo(() =>
+    isMobile && mobileOrientation.isLandscape ? "scroll" : "hidden"
+    , [isMobile, mobileOrientation, height])
+
+  return (
+    <ConfigProvider
+      getPopupContainer={() => fullscreenElement ?? document.body}
+      theme={{
+        algorithm: theme.defaultAlgorithm,
+        token: {
+          fontSize: isMobile ? 12 : 16
+        },
+      }}>
+      <Context.Provider value={{ verovio }}>
+        <ErrorBoundary>
+          <div className="score-viewer-top-element" style={{ width: width, height: height, overflow: overflow }}>
+            <div style={{
+              width: "calc(100% - 12px)",
+              height: "calc(100% - 12px)",
+              padding: "6px",
+              display: "flex",
+              flexDirection: "column"
+            }}>
+              {children}
+            </div>
+          </div>
+        </ErrorBoundary>
+      </Context.Provider>
+    </ConfigProvider>
+  )
+}
+
+
+const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOptionsChanged }: ScoreViewerContentProps, ref: Ref<ScoreViewerRef>) => {
   const { t, i18n } = useTranslation("common");
-
-  const { configErrors, hasConfigErrors } = useConfigValidation(config);
 
   const score = useStore.use.score()
   const isSplitView = useStore.use.isSplitView()
@@ -66,9 +108,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
 
   const goToSection = useStore.use.goToSection()
 
-  const verovio = useVerovio()
   const mobileOrientation = useMobileOrientation()
-  const fullscreenElement = useFullscreenElement()
 
   const [fetchScoreError, setFetchScoreError] = useState<FetchError | null>(null);
 
@@ -91,60 +131,6 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   const { fetchScore, unloadScore, hasIntro } = useScoreManager({ config, normalizeFicta, onScoreAnalyzed, onFetchScoreError });
 
   const { fetchTextParts, textIntroduction } = useTextParts({ config })
-
-  const overflow = useMemo(() =>
-    isMobile && mobileOrientation.isLandscape ? "scroll" : "hidden"
-    , [isMobile, mobileOrientation, height])
-
-  // Every overlay hangs off the fullscreen element while there is one: the editorial
-  // dialog and the player tooltips are portalled out of the tree, and outside the top
-  // layer they would not be painted at all. Modal takes its container from here too,
-  // falling back to this when it has no `getContainer` of its own.
-  const renderMainContent = (content: React.ReactNode) =>
-    <ConfigProvider
-      getPopupContainer={() => fullscreenElement ?? document.body}
-      theme={{
-        algorithm: theme.defaultAlgorithm,
-        token: {
-          fontSize: isMobile ? 12 : 16
-        },
-      }}>
-      <Context.Provider value={{ verovio }}>
-        <ErrorBoundary>
-          <div className="score-viewer-top-element" style={{ width: width, height: height, overflow: overflow }}>
-            <div style={{
-              width: "calc(100% - 12px)",
-              height: "calc(100% - 12px)",
-              padding: "6px",
-              display: "flex",
-              flexDirection: "column"
-            }}>
-              {content}
-            </div>
-          </div>
-        </ErrorBoundary>
-      </Context.Provider>
-    </ConfigProvider>
-
-
-  if (hasConfigErrors) {
-    return renderMainContent(
-      <ErrorView message={t('error.configValidation')} description={
-        <div>
-          <p>{t('configValidation.configurationErrorDescription')}</p>
-          <ul>
-            {configErrors.map((error, index) => (
-              <li key={index}>
-                <strong>{error.field}:</strong> {error.message}
-              </li>
-            ))}
-          </ul>
-        </div>
-      } />
-    )
-  }
-
-
 
   const loadAll = useCallback(async (scoreIndex: number) => {
     console.log(`Loading all for score index ${scoreIndex}`);
@@ -347,7 +333,7 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
     facsimileView, introView, textView, showDrawer
   ]);
 
-  return renderMainContent(<>
+  return (<>
     {header}
     {title}
     {drawer}
@@ -355,6 +341,40 @@ const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOp
   </>)
 
 
+}
+
+const ScoreViewerContentWithRef = forwardRef<ScoreViewerRef, ScoreViewerContentProps>(ScoreViewerContent)
+
+
+// The content is a component of its own so that the hooks it holds are never skipped.
+const ScoreViewer = ({ config, width, height, onScoreAnalyzed, onVisualizationOptionsChanged }: ScoreViewerProps, ref: Ref<ScoreViewerRef>) => {
+  const { t } = useTranslation("common");
+
+  const { configErrors, hasConfigErrors } = useConfigValidation(config);
+
+  return (
+    <ViewerShell width={width} height={height}>
+      {hasConfigErrors ?
+        <ErrorView message={t('error.configValidation')} description={
+          <div>
+            <p>{t('configValidation.configurationErrorDescription')}</p>
+            <ul>
+              {configErrors.map((error, index) => (
+                <li key={index}>
+                  <strong>{error.field}:</strong> {error.message}
+                </li>
+              ))}
+            </ul>
+          </div>
+        } /> :
+        <ScoreViewerContentWithRef
+          ref={ref}
+          config={config}
+          height={height}
+          onScoreAnalyzed={onScoreAnalyzed}
+          onVisualizationOptionsChanged={onVisualizationOptionsChanged} />}
+    </ViewerShell>
+  )
 }
 
 export default forwardRef<ScoreViewerRef, ScoreViewerProps>(ScoreViewer)
