@@ -54,11 +54,11 @@ class ScoreAnalyzer {
     }
 
     maxVerseNum() {
-        let matches = this.document.evaluate("//mei:verse/@n", this.document, nsResolver, XPathResult.ANY_TYPE, null)
-        var max = 0
+        const matches = this.document.evaluate("//mei:verse/@n", this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        let max = 0
         let node
         while ((node = matches?.iterateNext())) {
-            let value = parseInt(node.nodeValue || "0")
+            const value = parseInt(node.nodeValue || "0")
             if (value > max) {
                 max = value
             }
@@ -100,32 +100,32 @@ class ScoreAnalyzer {
     }
 
     getNumMeasures() {
-        let lastMeasureN = this.document.evaluate(`(//mei:measure)[last()]/@n`, this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.nodeValue
+        const lastMeasureN = this.document.evaluate(`(//mei:measure)[last()]/@n`, this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.nodeValue
         return lastMeasureN ? parseInt(lastMeasureN) : 0
     }
 
     getEditor() {
-        let name = this.document.evaluate("//mei:respStmt/mei:persName[@role=\"transcriber\"][1]", this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
+        const name = this.document.evaluate("//mei:respStmt/mei:persName[@role=\"transcriber\"][1]", this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
         return name ? name : "<missing>"
     }
 
     getComposer() {
-        let name = this.document.evaluate("//mei:composer/mei:persName[@role=\"composer\"][1]", this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
+        const name = this.document.evaluate("//mei:composer/mei:persName[@role=\"composer\"][1]", this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
         return name || null
     }
 
     getLyricist() {
-        let name = this.document.evaluate("//mei:lyricist/mei:persName[@role=\"lyricist\"][1]", this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
+        const name = this.document.evaluate("//mei:lyricist/mei:persName[@role=\"lyricist\"][1]", this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
         return name || null
     }
 
     getReconstructionBy() {
-        let name = this.document.evaluate("//mei:respStmt/mei:persName[@role=\"reconstruction\"][1]", this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
+        const name = this.document.evaluate("//mei:respStmt/mei:persName[@role=\"reconstruction\"][1]", this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
         return name ? name : null
     }
 
     getMeiNotes() {
-        let matches = this.document.evaluate("//mei:meiHead//mei:extMeta//mei:pendingIssues", this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        const matches = this.document.evaluate("//mei:meiHead//mei:extMeta//mei:pendingIssues", this.document, nsResolver, XPathResult.ANY_TYPE, null)
         const notes = []
         let node
         while ((node = matches?.iterateNext())) {
@@ -138,8 +138,8 @@ class ScoreAnalyzer {
 
     getSections() {
         const sections = []
-        let matches = this.document.evaluate(`//mei:section[@label]`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
-        var node = matches.iterateNext()
+        const matches = this.document.evaluate(`//mei:section[@label]`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        let node = matches.iterateNext()
         while (node != null) {
             const section = node as Element
             sections.push({ label: section.getAttribute("label") || "", id: section.getAttribute("xml:id") || "" })
@@ -150,8 +150,8 @@ class ScoreAnalyzer {
 
     getSources() {
         const sources: Sources = {};
-        let matches = this.document.evaluate(`//mei:sourceDesc/mei:source`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
-        var node = matches.iterateNext()
+        const matches = this.document.evaluate(`//mei:sourceDesc/mei:source`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        let node = matches.iterateNext()
         while (node != null) {
             const source = node as Element
             const id = source.getAttribute("xml:id")
@@ -239,7 +239,7 @@ class ScoreAnalyzer {
 
     getResponsibilities() {
         const responsibilities: Record<string, string> = {}
-        let matches = this.document.evaluate(`//mei:respStmt/mei:persName[@xml:id]`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        const matches = this.document.evaluate(`//mei:respStmt/mei:persName[@xml:id]`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
         while (node != null) {
             const person = node as Element
@@ -253,7 +253,7 @@ class ScoreAnalyzer {
     }
 
     getVoiceName(staff: string) {
-        let voiceName = this.document.evaluate(`//mei:staffDef[@n="${staff}"]/mei:label`, this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
+        const voiceName = this.document.evaluate(`//mei:staffDef[@n="${staff}"]/mei:label`, this.document, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()?.textContent
         return voiceName ? voiceName : null
     }
 
@@ -297,7 +297,7 @@ class ScoreAnalyzer {
 
     getEditorialNodesOfType = (editorialType: SimpleEditorialItem["type"]): SimpleEditorialItem[] => {
         const items: SimpleEditorialItem[] = []
-        let matches = this.document.evaluate(`//mei:${editorialType}`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        const matches = this.document.evaluate(`//mei:${editorialType}`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
         while (node != null) {
             // An annotation is shown on the element it points at, so taking the <annot>
@@ -311,7 +311,7 @@ class ScoreAnalyzer {
                 const source = element.getAttribute("source")
                 const childIds: string[] = []
                 const descriptions: ContentDescription[] = []
-                for (let child of [...node.childNodes?.values()].filter(n => n.nodeType == Node.ELEMENT_NODE)) {
+                for (const child of [...node.childNodes?.values()].filter(n => n.nodeType == Node.ELEMENT_NODE)) {
                     const childElement = child as Element;
                     const childId = childElement.getAttribute("xml:id")
                     if (childId) {
@@ -325,7 +325,7 @@ class ScoreAnalyzer {
                 }
 
                 items.push({
-                    id: id!!,
+                    id: id!,
                     reason: reason || "",
                     resp: resp || "",
                     source: source || "",
@@ -395,7 +395,7 @@ class ScoreAnalyzer {
         const options: Option[] = []
         const choice: Choice = { id: choiceId!, options: options }
 
-        for (let child of [...node.childNodes?.values()].filter(n => n.nodeType == Node.ELEMENT_NODE)) {
+        for (const child of [...node.childNodes?.values()].filter(n => n.nodeType == Node.ELEMENT_NODE)) {
             const choiceElement = child as Element
             const nodeType = choiceElement.tagName
             const choiceId = choiceElement.getAttribute("xml:id") || null
@@ -431,7 +431,7 @@ class ScoreAnalyzer {
                 })
         }
         return {
-            id: choiceId!!, type: type, resp: "", reason: "", source: "",
+            id: choiceId!, type: type, resp: "", reason: "", source: "",
             choice: choice, annotations: new Set(), ...this.locationOf(node)
         }
     }
@@ -439,7 +439,7 @@ class ScoreAnalyzer {
 
     getChoiceNodes(): ChoiceEditorialItem[] {
         const items: ChoiceEditorialItem[] = []
-        let matches = this.document.evaluate('//mei:choice', this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        const matches = this.document.evaluate('//mei:choice', this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
         while (node != null) {
             const element = node as Element
@@ -452,7 +452,7 @@ class ScoreAnalyzer {
 
     getAppChoiceNodes(): ChoiceEditorialItem[] {
         const items: ChoiceEditorialItem[] = []
-        let matches = this.document.evaluate(`//mei:app`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        const matches = this.document.evaluate(`//mei:app`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
         while (node != null) {
             const element = node as Element
@@ -472,7 +472,7 @@ class ScoreAnalyzer {
 
     getSubstChoiceNodes(): ChoiceEditorialItem[] {
         const items: ChoiceEditorialItem[] = []
-        let matches = this.document.evaluate('//mei:subst', this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        const matches = this.document.evaluate('//mei:subst', this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
         while (node != null) {
             const element = node as Element
@@ -488,7 +488,7 @@ class ScoreAnalyzer {
     // are extracted separately (see poem-from-mei), so they are excluded here.
     getScoreAnnotations() {
         const annotations: Annotation[] = []
-        let matches = this.document.evaluate(`//mei:score//mei:annot`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        const matches = this.document.evaluate(`//mei:score//mei:annot`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
         while (node != null) {
             const element = node as Element
@@ -503,7 +503,7 @@ class ScoreAnalyzer {
 
     getTiedNotes() {
         const tiedNotes: { first: string, second: string }[] = []
-        let matches = this.document.evaluate(`//mei:tie`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
+        const matches = this.document.evaluate(`//mei:tie`, this.document, nsResolver, XPathResult.ANY_TYPE, null)
         let node = matches.iterateNext()
         while (node != null) {
             const element = node as Element

@@ -149,7 +149,7 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
 
         const currentPlayingPosition = Math.round(playingPosition)
         const events = []
-        var event = eventsQueue.current.shift()
+        let event = eventsQueue.current.shift()
         while (event != null && event.tstamp <= lastTimeStamp.current) {
             event = eventsQueue.current.shift()
         }

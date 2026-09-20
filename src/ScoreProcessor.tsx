@@ -16,7 +16,7 @@ const WRAPPABLE_TARGET_TAGS = new Set(["note", "rest", "chord", "mRest", "multiR
 
 
 const AddSectionTitlesFilter: FilterFunc = (doc: Document, _: {}) => {
-    let matches = doc?.evaluate(`//mei:section[@label]/@label`, doc, nsResolver, XPathResult.ANY_TYPE, null)
+    const matches = doc?.evaluate(`//mei:section[@label]/@label`, doc, nsResolver, XPathResult.ANY_TYPE, null)
     let node;
     const labels = []
     while ((node = matches?.iterateNext())) {
@@ -30,7 +30,7 @@ const AddSectionTitlesFilter: FilterFunc = (doc: Document, _: {}) => {
         return
     }
     labels.forEach(label => {
-        let measure = doc?.evaluate(`//mei:section[@label="${label}"]/mei:measure[1]`, doc, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()
+        const measure = doc?.evaluate(`//mei:section[@label="${label}"]/mei:measure[1]`, doc, nsResolver, XPathResult.ANY_TYPE, null)?.iterateNext()
         if (measure == null) {
             return
         }
@@ -52,12 +52,12 @@ const AddSectionTitlesFilter: FilterFunc = (doc: Document, _: {}) => {
 
 const FilterToNVerses: FilterFunc = (doc: Document, params: { n: number }) => {
     const numVerses = params.n
-    let matches = doc?.evaluate(`//mei:verse[@n > "${numVerses}"]`, doc, nsResolver, XPathResult.ANY_TYPE, null)
+    const matches = doc?.evaluate(`//mei:verse[@n > "${numVerses}"]`, doc, nsResolver, XPathResult.ANY_TYPE, null)
     if (matches == null) {
         return
     }
     const nodes = []
-    var node = matches.iterateNext()
+    let node = matches.iterateNext()
     while (node != null) {
         nodes.push(node)
         node = matches.iterateNext()
@@ -73,7 +73,7 @@ const FilterNormalizeFicta: FilterFunc = (doc: Document, _: {}) => {
     }
 
     const nodes = []
-    var node = fictacAccidIter.iterateNext()
+    let node = fictacAccidIter.iterateNext()
     while (node != null) {
         nodes.push(node as Element)
         node = fictacAccidIter.iterateNext()
@@ -87,12 +87,12 @@ const FilterNormalizeFicta: FilterFunc = (doc: Document, _: {}) => {
 }
 
 const FilterRemoveBracketSpan: FilterFunc = (doc: Document, _: {}) => {
-    let matches = doc?.evaluate(`//mei:bracketSpan[@func="coloration"]`, doc, nsResolver, XPathResult.ANY_TYPE, null)
+    const matches = doc?.evaluate(`//mei:bracketSpan[@func="coloration"]`, doc, nsResolver, XPathResult.ANY_TYPE, null)
     if (matches == null) {
         return
     }
     const nodes = []
-    var node = matches.iterateNext()
+    let node = matches.iterateNext()
     while (node != null) {
         nodes.push(node)
         node = matches.iterateNext()
@@ -104,7 +104,7 @@ const EnsureElementIdFilter = (doc: Document, element: string, prefix: string) =
 }
 
 const EnsureQueryIdFilter = (doc: Document, query: string, prefix: string) => {
-    let matches = doc?.evaluate(query, doc, nsResolver, XPathResult.ANY_TYPE, null)
+    const matches = doc?.evaluate(query, doc, nsResolver, XPathResult.ANY_TYPE, null)
     if (matches == null) {
         return
     }

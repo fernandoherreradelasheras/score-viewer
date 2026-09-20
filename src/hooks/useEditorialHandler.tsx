@@ -39,7 +39,7 @@ export function useEditorialHandler() {
     }
 
     // Fallback: resolve by editorial tag class / data-corresp (e.g. clef changes).
-    for (let e of [...EDITORIAL_TRANSPARENT_TAGS, ...PARENTS_OF_ELEMENTS]) {
+    for (const e of [...EDITORIAL_TRANSPARENT_TAGS, ...PARENTS_OF_ELEMENTS]) {
       const closest = target.closest(`.${e}`) as HTMLElement | null;
       const editorialForTarget = closest ? getEditorialAttached(closest) : null;
       if (editorialForTarget) {

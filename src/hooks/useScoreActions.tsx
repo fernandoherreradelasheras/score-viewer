@@ -342,7 +342,7 @@ export default function useScoreActions({
 
       let renderPage = undefined;
       if (restorePositionForAchor) {
-        let pageForMeasureOnView = await verovio?.getPageWithElement(restorePositionForAchor);
+        const pageForMeasureOnView = await verovio?.getPageWithElement(restorePositionForAchor);
         if (pageForMeasureOnView != null && pageForMeasureOnView > 0) {
           renderPage = pageForMeasureOnView;
         }

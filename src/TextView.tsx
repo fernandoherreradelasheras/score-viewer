@@ -27,7 +27,7 @@ const lineNumberMark = (lineNumber: number) =>
 // line, and every 5th verse (counted continuously across blocks) shows its
 // line number. `initialLineNumber` continues the count from previous blocks.
 const formatStrophes = (strophes: string[][], initialLineNumber: number) => {
-    var lastLineNumber = initialLineNumber
+    let lastLineNumber = initialLineNumber
 
     const renderedStrophes = strophes.map((verses) =>
         verses
@@ -59,7 +59,7 @@ function TextView(props: TextViewProps) {
     const [markdownText, setMarkdownText] = useState<string>("")
 
     const renderIntro = (intro: string | FetchError) => {
-        var introText = markdownSubtitle(t("textView.intro"))
+        let introText = markdownSubtitle(t("textView.intro"))
         if (intro instanceof FetchError) {
             introText += `**${t("error.fetchTextSeeErrorAbove")}**\n\n`
         } else {
@@ -71,10 +71,10 @@ function TextView(props: TextViewProps) {
     }
 
     const renderPoem = (items: LyricItem[], comments?: string | null) => {
-        var poemText = markdownSubtitle(t("textView.poeticText"))
+        let poemText = markdownSubtitle(t("textView.poeticText"))
 
-        var lineNumber = 0
-        for (let item of items) {
+        let lineNumber = 0
+        for (const item of items) {
             if (items.length > 1) {
                 poemText += `### ${item.title}\n`
             }
@@ -96,7 +96,7 @@ function TextView(props: TextViewProps) {
     }, [splitView, setSplitView]);
 
     useEffect(() => {
-        var text = title ? markdownTitle(title) : ""
+        let text = title ? markdownTitle(title) : ""
         if (intro) {
             text += renderIntro(intro)
         } else if (items && items.length > 0) {
