@@ -9,12 +9,66 @@ import FacsimilePreview from './components/FacsimilePreview';
 
 const IMAGE_PADDING = 12;
 
-function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }) {
+// A component of its own because useControls only works under TransformWrapper.
+function FacsimileControls({ path, items, currentItem, onPageSelected }:
+  { path: string, items: FacsimileItem[], currentItem: number, onPageSelected: (item: number) => void }) {
   const { t } = useTranslation("common");
   const splitView = useStore.use.isSplitView();
   const splitViewOrientation = useStore.use.splitViewOrientation();
   const setSplitView = useStore.use.setIsSplitView();
   const playingState = useStore.use.playingState();
+
+  const { zoomIn, zoomOut, centerView } = useControls();
+
+  const fitToContainer = () => centerView(1, 0);
+
+  const handlePageClick = (page: number) => {
+    onPageSelected(page - 1)
+    fitToContainer()
+  };
+
+  useEffect(() => {
+    centerView(1, 0);
+  }, [splitView, splitViewOrientation, centerView]);
+
+  return <div style={{ display: "flex", justifyContent: "space-between" }}>
+    <Space orientation="horizontal" size={12} style={{ flex: "0", marginLeft: "12px" }}>
+      <Button icon={<ZoomInOutlined />} onClick={() => zoomIn()} />
+      <Button icon={<ZoomOutOutlined />} onClick={() => zoomOut()} />
+      <Button onClick={() => fitToContainer()}>{t('reset')}</Button>
+    </Space>
+    {items.length > 1 ? <Pagination
+      style={{ flex: "1", textAlign: "center" }}
+      align="center"
+      current={currentItem + 1}
+      defaultPageSize={1}
+      total={items.length}
+      simple={false}
+      showTitle={false}
+      itemRender={(page, type, element) => {
+        if (type === 'page' && items[page - 1]) {
+          return <FacsimilePreview
+            page={page}
+            name={items[page - 1].name}
+            src={path + items[page - 1].file}>{element}</FacsimilePreview>
+        }
+        if (type === 'prev' || type === 'next') {
+          return cloneElement(element as React.ReactElement<{ title?: string }>,
+            { title: t(type === 'prev' ? 'pagination.previousPage' : 'pagination.nextPage') })
+        }
+        return element;
+      }}
+      onChange={handlePageClick} /> : null}
+    {splitView ? <Button icon={<CloseOutlined />} onClick={() => setSplitView(false)}
+      disabled={playingState === PlayingState.PLAYING} /> : null}
+
+  </div>
+}
+
+
+function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }) {
+  const splitView = useStore.use.isSplitView();
+  const splitViewOrientation = useStore.use.splitViewOrientation();
   const setLayoutHint = useStore.use.setSecondaryViewLayoutHint();
 
   const [currentItem, setCurrentItem] = useState(0);
@@ -22,59 +76,7 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
   const [controlsRow, setControlsRow] = useState<HTMLDivElement | null>(null);
   const [containerHeight, setContainerHeight] = useState<number>(0);
 
-  const Controls = useCallback(() => {
-    const { zoomIn, zoomOut, resetTransform } = useControls();
 
-    const handlePageClick = (page: number) => {
-      setCurrentItem(page - 1)
-      resetTransform()
-    };
-
-    const close = useCallback(() => {
-      setSplitView(false);
-    }, [setSplitView]);
-
-    useEffect(() => {
-      resetTransform();
-    }, [splitView, splitViewOrientation, resetTransform]);
-
-    return <div style={{ display: "flex", justifyContent: "space-between" }}>
-      <Space orientation="horizontal" size={12} style={{ flex: "0", marginLeft: "12px" }}>
-        <Button icon={<ZoomInOutlined />} onClick={() => zoomIn()} />
-        <Button icon={<ZoomOutOutlined />} onClick={() => zoomOut()} />
-        <Button onClick={() => resetTransform()}>{t('reset')}</Button>
-      </Space>
-      {items.length > 1 ? <Pagination
-        style={{ flex: "1", textAlign: "center" }}
-        align="center"
-        current={currentItem + 1}
-        defaultPageSize={1}
-        total={items.length}
-        simple={false}
-        showTitle={false}
-        itemRender={(page, type, element) => {
-          if (type === 'page' && items[page - 1]) {
-            return <FacsimilePreview
-              page={page}
-              name={items[page - 1].name}
-              src={path + items[page - 1].file}>{element}</FacsimilePreview>
-          }
-          if (type === 'prev' || type === 'next') {
-            return cloneElement(element as React.ReactElement<{ title?: string }>,
-              { title: t(type === 'prev' ? 'pagination.previousPage' : 'pagination.nextPage') })
-          }
-          return element;
-        }}
-        onChange={handlePageClick} /> : null}
-      {splitView ? <Button icon={<CloseOutlined />} onClick={() => close()}
-        disabled={playingState === PlayingState.PLAYING} /> : null}
-
-    </div>
-  }, [items, path, currentItem, splitView, splitViewOrientation, playingState, close, t, setSplitView]);
-
-
-  // A tab pane grows with its content, so measuring it would only give back the height of
-  // the image already in it; the window is what bounds the image there.
   useEffect(() => {
     if (!root || !controlsRow) {
       return;
@@ -100,9 +102,6 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
     };
   }, [root, controlsRow, splitView, splitViewOrientation])
 
-  // The image's own proportion, declared for the split layout as soon as it is known:
-  // the layout cannot measure what a panel would leave empty without first drawing it.
-  // Withdrawn when the set of images changes, so the layout does not act on the old one.
   const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null);
 
   useEffect(() => {
@@ -124,6 +123,8 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
   }, [imageAspectRatio, controlsRow, setLayoutHint]);
 
   useEffect(() => () => setLayoutHint(null), [setLayoutHint]);
+
+  const minScale = splitView && splitViewOrientation === 'vertical' ? 0.1 : 1;
 
   const transformKey = useMemo(() =>
     `transform-${splitView ? 'split' : 'tab'}-${splitViewOrientation}`,
@@ -184,7 +185,7 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
   return (
     <TransformWrapper
       key={transformKey}
-      minScale={0.1}
+      minScale={minScale}
       maxScale={5}
       centerOnInit={shouldCenterOnInit}
       limitToBounds={true}
@@ -193,12 +194,12 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
         mode: 'zoomIn',
         step: 0.5,
       }}
+      // Multiplied by the event's deltaY, which is 100 or 120 for one notch of a mouse
+      // wheel: a step in the order the buttons use would take a single notch to maxScale.
       wheel={{
-        step: 0.1,
+        step: 0.002,
       }}
     >
-      {/* With a height of its own the zoomable area would add up with the controls row to
-          more than the split view panel holds, and the panel would scroll them away. */}
       <div style={{
         display: "flex",
         flexDirection: "column",
@@ -209,7 +210,8 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
       }}
         ref={(el: HTMLDivElement | null) => setRoot(el)}>
         <div style={{ flex: "0 0 auto" }} ref={(el: HTMLDivElement | null) => setControlsRow(el)}>
-          <Controls />
+          <FacsimileControls path={path} items={items} currentItem={currentItem}
+            onPageSelected={setCurrentItem} />
         </div>
         <TransformComponent
           wrapperStyle={{ width: "100%", flex: "1 1 auto", minHeight: 0 }}>

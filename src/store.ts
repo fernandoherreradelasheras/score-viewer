@@ -217,7 +217,10 @@ const createUILayoutStore = create<UILayoutState>()(persist((set) => ({
         scale: Math.max(state.scale - 10, MIN_SCALE),
     })),
     setReachedEffectiveMaxScale: (value: boolean) => set(() => ({ reachedEffectiveMaxScale: value })),
-    setIsSplitView: (splitView: boolean) => set(() => ({ isSplitView: splitView })),
+    // Leaving the split view always lands on the music: the score is what the reader had
+    // beside the secondary view, while the tab they came in from is where they no longer are.
+    setIsSplitView: (splitView: boolean) => set(() =>
+        splitView ? { isSplitView: true } : { isSplitView: false, activeTab: 'music' }),
     setActiveSplitView: (view: string) => set(() => ({ activeSplitView: view })),
     setSplitViewOrientation: (orientation: 'horizontal' | 'vertical') => set(() => ({ splitViewOrientation: orientation })),
     setActiveTab: (tab: string) => set(() => ({ activeTab: tab })),
