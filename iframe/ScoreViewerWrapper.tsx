@@ -22,8 +22,16 @@ function ScoreViewerWrapper() {
                 }
 
                 const data = await response.json() as ScoreViewerConfig
-                data.settings.basePath = wrapUrl(data.settings.basePath)
-                data.settings.facsimileImagesPath = wrapUrl(data.settings.facsimileImagesPath)
+                // Missing paths are left as they are: the viewer's config validation reports them.
+                const settings = data?.settings
+                if (settings) {
+                    if (typeof settings.basePath === "string") {
+                        settings.basePath = wrapUrl(settings.basePath)
+                    }
+                    if (typeof settings.facsimileImagesPath === "string") {
+                        settings.facsimileImagesPath = wrapUrl(settings.facsimileImagesPath)
+                    }
+                }
                 setConfig(data)
             } catch (error) {
                 console.error("Error loading config:", error)
