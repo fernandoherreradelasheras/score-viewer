@@ -44,6 +44,16 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
 
     useEffect(() => () => visualization.reset(), [visualization])
 
+    const resetHiglights = () => {
+        eventsQueue.current = [...timemap]
+        lastTimeStamp.current = -1
+        visualization.reset()
+        const remainingHighlights = document?.querySelectorAll(`.note-highlight`)
+        remainingHighlights?.forEach(noteElement => {
+            noteElement.classList.remove('note-highlight')
+        })
+    }
+
     useEffect(() => {
         if (timemap.length <= 0 && isLoading) {
             eventsQueue.current = []
@@ -51,7 +61,7 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
         }
         eventsQueue.current = [...timemap]
         lastTimeStamp.current = -1
-    }, [timemap])
+    }, [timemap, isLoading])
 
     useEffect(() => {
         if (timemap.length <= 0 && isLoading) {
@@ -64,6 +74,9 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
                 resetHiglights()
             }
         }
+        // Driven by the transport alone: the position and the timemap are read when it
+        // changes, and reacting to them would reset the marks mid-playback.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [playingState])
 
     const highlightNote = (id: string) => {
@@ -123,17 +136,11 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
                 attackNote(id, staff, playingPosition)
             })
         }
+        // Only a new SVG restores the marks: the position it restores them at is read
+        // when that happens.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [renderedSvgData])
 
-    const resetHiglights = () => {
-        eventsQueue.current = [...timemap]
-        lastTimeStamp.current = -1
-        visualization.reset()
-        const remainingHighlights = document?.querySelectorAll(`.note-highlight`)
-        remainingHighlights?.forEach(noteElement => {
-            noteElement.classList.remove('note-highlight')
-        })
-    }
 
 
 
@@ -190,6 +197,9 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
             }
         })
 
+        // Strictly the position tick: this effect consumes `eventsQueue`, so running it
+        // for any other change would drop the events it takes off the queue.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [playingPosition])
 
     useEffect(() => {
@@ -201,6 +211,8 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
             higlightNotesAtPosition(seekPosition)
         }
 
+        // Only a seek rebuilds the marks: the transport state is read when it happens.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [seekPosition])
 
     return (

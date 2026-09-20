@@ -58,7 +58,7 @@ function TextView(props: TextViewProps) {
     const { title, intro, items, comments } = props
     const [markdownText, setMarkdownText] = useState<string>("")
 
-    const renderIntro = (intro: string | FetchError) => {
+    const renderIntro = useCallback((intro: string | FetchError) => {
         let introText = markdownSubtitle(t("textView.intro"))
         if (intro instanceof FetchError) {
             introText += `**${t("error.fetchTextSeeErrorAbove")}**\n\n`
@@ -68,9 +68,9 @@ function TextView(props: TextViewProps) {
         introText += "\n\n"
 
         return introText
-    }
+    }, [t])
 
-    const renderPoem = (items: LyricItem[], comments?: string | null) => {
+    const renderPoem = useCallback((items: LyricItem[], comments?: string | null) => {
         let poemText = markdownSubtitle(t("textView.poeticText"))
 
         let lineNumber = 0
@@ -89,11 +89,11 @@ function TextView(props: TextViewProps) {
             poemText += comments + "\n\n"
         }
         return poemText
-    }
+    }, [t])
 
     const close = useCallback(() => {
         setSplitView(false);
-    }, [splitView, setSplitView]);
+    }, [setSplitView]);
 
     useEffect(() => {
         let text = title ? markdownTitle(title) : ""
@@ -104,7 +104,7 @@ function TextView(props: TextViewProps) {
         }
 
         setMarkdownText(text);
-    }, [intro, title, items, comments])
+    }, [intro, title, items, comments, renderIntro, renderPoem])
 
 
     const introError = intro instanceof FetchError ? intro : null

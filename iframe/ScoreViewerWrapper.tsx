@@ -2,14 +2,16 @@ import { useEffect, useState } from "react";
 import ScoreViewer from "../src/ScoreViewer";
 import { ScoreViewerConfig } from "../src/types/config";
 
+// The embed's URL is fixed for the lifetime of the document, so the config location and
+// the paths relative to it are resolved once, outside the component.
+const query = new URLSearchParams(window.location.search)
+const configUrl = query.get("config") || ""
+const parent = configUrl.slice(0, configUrl.lastIndexOf('/'))
+
+const wrapUrl = (url: string) =>
+    url.startsWith("http") || url.startsWith("/") ? url : `${parent}/${url}`
+
 function ScoreViewerWrapper() {
-
-    const query = new URLSearchParams(window.location.search)
-    const configUrl = query.get("config") || ""
-    const parent = configUrl.slice(0, configUrl.lastIndexOf('/'))
-
-    const wrapUrl = (url:string) =>
-        url.startsWith("http") || url.startsWith("/") ? url : `${parent}/${url}`
 
     const [config, setConfig] = useState<ScoreViewerConfig | null | undefined>()
 

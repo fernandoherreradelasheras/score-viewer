@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import useStore from "./store";
 import { Context } from './Context';
 import { useComponentSize } from "react-use-size";
@@ -60,21 +60,24 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
         verovio
     });
 
-    const addLoadAction = (score: Score) => {
+    const addLoadAction = useCallback((score: Score) => {
         if (showEditorial) {
             setShowEditorial(false);
         }
         const transposition = withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null;
         const action = loadAutoScrollAction({ height: svgContainerHeight, meiStr: score.singleVerseMei, transposition });
         setPendingAction(action);
-    }
+    }, [showEditorial, setShowEditorial, withoutTransposition, svgContainerHeight, setPendingAction])
 
     useEffect(() => {
         if (!score || !verovio || svgContainerHeight <= 0) {
             return;
         }
         addLoadAction(score)
-    }, [svgContainerRef.current])
+        // The initial load, once the container is mounted: the size-driven effect below
+        // is what picks up every later change.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     useEffect(() => {
         if (!score || !verovio || svgContainerHeight <= 0) {
@@ -83,6 +86,9 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
         if (!renderedSvgData || renderedSvgData.id != "svg-auto-scrolling") {
             addLoadAction(score);
         }
+        // Only a change of the container height reloads the auto-scroll score: the score
+        // and the toolkit are read when it runs, not reacted to.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [svgContainerHeight])
 
 
@@ -132,6 +138,9 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
                 setShowSpinner(false);
             }
         })();
+        // Driven by the pending action alone: the playback state and position are read
+        // when the action completes, and reacting to them would run the action again.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pendingAction, verovio, showingMei]);
 
 

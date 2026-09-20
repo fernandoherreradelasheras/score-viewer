@@ -59,7 +59,7 @@ const ViewerShell = ({ width, height, children }: { width: string, height: strin
 
   const overflow = useMemo(() =>
     isMobile && mobileOrientation.isLandscape ? "scroll" : "hidden"
-    , [isMobile, mobileOrientation, height])
+    , [mobileOrientation])
 
   return (
     <ConfigProvider
@@ -122,11 +122,11 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
   const [openDrawer, setOpenDrawer] = useState(false);
 
 
-  const onFetchScoreError = (url: string, error: Error) => {
+  const onFetchScoreError = useCallback((url: string, error: Error) => {
     console.error("Fetch score error handler called:", url, error);
     setFetchScoreError({ url, error });
-    unloadScore()
-  }
+    setScore(null)
+  }, [setScore])
 
   const { fetchScore, unloadScore, hasIntro } = useScoreManager({ config, normalizeFicta, onScoreAnalyzed, onFetchScoreError });
 
@@ -149,7 +149,7 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
       fetchScore(scoreIndex);
     }, 0);
 
-  }, [config.scores, fetchScore, fetchTextParts, hasIntro, setScore, setSelectedAudioIndex]);
+  }, [fetchScore, fetchTextParts, setScore, setSelectedAudioIndex, setAppOptions, setChoiceOptions, setSubstOptions]);
 
   useImperativeHandle(ref, () => ({
     goToSection: (section: string) => {
@@ -162,7 +162,7 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
         await loadAll(scoreIndex);
       }
     }
-  }), [goToSection, unloadScore, loadAll]);
+  }), [goToSection, unloadScore, loadAll, config.scores.length]);
 
   // All effects moved to useScoreViewerEffects hook
   useScoreViewerEffects({
@@ -177,9 +177,9 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
     loadAll
   });
 
-  const onScoreSelectedChanged = async (value: number) => {
+  const onScoreSelectedChanged = useCallback(async (value: number) => {
     await loadAll(value);
-  };
+  }, [loadAll]);
 
   const scoreItems: DefaultOptionType[] = useMemo(() => config.scores.map((score, index) => ({
     label: score.title,
@@ -193,7 +193,7 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
   // to the component + scrolling  on the top element to maximize the space
   // available for the score
   const containerHeight = useMemo(() => isMobile && mobileOrientation.isLandscape ? height : "100%"
-    , [isMobile, mobileOrientation, height])
+    , [mobileOrientation, height])
 
 
 
@@ -236,6 +236,9 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
         setFacsimileItems(config.scores[loaded].facsimileItems || []);
       }
     }
+    // Keyed on the loaded score alone, for the reason above: reacting to the config as
+    // well would rewrite the tabs mid-switch.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [score])
 
   const textView = useMemo(() =>

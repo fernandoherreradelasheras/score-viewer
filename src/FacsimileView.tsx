@@ -132,7 +132,7 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
   );
 
   const imageFile = useMemo(() => currentItem < items.length ? path + items[currentItem].file : ''
-    , [currentItem, items]);
+    , [currentItem, items, path]);
 
   const imageTitle = useMemo(() => currentItem < items.length ? items[currentItem].name : ''
     , [currentItem, items]);

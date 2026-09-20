@@ -111,17 +111,19 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     // still describe what a previous instance rendered. Both no-op guards below rely
     // on them, so they also check that the SVG is really in this container: on a
     // remount it is empty and the score has to be rendered again.
-    const showsRenderedScore = () =>
-        renderedSvgData?.scoreUrl === score?.url && svgContainerRef.current?.querySelector("svg") != null
+    const showsRenderedScore = useCallback(() =>
+        renderedSvgData?.scoreUrl === score?.url && svgContainerRef.current?.querySelector("svg") != null,
+        [renderedSvgData?.scoreUrl, score?.url, svgContainerRef])
 
-    const canSchedule = () => (score && verovio && svgContainerWidth > 0 && svgContainerHeight > 0)
-    const isReady = () => (canSchedule() && !pendingAction)
+    const canSchedule = useCallback(() => (score && verovio && svgContainerWidth > 0 && svgContainerHeight > 0),
+        [score, verovio, svgContainerWidth, svgContainerHeight])
+    const isReady = useCallback(() => (canSchedule() && !pendingAction), [canSchedule, pendingAction])
 
     const {
         showSpinner, setSpinner, planFor, canFadeScore, fadeOutScore, applyPendingPlan,
     } = useWaitCover({
         svgContainerRef,
-        isBusy: () => pipeline.isBusy(),
+        isBusy: () => pipelineIsBusy(),
     });
 
     // Runs one chain action and keeps the cost book up to date for later plans.
@@ -184,7 +186,12 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         throw actionError;
     }
 
-    const pipeline = useActionPipeline({
+    const {
+        schedule: pipelineSchedule,
+        isBusy: pipelineIsBusy,
+        isRunning: pipelineIsRunning,
+        runExclusive: pipelineRunExclusive,
+    } = useActionPipeline({
         execute: executeChainAction,
         onResult: applyRenderResult,
         onFailure: (error) => {
@@ -223,8 +230,8 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             loadedRenderKeyRef.current = renderKey;
             clearPageCache();
         }
-        pipeline.schedule(action);
-    }, [applyPendingPlan, planFor, renderKey, clearPageCache, pipeline.schedule]);
+        pipelineSchedule(action);
+    }, [applyPendingPlan, planFor, renderKey, clearPageCache, pipelineSchedule]);
 
     useEffect(() => {
         if (!verovio || !showingMei || !score) {
@@ -235,7 +242,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         // already running read a size this one has just replaced (the split view hands
         // the facsimile its share once its image is known), so it is asked for again and
         // the pipeline lets the newer request win.
-        if (!renderedSvgData && !pipeline.isRunning()) {
+        if (!renderedSvgData && !pipelineIsRunning()) {
             return
         }
         // A layout change zeroes the target size on purpose, to hold the reload until
@@ -262,6 +269,9 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         });
         scheduleAction(action, PENDING_HANDLED);
 
+        // Only a settled target size reloads: everything else it reads is the state the
+        // reload has to reproduce, and reacting to it would schedule a load per change.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [targetHeight, targetWidth]);
 
 
@@ -329,7 +339,8 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         });
         scheduleAction(action, PENDING_HANDLED);
         setShowingMei(newShowingMei);
-    }, [score, renderedSvgData?.anchorElement, renderedSvgData?.scoreUrl, showingMei, scale, scheduleAction, setShowingMei, generateShowingScore]);
+    }, [score, renderedSvgData?.anchorElement, showingMei, scale, withoutTransposition,
+        scheduleAction, setShowingMei, generateShowingScore, applyPendingPlan, planFor, setSpinner, showsRenderedScore]);
 
     useEffect(() => {
         if (!score) return;
@@ -345,6 +356,9 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         return () => {
             lastRenderedUrl.current = score?.url
         }
+        // A change of score and nothing else: the rebuild is what the loaded score is
+        // brought up to date with, not a trigger of its own.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [score]);
 
 
@@ -353,6 +367,9 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     useEffect(() => {
         if (!score) return;
         updateLoadedScore(true, false);
+        // Strictly the settings that change the MEI: the rebuild is rebuilt along with
+        // them, and reacting to it would reload on every render.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [showNVerses, normalizeFicta, showColoredNotes]);
 
 
@@ -379,8 +396,37 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         scheduleAction(action);
 
 
-    }, [verovio, svgContainerRef.current]);
+        // The first load, once the toolkit is up: the score it loads is read when it
+        // runs, and the later effects are what reload it.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [verovio]);
 
+
+    const reloadScore = useCallback(() => {
+        if (!canSchedule() || !showingMei) return;
+
+        // Same reasoning as the MEI comparison in updateLoadedScore, on the other half
+        // of the settings: if what reaches verovio is what is already rendered, the
+        // change was a no-op for this score.
+        if (renderKey === loadedRenderKeyRef.current && showsRenderedScore()) {
+            console.log(`[ScoreView] Skipping reload: verovio options unchanged`);
+            return;
+        }
+
+        const page = currentPage > 0 ? currentPage : 1;
+        const anchor = renderedSvgData?.anchorElement || undefined;
+        const action = loadAction(
+            {
+                scoreUrl: score?.url || "",
+                meiStr: showingMei,
+                page: page,
+                scale,
+                transposition: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null,
+                restorePositionForAchor: anchor
+            });
+        scheduleAction(action);
+    }, [canSchedule, showingMei, renderKey, showsRenderedScore, currentPage, renderedSvgData?.anchorElement,
+        score?.url, score?.properties?.encodedTransposition, scale, withoutTransposition, scheduleAction])
 
     useEffect(() => {
         if (svgContainerHeight <= 0 || svgContainerWidth <= 0) {
@@ -417,13 +463,16 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             setTargetWidth(svgContainerWidth);
         }, TARGET_SIZE_SETTLE_MS);
         return () => clearTimeout(timer);
+        // Only a change of the measured container size: what it compares that size
+        // against is read when the timer fires.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [svgContainerHeight, svgContainerWidth]);
 
     useEffect(() => {
         // prevent reloading score until layout change reflow sets the final container size
         setTargetHeight(0);
         setTargetWidth(0);
-    }, [splitViewOrientation, isSplitView]);
+    }, [splitViewOrientation, isSplitView, setTargetHeight, setTargetWidth]);
 
 
     // Handle scale changes
@@ -446,40 +495,22 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             restorePositionForAchor: anchorElement
         });
         scheduleAction(action, PENDING_HANDLED);
+        // The scale is the whole trigger: the rest describes the score to reload at it.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [scale]);
 
-    const reloadScore = () => {
-        if (!canSchedule() || !showingMei) return;
-
-        // Same reasoning as the MEI comparison in updateLoadedScore, on the other half
-        // of the settings: if what reaches verovio is what is already rendered, the
-        // change was a no-op for this score.
-        if (renderKey === loadedRenderKeyRef.current && showsRenderedScore()) {
-            console.log(`[ScoreView] Skipping reload: verovio options unchanged`);
-            return;
-        }
-
-        const page = currentPage > 0 ? currentPage : 1;
-        const anchor = renderedSvgData?.anchorElement || undefined;
-        const action = loadAction(
-            {
-                scoreUrl: score?.url || "",
-                meiStr: showingMei,
-                page: page,
-                scale,
-                transposition: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null,
-                restorePositionForAchor: anchor
-            });
-        scheduleAction(action);
-    }
 
     // These changes requires reloading the currently built score
     useEffect(() => {
         reloadScore();
+        // Strictly the settings that change the verovio options: reloadScore is rebuilt
+        // as the score is rendered, so reacting to it would reload on every render.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appOptions, choiceOptions, substOptions, withoutTransposition, showMusicAnalysis, measureNumberInterval]);
 
     useEffect(() => {
         reloadScore()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [showOriginalClefs]);
 
 
@@ -575,6 +606,9 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             timemap: renderedSvgData.timemap
         });
         scheduleAction(action, PENDING_HANDLED);
+        // A page turn and nothing else: everything else it reads describes the page to
+        // put on screen, not a reason to turn to it.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPage, getCachedPage, setRenderedSvgData, setIsLoading]);
 
 
@@ -588,7 +622,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             clearNavigationCommand();
             setShowingEditorial(target);
         }
-    }, [navigationCommand, renderedSvgData]);
+    }, [navigationCommand, renderedSvgData, clearNavigationCommand, setShowingEditorial, svgContainerRef]);
 
     // Reading position at which a pre-rendered page was evicted as soon as it was cached:
     // the cache is full here, and every page left is further from the reader than the one
@@ -614,7 +648,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         // A pre-render drives the same toolkit as a load/render chain, so it runs
         // through the pipeline's exclusive slot: refused while a chain is running, and
         // a setting changed meanwhile is queued, not run on top.
-        await pipeline.runExclusive(async (stillCurrent) => {
+        await pipelineRunExclusive(async (stillCurrent) => {
             try {
                 const startTime = performance.now();
 

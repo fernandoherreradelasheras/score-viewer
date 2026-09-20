@@ -47,7 +47,7 @@ export default function ScoreViewerHeader({
           onChange={onScoreChanged} />
       </Space>
       : null
-    , [showScoreSelector, scoreItems, onScoreChanged, t]);
+    , [showScoreSelector, scoreItems, onScoreChanged, label]);
 
   const splitViewSelector = useMemo(() => isSplitView ?
     <SplitViewSelector

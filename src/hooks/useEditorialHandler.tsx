@@ -61,7 +61,7 @@ export function useEditorialHandler() {
     if (target) {
       setShowingEditorial(target.id);
     }
-  }, [showEditorial, playingState, getEditorialAttached, setShowingEditorial]);
+  }, [showEditorial, playingState, findTarget, setShowingEditorial]);
 
 
   // The group the pointer is on, so the marks are only rewritten when it moves from one

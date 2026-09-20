@@ -116,7 +116,7 @@ function TestExternalSelector() {
     if (ref.current) {
       ref.current.selectScore(0)
     }
-  }, [ref.current])
+  }, [])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>

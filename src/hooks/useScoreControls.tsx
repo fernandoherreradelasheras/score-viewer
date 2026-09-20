@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import useStore from "../store";
 import { PlayingState, MIN_SCALE, MAX_SCALE } from '../types';
 
@@ -25,9 +26,10 @@ export default function useScoreControls(
 
 
   // Fullscreen functions
-  const isFullScreen = () =>
+  const isFullScreen = useCallback(() =>
     fullScreenElement != null &&
-    (fullScreenElement.ownerDocument.fullscreenElement == fullScreenElement);
+    (fullScreenElement.ownerDocument.fullscreenElement == fullScreenElement),
+    [fullScreenElement]);
 
     /*
   const exitFullScreen = () => {
@@ -37,30 +39,30 @@ export default function useScoreControls(
   };
   */
 
-  const handleFullScreenToggle = () => {
+  const handleFullScreenToggle = useCallback(() => {
     if (fullScreenElement && !isFullScreen()) {
       fullScreenElement.requestFullscreen();
     } else {
       document.exitFullscreen();
     }
-  };
+  }, [fullScreenElement, isFullScreen]);
 
 
   // Zoom functions
-  const zoomIn = () => {
+  const zoomIn = useCallback(() => {
     increaseScale()
-  };
+  }, [increaseScale]);
 
-  const zoomOut = () => {
+  const zoomOut = useCallback(() => {
     decreaseScale();
     setReachedEffectiveMaxScale(false);
-  };
+  }, [decreaseScale, setReachedEffectiveMaxScale]);
 
   // Page navigation
-  const handlePageClick = (page: number) => {
+  const handlePageClick = useCallback((page: number) => {
     resetPlayerPosition();
     goToPage(page);
-  };
+  }, [resetPlayerPosition, goToPage]);
 
 
 

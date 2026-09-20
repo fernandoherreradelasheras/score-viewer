@@ -22,5 +22,8 @@ export default function useIdleCallback(callback: () => void, deps: DependencyLi
         );
 
         return () => cancelIdleCallback(idleCallbackId);
+        // The deps are the caller's: `callback` is deliberately not one of them, so an
+        // inline callback does not reschedule the idle work on every render.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, deps);
 }

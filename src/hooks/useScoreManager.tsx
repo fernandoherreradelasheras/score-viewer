@@ -68,14 +68,14 @@ export function useScoreManager({
     return meiContent;
   };
 
-  const generateOneVerseMei = (mei: string) => {
+  const generateOneVerseMei = useCallback((mei: string) => {
     const scoreProcessor = new ScoreProcessor(mei);
     if (normalizeFicta) {
       scoreProcessor.addNormalizeFictaFilter();
     }
     scoreProcessor.addNVersesFilter(1);
     return scoreProcessor.filterScore();
-  };
+  }, [normalizeFicta]);
 
   const fadeOut = () => {
     const svgElement = document.querySelector(".svg-container svg") as SVGSVGElement | null;
@@ -86,7 +86,7 @@ export function useScoreManager({
 
   // `score` here is the one on show before loadAll cleared the store, so it only says
   // whether the old page must fade; the store has to be set again either way.
-  const updateScore = (scoreIndex: number, newScore: Score) => {
+  const updateScore = useCallback((scoreIndex: number, newScore: Score) => {
     if (score && newScore != score) {
       fadeOut()
     }
@@ -96,7 +96,7 @@ export function useScoreManager({
     if (onScoreAnalyzed) {
       onScoreAnalyzed(scoreIndex, newScore.properties);
     }
-  };
+  }, [score, setScore, onScoreAnalyzed]);
 
 
 
@@ -169,11 +169,11 @@ export function useScoreManager({
         }
       }
     }
-  }, [config.scores, config.settings.basePath, config.settings.renderTitlesFromMEI, scoreCache, score, setScore, setScoreCache, onScoreAnalyzed, normalizeFicta]);
+  }, [config.scores, config.settings.basePath, config.settings.renderTitlesFromMEI, scoreCache, setScoreCache, generateOneVerseMei, updateScore, onFetchScoreError]);
 
-  const unloadScore = () => {
+  const unloadScore = useCallback(() => {
     setScore(null);
-  }
+  }, [setScore])
 
   const hasIntro = useCallback((scoreIndex: number) => {
     const scoreDef = config.scores[scoreIndex];

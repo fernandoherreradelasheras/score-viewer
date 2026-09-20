@@ -90,12 +90,18 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
         if (!isScoreVisible && playingState == PlayingState.PLAYING) {
             setPlayingState(PlayingState.PAUSED);
         }
+        // Only the moment the score leaves the view pauses it; reacting to the playing
+        // state as well would pause a playback started while the score is hidden.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isScoreVisible]);
 
     useEffect(() => {
         if (playingState != PlayingState.STOPPED) {
             setPlayingState(PlayingState.STOPPED);
         }
+        // Only a change of score stops the player: reacting to the playing state as well
+        // would stop every playback as soon as it starts.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [score])
 
     useEffect(() => {
@@ -104,6 +110,9 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
                 setAutoScroll(false);
             }
         }
+        // Only the playback stopping turns auto-scroll off: reacting to the flag as well
+        // would undo it the moment the reader turns it on with the player stopped.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [playingState]);
 
 

@@ -19,7 +19,6 @@ interface ScoreControlProps {
 
 const ScoreControls = ({ style, fullScreenElement, showDownloadButton, backgroundColor, audioDuration }: ScoreControlProps) => {
     const { t } = useTranslation("common")
-    const splitView = useStore.use.isSplitView();
     const score = useStore.use.score();
 
     const [showScoreInfo, setShowScoreInfo] = useState(false);
@@ -60,7 +59,7 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, backgroun
             </Tooltip>
 
         </Space>
-    ), [canZoomIn, canZoomOut, playingState, isFullScreen, score, t]);
+    ), [canZoomIn, canZoomOut, playingState, isFullScreen, score, t, zoomIn, zoomOut, handleFullScreenToggle]);
 
     const pagination = useMemo(() => (
         shouldShowPagination ?
@@ -84,7 +83,7 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, backgroun
                 }}
                 onChange={handlePageClick} />
             : null
-    ), [shouldShowPagination, playingState, currentPageNumber, pageCount, backgroundColor, t]);
+    ), [shouldShowPagination, playingState, currentPageNumber, pageCount, backgroundColor, t, handlePageClick]);
 
     const viewingControls = useMemo(() => {
         return <Row style={{ justifyContent: "left", backgroundColor: "white" }} gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
@@ -95,7 +94,7 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, backgroun
                 {pagination}
             </Col>
         </Row>
-    }, [mainControls, pagination, splitView]);
+    }, [mainControls, pagination]);
 
     return (
         <div className="score-controls" style={style} >

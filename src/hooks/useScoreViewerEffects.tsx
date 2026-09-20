@@ -45,12 +45,18 @@ export function useScoreViewerEffects({
       hasInitiallyLoaded.current = true;
       loadAll(0);
     }
+    // A one-shot load on mount: the guard above already makes it one, and re-running it
+    // whenever the config or the loader identity changes would only repeat that check.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (onVisualizationOptionsChanged) {
       onVisualizationOptionsChanged({ showOriginalClefs: showOriginalClefs ?? false });
     }
+    // Only a change of the option notifies the host: the callback comes from outside the
+    // library, so reacting to its identity would report the same value on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showOriginalClefs]);
 
 
@@ -60,5 +66,5 @@ export function useScoreViewerEffects({
         scoreViewContainerRef.current?.scrollIntoView();
       }, 100);
     }
-  }, [mobileOrientation.orientation, activeTab, scoreViewContainerRef]);
+  }, [mobileOrientation.orientation, mobileOrientation.isLandscape, activeTab, scoreViewContainerRef]);
 }

@@ -241,6 +241,39 @@ const setSvgClassesForEditorial = (svgElement: SVGElement) => {
     .forEach(e => (e as SVGGElement).style.setProperty("--editorial-color", EDITORIAL_COLORS.annot));
 }
 
+// Merge a single concrete tied pair so the second note stays highlighted from
+// the first note's onset until the second note's release (a sustained tie).
+const mergeTiePair = (timemap: TimeMapEvent[], first: string, second: string) => {
+  const firstOnIndex = timemap.findIndex(e => e.on != null && e.on.includes(first));
+  const firstOffIndex = timemap.findIndex(e => e.off != null && e.off.includes(first));
+  const secondOnIndex = timemap.findIndex(e => e.on != null && e.on.includes(second));
+  const secondOffIndex = timemap.findIndex(e => e.off != null && e.off.includes(second));
+  if (firstOnIndex == -1 || firstOffIndex == -1 || secondOnIndex == -1 || secondOffIndex == -1) {
+    return;
+  }
+  timemap[firstOnIndex].on!.push(second)
+  timemap[firstOffIndex].off = timemap[firstOffIndex].off!.filter(id => id != first)
+  timemap[secondOnIndex].on = timemap[secondOnIndex].on!.filter(id => id != second)
+  timemap[secondOffIndex].off!.push(first)
+}
+
+const mergeTimemapTies = (timemap: TimeMapEvent[], tiedNotes: { first: string; second: string; }[]) => {
+  const newTimeMap = timemap.map(e => { return { ...e } as TimeMapEvent });
+  for (const { first, second } of tiedNotes) {
+
+    const firstIds = new Set<string>();
+    for (const e of newTimeMap) {
+      for (const id of e.on ?? []) {
+        if (id === first) firstIds.add(id);
+      }
+    }
+    for (const firstId of firstIds) {
+      mergeTiePair(newTimeMap, firstId, second);
+    }
+  }
+  return newTimeMap
+}
+
 /**
  * Custom hook that manages score action execution
  */
@@ -259,10 +292,9 @@ export default function useScoreActions({
   const setScoreLayout = useStore.use.setScoreLayout();
   const setElementPages = useStore.use.setElementPages();
   const score = useStore.use.score();
-  const selectedAudioIndex = useStore.use.selectedAudioIndex();
 
 
-  const getSectionMap = async (analyzer: ScoreAnalyzer) => {
+  const getSectionMap = useCallback(async (analyzer: ScoreAnalyzer) => {
     if (!verovio) throw new Error("Verovio is not ready");
     const sections = analyzer.getSections()
     const sectionsMap: Record<string, number> = {}
@@ -274,7 +306,7 @@ export default function useScoreActions({
       }
     }
     return sectionsMap
-  }
+  }, [verovio])
 
 
   const loadAndBuildTimemap = useCallback(async (meiStr: string): Promise<TimeMapEvent[]> => {
@@ -303,6 +335,13 @@ export default function useScoreActions({
     mnumInterval: measureNumberInterval ?? 0,
   }), [appOptions, showOriginalClefs, showMusicAnalysis, choiceOptions, substOptions, measureNumberInterval,
     score?.properties?.hasOriginalClefs, score?.properties?.hasHarmonicAnalysis]);
+
+  const resolveTimemap = useCallback(async (timemap: TimeMapEvent[]): Promise<TimeMapEvent[]> => {
+    if (!verovio) throw new Error("Verovio is not ready");
+    const mei = await verovio.getMEI()
+    const analyzer = new ScoreAnalyzer(0, mei)
+    return mergeTimemapTies(timemap, analyzer.getTiedNotes())
+  }, [verovio]);
 
   /**
    * Execute the load action - prepares Verovio with options and loads the MEI data
@@ -380,9 +419,12 @@ export default function useScoreActions({
     targetWidth,
     targetHeight,
     scoreRenderOptions,
-    score,
-    selectedAudioIndex,
-    loadAndBuildTimemap
+    loadAndBuildTimemap,
+    getSectionMap,
+    resolveTimemap,
+    setScoreLayout,
+    showOriginalClefs,
+    showMusicAnalysis
   ]);
 
   /**
@@ -426,54 +468,14 @@ export default function useScoreActions({
     choiceOptions,
     substOptions,
     showOriginalClefs,
-    showMusicAnalysis,
-    measureNumberInterval,
     score,
-    selectedAudioIndex,
-    loadAndBuildTimemap
+    loadAndBuildTimemap,
+    resolveTimemap
   ]);
 
-  // Merge a single concrete tied pair so the second note stays highlighted from
-  // the first note's onset until the second note's release (a sustained tie).
-  const mergeTiePair = (timemap: TimeMapEvent[], first: string, second: string) => {
-    const firstOnIndex = timemap.findIndex(e => e.on != null && e.on.includes(first));
-    const firstOffIndex = timemap.findIndex(e => e.off != null && e.off.includes(first));
-    const secondOnIndex = timemap.findIndex(e => e.on != null && e.on.includes(second));
-    const secondOffIndex = timemap.findIndex(e => e.off != null && e.off.includes(second));
-    if (firstOnIndex == -1 || firstOffIndex == -1 || secondOnIndex == -1 || secondOffIndex == -1) {
-      return;
-    }
-    timemap[firstOnIndex].on!.push(second)
-    timemap[firstOffIndex].off = timemap[firstOffIndex].off!.filter(id => id != first)
-    timemap[secondOnIndex].on = timemap[secondOnIndex].on!.filter(id => id != second)
-    timemap[secondOffIndex].off!.push(first)
-  }
-
-  const mergeTimemapTies = (timemap: TimeMapEvent[], tiedNotes: { first: string; second: string; }[]) => {
-    const newTimeMap = timemap.map(e => { return { ...e } as TimeMapEvent });
-    for (const { first, second } of tiedNotes) {
-
-      const firstIds = new Set<string>();
-      for (const e of newTimeMap) {
-        for (const id of e.on ?? []) {
-          if (id === first) firstIds.add(id);
-        }
-      }
-      for (const firstId of firstIds) {
-        mergeTiePair(newTimeMap, firstId, second);
-      }
-    }
-    return newTimeMap
-  }
 
 
 
-  const resolveTimemap = useCallback(async (timemap: TimeMapEvent[]): Promise<TimeMapEvent[]> => {
-    if (!verovio) throw new Error("Verovio is not ready");
-    const mei = await verovio.getMEI()
-    const analyzer = new ScoreAnalyzer(0, mei)
-    return mergeTimemapTies(timemap, analyzer.getTiedNotes())
-  }, [verovio]);
 
 
 
@@ -555,7 +557,7 @@ export default function useScoreActions({
       console.error("Error rendering page:", error);
       throw error;
     }
-  }, [verovio, resolveTimemap, score, setElementPages]);
+  }, [verovio, score, setElementPages]);
 
   /**
    * Render the score for auto-scrolling
@@ -598,7 +600,7 @@ export default function useScoreActions({
       console.error("Error rendering auto-scroll page:", error);
       throw error;
     }
-  }, [verovio]);
+  }, [verovio, score?.properties.noteStaffMap]);
 
   /**
    * Execute an action based on its type

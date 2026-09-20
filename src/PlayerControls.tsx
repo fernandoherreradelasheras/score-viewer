@@ -48,13 +48,13 @@ function PlayerControls({ audioDuration = 0 }: PlayerControlProps) {
         }
     }, [audioDuration]);
 
-    const updateTime = (position: number) => {
+    const updateTime = useCallback((position: number) => {
         seekValue.current = position
         const currentTimeStr = formatTime(position)
         if (currentTimeStr != positionString) {
             setPositionString(currentTimeStr)
         }
-    }
+    }, [positionString])
 
     const handleSliderChange = useCallback((v: number) => {
         isChanging.current = true
@@ -65,7 +65,7 @@ function PlayerControls({ audioDuration = 0 }: PlayerControlProps) {
         isChanging.current = false
         setSeekPosition(seekValue.current)
         updateTime(Math.round(seekValue.current))
-    }, [setSeekPosition]);
+    }, [setSeekPosition, updateTime]);
 
 
     useEffect(() => {
@@ -78,19 +78,19 @@ function PlayerControls({ audioDuration = 0 }: PlayerControlProps) {
             return
         }
         updateTime(roundedPostion)
-    }, [playingPosition])
+    }, [playingPosition, updateTime])
 
-    const onPlayerModeChange = (value: string) => {
+    const onPlayerModeChange = useCallback((value: string) => {
         setPlayerMode(value)
         if (value == "scrolling") {
             setAutoScroll(true)
         } else if (value == "static") {
             setAutoScroll(false);
         }
-    }
+    }, [setAutoScroll])
 
 
-    const playModeSegmented = (
+    const playModeSegmented = useMemo(() => (
         <Segmented
             size="small"
             shape="default"
@@ -100,7 +100,7 @@ function PlayerControls({ audioDuration = 0 }: PlayerControlProps) {
                 { value: 'scrolling', label: t('playerMode.autoscroll'), icon: <Icon component={ScrollingPlayerSvg} /> },
                 { value: 'static', label: t('playerMode.normal'), icon: <Icon component={StaticPlayerSvg} /> }
             ]} />
-    )
+    ), [onPlayerModeChange, playerMode, t])
 
     // The audio version belongs to the loaded score, not to the viewer settings that
     // persist across scores, so it lives with the transport rather than in the options
@@ -115,7 +115,7 @@ function PlayerControls({ audioDuration = 0 }: PlayerControlProps) {
         })),
         [audioFiles])
 
-    const audioVersionSelect = hasAudioVersions ? (
+    const audioVersionSelect = useMemo(() => hasAudioVersions ? (
         <Tooltip title={t('audioVersion.description')}>
             <Select<number>
                 size="small"
@@ -124,7 +124,7 @@ function PlayerControls({ audioDuration = 0 }: PlayerControlProps) {
                 value={selectedAudioIndex}
                 onChange={setSelectedAudioIndex} />
         </Tooltip>
-    ) : null
+    ) : null, [hasAudioVersions, t, audioVersionOptions, selectedAudioIndex, setSelectedAudioIndex])
 
     const playerControls = useMemo(() => (
         <Row align="top" style={{ justifyContent: "left", backgroundColor: "white" }} gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
@@ -153,7 +153,7 @@ function PlayerControls({ audioDuration = 0 }: PlayerControlProps) {
                 {playModeSegmented}
             </Col>
         </Row>
-    ), [durationString, positionString, playerMode, currentDuration, seekValue.current, handleSliderChange, handleSliderChangeComplete, hasAudioVersions, audioVersionSelect])
+    ), [durationString, positionString, currentDuration, handleSliderChange, handleSliderChangeComplete, hasAudioVersions, audioVersionSelect, playModeSegmented])
 
     return (
         playerControls

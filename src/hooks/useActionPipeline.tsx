@@ -181,7 +181,7 @@ export default function useActionPipeline(config: ActionPipelineConfig) {
         continuationRef.current = null;
         runningRef.current = true;
         runChainStep(pendingAction);
-    }, [pendingAction, canRun]);
+    }, [pendingAction, canRun, runChainStep]);
 
     return { schedule, isBusy, isRunning, runExclusive };
 }

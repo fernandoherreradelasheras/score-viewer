@@ -87,6 +87,9 @@ function Editorials() {
         }
         markEditorialGroup(container, group.id);
         return () => clearEditorialGroup(container);
+        // Keyed on the open dialog alone: the item and the group reader it resolves with
+        // are rebuilt on every render, and marking them again would only redraw the ring.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [showingEditorial]);
 
     const describeContentAsList = (content: ContentDescription[] | undefined) => {

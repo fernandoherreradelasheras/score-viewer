@@ -18,7 +18,6 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
     const goToPage = useStore.use.goToPage();
     const elementPages = useStore.use.elementPages();
     const autoScroll = useStore.use.autoScroll();
-    const setAutoScroll = useStore.use.setAutoScroll();
 
     const renderedSvgData = useStore.use.renderedSvgData();
 
@@ -162,6 +161,9 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         if (audioUrl) {
             loadAudio(audioUrl, resumeAt)
         }
+        // Only a change of audio file or score reloads: the transport state is read to
+        // decide where to resume, and reacting to it would reload on every play or pause.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [audioUrl, originalMei]);
 
 
@@ -176,6 +178,9 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
                 })
             }
         };
+        // Unmount cleanup: taking the playback callbacks as dependencies would stop the
+        // audio every time one of them is rebuilt.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const fetchAudioBuffer = useCallback(async (url: string, context: AudioContext): Promise<AudioBuffer> => {
@@ -187,7 +192,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         return await context.decodeAudioData(arrayBuffer);
     }, []);
 
-    const checkPageForPosition = async (position: number) => {
+    const checkPageForPosition = useCallback(async (position: number) => {
         if (autoScroll || playingState === PlayingState.STOPPED) return;
 
         const timemap = timemapRef.current;
@@ -203,7 +208,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         if (playingPage && playingPage > 0 && playingPage !== currentPageRef.current) {
             goToPage(playingPage);
         }
-    }
+    }, [autoScroll, playingState, verovio, goToPage])
 
 
     useEffect(() => {
@@ -221,6 +226,9 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
             checkPageForPosition(seekPosition);
             setSeekPosition(-1)
         }
+        // A seek request and nothing else: the transport state decides how to serve it,
+        // but reacting to it would seek again on every play or pause.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [seekPosition]);
 
 
@@ -245,6 +253,9 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
                 pausedPositionRef.current = 0;
                 break;
         }
+        // The transport state is the whole trigger: the playback callbacks are rebuilt
+        // as the position moves, and reacting to them would restart the audio.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [playingState, resumeAudioContext]);
 
     const handlePlayPause = useCallback(() => {
@@ -297,7 +308,31 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         pausePlayback();
         pausedPositionRef.current = 0;
         setPlayingPosition(0);
-    }, [pausePlayback]);
+    }, [pausePlayback, setPlayingPosition]);
+
+    const timemap = useMemo(() => {
+        if (renderedSvgData?.timemap) {
+            return renderedSvgData.timemap as TimeMapEvent[];
+        }
+        return [];
+    }, [renderedSvgData]);
+
+    const updatePlaybackPosition = useCallback(() => {
+        if (playingState !== PlayingState.PLAYING) return;
+
+        const position = getCurrentPosition();
+        setPlayingPosition(position);
+
+        if (timemap && timemap.length > 0 && position > timemap[timemap.length - 1].tstamp + MS_OVER_LAST_TIMESTAMP) {
+            stopPlayback();
+            onAudioEnded();
+            return;
+        }
+
+        checkPageForPosition(position);
+
+        animationFrameRef.current = requestAnimationFrame(updatePlaybackPosition);
+    }, [getCurrentPosition, setPlayingPosition, timemap, stopPlayback, onAudioEnded, checkPageForPosition, playingState]);
 
     const startPlayback = useCallback((startPosition: number) => {
         // Not stopPlayback: its transient position 0 would make the highlighter play
@@ -326,32 +361,9 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
             });
             updatePlaybackPosition();
         });
-    }, [pausePlayback, setPlayingPosition, getAudioContext, resumeAudioContext, playingState]);
+    }, [pausePlayback, setPlayingPosition, getAudioContext, resumeAudioContext, updatePlaybackPosition]);
 
 
-    const timemap = useMemo(() => {
-        if (renderedSvgData?.timemap) {
-            return renderedSvgData.timemap as TimeMapEvent[];
-        }
-        return [];
-    }, [renderedSvgData]);
-
-    const updatePlaybackPosition = useCallback(() => {
-        if (playingState !== PlayingState.PLAYING) return;
-
-        const position = getCurrentPosition();
-        setPlayingPosition(position);
-
-        if (timemap && timemap.length > 0 && position > timemap[timemap.length - 1].tstamp + MS_OVER_LAST_TIMESTAMP) {
-            stopPlayback();
-            onAudioEnded();
-            return;
-        }
-
-        checkPageForPosition(position);
-
-        animationFrameRef.current = requestAnimationFrame(updatePlaybackPosition);
-    }, [getCurrentPosition, setPlayingPosition, timemap, stopPlayback, onAudioEnded, checkPageForPosition, playingState]);
 
 
     const playPauseTooltip = useCallback(() => {
@@ -362,7 +374,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
     const handleStop = useCallback(() => {
         stopPlayback();
         onAudioEnded();
-    }, [playingState, setPlayingState, autoScroll, setAutoScroll, stopPlayback]);
+    }, [stopPlayback, onAudioEnded]);
 
 
     return {
