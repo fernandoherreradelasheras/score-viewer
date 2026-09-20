@@ -1,5 +1,4 @@
 
-// @ts-ignore
 const interactiveHighlightFilter = (
     <filter id="interactive-highlight" x="-100%" y="-100%" width="300%" height="300%">
         <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
@@ -9,7 +8,6 @@ const interactiveHighlightFilter = (
     </filter>
 );
 
-// @ts-ignore
 const interactiveActiveFilter = (
     <filter id="interactive-active" x="-100%" y="-100%" width="300%" height="300%">
         <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur" />

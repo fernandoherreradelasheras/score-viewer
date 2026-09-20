@@ -15,7 +15,7 @@ const nsResolver = (prefix: string | null) => { return { mei: MEI_NS, xml: "http
 const WRAPPABLE_TARGET_TAGS = new Set(["note", "rest", "chord", "mRest", "multiRest", "space"])
 
 
-const AddSectionTitlesFilter: FilterFunc = (doc: Document, _: {}) => {
+const AddSectionTitlesFilter: FilterFunc = (doc: Document) => {
     const matches = doc?.evaluate(`//mei:section[@label]/@label`, doc, nsResolver, XPathResult.ANY_TYPE, null)
     let node;
     const labels = []
@@ -66,7 +66,7 @@ const FilterToNVerses: FilterFunc = (doc: Document, params: { n: number }) => {
 }
 
 
-const FilterNormalizeFicta: FilterFunc = (doc: Document, _: {}) => {
+const FilterNormalizeFicta: FilterFunc = (doc: Document) => {
     const fictacAccidIter = doc?.evaluate(XPATH_FICTA_ACCIDS, doc, nsResolver, XPathResult.ANY_TYPE, null)
     if (fictacAccidIter == null) {
         return
@@ -86,7 +86,7 @@ const FilterNormalizeFicta: FilterFunc = (doc: Document, _: {}) => {
 
 }
 
-const FilterRemoveBracketSpan: FilterFunc = (doc: Document, _: {}) => {
+const FilterRemoveBracketSpan: FilterFunc = (doc: Document) => {
     const matches = doc?.evaluate(`//mei:bracketSpan[@func="coloration"]`, doc, nsResolver, XPathResult.ANY_TYPE, null)
     if (matches == null) {
         return
@@ -120,22 +120,22 @@ const EnsureQueryIdFilter = (doc: Document, query: string, prefix: string) => {
 }
 
 
-const EnsureMeasuresIdFilter: FilterFunc = (doc: Document, _: {}) => {
+const EnsureMeasuresIdFilter: FilterFunc = (doc: Document) => {
     EnsureElementIdFilter(doc, "measure", "m")
 }
 
-const EnsureSectionsIdFilter: FilterFunc = (doc: Document, _: {}) => {
+const EnsureSectionsIdFilter: FilterFunc = (doc: Document) => {
     EnsureElementIdFilter(doc, "section", "s")
 }
 
 
-const EnsureNotesRestsIdFilter: FilterFunc = (doc: Document, _: {}) => {
+const EnsureNotesRestsIdFilter: FilterFunc = (doc: Document) => {
     EnsureElementIdFilter(doc, "note", "n")
     EnsureElementIdFilter(doc, "rest", "r")
 }
 
 
-const WrapAnnotationTargetsFilter: FilterFunc = (doc: Document, _: {}) => {
+const WrapAnnotationTargetsFilter: FilterFunc = (doc: Document) => {
     const editorialTags = new Set(EDITORIAL_ALL_TAGS)
 
     const targetIds = new Set<string>()
@@ -166,7 +166,7 @@ const WrapAnnotationTargetsFilter: FilterFunc = (doc: Document, _: {}) => {
     })
 }
 
-const EnsureEditorialElementsWithoutIdFilter: FilterFunc = (doc: Document, _: {}) => {
+const EnsureEditorialElementsWithoutIdFilter: FilterFunc = (doc: Document) => {
     EDITORIAL_ALL_TAGS.forEach(tag => {
         EnsureElementIdFilter(doc, tag, tag.substring(0, 1))
         EnsureQueryIdFilter(doc, `//mei:${tag}/*[not(@xml:id)]`, `${tag.substring(0, 1)}_opt`)

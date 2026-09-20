@@ -311,7 +311,7 @@ class ScoreAnalyzer {
                 const source = element.getAttribute("source")
                 const childIds: string[] = []
                 const descriptions: ContentDescription[] = []
-                for (const child of [...node.childNodes?.values()].filter(n => n.nodeType == Node.ELEMENT_NODE)) {
+                for (const child of [...node.childNodes.values()].filter(n => n.nodeType == Node.ELEMENT_NODE)) {
                     const childElement = child as Element;
                     const childId = childElement.getAttribute("xml:id")
                     if (childId) {
@@ -395,7 +395,7 @@ class ScoreAnalyzer {
         const options: Option[] = []
         const choice: Choice = { id: choiceId!, options: options }
 
-        for (const child of [...node.childNodes?.values()].filter(n => n.nodeType == Node.ELEMENT_NODE)) {
+        for (const child of [...node.childNodes.values()].filter(n => n.nodeType == Node.ELEMENT_NODE)) {
             const choiceElement = child as Element
             const nodeType = choiceElement.tagName
             const choiceId = choiceElement.getAttribute("xml:id") || null
@@ -410,7 +410,7 @@ class ScoreAnalyzer {
             if (description) {
                 descriptions.push(description)
             } else {
-                for (const choiceChild of [...choiceElement.childNodes?.values()].filter(n => n.nodeType == Node.ELEMENT_NODE)) {
+                for (const choiceChild of [...choiceElement.childNodes.values()].filter(n => n.nodeType == Node.ELEMENT_NODE)) {
                     const choiceChildElement = choiceChild as Element
                     const description = this.getNoteOrRestDescription(choiceChildElement)
                     if (description) {
@@ -493,7 +493,7 @@ class ScoreAnalyzer {
         while (node != null) {
             const element = node as Element
             const annotId = element.getAttribute("xml:id")
-            const text = [...element.childNodes?.values()].filter(n => n.nodeType == Node.TEXT_NODE).map((n) => n.textContent).join("\n")
+            const text = [...element.childNodes.values()].filter(n => n.nodeType == Node.TEXT_NODE).map((n) => n.textContent).join("\n")
             const targetIds = element.getAttribute("plist")?.split(" ").map(ref => ref.replace("#", ""))
             annotations.push({ id: annotId!, text: text, targetIds: targetIds! })
             node = matches.iterateNext()

@@ -14,7 +14,6 @@ export function createSelectors<T extends object>(
   const keys = Object.keys(store.getState()) as unknown as KeysOfStore[];
 
   for (const key of keys) {
-    // @ts-ignore - We know this is safe because we're iterating over the keys
     storeWithSelectors.use[key] = () => store((s) => s[key]);
   }
 
