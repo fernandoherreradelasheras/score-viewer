@@ -71,13 +71,13 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
 
     // Set up swipe handlers for page navigation
     const swipeHandlers = useSwipeable({
-        onSwipedLeft: (_) => {
+        onSwipedLeft: () => {
             if (playingState != PlayingState.PLAYING && currentPage < pageCount) {
                 resetPlayerPosition();
                 goToNextPage();
             }
         },
-        onSwipedRight: (_) => {
+        onSwipedRight: () => {
             if (playingState != PlayingState.PLAYING && currentPage > 1) {
                 resetPlayerPosition();
                 goToPreviousPage()

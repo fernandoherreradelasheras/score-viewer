@@ -160,7 +160,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         sourceNodesRef.current.forEach(source => {
             try {
                 source.stop();
-            } catch (e) {
+            } catch {
                 // Ignore errors if source is already stopped
             }
         });

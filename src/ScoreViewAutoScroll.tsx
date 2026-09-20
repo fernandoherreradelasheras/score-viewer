@@ -34,7 +34,7 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
 
     const [showSpinner, setShowSpinner] = useState(false);
 
-    const { ref: svgContainerRef, width: _, height: svgContainerHeight } = useComponentSize();
+    const { ref: svgContainerRef, height: svgContainerHeight } = useComponentSize();
 
 
     const {
