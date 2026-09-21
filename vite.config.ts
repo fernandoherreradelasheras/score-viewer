@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, esmExternalRequirePlugin } from 'vite'
 import { fileURLToPath } from 'url'
 import react from '@vitejs/plugin-react'
 import dts from 'vite-plugin-dts'
@@ -6,6 +6,8 @@ import { dirname, resolve } from 'node:path'
 import svgr from "vite-plugin-svgr";
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+
+const external = ['react', 'react-dom', 'react/jsx-runtime', 'react-dom/client']
 
 export default defineConfig(({ mode }) => {
   const isIframeMode = mode === 'iframe';
@@ -78,6 +80,10 @@ export default defineConfig(({ mode }) => {
     // Build configuration for library mode
     return {
       ...config,
+      // Rolldown no longer rewrites require() of external modules inside
+      // bundled CommonJS dependencies into imports on its own, and leaves a
+      // require() call that fails in the browser.
+      plugins: [...config.plugins, esmExternalRequirePlugin({ external })],
       base: './',
       build: {
         ...config.build,
@@ -88,11 +94,11 @@ export default defineConfig(({ mode }) => {
           formats: ['es', 'umd'],
         },
         rolldownOptions: {
-          external: ['react', 'react-dom', 'react/jsx-runtime'],
           output: {
             globals: {
               react: 'React',
               'react-dom': 'ReactDOM',
+              'react-dom/client': 'ReactDOMClient',
               'react/jsx-runtime': 'jsxRuntime'
             },
             // Explicitly name the CSS file as 'style.css' to match package.json exports

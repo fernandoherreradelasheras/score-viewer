@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { VerovioWorkerProxy, VerovioWorkerRequest, VerovioWorkerResponse, VerovioWorkerInitMessage } from './types/verovio-worker';
 import { TimeMapEvent } from './types/player';
 
-import VerovioWorker from './workers/verovio.worker?worker';
+import verovioWorkerUrl from './workers/verovio.worker?worker&url';
 
 // Shared worker instance across all components
 let sharedWorker: Worker | null = null;
@@ -30,7 +30,11 @@ function initializeWorker(): Worker {
     }
 
     console.log('[useVerovio] Creating Verovio worker...');
-    sharedWorker = new VerovioWorker();
+    // Built from the URL instead of `?worker` so that the published bundle does
+    // not contain `new Worker(new URL(...))`: the consumer's Vite would take it
+    // for worker source code and reprocess the whole verovio bundle. The dev
+    // server only serves workers as modules.
+    sharedWorker = new Worker(verovioWorkerUrl, { type: import.meta.env.DEV ? 'module' : 'classic' });
 
     // Create initialization promise
     initializationPromise = new Promise((resolve, reject) => {
