@@ -232,7 +232,9 @@
   "textView": {
     "intro": "Introduction",
     "poeticText": "Poetical text",
-    "notes": "Notes to the text"
+    "notes": "Notes to the text",
+    "footnotes": "Footnotes",
+    "backToReference": "Back to reference {{reference}}"
   },
   "test": {
     "score1": "Score 1",

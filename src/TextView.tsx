@@ -90,6 +90,14 @@ function TextView(props: TextViewProps) {
         return poemText
     }, [t])
 
+    const remarkRehypeOptions = useMemo(() => ({
+        footnoteLabel: t("textView.footnotes"),
+        footnoteBackLabel: (referenceIndex: number, rereferenceIndex: number) =>
+            t("textView.backToReference", {
+                reference: `${referenceIndex + 1}${rereferenceIndex > 1 ? `-${rereferenceIndex}` : ""}`
+            }),
+    }), [t])
+
     const close = useCallback(() => {
         setSplitView(false);
     }, [setSplitView]);
@@ -133,6 +141,7 @@ function TextView(props: TextViewProps) {
                 <div className="text-view" style={{ textAlign: "left", flex: 1, minWidth: 0, maxWidth: "1000px" }}>
                     <Markdown
                         remarkPlugins={[remarkGfm, sectionize]}
+                        remarkRehypeOptions={remarkRehypeOptions}
                         rehypePlugins={[
                             rehypeRaw,
                             rehypePoemBlock,
