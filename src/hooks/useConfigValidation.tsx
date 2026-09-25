@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScoreViewerConfig } from '../types/config';
+import { InitialTab, ScoreViewerConfig } from '../types/config';
+
+const INITIAL_TABS: InitialTab[] = ["intro", "text", "music"];
 
 interface ConfigValidationError {
   field: string;
@@ -108,6 +110,13 @@ export const useConfigValidation = (config: ScoreViewerConfig) => {
         errors.push({
           field: 'settings.language',
           message: t('configValidation.languageString')
+        });
+      }
+
+      if (settings.initialTab !== undefined && !INITIAL_TABS.includes(settings.initialTab)) {
+        errors.push({
+          field: 'settings.initialTab',
+          message: t('configValidation.initialTabInvalid', { values: INITIAL_TABS.join(', ') })
         });
       }
     }

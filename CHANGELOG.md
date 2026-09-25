@@ -6,6 +6,18 @@ Incompatible changes on the 1.1.x line.
 may change without compatibility shims. Every such change is recorded here, newest
 first. Ordinary fixes and additions are not — see the git log for those.
 
+## 1.1.15
+
+### Configuration
+
+- `settings.initialTab` is added: the tab the viewer opens on while the reader has not
+  chosen one yet, `"intro"`, `"text"` or `"music"`. Once the reader picks a tab, that
+  choice is stored and takes precedence over this setting. When the current score does
+  not have the configured tab, the music is shown.
+
+  It is optional, and leaving it out keeps the previous behaviour: the viewer opens on
+  the music. Any other value is reported as a configuration error.
+
 ## 1.1.13
 
 ### Browser support

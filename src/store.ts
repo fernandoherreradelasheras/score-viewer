@@ -164,7 +164,7 @@ interface UILayoutState {
     isSplitView: boolean
     activeSplitView: string
     splitViewOrientation: 'horizontal' | 'vertical'
-    activeTab: string
+    activeTab: string | null
     secondaryViewLayoutHint: SecondaryViewLayoutHint | null
 
 
@@ -192,7 +192,7 @@ const DEFAULT_UI_LAYOUT_STATE = {
     isSplitView: false,
     activeSplitView: 'facsimile',
     splitViewOrientation: 'horizontal' as const,
-    activeTab: 'music',
+    activeTab: null,
 }
 
 

@@ -37,6 +37,8 @@ export interface ScoreViewerConfigScore {
   };
 }
 
+export type InitialTab = "intro" | "text" | "music";
+
 export interface ScoreViewerConfigSettings {
   showScoreSelector: boolean;
   showTitle: boolean;
@@ -52,6 +54,7 @@ export interface ScoreViewerConfigSettings {
   language?: string | "autodetect";
   allowUserLanguageChange: boolean;
   selectorLabel?: string | "work" | "section";
+  initialTab?: InitialTab;
 }
 
 export interface ScoreViewerConfig {

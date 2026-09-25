@@ -8,7 +8,7 @@ import useStore from '../src/store';
 import { Context } from '../src/Context';
 import '../src/style.css';
 import { ScoreProperties, VisualizationOptions, LyricItem, Score } from '../src/types';
-import { ScoreViewerConfig, ScoreViewerConfigSettings, ScoreViewerConfigScore, ScoreViewerConfigScoreText, ScoreViewerConfigAudioFile } from '../src/types/config';
+import { ScoreViewerConfig, ScoreViewerConfigSettings, ScoreViewerConfigScore, ScoreViewerConfigScoreText, ScoreViewerConfigAudioFile, InitialTab } from '../src/types/config';
 import { useScoreManager } from '../src/hooks/useScoreManager';
 import { useTextParts } from '../src/hooks/useTextParts';
 
@@ -25,6 +25,7 @@ export type {
   ScoreViewerConfigScore,
   ScoreViewerConfigScoreText,
   ScoreViewerConfigAudioFile,
+  InitialTab,
   Score,
   ScoreProperties,
   VisualizationOptions,

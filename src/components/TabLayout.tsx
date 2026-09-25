@@ -16,6 +16,7 @@ interface TabLayoutProps {
   showFacsimileSection: boolean;
   // Rendered at the right end of the tab bar, sharing its row
   tabBarExtra?: React.ReactNode;
+  activeTab: string;
 }
 
 export default function TabLayout({
@@ -26,10 +27,10 @@ export default function TabLayout({
   showIntroductionSection,
   showTextSection,
   showFacsimileSection,
-  tabBarExtra
+  tabBarExtra,
+  activeTab
 }: TabLayoutProps) {
   const { t } = useTranslation("common");
-  const activeTab = useStore.use.activeTab()
   const setActiveTab = useStore.use.setActiveTab();
 
   // The music pane is always present, even alone with the tab bar hidden: the tabs
@@ -70,9 +71,8 @@ export default function TabLayout({
 
   const shouldShowTabBar = tabsItems.length > 1;
 
-  // The store may briefly point at a tab the current items no longer carry (switching
-  // away from a score that had it); LayoutManager resets it to music an effect later,
-  // but the pane on screen must never be a missing one.
+  // The active tab is a preference kept across scores, so it may name a tab the current
+  // score does not have (or whose sections are still unknown); the music stands in for it.
   const effectiveTab = tabsItems.some(tab => tab.key === activeTab) ? activeTab : 'music';
 
   return (

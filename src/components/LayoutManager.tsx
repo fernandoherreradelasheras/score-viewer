@@ -14,6 +14,7 @@ interface LayoutManagerProps {
   showTextSection: boolean;
   showFacsimileSection: boolean;
   tabBarExtra?: React.ReactNode;
+  activeTab: string;
 }
 
 type ContentProps = Pick<LayoutManagerProps, 'introView' | 'textView' | 'facsimileView'
@@ -30,6 +31,19 @@ export function hasSecondaryContent(props: ContentProps) {
 // restating the condition.
 export function rendersTabBar(props: ContentProps, isSplitView: boolean) {
   return !isSplitView && hasSecondaryContent(props)
+}
+
+type SecondaryViews = Pick<LayoutManagerProps, 'introView' | 'textView' | 'facsimileView'>
+
+// The view chosen for the split is a preference kept across scores, so it may name one
+// the current score does not have; the first one it does have stands in for it.
+export function shownSplitView(activeSplitView: string, views: SecondaryViews): string | null {
+  const available = [
+    views.facsimileView ? 'facsimile' : null,
+    views.introView ? 'intro' : null,
+    views.textView ? 'text' : null,
+  ].filter(view => view != null);
+  return available.includes(activeSplitView) ? activeSplitView : available[0] ?? null;
 }
 
 const MIN_SECONDARY_PERCENT = 25;
@@ -64,14 +78,12 @@ export default function LayoutManager({
   showTextSection,
   showFacsimileSection,
   tabBarExtra,
+  activeTab,
 }: LayoutManagerProps) {
 
   const isSplitView = useStore.use.isSplitView();
   const splitViewOrientation = useStore.use.splitViewOrientation();
   const activeSplitView = useStore.use.activeSplitView();
-  const setActiveSplitView = useStore.use.setActiveSplitView();
-  const activeTab = useStore.use.activeTab()
-  const setActiveTab = useStore.use.setActiveTab();
   const layoutHint = useStore.use.secondaryViewLayoutHint();
   const scoreUrl = useStore.use.score()?.url;
 
@@ -126,47 +138,6 @@ export default function LayoutManager({
   }, [isSplitView, splitViewOrientation, container, layoutHint]);
 
 
-  const checkContentAvailable = useCallback((key: string | null) => {
-    if (key === null) {
-      return false;
-    } else if (key === "facsimile" && facsimileView === null) {
-      return false;
-    } else if (key === "text" && textView === null) {
-      return false;
-    } else if (key === "intro" && introView === null) {
-      return false;
-    }
-    return true;
-  }, [facsimileView, textView, introView]);
-
-  const tabContentNotAvailable = useCallback(() => {
-    return !checkContentAvailable(activeTab);
-  }, [checkContentAvailable, activeTab]);
-
-  const splitViewContentNotAvailable = useCallback(() => {
-    return !checkContentAvailable(activeSplitView);
-  }, [checkContentAvailable, activeSplitView]);
-
-  const getAvailableViews = useCallback(() => {
-    const options = [];
-    if (facsimileView) options.push('facsimile');
-    if (introView) options.push('intro');
-    if (textView) options.push('text');
-    return options;
-  }, [facsimileView, introView, textView]);
-
-  // Handle content availability changes
-  useEffect(() => {
-    if (isSplitView && splitViewContentNotAvailable()) {
-      const availableViews = getAvailableViews();
-      if (availableViews.length > 0) {
-        setActiveSplitView(availableViews[0]);
-      }
-    } else if (!isSplitView && tabContentNotAvailable()) {
-      setActiveTab("music");
-    }
-  }, [isSplitView, facsimileView, introView, textView, splitViewContentNotAvailable, tabContentNotAvailable, getAvailableViews, setActiveSplitView, setActiveTab]);
-
   const content = {
     introView, textView, facsimileView,
     showIntroductionSection, showTextSection, showFacsimileSection
@@ -182,6 +153,7 @@ export default function LayoutManager({
         textView={textView}
         introView={introView}
         facsimileView={facsimileView}
+        splitView={shownSplitView(activeSplitView, { introView, textView, facsimileView })}
         sizes={sizes}
         setSizes={setSizes}
         onResizeEnd={onResizeEnd}
@@ -204,6 +176,7 @@ export default function LayoutManager({
       showTextSection={showTextSection}
       showFacsimileSection={showFacsimileSection}
       tabBarExtra={tabBarExtra}
+      activeTab={activeTab}
     />
   );
 }

@@ -259,6 +259,7 @@
     "facsimileImagesPathRequired": "facsimileImagesPath is required and must be a string",
     "backgroundColorString": "backgroundColor must be a string if provided",
     "languageString": "language must be a string if provided",
+    "initialTabInvalid": "initialTab must be one of: {{values}}",
     "scoresArray": "Scores must be an array",
     "scoresNotEmpty": "At least one score is required",
     "scoreTitleRequired": "Score title is required and must be a string",

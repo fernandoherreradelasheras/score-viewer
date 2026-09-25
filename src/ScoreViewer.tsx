@@ -104,7 +104,7 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
 
   const normalizeFicta = useStore.use.normalizeFicta()
   const showOriginalClefs = useStore.use.showOriginalClefs()
-  const activeTab = useStore.use.activeTab()
+  const activeTab = useStore.use.activeTab() ?? config.settings.initialTab ?? 'music'
 
   const goToSection = useStore.use.goToSection()
 
@@ -164,12 +164,19 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
     }
   }), [goToSection, unloadScore, loadAll, config.scores.length]);
 
+  const settings = config.settings
+  const shownTab =
+    (activeTab === 'intro' && !(settings.showIntroductionSection && introAvailable)) ||
+      (activeTab === 'text' && !(settings.showTextSection && textAvailable)) ||
+      (activeTab === 'facsimile' && !(settings.showFacsimileSection && facsimileItems.length)) ?
+      'music' : activeTab
+
   // All effects moved to useScoreViewerEffects hook
   useScoreViewerEffects({
     configLanguage: config.settings.language,
     configScores: config.scores,
     configShowScoreSelector: config.settings.showScoreSelector,
-    activeTab,
+    activeTab: shownTab,
     scoreViewContainerRef,
     showOriginalClefs,
     onVisualizationOptionsChanged,
@@ -290,11 +297,12 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
       showTextSection={config.settings.showTextSection}
       showFacsimileSection={config.settings.showFacsimileSection}
       tabBarExtra={settingsInTabBar ? <SettingsButton onClick={showDrawer} /> : null}
+      activeTab={activeTab}
     />
   ), [
     scoreView, textView, introView, facsimileView,
     config.settings.showIntroductionSection, config.settings.showTextSection, config.settings.showFacsimileSection,
-    settingsInTabBar, showDrawer,
+    settingsInTabBar, showDrawer, activeTab,
   ]);
 
   const onDrawerClose = useCallback(() => {

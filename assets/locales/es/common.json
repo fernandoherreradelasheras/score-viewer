@@ -257,6 +257,7 @@
     "facsimileImagesPathRequired": "facsimileImagesPath es requerido y debe ser una cadena de texto",
     "backgroundColorString": "backgroundColor debe ser una cadena de texto si se proporciona",
     "languageString": "language debe ser una cadena de texto si se proporciona",
+    "initialTabInvalid": "initialTab debe ser uno de: {{values}}",
     "scoresArray": "Scores debe ser un array",
     "scoresNotEmpty": "Se requiere al menos una partitura",
     "scoreTitleRequired": "El título de la partitura es requerido y debe ser una cadena de texto",

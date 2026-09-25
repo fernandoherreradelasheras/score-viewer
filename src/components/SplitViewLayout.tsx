@@ -7,6 +7,7 @@ interface SplitViewLayoutProps {
   textView: React.ReactNode | null;
   introView: React.ReactNode | null;
   facsimileView: React.ReactNode | null;
+  splitView: string | null;
   sizes: (number | string)[];
   setSizes: (sizes: (number | string)[]) => void;
   onResizeEnd: () => void;
@@ -18,13 +19,13 @@ export default function SplitViewLayout({
   textView,
   introView,
   facsimileView,
+  splitView,
   sizes,
   setSizes,
   onResizeEnd,
   onContainerResize,
 }: SplitViewLayoutProps) {
 
-  const activeSplitView = useStore.use.activeSplitView();
   const orientation = useStore.use.splitViewOrientation();
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
 
@@ -39,11 +40,11 @@ export default function SplitViewLayout({
   }, [container, onContainerResize]);
 
   const getSecondaryView = (): React.ReactNode => {
-    if (activeSplitView === "facsimile") {
+    if (splitView === "facsimile") {
       return facsimileView;
-    } else if (activeSplitView === "text") {
+    } else if (splitView === "text") {
       return textView;
-    } else if (activeSplitView === "intro") {
+    } else if (splitView === "intro") {
       return introView;
     }
     return null;

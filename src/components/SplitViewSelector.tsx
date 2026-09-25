@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { Space, Select, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useStore from '../store';
+import { shownSplitView } from './LayoutManager';
 
 interface SplitViewSelectorProps {
   facsimileView: React.ReactNode | null;
@@ -46,7 +47,7 @@ export default function SplitViewSelector({
       <Select
         style={{ minWidth: "200px", marginRight: "10px" }}
         options={selectorItems}
-        value={activeSplitView}
+        value={shownSplitView(activeSplitView, { introView, textView, facsimileView })}
         onChange={onActiveSplitViewChange}
       />
     </Space>
