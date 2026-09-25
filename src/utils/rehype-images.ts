@@ -12,11 +12,11 @@ const rehypeImages: Plugin<[], Root> = () => {
                     node.properties.src = '/' + src;
                 }
 
-                // Set width
-                const currentStyle = node.properties.style as string | undefined;
-                node.properties.style = currentStyle
-                    ? `${currentStyle}; max-width: 40%;`
-                    : 'max-width: 40%;';
+                const className = node.properties.className
+                node.properties.className = [
+                    ...(Array.isArray(className) ? className : className ? [className] : []),
+                    'text-image'
+                ]
             }
         });
     };

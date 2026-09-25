@@ -1,5 +1,5 @@
-import { useCallback, useMemo } from 'react'
-import Markdown from "react-markdown";
+import { cloneElement, useCallback, useMemo } from 'react'
+import Markdown, { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from 'rehype-raw'
 import rehypeExternalLinks from 'rehype-external-links';
@@ -7,12 +7,26 @@ import sectionize from 'remark-sectionize'
 import { FetchError, LyricItem, PlayingState } from './types';
 import ErrorView from './ErrorView';
 import { useTranslation } from 'react-i18next';
-import { Button } from 'antd';
+import { Button, Image, ImageProps } from 'antd';
 import useStore from './store';
 import { CloseOutlined } from '@ant-design/icons';
 import rehypeImages from './utils/rehype-images'
 import rehypePoemBlock from './utils/rehype-poem-block'
 import rehypeFigure from "@microflash/rehype-figure";
+import FitToScreenImage from './components/FitToScreenImage';
+
+const imagePreview: ImageProps['preview'] = {
+    actionsRender: (actions, { icons, image }) => <>
+        {image.alt ? <div className="text-image-preview-caption">{image.alt}</div> : null}
+        {cloneElement(actions, undefined, icons.zoomOutIcon, icons.zoomInIcon)}
+    </>,
+    imageRender: (image, { image: { url } }) => <FitToScreenImage image={image} src={url} />
+}
+
+const markdownComponents: Components = {
+    img: ({ src, alt, title, className, style }) =>
+        <Image src={src} alt={alt} title={title} rootClassName={className} style={style} preview={imagePreview} />
+}
 
 const markdownTitle = (title: string) => `# ${title}\n\n`
 const markdownSubtitle = (subtitle: string) => `## ${subtitle}\n\n`
@@ -140,6 +154,7 @@ function TextView(props: TextViewProps) {
 
                 <div className="text-view" style={{ textAlign: "left", flex: 1, minWidth: 0, maxWidth: "1000px" }}>
                     <Markdown
+                        components={markdownComponents}
                         remarkPlugins={[remarkGfm, sectionize]}
                         remarkRehypeOptions={remarkRehypeOptions}
                         rehypePlugins={[

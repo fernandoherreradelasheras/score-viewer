@@ -58,6 +58,7 @@ const defaultConfig: ScoreViewerConfig = {
       title: "editorial markup",
       path: "editorials",
       meiFile: "music.mei",
+      introductionFile: "intro.md",
       audioFiles: [
         { file: "editorials.mp3", name: "audio1" },
       ],

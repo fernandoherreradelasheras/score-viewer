@@ -302,6 +302,24 @@
   text-align: center;
 }
 
+.text-view .text-image {
+  max-width: 40%;
+}
+
+.text-view .text-image img {
+  max-width: 100%;
+}
+
+.text-image-preview-caption {
+  width: max-content;
+  max-width: 80vw;
+  padding: 6px 16px;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  text-align: center;
+}
+
 .text-view .line-number {
   -webkit-user-select: none;
   user-select: none;
