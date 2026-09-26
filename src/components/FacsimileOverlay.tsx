@@ -21,10 +21,11 @@ interface FacsimileOverlayProps {
     // Framed together, in a single box.
     frame?: FacsimileZone[] | null;
     frameRef?: Ref<SVGRectElement>;
-    marksRef?: Ref<SVGGElement>;
+    // Invisible points, for the view to be moved to.
+    anchors?: { x: number, y: number, ref: Ref<SVGCircleElement> }[];
 }
 
-function FacsimileOverlay({ surface, box, marks = [], frame, frameRef, marksRef }: FacsimileOverlayProps) {
+function FacsimileOverlay({ surface, box, marks = [], frame, frameRef, anchors = [] }: FacsimileOverlayProps) {
     const unit = surface.width;
     const isPoint = (zone: FacsimileZone) =>
         zone.lrx - zone.ulx <= unit * POINT_ZONE_MAX_SIZE && zone.lry - zone.uly <= unit * POINT_ZONE_MAX_SIZE;
@@ -61,13 +62,13 @@ function FacsimileOverlay({ surface, box, marks = [], frame, frameRef, marksRef 
             viewBox={`0 0 ${surface.width} ${surface.height}`}
             preserveAspectRatio="none"
             style={{ position: "absolute", ...box, pointerEvents: "none", overflow: "visible" }}>
-            <g ref={marksRef}>
-                {marks.map(({ id, zone, color }) => isPoint(zone)
-                    ? <circle key={id} className="facsimile-mark" fill={color} stroke={color}
-                        cx={center(zone).x} cy={center(zone).y} r={unit * MARK_RADIUS} />
-                    : <rect key={id} className="facsimile-mark" fill={color} stroke={color}
-                        x={zone.ulx} y={zone.uly} width={zone.lrx - zone.ulx} height={zone.lry - zone.uly} />)}
-            </g>
+            {marks.map(({ id, zone, color }) => isPoint(zone)
+                ? <circle key={id} className="facsimile-mark" fill={color} stroke={color}
+                    cx={center(zone).x} cy={center(zone).y} r={unit * MARK_RADIUS} />
+                : <rect key={id} className="facsimile-mark" fill={color} stroke={color}
+                    x={zone.ulx} y={zone.uly} width={zone.lrx - zone.ulx} height={zone.lry - zone.uly} />)}
+            {anchors.map(({ x, y, ref }, i) =>
+                <circle key={i} ref={ref} cx={x} cy={y} r={unit * MARK_RADIUS} opacity={0} />)}
             {frameRect && <rect ref={frameRef} className="facsimile-frame" {...frameRect} rx={unit * FRAME_PADDING} />}
         </svg>
     );

@@ -15,12 +15,16 @@ interface FacsimilePlayerOverlayProps {
     onPartMoved: (surface: number) => void;
 }
 
-const FOLLOW_ANIMATION_MS = 250;
+// A line of the manuscript ends where the music goes back to the left, or where it
+// lands this far above or below, as a fraction of the page width.
+const LINE_JUMP = 0.15;
+const JUMP_ANIMATION_MS = 250;
 
 // Kept apart from the image so that the position ticks re-render the marks alone.
 function FacsimilePlayerOverlay({ links, surface, box, partStaves, onPartMoved }: FacsimilePlayerOverlayProps) {
     const playingState = useStore.use.playingState();
     const playingPosition = useStore.use.playingPosition();
+    const seekPosition = useStore.use.seekPosition();
     const timemap = useStore.use.renderedSvgData()?.timemap;
     const noteStaffMap = useStore.use.score()?.properties.noteStaffMap;
 
@@ -44,21 +48,100 @@ function FacsimilePlayerOverlay({ links, surface, box, partStaves, onPartMoved }
 
     const lastOfPart = started.filter(e => partStaves.includes(e.staff)).pop();
 
-    // What sounds is kept in the middle of the view, at the scale the reader left: zoomed
-    // in, the marks would otherwise run out of sight.
-    const { zoomToElement, instance } = useControls();
-    const marksRef = useRef<SVGGElement>(null);
-    const marksKey = marks.map(mark => mark.id).join(" ");
+    // The voice the view travels along: the part of the image, or else its first staff.
+    // Each point is held at the height of its line, so the view does not bob with the pitch.
+    const followed = useMemo(() => {
+        const onSurface = linked.filter(e => e.zone.surface == surface);
+        const staves = partStaves.length > 0 ? partStaves
+            : onSurface.map(e => e.staff).sort((a, b) => parseInt(a) - parseInt(b)).slice(0, 1);
+        const unit = links.surfaces[surface].width;
+        const points = onSurface
+            .filter(e => staves.includes(e.staff))
+            .map(e => ({ id: e.id, onsetMs: e.onsetMs, x: (e.zone.ulx + e.zone.lrx) / 2, y: (e.zone.uly + e.zone.lry) / 2 }));
+
+        const lines: (typeof points)[] = [];
+        points.forEach((point, i) => {
+            const line = lines[lines.length - 1];
+            if (!line || point.x < points[i - 1].x || Math.abs(point.y - line[0].y) > unit * LINE_JUMP) {
+                lines.push([point]);
+            } else {
+                line.push(point);
+            }
+        });
+        return lines.flatMap((line, index) => {
+            const y = line.reduce((sum, point) => sum + point.y, 0) / line.length;
+            return line.map(point => ({ ...point, y, line: index }));
+        });
+    }, [linked, surface, partStaves, links]);
+
+    const upcoming = followed.findIndex(e => e.onsetMs > playingPosition);
+    const next = upcoming == -1 ? undefined : followed[upcoming];
+    const current = upcoming == -1 ? followed[followed.length - 1] : followed[upcoming - 1];
+
+    // The view travels from the note that starts to the next one for as long as the first
+    // lasts, so it scrolls at the pace of the music, keeping what sounds in the middle at
+    // the scale the reader left. At the end of a line it waits for the next one to start
+    // and jumps there, instead of sweeping back across the page.
+    const { zoomToElement, setTransform, instance } = useControls();
+    const currentAnchorRef = useRef<SVGCircleElement>(null);
+    const nextAnchorRef = useRef<SVGCircleElement>(null);
+    const headingToRef = useRef<string | null>(null);
+    const moveRef = useRef(0);
+    const seekRef = useRef(seekPosition);
+
     useEffect(() => {
-        if (marksKey == "" || marksRef.current == null) {
+        const move = ++moveRef.current;
+        if (seekPosition !== seekRef.current) {
+            seekRef.current = seekPosition;
+            headingToRef.current = null;
+        }
+
+        if (playingState != PlayingState.PLAYING) {
+            // The library runs its animations on its own clock: a short one to where the
+            // view already is replaces the one under way.
+            const { positionX, positionY, scale } = instance.state;
+            setTransform(positionX, positionY, scale, 1);
+            if (playingState == PlayingState.STOPPED) {
+                headingToRef.current = null;
+            }
+            return;
+        }
+
+        const currentAnchor = currentAnchorRef.current;
+        if (!current || !currentAnchor) {
             return;
         }
         // Typed for HTML elements, but all it reads from the node is its client rect.
-        zoomToElement(marksRef.current as unknown as HTMLElement,
-            { scale: instance.state.scale, animationTime: FOLLOW_ANIMATION_MS });
-        // Only when other notes start sounding, not on every tick of the position.
+        const moveTo = (anchor: SVGCircleElement, animationTime: number, animationType: "easeOut" | "linear") =>
+            zoomToElement(anchor as unknown as HTMLElement, { scale: instance.state.scale, animationTime, animationType });
+
+        // Travelling to this note already, or paused on the way to the next one.
+        const onTrack = headingToRef.current === current.id || headingToRef.current === next?.id;
+        const nextAnchor = nextAnchorRef.current;
+
+        if (!next || next.line != current.line || !nextAnchor) {
+            headingToRef.current = current.id;
+            if (!onTrack) {
+                moveTo(currentAnchor, JUMP_ANIMATION_MS, "easeOut");
+            }
+            return;
+        }
+
+        headingToRef.current = next.id;
+        const remaining = next.onsetMs - playingPosition;
+        if (onTrack) {
+            moveTo(nextAnchor, remaining, "linear");
+        } else {
+            moveTo(currentAnchor, JUMP_ANIMATION_MS, "easeOut").then(() => {
+                if (move === moveRef.current && nextAnchorRef.current) {
+                    moveTo(nextAnchorRef.current, Math.max(1, remaining - JUMP_ANIMATION_MS), "linear");
+                }
+            });
+        }
+        // On a new note, a change of transport and a seek: the position is read when they
+        // happen, and following every tick would restart the travel on each one.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [marksKey]);
+    }, [current?.id, playingState, seekPosition]);
 
     // Only when another element of the part starts: a reader turning the page by hand
     // while it plays is not sent back on every tick.
@@ -69,7 +152,12 @@ function FacsimilePlayerOverlay({ links, surface, box, partStaves, onPartMoved }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [lastOfPart?.id]);
 
-    return <FacsimileOverlay surface={links.surfaces[surface]} box={box} marks={marks} marksRef={marksRef} />;
+    const anchors = [
+        ...current ? [{ x: current.x, y: current.y, ref: currentAnchorRef }] : [],
+        ...next ? [{ x: next.x, y: next.y, ref: nextAnchorRef }] : [],
+    ];
+
+    return <FacsimileOverlay surface={links.surfaces[surface]} box={box} marks={marks} anchors={anchors} />;
 }
 
 export default FacsimilePlayerOverlay;
