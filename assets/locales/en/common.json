@@ -17,6 +17,8 @@
     "facsimile": "Facsimile"
   },
   "editorial": {
+    "showInFacsimile": "Show on the facsimile",
+    "showInFacsimileUnavailable": "Use the split view with the facsimile to navigate to it",
     "preferredReading": "preferred reading",
     "alternativeReading": "alternative reading",
     "alternativeReadingNumber": "alternative reading #",
@@ -219,6 +221,10 @@
         "duration-bar": "Duration bar"
       }
     },
+    "noteInFacsimile": {
+      "title": "Show note on the facsimile on click",
+      "description": "Shows the matching note on the facsimile while it is displayed in split view. Only if the score encodes the link"
+    },
     "resetSettings": "Reset settings to default"
   },
   "pagination": {
@@ -268,6 +274,7 @@
     "scoreEncodingPropertiesRequired": "encodingProperties object is required",
     "scoreAudioFilesArray": "audioFiles must be an array if provided",
     "scoreFacsimileItemsArray": "facsimileItems must be an array if provided",
+    "scoreFacsimileItemPartString": "part must be a string (the xml:id of a <perfRes>) if provided",
     "configurationError": "Configuration Error",
     "configurationErrorDescription": "The ScoreViewer configuration contains errors:"
   },

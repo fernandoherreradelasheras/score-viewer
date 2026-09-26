@@ -1,4 +1,4 @@
-import { Annotation, ANNOTATION_TARGET_TYPE, Categories, Choice, ChoiceEditorialItem, ContentDescription, EDITORIAL_ALL_TAGS, EDITORIAL_SELECTION_TAGS, EDITORIAL_TRANSPARENT_TAGS, EditorialItem, GLOBAL_APP_TYPES, Option, ScoreProperties, SimpleEditorialItem, Sources } from "./types";
+import { Annotation, ANNOTATION_TARGET_TYPE, Categories, Choice, ChoiceEditorialItem, ContentDescription, EDITORIAL_ALL_TAGS, EDITORIAL_SELECTION_TAGS, EDITORIAL_TRANSPARENT_TAGS, EditorialItem, FacsimileLinks, FacsimileSurface, FacsimileZone, GLOBAL_APP_TYPES, Option, ScoreProperties, SimpleEditorialItem, Sources } from "./types";
 
 
 
@@ -211,6 +211,13 @@ class ScoreAnalyzer {
         }
     }
 
+    noteIdsOf(element: Element): string[] {
+        return ["note", "rest", "mRest", "chord"]
+            .flatMap(tag => [...element.getElementsByTagNameNS(MEI_NS, tag)])
+            .map(el => el.getAttribute("xml:id"))
+            .filter((id): id is string => id != null)
+    }
+
     // Record every <app>, <choice> and <subst> under the category its readings classify
     // with, so a dialog on one of them can tell what else changes with it. An element
     // counts only when all its readings agree on the category, the same rule that names
@@ -278,6 +285,8 @@ class ScoreAnalyzer {
             hasHarmonicAnalysis: this.hasHarmonicAnalysis(),
             tiedNotes: this.getTiedNotes(),
             noteStaffMap: this.getNoteStaffMap(),
+            facsimileLinks: this.getFacsimileLinks(),
+            partStaves: this.getPartStaves(),
         }
     }
 
@@ -336,6 +345,7 @@ class ScoreAnalyzer {
                     annotations: new Set(),
                     childIds: childIds,
                     contentDescription: descriptions,
+                    noteIds: this.noteIdsOf(element),
                     ...this.locationOf(element)
                 })
             }
@@ -432,7 +442,7 @@ class ScoreAnalyzer {
         }
         return {
             id: choiceId!, type: type, resp: "", reason: "", source: "",
-            choice: choice, annotations: new Set(), ...this.locationOf(node)
+            choice: choice, annotations: new Set(), noteIds: this.noteIdsOf(node), ...this.locationOf(node)
         }
     }
 
@@ -536,6 +546,73 @@ class ScoreAnalyzer {
             }
         }
         return map
+    }
+
+    getFacsimileLinks(): FacsimileLinks | null {
+        const surfaces: FacsimileSurface[] = []
+        const zoneById = new Map<string, FacsimileZone>()
+        const number = (element: Element | undefined, name: string) => parseFloat(element?.getAttribute(name) ?? "")
+
+        const surfaceElements = this.document.getElementsByTagNameNS(MEI_NS, "surface")
+        for (let i = 0; i < surfaceElements.length; i++) {
+            const surface = surfaceElements[i]
+            const graphic = surface.getElementsByTagNameNS(MEI_NS, "graphic")[0]
+            const index = surfaces.length
+            surfaces.push({
+                label: surface.getAttribute("label") ?? "",
+                target: graphic?.getAttribute("target") ?? "",
+                width: (number(surface, "lrx") - (number(surface, "ulx") || 0)) || number(graphic, "width") || 0,
+                height: (number(surface, "lry") - (number(surface, "uly") || 0)) || number(graphic, "height") || 0,
+            })
+            const zones = surface.getElementsByTagNameNS(MEI_NS, "zone")
+            for (let j = 0; j < zones.length; j++) {
+                const id = zones[j].getAttribute("xml:id")
+                if (id) {
+                    zoneById.set(id, {
+                        surface: index,
+                        ulx: number(zones[j], "ulx"),
+                        uly: number(zones[j], "uly"),
+                        lrx: number(zones[j], "lrx"),
+                        lry: number(zones[j], "lry"),
+                    })
+                }
+            }
+        }
+
+        const zoneOf = (element: Element | null) => element?.getAttribute("facs")?.split(/\s+/)
+            .map(ref => zoneById.get(ref.replace("#", "")))
+            .find(zone => zone != null)
+
+        const zones: Record<string, FacsimileZone> = {}
+        for (const tag of ["note", "rest", "mRest", "chord"]) {
+            const elements = this.document.getElementsByTagNameNS(MEI_NS, tag)
+            for (let i = 0; i < elements.length; i++) {
+                const id = elements[i].getAttribute("xml:id")
+                const parent = elements[i].parentElement
+                const zone = zoneOf(elements[i]) ?? (parent?.localName == "chord" ? zoneOf(parent) : undefined)
+                if (id && zone) {
+                    zones[id] = zone
+                }
+            }
+        }
+
+        return Object.keys(zones).length > 0 ? { surfaces, zones } : null
+    }
+
+    getPartStaves() {
+        const partStaves: Record<string, string[]> = {}
+        const staffDefs = this.document.getElementsByTagNameNS(MEI_NS, "staffDef")
+        for (let i = 0; i < staffDefs.length; i++) {
+            const n = staffDefs[i].getAttribute("n")
+            const parts = staffDefs[i].getAttribute("decls")?.split(/\s+/) ?? []
+            for (const part of parts) {
+                const id = part.replace("#", "")
+                if (n && id && !partStaves[id]?.includes(n)) {
+                    partStaves[id] = [...(partStaves[id] ?? []), n]
+                }
+            }
+        }
+        return partStaves
     }
 
     getAnnotationMatchIds(item: EditorialItem): string[] {

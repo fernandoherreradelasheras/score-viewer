@@ -9,6 +9,8 @@ export enum PlayingState {
 export type TimeMapEvent = {
     on?: string[] | undefined;
     off?: string[] | undefined;
+    restsOn?: string[] | undefined;
+    restsOff?: string[] | undefined;
     measureOn?: string | undefined;
     qstamp: number;
     tstamp: number;

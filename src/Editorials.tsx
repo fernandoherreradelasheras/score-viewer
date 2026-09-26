@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import useStore from "./store";
-import { Modal, Radio, Typography, Descriptions, Alert, Badge } from "antd";
+import { Modal, Radio, Typography, Descriptions, Alert, Badge, Button, Space } from "antd";
+import { PictureOutlined } from "@ant-design/icons";
 import { Tooltip } from "react-tooltip";
 import { EditorialItem, Choice, ContentDescription, EDITORIAL_SELECTION_TAGS, ChoiceEditorialItem, SimpleEditorialItem, PlayingState } from "./types";
 import { EDITORIAL_COLORS } from "./types/colors";
@@ -37,6 +38,9 @@ function Editorials() {
     const substOptions = useStore.use.substOptions()
     const setSubstOptions = useStore.use.setSubstOptions()
     const playingState = useStore.use.playingState();
+    const renderedSvgData = useStore.use.renderedSvgData();
+    const isFacsimileLinked = useStore.use.isFacsimileLinked();
+    const focusFacsimileElements = useStore.use.focusFacsimileElements();
 
     const {
         titleKey, getAnnotationText, describeContentItem, resolveResp,
@@ -90,10 +94,11 @@ function Editorials() {
         }
         markEditorialGroup(container, group.id);
         return () => clearEditorialGroup(container);
-        // Keyed on the open dialog alone: the item and the group reader it resolves with
-        // are rebuilt on every render, and marking them again would only redraw the ring.
+        // Keyed on the open dialog and on the SVG, which a reading picked in it replaces
+        // without the ring: the item and the group reader it resolves with are rebuilt on
+        // every render, and marking them again would only redraw the ring.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [showingEditorial]);
+    }, [showingEditorial, renderedSvgData]);
 
     const describeContentAsList = (content: ContentDescription[] | undefined) => {
         if (!content || content.length === 0) {
@@ -191,6 +196,35 @@ function Editorials() {
     ];
 
 
+    const getFacsimileLink = (item: EditorialItem) => {
+        const zones = score?.properties.facsimileLinks?.zones;
+        const linkedIds = item.noteIds.filter(id => zones?.[id]);
+        if (linkedIds.length == 0) {
+            return null;
+        }
+
+        // Of a choice, the reading on show: the others are not drawn, and may well be
+        // linked to the same place, or to another source altogether.
+        const showInFacsimile = () => {
+            const shownIds = linkedIds.filter(id => document.getElementById(id));
+            focusFacsimileElements(shownIds.length > 0 ? shownIds : linkedIds);
+        };
+
+        return (
+            <Space orientation="vertical" size={4}>
+                <Button icon={<PictureOutlined />} onClick={showInFacsimile}
+                    disabled={!isFacsimileLinked || playingState === PlayingState.PLAYING}>
+                    {t('editorial.showInFacsimile')}
+                </Button>
+                {!isFacsimileLinked && (
+                    <Text type="secondary" style={{ fontSize: "0.85em" }}>
+                        {t('editorial.showInFacsimileUnavailable')}
+                    </Text>
+                )}
+            </Space>
+        );
+    };
+
     const getContentForTooltip = (render: { activeAnchor: Element | null }) => {
         const anchor = render.activeAnchor instanceof SVGTextElement
             ? render.activeAnchor.querySelector(":scope > .mei-editorial")
@@ -266,6 +300,7 @@ function Editorials() {
                             <Alert type="info" showIcon title={getAnnotationText(showingEditorialItem)} />
                         )}
                         {'choice' in showingEditorialItem ? getChoices(showingEditorialItem) : getSimpleEditorialContent(showingEditorialItem)}
+                        {getFacsimileLink(showingEditorialItem)}
                     </div>
                 </Modal>
             ) : null}

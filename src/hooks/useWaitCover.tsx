@@ -106,10 +106,11 @@ export default function useWaitCover({ svgContainerRef, isBusy }: WaitCoverConfi
     // for callers about to block the thread with work the spinner should be seen during.
     // `fadeScore` fades the rendered score out over the plan's fade, for the paths that
     // replace the page on screen (a page turn, a zoom, a resize) rather than redraw it.
+    // `keepEditorial` leaves the editorial dialog open, for a reload asked for from it.
     const applyPendingPlan = useCallback((
         plan: PendingPlan,
         reason: string,
-        opts: { raiseNow?: boolean, fadeScore?: boolean } = {},
+        opts: { raiseNow?: boolean, fadeScore?: boolean, keepEditorial?: boolean } = {},
     ) => {
         if (opts.fadeScore && plan.fadeMs !== null) {
             fadeOutScore(plan.fadeMs);
@@ -118,7 +119,9 @@ export default function useWaitCover({ svgContainerRef, isBusy }: WaitCoverConfi
             if (plan.fadeMs !== null) {
                 markEditorialPending(showingEditorial, plan.fadeMs);
             }
-            setShowingEditorial(null);
+            if (!opts.keepEditorial) {
+                setShowingEditorial(null);
+            }
         }
         if (plan.spinnerAfterMs === null) {
             return;

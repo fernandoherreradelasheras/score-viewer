@@ -4,6 +4,7 @@ import { Context } from './Context';
 import { useComponentSize } from "react-use-size";
 import ScoreProcessor from './ScoreProcessor';
 import { useEditorialHandler } from './hooks/useEditorialHandler';
+import { useFacsimileLinkHandler } from './hooks/useFacsimileLinkHandler';
 import useScoreActions, { RenderActionResult, shouldShowSpinner } from './hooks/useScoreActions';
 import useScoreRenderer from './hooks/useScoreRenderer';
 import useActionPipeline from './hooks/useActionPipeline';
@@ -80,6 +81,13 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const measureNumberInterval = useStore.use.measureNumberInterval();
 
     const { handleElementClick, handleElementHover, handleElementLeave } = useEditorialHandler();
+    const { facsimileClickable, handleFacsimileLinkClick } = useFacsimileLinkHandler();
+
+    const handleScoreClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
+        if (!handleElementClick(event)) {
+            handleFacsimileLinkClick(event);
+        }
+    }, [handleElementClick, handleFacsimileLinkClick]);
     const { ref: svgContainerRef, width: svgContainerWidth, height: svgContainerHeight } = useComponentSize();
 
     // The pipeline is gated on the container being mounted, which is a decision taken
@@ -227,10 +235,11 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     // Single entry point for every configuration-driven (re)load: covers the wait,
     // applies the load side effects and hands the action to the pipeline.
-    const scheduleAction = useCallback((action: Action, plan?: PendingPlan) => {
+    const scheduleAction = useCallback((action: Action, plan?: PendingPlan, opts?: { keepEditorial?: boolean }) => {
         applyPendingPlan(
             plan ?? planFor(action.type, shouldShowSpinner(action)),
             `${action.type} action`,
+            opts,
         );
 
         if (action.type === "load") {
@@ -434,7 +443,9 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                 transposition: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null,
                 restorePositionForAchor: anchor
             });
-        scheduleAction(action);
+        // The readings are picked in the editorial dialog, which the reader is still
+        // reading: it stays open over the reload.
+        scheduleAction(action, undefined, { keepEditorial: true });
     }, [canSchedule, showingMei, renderKey, showsRenderedScore, currentPage, renderedSvgData?.anchorElement,
         score?.url, score?.properties?.encodedTransposition, scale, withoutTransposition, scheduleAction])
 
@@ -717,14 +728,14 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     return (
         <div style={{ width: "100%", height: "100%", position: "relative" }}>
             <div ref={attachSvgContainer}
-                className={"static-score " + svgContainerClasses.join(" ")}
+                className={"static-score " + svgContainerClasses.join(" ") + (facsimileClickable ? " facsimile-clickable" : "")}
                 style={{
                     width: "100%",
                     height: "100%",
                     background: backgroundColor || 'white',
                     "--score-bg-color": backgroundColor
                 } as React.CSSProperties}
-                onClick={handleElementClick}
+                onClick={handleScoreClick}
                 onMouseOver={handleElementHover}
                 onMouseLeave={handleElementLeave} />
             <LoadingSpinner visible={showSpinner} />

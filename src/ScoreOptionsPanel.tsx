@@ -36,6 +36,8 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
     const setShowColoredNotes = useStore.use.setShowColoredNotes();
     const noteVisualization = useStore.use.noteVisualization();
     const setNoteVisualization = useStore.use.setNoteVisualization();
+    const showNoteInFacsimile = useStore.use.showNoteInFacsimile();
+    const setShowNoteInFacsimile = useStore.use.setShowNoteInFacsimile();
     const resetScoreSettings = useStore.use.resetScoreSettings();
     const resetUILayout = useStore.use.resetUILayout();
 
@@ -105,6 +107,23 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
                     onChange={onNoteVisualizationChange}
                     style={{ width: "100%" }}
                 />
+            </Col>
+        </Row> : null;
+
+    const noteInFacsimileRow = score?.properties?.facsimileLinks ?
+        <Row align={"middle"}>
+            <Col span={20}>
+                <Space orientation="vertical">
+                    <Typography.Text strong={true} {...(!showNoteInFacsimile ? { type: 'secondary' } : {})}>
+                        {t('scoreOptions.noteInFacsimile.title')}
+                    </Typography.Text>
+                    <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!showNoteInFacsimile ? { type: 'secondary' } : {})}>
+                        {t('scoreOptions.noteInFacsimile.description')}
+                    </Typography.Text>
+                </Space>
+            </Col>
+            <Col span={4}>
+                <Switch value={showNoteInFacsimile} onChange={setShowNoteInFacsimile} />
             </Col>
         </Row> : null;
 
@@ -213,6 +232,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
                 </Typography.Title>
                 <Space orientation="vertical" size="middle">
                     {noteVisualizationRow}
+                    {noteInFacsimileRow}
                     <Row align={"middle"}>
                         <Col span={20}>
                             <Space orientation="vertical">

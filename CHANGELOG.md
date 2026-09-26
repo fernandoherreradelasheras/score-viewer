@@ -18,6 +18,20 @@ first. Ordinary fixes and additions are not — see the git log for those.
   It is optional, and leaving it out keeps the previous behaviour: the viewer opens on
   the music. Any other value is reported as a configuration error.
 
+- `facsimileItems[].part` is added: the `xml:id` of the `<perfRes>` whose part the image
+  shows. While the player runs, the facsimile follows that part onto its next image. It
+  is optional; any value other than a string is reported as a configuration error.
+
+### MEI conventions
+
+- Notes and rests whose `@facs` points at a `<zone>` of the `<facsimile>` are marked on
+  the image beside the score in split view, while they sound and, with the new "Show
+  note on the facsimile on click" setting, when they are clicked. A config image is
+  matched to its `<surface>` by the `<graphic>@target` (either may be a trailing part of
+  the other path), or else by the surface `@label` against the image `name`.
+
+- A part is linked to its staves through `<staffDef @decls="#perfRes-id">`.
+
 ## 1.1.13
 
 ### Browser support

@@ -17,6 +17,8 @@
     "facsimile": "Facsimil"
   },
   "editorial": {
+    "showInFacsimile": "Mostrar en el facsímil",
+    "showInFacsimileUnavailable": "Usa la vista dividida con el facsímil para poder navegar a él",
     "preferredReading": "lectura preferida",
     "alternativeReading": "lectura alternativa",
     "regReading": "lectura regularizada",
@@ -219,6 +221,10 @@
         "duration-bar": "Barra de duraci\u00f3n"
       }
     },
+    "noteInFacsimile": {
+      "title": "Mostrar nota en el facsímil al hacer clic",
+      "description": "Muestra la nota correspondiente en el facsímil cuando este se está mostrando en split view. Solo si la partitura tiene la relación codificada"
+    },
     "resetSettings": "Restablecer configuración por defecto"
   },
   "pagination": {
@@ -266,6 +272,7 @@
     "scoreEncodingPropertiesRequired": "El objeto encodingProperties es requerido",
     "scoreAudioFilesArray": "audioFiles debe ser un array si se proporciona",
     "scoreFacsimileItemsArray": "facsimileItems debe ser un array si se proporciona",
+    "scoreFacsimileItemPartString": "part debe ser una cadena de texto (el xml:id de un <perfRes>) si se proporciona",
     "configurationError": "Error de Configuración",
     "configurationErrorDescription": "La configuración de ScoreViewer contiene errores:"
   },

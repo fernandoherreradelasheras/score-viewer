@@ -9,6 +9,32 @@ export type AudioFile = {
 export type FacsimileItem = {
     name: string
     file: string
+    // xml:id of the <perfRes> shown in the image. Its staves are the <staffDef>s whose
+    // @decls point at it.
+    part?: string | undefined
+}
+
+// A <surface> of the MEI <facsimile>, in its own coordinate space, and the image it is
+// drawn on (its <graphic>@target, which config images are matched against).
+export type FacsimileSurface = {
+    label: string
+    target: string
+    width: number
+    height: number
+}
+
+export type FacsimileZone = {
+    surface: number
+    ulx: number
+    uly: number
+    lrx: number
+    lry: number
+}
+
+export type FacsimileLinks = {
+    surfaces: FacsimileSurface[]
+    // note/rest/chord xml:id -> the zone its @facs points at
+    zones: Record<string, FacsimileZone>
 }
 
 export type Score = {
@@ -67,6 +93,10 @@ export type ScoreProperties = {
     tiedNotes: { first: string; second: string; }[];
     // note/rest/chord xml:id -> staff @n, for page-independent staff resolution.
     noteStaffMap: Record<string, string>;
+    // null when no note or rest is linked to a <facsimile> zone.
+    facsimileLinks: FacsimileLinks | null;
+    // <perfRes> xml:id -> @n of the staves whose <staffDef> @decls point at it.
+    partStaves: Record<string, string[]>;
 }
 
 export type VisualizationOptions = {

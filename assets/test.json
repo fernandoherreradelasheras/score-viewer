@@ -137,7 +137,6 @@
                     "file": "un-imposible-tenor.jpg"
                 }
             ]
-
         },
         {
             "_covers": "grupos de variantes (@class -> <category>): un grupo por varios compases, otro por varias voces, y otro con dos <rdg> por <app> que sólo se distinguen por @n",
@@ -153,6 +152,43 @@
             "title": "original clefs",
             "path": "original-clefs",
             "meiFile": "music.mei",
+            "encodingProperties": {
+                "encodedTransposition": "-P4"
+            }
+        },
+        {
+            "_covers": "<facsimile> + @facs: notes and rests linked to zones of the facsimile images",
+            "title": "Facsimile enlazado",
+            "path": "facsimile-link",
+            "meiFile": "02_Querido_imposible_mio.mei",
+            "audioFiles": [
+                {
+                    "file": "02-audio.mp3",
+                    "name": "audio querido imposible"
+                }
+            ],
+            "facsimileItems": [
+                {
+                    "name": "Tiple 1º página 9",
+                    "file": "S1/image-009.jpg",
+                    "part": "pr-tiple1"
+                },
+                {
+                    "name": "Tiple 2º página 9",
+                    "file": "S2/image-009.jpg",
+                    "part": "pr-tiple2"
+                },
+                {
+                    "name": "Tenor página 12",
+                    "file": "T/image-012.jpg",
+                    "part": "pr-tenor"
+                },
+                {
+                    "name": "Guion página 6",
+                    "file": "G/image-006.jpg",
+                    "part": "pr-guion"
+                }
+            ],
             "encodingProperties": {
                 "encodedTransposition": "-P4"
             }

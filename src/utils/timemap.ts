@@ -36,3 +36,23 @@ export const buildNoteTimings = (timemap: TimeMapEvent[]): Map<string, NoteTimin
 
     return timings;
 };
+
+export type ElementInterval = { onsetMs: number; endMs: number };
+
+/** When each note and rest starts and stops sounding. */
+export const buildElementIntervals = (timemap: TimeMapEvent[]): Map<string, ElementInterval> => {
+    const intervals = new Map<string, ElementInterval>();
+
+    for (const event of timemap) {
+        [...event.on ?? [], ...event.restsOn ?? []]
+            .forEach(id => intervals.set(id, { onsetMs: event.tstamp, endMs: Infinity }));
+        [...event.off ?? [], ...event.restsOff ?? []].forEach(id => {
+            const interval = intervals.get(id);
+            if (interval != null && interval.endMs == Infinity) {
+                interval.endMs = event.tstamp;
+            }
+        });
+    }
+
+    return intervals;
+};

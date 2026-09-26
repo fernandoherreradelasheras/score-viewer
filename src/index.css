@@ -343,3 +343,40 @@
   z-index: 1000;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
+
+/* Notes and rests of the score marked on the facsimile image beside it. */
+.facsimile-overlay .facsimile-mark {
+  fill-opacity: 0.3;
+  stroke-width: 2px;
+  vector-effect: non-scaling-stroke;
+}
+
+/* The note clicked on the score, framed on the facsimile. Pulses to catch the eye and
+   settles into the frame. */
+.facsimile-overlay .facsimile-frame {
+  fill: #0077BB;
+  fill-opacity: 0.12;
+  stroke: #0077BB;
+  stroke-width: 3px;
+  vector-effect: non-scaling-stroke;
+  animation: facsimile-frame 0.8s ease-in-out 2;
+}
+
+@keyframes facsimile-frame {
+  0%, 100% {
+    fill-opacity: 0.12;
+    stroke-width: 3px;
+  }
+  50% {
+    fill-opacity: 0.3;
+    stroke-width: 6px;
+  }
+}
+
+/* Only what is linked to the facsimile: a note of a chord may carry the link on it. */
+.svg-container.facsimile-clickable g.note[data-facs],
+.svg-container.facsimile-clickable g.rest[data-facs],
+.svg-container.facsimile-clickable g.mRest[data-facs],
+.svg-container.facsimile-clickable g.chord[data-facs] g.note {
+  cursor: pointer;
+}

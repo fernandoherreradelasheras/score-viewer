@@ -55,6 +55,7 @@ const GLOBAL_APP_READINGS = [
 // rendered SVG can be asked which <app> elements move together with a given one.
 const EXTRA_SVG_ATTRIBUTES = [...new Set([
   "measure@n", "staff@n", "clef@corresp", "verse@n", "note@dur",
+  ...["note", "rest", "mRest", "chord"].map(tag => `${tag}@facs`),
   ...[...CHOICE_ALLOWED_CHILD_TAGS, ...SUBST_ALLOWED_CHILD_TAGS, "lem", "rdg"].map(tag => `${tag}@class`),
   ...GLOBAL_APP_READINGS.flatMap(r => r.svg_extra_attributes)
 ])];
@@ -312,7 +313,7 @@ export default function useScoreActions({
   const loadAndBuildTimemap = useCallback(async (meiStr: string): Promise<TimeMapEvent[]> => {
     if (!verovio) throw new Error("Verovio is not ready");
     await verovio.loadData(meiStr);
-    const timemap = await verovio.renderToTimemap({ includeMeasures: true });
+    const timemap = await verovio.renderToTimemap({ includeMeasures: true, includeRests: true });
     return timemap;
   }, [verovio]);
 

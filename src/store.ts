@@ -166,6 +166,8 @@ interface UILayoutState {
     splitViewOrientation: 'horizontal' | 'vertical'
     activeTab: string | null
     secondaryViewLayoutHint: SecondaryViewLayoutHint | null
+    isFacsimileLinked: boolean
+    facsimileFocus: { elementIds: string[], seq: number } | null
 
 
     setIsLoading: (isLoading: boolean) => void
@@ -179,6 +181,8 @@ interface UILayoutState {
     setSplitViewOrientation: (orientation: 'horizontal' | 'vertical') => void
     setActiveTab: (tab: string) => void
     setSecondaryViewLayoutHint: (hint: SecondaryViewLayoutHint | null) => void
+    setIsFacsimileLinked: (linked: boolean) => void
+    focusFacsimileElements: (elementIds: string[]) => void
     reset: () => void
 }
 
@@ -202,6 +206,8 @@ const createUILayoutStore = create<UILayoutState>()(persist((set) => ({
     scale: DEFAULT_SCALE,
     reachedEffectiveMaxScale: false,
     secondaryViewLayoutHint: null,
+    isFacsimileLinked: false,
+    facsimileFocus: null,
     ...DEFAULT_UI_LAYOUT_STATE,
 
 
@@ -225,6 +231,12 @@ const createUILayoutStore = create<UILayoutState>()(persist((set) => ({
     setSplitViewOrientation: (orientation: 'horizontal' | 'vertical') => set(() => ({ splitViewOrientation: orientation })),
     setActiveTab: (tab: string) => set(() => ({ activeTab: tab })),
     setSecondaryViewLayoutHint: (hint: SecondaryViewLayoutHint | null) => set(() => ({ secondaryViewLayoutHint: hint })),
+    setIsFacsimileLinked: (linked: boolean) => set(() => ({ isFacsimileLinked: linked })),
+    // A sequence number rather than the bare ids, so clicking the same note again points
+    // it out again.
+    focusFacsimileElements: (elementIds: string[]) => set((state) => ({
+        facsimileFocus: { elementIds, seq: (state.facsimileFocus?.seq ?? 0) + 1 }
+    })),
     reset: () => set(DEFAULT_UI_LAYOUT_STATE),
 }), {
     name: 'ui-layout-store',
@@ -281,6 +293,7 @@ interface ScoreSettings {
     measureNumberInterval: number
     showColoredNotes: boolean
     noteVisualization: NoteVisualizationId
+    showNoteInFacsimile: boolean
 
     setShowNVerses: (n: number) => void
     setShowEditorial: (showEditorial: boolean) => void
@@ -295,6 +308,7 @@ interface ScoreSettings {
     setMeasureNumberInterval: (interval: number) => void
     setShowColoredNotes: (showColoredNotes: boolean) => void
     setNoteVisualization: (noteVisualization: NoteVisualizationId) => void
+    setShowNoteInFacsimile: (showNoteInFacsimile: boolean) => void
     resetEditorialOptions: () => void
     resetScoreSettings: () => void
 }
@@ -313,6 +327,7 @@ const DEFAULT_SCORE_SETTINGS = {
     measureNumberInterval: 0,
     showColoredNotes: false,
     noteVisualization: "glow" as NoteVisualizationId,
+    showNoteInFacsimile: true,
 }
 
 const createScoreSettingsStore = create<ScoreSettings>()(persist((set) => ({
@@ -337,6 +352,7 @@ const createScoreSettingsStore = create<ScoreSettings>()(persist((set) => ({
     setMeasureNumberInterval: (interval: number) => set(() => ({ measureNumberInterval: interval })),
     setShowColoredNotes: (showColoredNotes: boolean) => set(() => ({ showColoredNotes })),
     setNoteVisualization: (noteVisualization: NoteVisualizationId) => set(() => ({ noteVisualization })),
+    setShowNoteInFacsimile: (showNoteInFacsimile: boolean) => set(() => ({ showNoteInFacsimile })),
     // The reader's readings, and only those: the rest of this slice is viewer settings,
     // which belong to the options panel and outlive the score on screen.
     resetEditorialOptions: () => set(() => ({ appOptions: [], choiceOptions: [], substOptions: [] })),
@@ -440,6 +456,10 @@ class ScoreViewerStoreApi {
         setSplitViewOrientation: createUILayoutStoreWithSelectors.use.setSplitViewOrientation,
         secondaryViewLayoutHint: createUILayoutStoreWithSelectors.use.secondaryViewLayoutHint,
         setSecondaryViewLayoutHint: createUILayoutStoreWithSelectors.use.setSecondaryViewLayoutHint,
+        isFacsimileLinked: createUILayoutStoreWithSelectors.use.isFacsimileLinked,
+        setIsFacsimileLinked: createUILayoutStoreWithSelectors.use.setIsFacsimileLinked,
+        facsimileFocus: createUILayoutStoreWithSelectors.use.facsimileFocus,
+        focusFacsimileElements: createUILayoutStoreWithSelectors.use.focusFacsimileElements,
         setActiveTab: createUILayoutStoreWithSelectors.use.setActiveTab,
         setActiveSplitView: createUILayoutStoreWithSelectors.use.setActiveSplitView,
         resetUILayout: createUILayoutStoreWithSelectors.use.reset,
@@ -485,6 +505,7 @@ class ScoreViewerStoreApi {
         measureNumberInterval: createScoreSettingsStoreWithSelectors.use.measureNumberInterval,
         showColoredNotes: createScoreSettingsStoreWithSelectors.use.showColoredNotes,
         noteVisualization: createScoreSettingsStoreWithSelectors.use.noteVisualization,
+        showNoteInFacsimile: createScoreSettingsStoreWithSelectors.use.showNoteInFacsimile,
         setShowNVerses: createScoreSettingsStoreWithSelectors.use.setShowNVerses,
         setShowEditorial: createScoreSettingsStoreWithSelectors.use.setShowEditorial,
         setShowOriginalClefs: createScoreSettingsStoreWithSelectors.use.setShowOriginalClefs,
@@ -498,6 +519,7 @@ class ScoreViewerStoreApi {
         setMeasureNumberInterval: createScoreSettingsStoreWithSelectors.use.setMeasureNumberInterval,
         setShowColoredNotes: createScoreSettingsStoreWithSelectors.use.setShowColoredNotes,
         setNoteVisualization: createScoreSettingsStoreWithSelectors.use.setNoteVisualization,
+        setShowNoteInFacsimile: createScoreSettingsStoreWithSelectors.use.setShowNoteInFacsimile,
         resetEditorialOptions: createScoreSettingsStoreWithSelectors.use.resetEditorialOptions,
         resetScoreSettings: createScoreSettingsStoreWithSelectors.use.resetScoreSettings,
 

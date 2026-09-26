@@ -49,18 +49,20 @@ export function useEditorialHandler() {
     return null
   }, [getEditorialAttached])
 
-  const handleElementClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (!showEditorial || playingState !== PlayingState.STOPPED) return;
+  // Whether the click opened an intervention, which takes it over from other handlers.
+  const handleElementClick = useCallback((event: React.MouseEvent<HTMLElement>): boolean => {
+    if (!showEditorial || playingState !== PlayingState.STOPPED) return false;
 
 
     const element = event.target as HTMLElement;
     if (element.tagName === "svg" || element.tagName === "path") {
-      return;
+      return false;
     }
     const target = findTarget(element)
     if (target) {
       setShowingEditorial(target.id);
     }
+    return target != null;
   }, [showEditorial, playingState, findTarget, setShowingEditorial]);
 
 

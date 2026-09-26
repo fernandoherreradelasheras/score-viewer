@@ -54,6 +54,8 @@ interface BaseEditorialItem {
     measure: string | null
     voice: string | null
     partN: number | null
+    // xml:ids of the notes, rests and chords within, of every reading of a choice.
+    noteIds: string[]
 }
 
 

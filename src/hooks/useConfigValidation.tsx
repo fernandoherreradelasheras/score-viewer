@@ -175,6 +175,15 @@ export const useConfigValidation = (config: ScoreViewerConfig) => {
             field: `scores[${index}].facsimileItems`,
             message: t('configValidation.scoreFacsimileItemsArray')
           });
+        } else {
+          score.facsimileItems?.forEach((item, itemIndex) => {
+            if (item.part != null && typeof item.part !== 'string') {
+              errors.push({
+                field: `scores[${index}].facsimileItems[${itemIndex}].part`,
+                message: t('configValidation.scoreFacsimileItemPartString')
+              });
+            }
+          });
         }
       });
     }
