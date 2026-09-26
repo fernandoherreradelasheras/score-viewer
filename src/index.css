@@ -126,10 +126,9 @@
 
 /* An intervention the reader asked to be taken to, from the score info list. It has to
    be findable whether or not the editorial layer is on, so it paints its own box
-   instead of leaning on the editorial rules. It pulses a couple of times to catch the
-   eye and then stays put, marking the element for as long as the page is on screen.
-   Comes after the editorial-mode-off rule and ties with it on specificity, so source
-   order is what keeps the box visible. */
+   instead of leaning on the editorial rules, marking the element for as long as the
+   page is on screen. Comes after the editorial-mode-off rule and ties with it on
+   specificity, so source order is what keeps the box visible. */
 .svg-container.static-score svg .mei-editorial.highlighted>.content-bounding-box>rect {
   fill: var(--editorial-color, #6F6F9E);
   fill-opacity: 0.28;
@@ -137,23 +136,9 @@
   outline-offset: var(--editorial-offset, 120px);
   stroke: transparent !important;
   visibility: visible;
-  /* Ends on the resting values above, so the pulse settles into the mark instead of
-     snapping out of it. */
-  animation: editorial-highlight 1s ease-in-out 2;
 }
 
-@keyframes editorial-highlight {
-  0%, 100% {
-    fill-opacity: 0.28;
-    outline-width: 40px;
-  }
-  50% {
-    fill-opacity: 0.5;
-    outline-width: 70px;
-  }
-}
-
-/* The same for an intervention with no content-bounding-box, without the pulse. */
+/* The same for an intervention with no content-bounding-box. */
 .svg-container.static-score svg g.mei-editorial.highlighted:not(:has(>.content-bounding-box)),
 .svg-container.static-score svg text:has(.mei-editorial.highlighted) {
   outline: 40px solid var(--editorial-color, #6F6F9E);
@@ -363,10 +348,13 @@
 }
 
 @keyframes facsimile-frame {
-  0%, 100% {
+
+  0%,
+  100% {
     fill-opacity: 0.12;
     stroke-width: 3px;
   }
+
   50% {
     fill-opacity: 0.3;
     stroke-width: 6px;
@@ -379,4 +367,12 @@
 .svg-container.facsimile-clickable g.mRest[data-facs],
 .svg-container.facsimile-clickable g.chord[data-facs] g.note {
   cursor: pointer;
+}
+
+/* Lines from an editorial element to the dialog opened on it. */
+.editorial-projection line,
+.editorial-projection rect {
+  stroke: #faf6f6;
+  stroke-width: 2px;
+  stroke-opacity: 0.3;
 }

@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import useStore from "./store";
 import { Modal, Radio, Typography, Descriptions, Alert, Badge, Button, Space } from "antd";
 import { PictureOutlined } from "@ant-design/icons";
@@ -23,6 +24,62 @@ const TOOLTIP_SELECTOR = supportsHas
 
 
 const DIALOG_MARGIN = 16;
+const PROJECTION_PADDING = 4;
+
+type Segment = { x1: number, y1: number, x2: number, y2: number };
+
+// The two lines between the sides of the element and of the dialog facing each other
+// across the widest gap between them, horizontal or vertical. They end on the rounded
+// corners of the dialog, halfway along their arc, and not on the corners of its box,
+// which fall outside it.
+const projectionSegments = (source: DOMRect, dialog: DOMRect, cornerRadius: number): Segment[] => {
+    const inset = cornerRadius * (1 - Math.SQRT1_2);
+    const left = dialog.left + inset;
+    const right = dialog.right - inset;
+    const top = dialog.top + inset;
+    const bottom = dialog.bottom - inset;
+    const horizontal = (fromBottom: boolean): Segment[] => {
+        const y1 = fromBottom ? source.bottom : source.top;
+        const y2 = fromBottom ? top : bottom;
+        return [
+            { x1: source.left, y1, x2: left, y2 },
+            { x1: source.right, y1, x2: right, y2 },
+        ];
+    };
+    const vertical = (fromRight: boolean): Segment[] => {
+        const x1 = fromRight ? source.right : source.left;
+        const x2 = fromRight ? left : right;
+        return [
+            { x1, y1: source.top, x2, y2: top },
+            { x1, y1: source.bottom, x2, y2: bottom },
+        ];
+    };
+    const gaps = [
+        { gap: dialog.top - source.bottom, segments: () => horizontal(true) },
+        { gap: source.top - dialog.bottom, segments: () => horizontal(false) },
+        { gap: dialog.left - source.right, segments: () => vertical(true) },
+        { gap: source.left - dialog.right, segments: () => vertical(false) },
+    ];
+    return gaps.reduce((widest, candidate) => candidate.gap > widest.gap ? candidate : widest).segments();
+};
+
+// The box of the ring the editorial layer draws around an element: an outline set off
+// from its content box, in the units of the score, which is scaled to the page. Null
+// where there is no ring, and the element itself has to be framed.
+const editorialRing = (element: Element): DOMRect | null => {
+    const box = element.querySelector(":scope > .content-bounding-box > rect");
+    if (!(box instanceof SVGRectElement)) {
+        return null;
+    }
+    const style = getComputedStyle(box);
+    if (style.outlineStyle === "none") {
+        return null;
+    }
+    const rect = box.getBoundingClientRect();
+    const scale = box.width.baseVal.value > 0 ? rect.width / box.width.baseVal.value : 1;
+    const extent = (parseFloat(style.outlineOffset) + parseFloat(style.outlineWidth)) * scale;
+    return new DOMRect(rect.x - extent, rect.y - extent, rect.width + 2 * extent, rect.height + 2 * extent);
+};
 const DIALOG_WIDTH = 720;
 const MIN_DIALOG_HEIGHT = 220;
 
@@ -99,6 +156,76 @@ function Editorials() {
         // every render, and marking them again would only redraw the ring.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [showingEditorial, renderedSvgData]);
+
+    // The element and the dialog, for the lines between them. Drawn as the dialog opens,
+    // towards where it ends up rather than where its opening animation has it, and
+    // measured again whenever either of them may have moved.
+    const [dialogPanel, setDialogPanel] = useState<HTMLDivElement | null>(null);
+    const [projection, setProjection] = useState<{
+        source: DOMRect, ringed: boolean, dialog: DOMRect, cornerRadius: number, wrap: HTMLElement
+    } | null>(null);
+
+    useEffect(() => {
+        const container = dialogPanel?.querySelector(".ant-modal-container");
+        const wrap = dialogPanel?.closest(".ant-modal-wrap");
+        if (!dialogPanel || !showingEditorial || !(container instanceof HTMLElement) || !(wrap instanceof HTMLElement)) {
+            return;
+        }
+        const measure = () => {
+            const element = document.getElementById(showingEditorial);
+            // Of a choice, the ring of the reading on show inside the ring of the choice.
+            const reading = element?.querySelector(":scope > .mei-editorial");
+            const ring = (reading && editorialRing(reading)) ?? (element && editorialRing(element));
+            const bounds = element?.getBoundingClientRect();
+            const source = ring ?? (bounds && new DOMRect(bounds.x - PROJECTION_PADDING, bounds.y - PROJECTION_PADDING,
+                bounds.width + 2 * PROJECTION_PADDING, bounds.height + 2 * PROJECTION_PADDING));
+
+            // The offsets leave out the transform the opening animation applies.
+            let left = 0;
+            let top = 0;
+            for (let node: Element | null = container; node instanceof HTMLElement && node !== wrap; node = node.offsetParent) {
+                left += node.offsetLeft;
+                top += node.offsetTop;
+            }
+            const frame = wrap.getBoundingClientRect();
+            const dialog = new DOMRect(frame.left + left - wrap.scrollLeft, frame.top + top - wrap.scrollTop,
+                container.offsetWidth, container.offsetHeight);
+
+            const cornerRadius = parseFloat(getComputedStyle(container).borderTopLeftRadius) || 0;
+
+            setProjection(source && (source.width > 0 || source.height > 0)
+                ? { source, ringed: ring != null, dialog, cornerRadius, wrap } : null);
+        };
+        const request = requestAnimationFrame(measure);
+        const observer = new ResizeObserver(measure);
+        observer.observe(container);
+        window.addEventListener("resize", measure);
+        wrap.addEventListener("scroll", measure);
+        return () => {
+            cancelAnimationFrame(request);
+            observer.disconnect();
+            window.removeEventListener("resize", measure);
+            wrap.removeEventListener("scroll", measure);
+            setProjection(null);
+        };
+    }, [dialogPanel, showingEditorial, renderedSvgData]);
+
+    // Two lines, between the facing sides of the element and the dialog, as if the
+    // dialog had grown out of it. Placed in the wrap of the dialog rather than in the
+    // dialog, which its opening animation moves and scales, and behind it, for it to hide
+    // whatever part of the lines falls on it.
+    const projectionLines = () => {
+        if (!projection) {
+            return null;
+        }
+        const { source, ringed, dialog, cornerRadius, wrap } = projection;
+        return createPortal(
+            <svg className="editorial-projection" style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh", zIndex: -1, pointerEvents: "none" }}>
+                {projectionSegments(source, dialog, cornerRadius).map((segment, i) => <line key={i} {...segment} />)}
+                {!ringed && <rect x={source.x} y={source.y} width={source.width} height={source.height} />}
+            </svg>,
+            wrap);
+    };
 
     const describeContentAsList = (content: ContentDescription[] | undefined) => {
         if (!content || content.length === 0) {
@@ -284,6 +411,10 @@ function Editorials() {
                         body: { overflowY: 'auto' },
                     } : undefined}
                     footer={null}
+                    modalRender={node => <div ref={setDialogPanel}>
+                        {projectionLines()}
+                        {node}
+                    </div>}
                 >
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 4 }}>
