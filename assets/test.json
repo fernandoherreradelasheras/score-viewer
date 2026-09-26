@@ -192,6 +192,59 @@
             "encodingProperties": {
                 "encodedTransposition": "-P4"
             }
+        },
+        {
+            "_covers": "<facsimile> + @facs with several images per part (part pagination and page following)",
+            "title": "Facsimile multipágina",
+            "path": "facsimile-link",
+            "meiFile": "33_Helado_sol_en_llamas.mei",
+            "audioFiles": [
+                {
+                    "file": "33-audio.mp3",
+                    "name": "audio helado sol en llamas"
+                }
+            ],
+            "facsimileItems": [
+                { "name": "Tiple 1º página 47", "file": "S1/image-047.jpg", "part": "pr-tiple1" },
+                { "name": "Tiple 1º página 48", "file": "S1/image-048.jpg", "part": "pr-tiple1" },
+                { "name": "Tiple 2º página 47", "file": "S2/image-047.jpg", "part": "pr-tiple2" },
+                { "name": "Tiple 2º página 48", "file": "S2/image-048.jpg", "part": "pr-tiple2" },
+                { "name": "Tenor página 50", "file": "T/image-050.jpg", "part": "pr-tenor" },
+                { "name": "Tenor página 51", "file": "T/image-051.jpg", "part": "pr-tenor" }
+            ],
+            "encodingProperties": {
+                "encodedTransposition": "-P4"
+            }
+        },
+        {
+            "_covers": "<facsimile> + @facs on a full score: images without part, one for all the voices",
+            "title": "Facsimile partitura",
+            "path": "facsimile-link",
+            "meiFile": "genil.mei",
+            "audioFiles": [
+                {
+                    "file": "genil.mp3",
+                    "name": "audio genil"
+                }
+            ],
+            "facsimileItems": [
+                { "name": "Partitura página 1", "file": "genil-score-001.jpg" },
+                { "name": "Partitura página 2", "file": "genil-score-002.jpg" },
+                { "name": "Partitura página 3", "file": "genil-score-003.jpg" },
+                { "name": "Partitura página 4", "file": "genil-score-004.jpg" },
+                { "name": "Partitura página 5", "file": "genil-score-005.jpg" },
+                { "name": "Partitura página 6", "file": "genil-score-006.jpg" },
+                { "name": "Partitura página 7", "file": "genil-score-007.jpg" },
+                { "name": "Partitura página 8", "file": "genil-score-008.jpg" },
+                { "name": "Partitura página 9", "file": "genil-score-009.jpg" },
+                { "name": "Partitura página 10", "file": "genil-score-010.jpg" },
+                { "name": "Partitura página 11", "file": "genil-score-011.jpg" },
+                { "name": "Partitura página 12", "file": "genil-score-012.jpg" },
+                { "name": "Partitura página 13", "file": "genil-score-013.jpg" }
+            ],
+            "encodingProperties": {
+                "encodedTransposition": "-P4"
+            }
         }
     ]
 }

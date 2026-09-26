@@ -287,6 +287,7 @@ class ScoreAnalyzer {
             noteStaffMap: this.getNoteStaffMap(),
             facsimileLinks: this.getFacsimileLinks(),
             partStaves: this.getPartStaves(),
+            partLabels: this.getPartLabels(),
         }
     }
 
@@ -529,7 +530,7 @@ class ScoreAnalyzer {
         return tiedNotes
     }
 
-    // Map of note/rest/chord xml:id -> its staff @n. Built from the full MEI (all
+    // Map of note/rest/mRest/chord xml:id -> its staff @n. Built from the full MEI (all
     // pages), so the player can resolve a note's staff without querying the SVG,
     // whose DOM only holds the currently rendered page.
     getNoteStaffMap() {
@@ -537,7 +538,7 @@ class ScoreAnalyzer {
         const staves = this.document.getElementsByTagNameNS(MEI_NS, "staff")
         for (let i = 0; i < staves.length; i++) {
             const n = staves[i].getAttribute("n") || ""
-            for (const tag of ["note", "rest", "chord"]) {
+            for (const tag of ["note", "rest", "mRest", "chord"]) {
                 const els = staves[i].getElementsByTagNameNS(MEI_NS, tag)
                 for (let j = 0; j < els.length; j++) {
                     const id = els[j].getAttribute("xml:id")
@@ -563,8 +564,14 @@ class ScoreAnalyzer {
                 target: graphic?.getAttribute("target") ?? "",
                 width: (number(surface, "lrx") - (number(surface, "ulx") || 0)) || number(graphic, "width") || 0,
                 height: (number(surface, "lry") - (number(surface, "uly") || 0)) || number(graphic, "height") || 0,
+                noteSpacing: null,
             })
             const zones = surface.getElementsByTagNameNS(MEI_NS, "zone")
+            const centers = [...zones].map(zone => ({
+                x: (number(zone, "ulx") + number(zone, "lrx")) / 2,
+                y: (number(zone, "uly") + number(zone, "lry")) / 2,
+            }))
+            surfaces[index].noteSpacing = this.medianNearestDistance(centers)
             for (let j = 0; j < zones.length; j++) {
                 const id = zones[j].getAttribute("xml:id")
                 if (id) {
@@ -597,6 +604,30 @@ class ScoreAnalyzer {
         }
 
         return Object.keys(zones).length > 0 ? { surfaces, zones } : null
+    }
+
+    // Coinciding points, as notes in unison, do not count as the nearest.
+    medianNearestDistance(points: { x: number, y: number }[]): number | null {
+        const nearest = points.flatMap((point, i) => {
+            const distances = points
+                .filter((_, j) => j != i)
+                .map(other => Math.hypot(other.x - point.x, other.y - point.y))
+                .filter(distance => distance > 0)
+            return distances.length > 0 ? [Math.min(...distances)] : []
+        }).sort((a, b) => a - b)
+        return nearest.length > 0 ? nearest[Math.floor(nearest.length / 2)] : null
+    }
+
+    getPartLabels() {
+        const labels: Record<string, string> = {}
+        const parts = this.document.getElementsByTagNameNS(MEI_NS, "perfRes")
+        for (let i = 0; i < parts.length; i++) {
+            const id = parts[i].getAttribute("xml:id")
+            if (id) {
+                labels[id] = parts[i].textContent?.trim() ?? ""
+            }
+        }
+        return labels
     }
 
     getPartStaves() {

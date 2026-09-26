@@ -11,3 +11,21 @@ export const matchFacsimileSurface = (item: FacsimileItem, surfaces: FacsimileSu
         (item.file == target || item.file.endsWith("/" + target) || target.endsWith("/" + item.file)));
     return byTarget != -1 ? byTarget : surfaces.findIndex(({ label }) => label != "" && label == item.name);
 };
+
+/**
+ * The columns and rows that show `count` images, laid out fitting the width of their
+ * cells, the largest: the arrangement where a whole image, `aspectRatio` wide for each
+ * unit of height, gets the most width while still fitting the height of its cell.
+ * `cellChrome` is the height each cell takes beside its image.
+ */
+export const bestFacsimileGrid = (count: number, width: number, height: number, aspectRatio: number, cellChrome: number) => {
+    let best = { columns: 1, rows: Math.max(1, count), imageWidth: -1 };
+    for (let columns = 1; columns <= count; columns++) {
+        const rows = Math.ceil(count / columns);
+        const imageWidth = Math.min(width / columns, Math.max(0, height / rows - cellChrome) * aspectRatio);
+        if (imageWidth > best.imageWidth) {
+            best = { columns, rows, imageWidth };
+        }
+    }
+    return { columns: best.columns, rows: best.rows };
+};

@@ -9,8 +9,8 @@ export type AudioFile = {
 export type FacsimileItem = {
     name: string
     file: string
-    // xml:id of the <perfRes> shown in the image. Its staves are the <staffDef>s whose
-    // @decls point at it.
+    // xml:id of the <perfRes> whose part the image shows. Its staves are the <staffDef>s
+    // whose @decls point at it. An image without one is of the full score.
     part?: string | undefined
 }
 
@@ -21,6 +21,9 @@ export type FacsimileSurface = {
     target: string
     width: number
     height: number
+    // Median distance from each zone to its nearest one: how closely the notes are
+    // written on this page. Null with fewer than two zones.
+    noteSpacing: number | null
 }
 
 export type FacsimileZone = {
@@ -91,12 +94,14 @@ export type ScoreProperties = {
     hasHarmonicAnalysis: boolean;
     encodedTransposition?: Transposition | undefined
     tiedNotes: { first: string; second: string; }[];
-    // note/rest/chord xml:id -> staff @n, for page-independent staff resolution.
+    // note/rest/mRest/chord xml:id -> staff @n, for page-independent staff resolution.
     noteStaffMap: Record<string, string>;
     // null when no note or rest is linked to a <facsimile> zone.
     facsimileLinks: FacsimileLinks | null;
     // <perfRes> xml:id -> @n of the staves whose <staffDef> @decls point at it.
     partStaves: Record<string, string[]>;
+    // <perfRes> xml:id -> its name.
+    partLabels: Record<string, string>;
 }
 
 export type VisualizationOptions = {

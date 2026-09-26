@@ -19,8 +19,10 @@ first. Ordinary fixes and additions are not — see the git log for those.
   the music. Any other value is reported as a configuration error.
 
 - `facsimileItems[].part` is added: the `xml:id` of the `<perfRes>` whose part the image
-  shows. While the player runs, the facsimile follows that part onto its next image. It
-  is optional; any value other than a string is reported as a configuration error.
+  shows. An image without it is taken for the full score. While the player runs, the
+  facsimile follows a part onto its next image, and when the images cover more than one
+  part the facsimile can show all of them side by side, each with its own pages. It is
+  optional; any value other than a string is reported as a configuration error.
 
 ### MEI conventions
 

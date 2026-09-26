@@ -16,6 +16,10 @@
     "text": "Texto",
     "facsimile": "Facsimil"
   },
+  "facsimileView": {
+    "singlePart": "Una parte",
+    "allParts": "Todas las partes"
+  },
   "editorial": {
     "showInFacsimile": "Mostrar en el facsímil",
     "showInFacsimileUnavailable": "Usa la vista dividida con el facsímil para poder navegar a él",

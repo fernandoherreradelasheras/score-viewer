@@ -137,6 +137,8 @@ const EnsureSectionsIdFilter: FilterFunc = (doc: Document) => {
 const EnsureNotesRestsIdFilter: FilterFunc = (doc: Document) => {
     EnsureElementIdFilter(doc, "note", "n")
     EnsureElementIdFilter(doc, "rest", "r")
+    EnsureElementIdFilter(doc, "mRest", "mr")
+    EnsureElementIdFilter(doc, "chord", "ch")
 }
 
 

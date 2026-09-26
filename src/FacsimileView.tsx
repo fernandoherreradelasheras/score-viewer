@@ -1,118 +1,32 @@
-import { Button, Pagination, Space } from 'antd';
-import { FacsimileItem, FacsimileZone, PlayingState } from './types';
-import useStore from "./store";
-import { cloneElement, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pan-pinch";
-import { CloseOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
+import { Button, Segmented, Space, Typography } from 'antd';
+import { FacsimileItem, PlayingState } from './types';
+import useStore, { FacsimileLayout } from "./store";
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactZoomPanPinchContentRef } from "react-zoom-pan-pinch";
+import { CloseOutlined, ColumnWidthOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import FacsimilePreview from './components/FacsimilePreview';
-import FacsimileOverlay, { ImageBox } from './components/FacsimileOverlay';
-import FacsimilePlayerOverlay from './components/FacsimilePlayerOverlay';
-import { matchFacsimileSurface } from './utils/facsimile';
+import FacsimileImageView, { FacsimileFrame } from './components/FacsimileImageView';
+import FacsimilePagination from './components/FacsimilePagination';
+import { bestFacsimileGrid, matchFacsimileSurface } from './utils/facsimile';
 
 const IMAGE_PADDING = 12;
-const FRAME_ZOOM_SCALE = 2;
-const FRAME_ZOOM_ANIMATION_MS = 300;
+const CELL_GAP = 4;
+const CELL_HEADER_HEIGHT = 32;
+// Until the images say otherwise: a portrait page.
+const DEFAULT_ASPECT_RATIO = 1 / 1.41;
 
-// A component of its own because useControls only works under TransformWrapper. The
-// last frame zoomed to is kept by the caller: this remounts with the wrapper when the
-// layout changes, and must not zoom to the same frame again.
-function FacsimileFrameZoom({ frame, seq, zoomedSeqRef }:
-  { frame: SVGRectElement | null, seq: number | null, zoomedSeqRef: RefObject<number | null> }) {
-  const { zoomToElement, instance } = useControls();
+// What each view shows: every image, or the images of one part.
+type FacsimileViewSet = { part: string | null, items: FacsimileItem[] };
 
-  useEffect(() => {
-    if (frame == null || seq == null || seq === zoomedSeqRef.current) {
-      return;
-    }
-    const zoom = () => {
-      zoomedSeqRef.current = seq;
-      // Relative to the scale that fits the whole image: in a vertical split the image
-      // already fills the width at scale 1, and is taller than the view.
-      const { wrapperComponent, contentComponent } = instance;
-      const fitScale = wrapperComponent && contentComponent ? Math.min(
-        wrapperComponent.clientWidth / contentComponent.offsetWidth,
-        wrapperComponent.clientHeight / contentComponent.offsetHeight) : 1;
-      const scale = Math.max(instance.state.scale, FRAME_ZOOM_SCALE * fitScale);
-      // Typed for HTML elements, but all it reads from the node is its client rect.
-      zoomToElement(frame as unknown as HTMLElement, { scale, animationTime: FRAME_ZOOM_ANIMATION_MS });
-    };
-    // A frame on an image just switched to arrives with the image, and the wrapper hears
-    // of the new size only at the next layout, when it realigns the content cancelling
-    // any animation under way: the zoom has to start after that.
-    let request = requestAnimationFrame(() => {
-      request = requestAnimationFrame(zoom);
-    });
-    return () => cancelAnimationFrame(request);
-  }, [frame, seq, zoomedSeqRef, zoomToElement, instance]);
 
-  return null;
-}
-
-// A component of its own because useControls only works under TransformWrapper.
-function FacsimileControls({ path, items, currentItem, onPageSelected }:
-  { path: string, items: FacsimileItem[], currentItem: number, onPageSelected: (item: number) => void }) {
+function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }) {
   const { t } = useTranslation("common");
   const splitView = useStore.use.isSplitView();
   const splitViewOrientation = useStore.use.splitViewOrientation();
   const setSplitView = useStore.use.setIsSplitView();
-  const playingState = useStore.use.playingState();
-
-  const { zoomIn, zoomOut, centerView } = useControls();
-
-  const fitToContainer = () => centerView(1, 0);
-
-  const handlePageClick = (page: number) => {
-    onPageSelected(page - 1)
-    fitToContainer()
-  };
-
-  // Not keyed on centerView: useControls hands out new handlers on every render, and
-  // every render would snap the image back to 1:1.
-  useEffect(() => {
-    centerView(1, 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [splitView, splitViewOrientation, currentItem]);
-
-  return <div style={{ display: "flex", justifyContent: "space-between" }}>
-    <Space orientation="horizontal" size={12} style={{ flex: "0", marginLeft: "12px" }}>
-      <Button icon={<ZoomInOutlined />} onClick={() => zoomIn()} />
-      <Button icon={<ZoomOutOutlined />} onClick={() => zoomOut()} />
-      <Button onClick={() => fitToContainer()}>{t('reset')}</Button>
-    </Space>
-    {items.length > 1 ? <Pagination
-      style={{ flex: "1", textAlign: "center" }}
-      align="center"
-      current={currentItem + 1}
-      defaultPageSize={1}
-      total={items.length}
-      simple={false}
-      showTitle={false}
-      itemRender={(page, type, element) => {
-        if (type === 'page' && items[page - 1]) {
-          return <FacsimilePreview
-            page={page}
-            name={items[page - 1].name}
-            src={path + items[page - 1].file}>{element}</FacsimilePreview>
-        }
-        if (type === 'prev' || type === 'next') {
-          return cloneElement(element as React.ReactElement<{ title?: string }>,
-            { title: t(type === 'prev' ? 'pagination.previousPage' : 'pagination.nextPage') })
-        }
-        return element;
-      }}
-      onChange={handlePageClick} /> : null}
-    {splitView ? <Button icon={<CloseOutlined />} onClick={() => setSplitView(false)}
-      disabled={playingState === PlayingState.PLAYING} /> : null}
-
-  </div>
-}
-
-
-function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }) {
-  const splitView = useStore.use.isSplitView();
-  const splitViewOrientation = useStore.use.splitViewOrientation();
   const setLayoutHint = useStore.use.setSecondaryViewLayoutHint();
+  const facsimileLayout = useStore.use.facsimileLayout();
+  const setFacsimileLayout = useStore.use.setFacsimileLayout();
   const score = useStore.use.score();
   const playingState = useStore.use.playingState();
   const facsimileFocus = useStore.use.facsimileFocus();
@@ -120,11 +34,88 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
 
   const links = score?.properties.facsimileLinks ?? null;
 
-  const [currentItem, setCurrentItem] = useState(0);
+  const parts = useMemo(() =>
+    [...new Set(items.flatMap(item => item.part ? [item.part] : []))], [items]);
+  const allParts = parts.length > 1 && facsimileLayout === 'all';
+
+  // Images without a part, of the full score, have no cell of their own among the parts.
+  const views: FacsimileViewSet[] = useMemo(() => allParts
+    ? parts.map(part => ({ part, items: items.filter(item => item.part === part) }))
+    : [{ part: null, items }], [allParts, parts, items]);
+
+  const viewSurfaces = useMemo(() => views.map(view =>
+    view.items.map(item => links ? matchFacsimileSurface(item, links.surfaces) : -1)), [views, links]);
+
+  const [currentItems, setCurrentItems] = useState<number[]>(() => views.map(() => 0));
+  const [frame, setFrame] = useState<{ view: number } & FacsimileFrame | null>(null);
+  const [aspectRatios, setAspectRatios] = useState<(number | null)[]>([]);
+
+  // Another set of images, or another layout, starts again at the first page of each
+  // view. Adjusted while rendering rather than in an effect so the previous pages are
+  // never painted with the new set.
+  const [renderedViews, setRenderedViews] = useState(views);
+  if (views !== renderedViews) {
+    setRenderedViews(views);
+    setCurrentItems(views.map(() => 0));
+    setAspectRatios([]);
+    setFrame(null);
+  }
+
+  const selectItem = useCallback((view: number, item: number) => {
+    setCurrentItems(current => current.map((value, i) => i === view ? item : value));
+    setFrame(null);
+  }, []);
+
+  const isLinked = splitView && viewSurfaces.some(surfaces => surfaces.some(s => s >= 0));
+  useEffect(() => {
+    setIsFacsimileLinked(isLinked);
+  }, [isLinked, setIsFacsimileLinked]);
+  useEffect(() => () => setIsFacsimileLinked(false), [setIsFacsimileLinked]);
+
+  // The notes asked for, framed on the image that holds the first of them: the one on
+  // show if it does, the first one that does otherwise. Those on other images are left
+  // out. Taken on while rendering, like the views above, so the image is switched before
+  // the previous one is painted with the frame.
+  const [renderedFocus, setRenderedFocus] = useState(facsimileFocus);
+  if (facsimileFocus !== renderedFocus) {
+    setRenderedFocus(facsimileFocus);
+    const zones = (facsimileFocus?.elementIds ?? []).flatMap(id => links?.zones[id] ?? []);
+    const zoneSurface = zones[0]?.surface;
+    const shown = viewSurfaces.findIndex((surfaces, view) => surfaces[currentItems[view]] === zoneSurface);
+    const view = shown >= 0 ? shown : viewSurfaces.findIndex(surfaces => surfaces.includes(zoneSurface ?? -1));
+    if (facsimileFocus && zoneSurface != null && view >= 0) {
+      const item = shown >= 0 ? currentItems[view] : viewSurfaces[view].indexOf(zoneSurface);
+      setCurrentItems(current => current.map((value, i) => i === view ? item : value));
+      setFrame({ view, zones: zones.filter(zone => zone.surface === zoneSurface), seq: facsimileFocus.seq });
+    }
+  }
+  if (frame && playingState === PlayingState.PLAYING) {
+    setFrame(null);
+  }
+
+  // Only to another image of the same part, or of the full score for one of it: which
+  // part the reader follows is theirs.
+  const followPart = useCallback((view: number, toSurface: number) => {
+    const viewItems = views[view].items;
+    const part = viewItems[currentItems[view]]?.part;
+    const item = viewItems.findIndex((candidate, i) => viewSurfaces[view][i] === toSurface && candidate.part === part);
+    if (item >= 0) {
+      setCurrentItems(current => current.map((value, i) => i === view ? item : value));
+    }
+  }, [views, viewSurfaces, currentItems]);
+
+  const onAspectRatio = useCallback((view: number, aspectRatio: number | null) => {
+    setAspectRatios(current => {
+      const next = [...current];
+      next[view] = aspectRatio;
+      return next;
+    });
+  }, []);
+
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
   const [controlsRow, setControlsRow] = useState<HTMLDivElement | null>(null);
   const [containerHeight, setContainerHeight] = useState<number>(0);
-
+  const [containerWidth, setContainerWidth] = useState<number>(0);
 
   useEffect(() => {
     if (!root || !controlsRow) {
@@ -136,6 +127,7 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
         ? root.clientHeight - controlsRow.offsetHeight
         : window.innerHeight - root.getBoundingClientRect().top - controlsRow.offsetHeight;
       setContainerHeight(Math.max(0, available - 2 * IMAGE_PADDING));
+      setContainerWidth(root.clientWidth);
     };
 
     measure();
@@ -151,220 +143,130 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
     };
   }, [root, controlsRow, splitView, splitViewOrientation])
 
-  const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null);
-
-  const [frame, setFrame] = useState<{ zones: FacsimileZone[], seq: number } | null>(null);
-
-  // A different set of images starts again at its first page, adjusted while rendering
-  // rather than in an effect so the previous page is never painted with the new set.
-  const [renderedItems, setRenderedItems] = useState(items);
-  if (items !== renderedItems) {
-    setRenderedItems(items);
-    setCurrentItem(0);
-    setImageAspectRatio(null);
-    setFrame(null);
-  }
-
-  const itemSurfaces = useMemo(() =>
-    items.map(item => links ? matchFacsimileSurface(item, links.surfaces) : -1), [items, links]);
-  const surface = itemSurfaces[currentItem] ?? -1;
-
-  const isLinked = splitView && itemSurfaces.some(s => s >= 0);
+  // The split view is sized after the one image on show; the grid of parts fits in
+  // whatever it is given.
+  const singleAspectRatio = allParts ? null : aspectRatios[0] ?? null;
   useEffect(() => {
-    setIsFacsimileLinked(isLinked);
-  }, [isLinked, setIsFacsimileLinked]);
-  useEffect(() => () => setIsFacsimileLinked(false), [setIsFacsimileLinked]);
-
-  // The notes asked for, framed on the image that holds the first of them: the one on
-  // show if it does, the first one that does otherwise. Those on other images are left
-  // out. Taken on while rendering, like the items above, so the image is switched before
-  // the previous one is painted with the frame.
-  const [renderedFocus, setRenderedFocus] = useState(facsimileFocus);
-  if (facsimileFocus !== renderedFocus) {
-    setRenderedFocus(facsimileFocus);
-    const zones = (facsimileFocus?.elementIds ?? []).flatMap(id => links?.zones[id] ?? []);
-    const zoneSurface = zones[0]?.surface;
-    const item = zoneSurface == null ? -1 : surface === zoneSurface ? currentItem : itemSurfaces.indexOf(zoneSurface);
-    if (facsimileFocus && item >= 0) {
-      setCurrentItem(item);
-      setFrame({ zones: zones.filter(zone => zone.surface === zoneSurface), seq: facsimileFocus.seq });
-    }
-  }
-  if (frame && playingState === PlayingState.PLAYING) {
-    setFrame(null);
-  }
-
-  const [frameElement, setFrameElement] = useState<SVGRectElement | null>(null);
-  const zoomedFrameSeqRef = useRef<number | null>(null);
-
-  const selectItem = useCallback((item: number) => {
-    setCurrentItem(item);
-    setFrame(null);
-  }, []);
-
-  const partStaves = useMemo(() => {
-    const part = items[currentItem]?.part;
-    return (part && score?.properties.partStaves[part]) || [];
-  }, [items, currentItem, score]);
-
-  // Only to another image of the same part: which part the reader follows is theirs.
-  const followPart = useCallback((toSurface: number) => {
-    const part = items[currentItem]?.part;
-    const item = items.findIndex((candidate, i) => itemSurfaces[i] === toSurface && candidate.part === part);
-    if (part && item >= 0) {
-      setCurrentItem(item);
-    }
-  }, [items, currentItem, itemSurfaces]);
-
-  const [image, setImage] = useState<HTMLImageElement | null>(null);
-  const [imageBox, setImageBox] = useState<ImageBox & { src: string } | null>(null);
-
-  useEffect(() => {
-    if (!image) {
+    if (!controlsRow || allParts) {
       return;
     }
-    const measure = () => {
-      if (image.complete && image.naturalWidth > 0) {
-        setImageBox({
-          src: image.getAttribute("src") ?? "",
-          left: image.offsetLeft,
-          top: image.offsetTop,
-          width: image.offsetWidth,
-          height: image.offsetHeight,
-        });
-      }
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(image);
-    image.addEventListener("load", measure);
-    return () => {
-      observer.disconnect();
-      image.removeEventListener("load", measure);
-    };
-  }, [image]);
-
-  const onImageLoad = useCallback((event: React.SyntheticEvent<HTMLImageElement>) => {
-    const { naturalWidth, naturalHeight } = event.currentTarget;
-    setImageAspectRatio(naturalHeight > 0 ? naturalWidth / naturalHeight : null);
-  }, []);
-
-  useEffect(() => {
-    if (!controlsRow) {
-      return;
-    }
-    setLayoutHint(imageAspectRatio == null ? null
-      : { aspectRatio: imageAspectRatio, chromeHeight: controlsRow.offsetHeight + 2 * IMAGE_PADDING });
-  }, [imageAspectRatio, controlsRow, setLayoutHint]);
+    setLayoutHint(singleAspectRatio == null ? null
+      : { aspectRatio: singleAspectRatio, chromeHeight: controlsRow.offsetHeight + 2 * IMAGE_PADDING });
+  }, [singleAspectRatio, allParts, controlsRow, setLayoutHint]);
 
   useEffect(() => () => setLayoutHint(null), [setLayoutHint]);
 
-  const minScale = splitView && splitViewOrientation === 'vertical' ? 0.1 : 1;
+  // The zoom of each view, for the buttons that drive it. Held in state, not a ref: the
+  // views register into it as they mount.
+  const [transforms] = useState(() => new Map<number, ReactZoomPanPinchContentRef>());
 
-  const transformKey = useMemo(() =>
-    `transform-${splitView ? 'split' : 'tab'}-${splitViewOrientation}`,
-    [splitView, splitViewOrientation]
-  );
-
-  const imageFile = useMemo(() => currentItem < items.length ? path + items[currentItem].file : ''
-    , [currentItem, items, path]);
-
-  const imageTitle = useMemo(() => currentItem < items.length ? items[currentItem].name : ''
-    , [currentItem, items]);
-
-  const imageStyle = useMemo(() => {
-    const isVerticalSplit = splitView && splitViewOrientation === 'vertical';
-    const isHorizontalSplit = splitView && splitViewOrientation === 'horizontal';
-
-    if (isVerticalSplit) {
-      // Vertical split: fit to width, allow height to extend
-      return { width: "100%", height: "auto" };
-    } else if (isHorizontalSplit) {
-      // Horizontal split: fit to both dimensions to maximize space usage
-      return { maxWidth: "100%", maxHeight: `${containerHeight}px`, width: "auto", height: "auto" };
+  const registerTransform = useCallback((view: number, ref: ReactZoomPanPinchContentRef | null) => {
+    if (ref) {
+      transforms.set(view, ref);
     } else {
-      // Tab mode: fit to height
-      return { height: `${containerHeight}px`, width: "auto" };
+      transforms.delete(view);
     }
-  }, [splitView, splitViewOrientation, containerHeight]);
+  }, [transforms]);
 
-  const shouldCenterOnInit = useMemo(() => {
-    const isVerticalSplit = splitView && splitViewOrientation === 'vertical';
-    const isHorizontalSplit = splitView && splitViewOrientation === 'horizontal';
+  const viewHandlers = useMemo(() => views.map((_, view) => ({
+    onAspectRatio: (aspectRatio: number | null) => onAspectRatio(view, aspectRatio),
+    transformRef: (ref: ReactZoomPanPinchContentRef | null) => registerTransform(view, ref),
+  })), [views, onAspectRatio, registerTransform]);
 
-    return !isVerticalSplit && !isHorizontalSplit;
-  }, [splitView, splitViewOrientation]);
+  // A cell of the grid starts over fitting its width, from the top of its image.
+  const resetView = (view: number) => allParts
+    ? transforms.get(view)?.setTransform(0, 0, 1)
+    : transforms.get(view)?.centerView(1, 0);
+  const resetViews = () => transforms.forEach((_, view) => resetView(view));
 
-  const containerStyle = useMemo(() => {
-    const isHorizontalSplit = splitView && splitViewOrientation === 'horizontal';
+  const grid = useMemo(() => {
+    const known = aspectRatios.filter((ratio): ratio is number => ratio != null);
+    const aspectRatio = known.length > 0 ? known.reduce((sum, ratio) => sum + ratio, 0) / known.length : DEFAULT_ASPECT_RATIO;
+    return bestFacsimileGrid(views.length, containerWidth, containerHeight + 2 * IMAGE_PADDING, aspectRatio, CELL_HEADER_HEIGHT);
+  }, [aspectRatios, views.length, containerWidth, containerHeight]);
 
-    const baseStyle = {
-      position: "relative" as const,
-      width: "100%",
-      height: "100%",
-      padding: `${IMAGE_PADDING}px`
-    };
-
-    if (isHorizontalSplit) {
-      return {
-        ...baseStyle,
-        display: "flex",
-        alignItems: "flex-start",
-        justifyContent: "flex-start",
-        flexDirection: "column" as const
-      };
-    } else {
-      return baseStyle;
-    }
-  }, [splitView, splitViewOrientation]);
+  const imageView = (view: number) =>
+    <FacsimileImageView
+      path={path}
+      items={views[view].items}
+      currentItem={currentItems[view] ?? 0}
+      itemSurfaces={viewSurfaces[view]}
+      fitWidth={allParts}
+      containerHeight={containerHeight}
+      frame={frame?.view === view ? frame : null}
+      onPartMoved={surface => followPart(view, surface)}
+      {...viewHandlers[view]} />
 
   return (
-    <TransformWrapper
-      key={transformKey}
-      minScale={minScale}
-      maxScale={5}
-      centerOnInit={shouldCenterOnInit}
-      limitToBounds={true}
-      doubleClick={{
-        disabled: false,
-        mode: 'zoomIn',
-        step: 0.5,
-      }}
-      // Multiplied by the event's deltaY, which is 100 or 120 for one notch of a mouse
-      // wheel: a step in the order the buttons use would take a single notch to maxScale.
-      wheel={{
-        step: 0.002,
-      }}
-    >
-      <div style={{
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        height: "100%",
-        minHeight: 0,
-        overflow: "hidden"
-      }}
-        ref={(el: HTMLDivElement | null) => setRoot(el)}>
-        <div style={{ flex: "0 0 auto" }} ref={(el: HTMLDivElement | null) => setControlsRow(el)}>
-          <FacsimileControls path={path} items={items} currentItem={currentItem}
-            onPageSelected={selectItem} />
-        </div>
-        <FacsimileFrameZoom frame={frameElement} seq={frame?.seq ?? null} zoomedSeqRef={zoomedFrameSeqRef} />
-        <TransformComponent
-          wrapperStyle={{ width: "100%", flex: "1 1 auto", minHeight: 0 }}>
-          <div style={containerStyle}>
-            <img ref={setImage} src={imageFile} alt={imageTitle} style={imageStyle} onLoad={onImageLoad} />
-            {links && surface >= 0 && splitView && imageBox?.src === imageFile ? <>
-              <FacsimilePlayerOverlay links={links} surface={surface} box={imageBox}
-                partStaves={partStaves} onPartMoved={followPart} />
-              {frame?.zones[0]?.surface === surface ?
-                <FacsimileOverlay surface={links.surfaces[surface]} box={imageBox}
-                  frame={frame.zones} frameRef={setFrameElement} /> : null}
-            </> : null}
-          </div>
-        </TransformComponent>
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      width: "100%",
+      height: "100%",
+      minHeight: 0,
+      overflow: "hidden"
+    }}
+      ref={setRoot}>
+      <div style={{ flex: "0 0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}
+        ref={setControlsRow}>
+        <Space orientation="horizontal" size={12} style={{ flex: "0", marginLeft: "12px" }}>
+          {!allParts ? <>
+            <Button icon={<ZoomInOutlined />} onClick={() => transforms.get(0)?.zoomIn()} />
+            <Button icon={<ZoomOutOutlined />} onClick={() => transforms.get(0)?.zoomOut()} />
+          </> : null}
+          <Button onClick={resetViews}>{t('reset')}</Button>
+        </Space>
+        {!allParts && items.length > 1 ?
+          <FacsimilePagination style={{ flex: "1", textAlign: "center" }} path={path} items={items}
+            currentItem={currentItems[0] ?? 0} onItemSelected={item => selectItem(0, item)} />
+          : <div style={{ flex: 1 }} />}
+        {parts.length > 1 ?
+          <Segmented<FacsimileLayout> size="small" value={facsimileLayout} onChange={setFacsimileLayout}
+            options={[
+              { label: t('facsimileView.singlePart'), value: 'single' },
+              { label: t('facsimileView.allParts'), value: 'all' },
+            ]} /> : null}
+        {splitView ? <Button icon={<CloseOutlined />} onClick={() => setSplitView(false)}
+          disabled={playingState === PlayingState.PLAYING} /> : null}
       </div>
-    </TransformWrapper>
+      {allParts ?
+        <div style={{
+          flex: "1 1 auto",
+          minHeight: 0,
+          height: splitView ? undefined : containerHeight + 2 * IMAGE_PADDING,
+          display: "grid",
+          gridTemplateColumns: `repeat(${grid.columns}, minmax(0, 1fr))`,
+          gridTemplateRows: `repeat(${grid.rows}, minmax(0, 1fr))`,
+          gap: CELL_GAP,
+        }}>
+          {views.map((view, index) =>
+            <div key={view.part} style={{ display: "flex", flexDirection: "column", minHeight: 0, minWidth: 0 }}>
+              <div style={{ flex: "0 0 auto", height: CELL_HEADER_HEIGHT, display: "flex", alignItems: "center", gap: 8, paddingInline: 8 }}>
+                <Typography.Text strong ellipsis style={{ flex: "0 0 auto", maxWidth: "50%" }}>
+                  {(view.part && score?.properties.partLabels[view.part]) || view.items[0]?.name}
+                </Typography.Text>
+                {view.items.length > 1 ?
+                  <FacsimilePagination small style={{ flex: "0 1 auto", minWidth: 0 }} path={path} items={view.items}
+                    currentItem={currentItems[index] ?? 0} onItemSelected={item => selectItem(index, item)} />
+                  : null}
+                <div style={{ flex: 1 }} />
+                <Space size={2}>
+                  <Button size="small" type="text" icon={<ZoomInOutlined />} onClick={() => transforms.get(index)?.zoomIn()} />
+                  <Button size="small" type="text" icon={<ZoomOutOutlined />} onClick={() => transforms.get(index)?.zoomOut()} />
+                  <Button size="small" type="text" icon={<ColumnWidthOutlined />} title={t('reset')}
+                    onClick={() => resetView(index)} />
+                </Space>
+              </div>
+              <div style={{ flex: "1 1 auto", minHeight: 0 }}>
+                {imageView(index)}
+              </div>
+            </div>)}
+        </div>
+        :
+        <div style={{ flex: "1 1 auto", minHeight: 0 }}>
+          {imageView(0)}
+        </div>}
+    </div>
   );
 }
 

@@ -165,6 +165,7 @@ interface UILayoutState {
     activeSplitView: string
     splitViewOrientation: 'horizontal' | 'vertical'
     activeTab: string | null
+    facsimileLayout: FacsimileLayout
     secondaryViewLayoutHint: SecondaryViewLayoutHint | null
     isFacsimileLinked: boolean
     facsimileFocus: { elementIds: string[], seq: number } | null
@@ -180,6 +181,7 @@ interface UILayoutState {
     setActiveSplitView: (view: string) => void
     setSplitViewOrientation: (orientation: 'horizontal' | 'vertical') => void
     setActiveTab: (tab: string) => void
+    setFacsimileLayout: (layout: FacsimileLayout) => void
     setSecondaryViewLayoutHint: (hint: SecondaryViewLayoutHint | null) => void
     setIsFacsimileLinked: (linked: boolean) => void
     focusFacsimileElements: (elementIds: string[]) => void
@@ -192,11 +194,15 @@ interface UILayoutState {
 // adds above and around that content.
 export type SecondaryViewLayoutHint = { aspectRatio: number, chromeHeight: number }
 
+// The facsimile of one part at a time, or of every part side by side.
+export type FacsimileLayout = 'single' | 'all'
+
 const DEFAULT_UI_LAYOUT_STATE = {
     isSplitView: false,
     activeSplitView: 'facsimile',
     splitViewOrientation: 'horizontal' as const,
     activeTab: null,
+    facsimileLayout: 'single' as FacsimileLayout,
 }
 
 
@@ -230,6 +236,7 @@ const createUILayoutStore = create<UILayoutState>()(persist((set) => ({
     setActiveSplitView: (view: string) => set(() => ({ activeSplitView: view })),
     setSplitViewOrientation: (orientation: 'horizontal' | 'vertical') => set(() => ({ splitViewOrientation: orientation })),
     setActiveTab: (tab: string) => set(() => ({ activeTab: tab })),
+    setFacsimileLayout: (layout: FacsimileLayout) => set(() => ({ facsimileLayout: layout })),
     setSecondaryViewLayoutHint: (hint: SecondaryViewLayoutHint | null) => set(() => ({ secondaryViewLayoutHint: hint })),
     setIsFacsimileLinked: (linked: boolean) => set(() => ({ isFacsimileLinked: linked })),
     // A sequence number rather than the bare ids, so clicking the same note again points
@@ -245,6 +252,7 @@ const createUILayoutStore = create<UILayoutState>()(persist((set) => ({
         activeSplitView: state.activeSplitView,
         splitViewOrientation: state.splitViewOrientation,
         activeTab: state.activeTab,
+        facsimileLayout: state.facsimileLayout,
     }),
 }))
 
@@ -461,6 +469,8 @@ class ScoreViewerStoreApi {
         facsimileFocus: createUILayoutStoreWithSelectors.use.facsimileFocus,
         focusFacsimileElements: createUILayoutStoreWithSelectors.use.focusFacsimileElements,
         setActiveTab: createUILayoutStoreWithSelectors.use.setActiveTab,
+        facsimileLayout: createUILayoutStoreWithSelectors.use.facsimileLayout,
+        setFacsimileLayout: createUILayoutStoreWithSelectors.use.setFacsimileLayout,
         setActiveSplitView: createUILayoutStoreWithSelectors.use.setActiveSplitView,
         resetUILayout: createUILayoutStoreWithSelectors.use.reset,
 
