@@ -1,5 +1,5 @@
 import { cloneElement, useMemo, useState } from 'react';
-import { Space, Pagination, Button, Col, Row, Tooltip } from 'antd';
+import { Space, Pagination, Button, Tooltip } from 'antd';
 import { ZoomInOutlined, ZoomOutOutlined, FullscreenOutlined, FullscreenExitOutlined, ProfileOutlined } from '@ant-design/icons';
 import { PlayingState } from './types';
 import PlayerControls from './PlayerControls';
@@ -64,6 +64,7 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, backgroun
     const pagination = useMemo(() => (
         shouldShowPagination ?
             <Pagination
+                style={{ flex: "1 1 auto", minWidth: 0, flexWrap: "wrap" }}
                 disabled={playingState === PlayingState.PLAYING}
                 align="center"
                 current={currentPageNumber}
@@ -86,14 +87,10 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, backgroun
     ), [shouldShowPagination, playingState, currentPageNumber, pageCount, backgroundColor, t, handlePageClick]);
 
     const viewingControls = useMemo(() => {
-        return <Row style={{ justifyContent: "left", backgroundColor: "white" }} gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-            <Col xxl={8} xl={14} lg={8} md={10} sm={12} xs={14} >
-                {mainControls}
-            </Col>
-            <Col xxl={12} xl={10} lg={14} md={14} sm={20} xs={24} >
-                {pagination}
-            </Col>
-        </Row>
+        return <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 32px", backgroundColor: "white" }}>
+            {mainControls}
+            {pagination}
+        </div>
     }, [mainControls, pagination]);
 
     return (

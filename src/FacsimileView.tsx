@@ -207,7 +207,7 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
       overflow: "hidden"
     }}
       ref={setRoot}>
-      <div style={{ flex: "0 0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}
+      <div style={{ flex: "0 0 auto", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 12 }}
         ref={setControlsRow}>
         <Space orientation="horizontal" size={12} style={{ flex: "0", marginLeft: "12px" }}>
           {!allParts ? <>
@@ -217,7 +217,7 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
           <Button onClick={resetViews}>{t('reset')}</Button>
         </Space>
         {!allParts && items.length > 1 ?
-          <FacsimilePagination style={{ flex: "1", textAlign: "center" }} path={path} items={items}
+          <FacsimilePagination style={{ flex: "1 1 auto", minWidth: 0, flexWrap: "wrap", textAlign: "center" }} path={path} items={items}
             currentItem={currentItems[0] ?? 0} onItemSelected={item => selectItem(0, item)} />
           : <div style={{ flex: 1 }} />}
         {parts.length > 1 ?
