@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Popover, Typography } from "antd";
 import { useTranslation } from "react-i18next";
+import usePreviewPopover from "../hooks/usePreviewPopover";
 
 const { Text } = Typography;
 
@@ -13,15 +14,17 @@ const aspectRatios = new Map<string, number>();
 
 interface FacsimilePreviewProps {
     page: number;
+    current: boolean;
     name: string;
     src: string;
-    children: React.ReactNode;
+    children: React.ReactElement;
 }
 
-function FacsimilePreview({ page, name, src, children }: FacsimilePreviewProps) {
+function FacsimilePreview({ page, current, name, src, children }: FacsimilePreviewProps) {
     const { t } = useTranslation("common");
 
-    const [open, setOpen] = useState(false);
+    // The current page needs no preview, it is already on screen.
+    const { open, bindTrigger } = usePreviewPopover(() => !current);
     const [measured, setMeasured] = useState<{ src: string, aspect: number } | null>(null);
 
     const aspect = measured?.src === src ? measured.aspect : aspectRatios.get(src) ?? null;
@@ -66,12 +69,11 @@ function FacsimilePreview({ page, name, src, children }: FacsimilePreviewProps) 
     return (
         <Popover
             open={open}
-            onOpenChange={setOpen}
-            mouseEnterDelay={0.4}
+            trigger={[]}
             placement="bottom"
             content={content}
         >
-            {children}
+            {bindTrigger(children)}
         </Popover>
     );
 }

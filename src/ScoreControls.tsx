@@ -74,7 +74,7 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, backgroun
                 showTitle={false}
                 itemRender={(page, type, element) => {
                     if (type === 'page') {
-                        return <PagePreview page={page} backgroundColor={backgroundColor}>{element}</PagePreview>
+                        return <PagePreview page={page} current={page === currentPageNumber} backgroundColor={backgroundColor}>{element as React.ReactElement}</PagePreview>
                     }
                     if (type === 'prev' || type === 'next') {
                         return cloneElement(element as React.ReactElement<{ title?: string }>,

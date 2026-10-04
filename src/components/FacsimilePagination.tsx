@@ -29,8 +29,9 @@ function FacsimilePagination({ path, items, currentItem, onItemSelected, small =
             if (type === 'page' && items[page - 1]) {
                 return <FacsimilePreview
                     page={page}
+                    current={page === currentItem + 1}
                     name={items[page - 1].name}
-                    src={path + items[page - 1].file}>{element}</FacsimilePreview>
+                    src={path + items[page - 1].file}>{element as React.ReactElement}</FacsimilePreview>
             }
             if (type === 'prev' || type === 'next') {
                 return cloneElement(element as React.ReactElement<{ title?: string }>,
