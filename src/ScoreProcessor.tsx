@@ -1,4 +1,4 @@
-import { ANNOTATION_TARGET_TYPE, ANNOTATION_TARGET_WRAPPER, EDITORIAL_ALL_TAGS } from "./types/editorial";
+import { ANNOTATION_TARGET_TYPE, ANNOTATION_TARGET_WRAPPER, EDITORIAL_ALL_TAGS, EDITORIAL_SELECTION_TAGS } from "./types/editorial";
 
 type FilterParams = { n?: number }
 
@@ -71,7 +71,54 @@ const FilterToNVerses: FilterFunc = (doc: Document, params: FilterParams) => {
 }
 
 
+type ShownAccids = Map<string, string>
+
+const normalizeFictaNote = (note: Element, shown: ShownAccids) => {
+    const key = `${note.getAttribute("pname")}${note.getAttribute("oct")}`
+    const noteAccid = note.getAttribute("accid")
+    if (noteAccid) {
+        shown.set(key, noteAccid)
+    }
+    Array.from(note.children).filter(c => c.localName === "accid").forEach(accid => {
+        const value = accid.getAttribute("accid")
+        if (!value) {
+            return
+        }
+        if (accid.getAttribute("func") === "edit" && shown.get(key) === value) {
+            accid.removeAttribute("accid")
+            accid.setAttribute("accid.ges", value)
+            return
+        }
+        shown.set(key, value)
+    })
+}
+
+const normalizeFictaWithin = (parent: Element, shown: ShownAccids) => {
+    Array.from(parent.children).forEach(child => {
+        if (child.localName === "note") {
+            normalizeFictaNote(child, shown)
+        } else if (EDITORIAL_SELECTION_TAGS.includes(child.localName)) {
+            // The readings are alternatives to each other: none of them carries its
+            // accidentals into another, and what follows is read after the first one,
+            // which is the reading shown by default.
+            const [afterFirst] = Array.from(child.children).map(reading => {
+                const readingShown = new Map(shown)
+                normalizeFictaWithin(reading, readingShown)
+                return readingShown
+            })
+            afterFirst?.forEach((value, key) => shown.set(key, value))
+        } else {
+            normalizeFictaWithin(child, shown)
+        }
+    })
+}
+
 const FilterNormalizeFicta: FilterFunc = (doc: Document) => {
+    const staves = doc?.evaluate('//mei:measure//mei:staff', doc, nsResolver, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null)
+    for (let i = 0; i < (staves?.snapshotLength ?? 0); i++) {
+        normalizeFictaWithin(staves.snapshotItem(i) as Element, new Map())
+    }
+
     const fictacAccidIter = doc?.evaluate(XPATH_FICTA_ACCIDS, doc, nsResolver, XPathResult.ANY_TYPE, null)
     if (fictacAccidIter == null) {
         return

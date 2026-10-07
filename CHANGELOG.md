@@ -6,6 +6,30 @@ Incompatible changes on the 1.1.x line.
 may change without compatibility shims. Every such change is recorded here, newest
 first. Ordinary fixes and additions are not — see the git log for those.
 
+## 1.1.16
+
+### MEI conventions
+
+- An editorial accidental (`<accid func="edit">`) is written on every note it affects,
+  even when the same note repeats within the measure:
+
+  ```xml
+  <note pname="b" oct="4"><accid accid="f" func="edit" enclose="paren"/></note>
+  <note pname="b" oct="4"><accid accid="f" func="edit" enclose="paren"/></note>
+  ```
+
+  With "normalize ficta" on, they are turned into ordinary accidentals the way those are
+  encoded: the first one of each pitch and octave in a measure is shown, and the ones
+  repeating it become `@accid.ges`, so they still sound but are not drawn again. A
+  different accidental on the same note is shown and replaces it for the rest of the
+  measure, and an editorial accidental repeating an ordinary one already shown is
+  `@accid.ges` too. Each staff keeps its own accidentals. The readings of an `<app>`,
+  `<choice>` or `<subst>` are alternatives, so none of them carries its accidentals into
+  another, and what follows them continues from the first one.
+
+  Until now every editorial accidental was shown after normalizing, so a measure
+  repeating a ficta drew the same accidental on each note.
+
 ## 1.1.15
 
 ### Configuration

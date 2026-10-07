@@ -148,6 +148,15 @@
             }
         },
         {
+            "_covers": "normalización de semitonía: alteraciones editoriales repetidas en el compás pasan a accid.ges",
+            "title": "Semitonía",
+            "path": "ficta",
+            "meiFile": "music.mei",
+            "encodingProperties": {
+                "encodedTransposition": ""
+            }
+        },
+        {
             "_covers": "Original clefs and keysig",
             "title": "original clefs",
             "path": "original-clefs",
