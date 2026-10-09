@@ -2,8 +2,9 @@ import { Ref, RefObject, useCallback, useEffect, useMemo, useRef, useState } fro
 import { ReactZoomPanPinchContentRef, TransformComponent, TransformWrapper, useControls } from "react-zoom-pan-pinch";
 import useStore from "../store";
 import { FacsimileItem, FacsimileZone } from '../types';
-import FacsimileOverlay, { ImageBox } from './FacsimileOverlay';
+import FacsimileOverlay, { FACSIMILE_TARGET_CLASS, ImageBox } from './FacsimileOverlay';
 import FacsimilePlayerOverlay from './FacsimilePlayerOverlay';
+import { useFacsimileLinkHandler } from '../hooks/useFacsimileLinkHandler';
 
 const IMAGE_PADDING = 12;
 const CELL_IMAGE_PADDING = 4;
@@ -99,6 +100,11 @@ function FacsimileImageView({ path, items, currentItem, itemSurfaces, fitWidth, 
 
   const [frameElement, setFrameElement] = useState<SVGRectElement | null>(null);
   const zoomedFrameSeqRef = useRef<number | null>(null);
+
+  const { facsimileClickable, showInScore } = useFacsimileLinkHandler();
+  const targets = useMemo(() => links == null ? [] : Object.entries(links.zones)
+    .filter(([, zone]) => zone.surface === surface)
+    .map(([id, zone]) => ({ id, zone })), [links, surface]);
 
   const partStaves = useMemo(() => {
     const part = items[currentItem]?.part;
@@ -199,6 +205,9 @@ function FacsimileImageView({ path, items, currentItem, itemSurfaces, fitWidth, 
       wheel={{
         step: 0.002,
       }}
+      panning={{
+        excluded: [FACSIMILE_TARGET_CLASS],
+      }}
     >
       <FacsimileViewReset loadedImage={imageBox?.src === imageFile ? imageFile : null} fitWidth={fitWidth} />
       <FacsimileFrameZoom frame={frameElement} seq={frame?.seq ?? null} zoomedSeqRef={zoomedFrameSeqRef} />
@@ -213,8 +222,11 @@ function FacsimileImageView({ path, items, currentItem, itemSurfaces, fitWidth, 
             <FacsimilePlayerOverlay links={links} surface={surface} box={imageBox}
               partStaves={partStaves} onPartMoved={onPartMoved} />
             {frame?.zones[0]?.surface === surface ?
-              <FacsimileOverlay surface={links.surfaces[surface]} box={imageBox}
+              <FacsimileOverlay key={frame.seq} surface={links.surfaces[surface]} box={imageBox}
                 frame={frame.zones} frameRef={setFrameElement} /> : null}
+            {facsimileClickable ?
+              <FacsimileOverlay surface={links.surfaces[surface]} box={imageBox}
+                targets={targets} onTargetClick={showInScore} /> : null}
           </> : null}
         </div>
       </TransformComponent>

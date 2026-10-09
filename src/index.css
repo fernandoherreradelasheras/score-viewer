@@ -339,29 +339,65 @@
   will-change: transform;
 }
 
-/* The note clicked on the score, framed on the facsimile. Pulses to catch the eye and
-   settles into the frame. */
+/* The note clicked on the score, framed on the facsimile. Pulses twice to catch the eye
+   and fades out. The duration is set from the code, which removes the frame at its end. */
 .facsimile-overlay .facsimile-frame {
   fill: #0077BB;
   fill-opacity: 0.12;
   stroke: #0077BB;
   stroke-width: 3px;
   vector-effect: non-scaling-stroke;
-  animation: facsimile-frame 0.8s ease-in-out 2;
+  animation: link-highlight ease-in-out forwards;
 }
 
-@keyframes facsimile-frame {
+@keyframes link-highlight {
 
   0%,
-  100% {
+  40%,
+  80% {
     fill-opacity: 0.12;
     stroke-width: 3px;
+    opacity: 1;
   }
 
-  50% {
+  20%,
+  60% {
     fill-opacity: 0.3;
     stroke-width: 6px;
   }
+
+  100% {
+    fill-opacity: 0.12;
+    stroke-width: 3px;
+    opacity: 0;
+  }
+}
+
+/* What is linked to the score, while Ctrl or Cmd is held for a click to follow it. */
+.facsimile-overlay .facsimile-target {
+  fill: transparent;
+  pointer-events: all;
+  cursor: pointer;
+  vector-effect: non-scaling-stroke;
+}
+
+.facsimile-overlay .facsimile-target:hover {
+  fill: #0077BB;
+  fill-opacity: 0.12;
+  stroke: #0077BB;
+  stroke-width: 2px;
+}
+
+/* The element reached from the facsimile, framed on the score as the facsimile frames
+   the note clicked on the score. */
+.svg-container svg .score-link-frame {
+  fill: #0077BB;
+  fill-opacity: 0.12;
+  stroke: #0077BB;
+  stroke-width: 3px;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+  animation: link-highlight ease-in-out forwards;
 }
 
 /* Only what is linked to the facsimile: a note of a chord may carry the link on it. */

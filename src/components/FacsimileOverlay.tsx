@@ -1,5 +1,5 @@
 import { Ref, useEffect, useState } from "react";
-import { FacsimileSurface, FacsimileZone } from "../types";
+import { FacsimileSurface, FacsimileZone, LINK_HIGHLIGHT_MS } from "../types";
 import { pulseKeyframes } from "../visualizations/pulse";
 
 // A zone encoded as a single point carries no extent, so the marks around it are sized
@@ -15,6 +15,8 @@ const MAX_RADIUS_TO_SPACING = 0.45;
 // The same pulse a sounding note gets on the score. A new `run` restarts it at the
 // elapsed time of then.
 export type FacsimilePulse = { durationMs: number, durationQuarters: number, elapsedMs: number, run: number };
+
+export const FACSIMILE_TARGET_CLASS = "facsimile-target";
 
 export type FacsimileMark = { id: string, zone: FacsimileZone, color: string, pulse?: FacsimilePulse };
 
@@ -56,9 +58,13 @@ interface FacsimileOverlayProps {
     frameRef?: Ref<SVGRectElement>;
     // Invisible points, for the view to be moved to.
     anchors?: { x: number, y: number, ref: Ref<SVGCircleElement> }[];
+    // Elements that can be clicked on to be shown in the score.
+    targets?: { id: string, zone: FacsimileZone }[];
+    onTargetClick?: (id: string) => void;
 }
 
-function FacsimileOverlay({ surface, box, marks = [], frame, frameRef, anchors = [] }: FacsimileOverlayProps) {
+function FacsimileOverlay({ surface, box, marks = [], frame, frameRef, anchors = [], targets = [], onTargetClick }:
+    FacsimileOverlayProps) {
     const pageUnit = surface.width;
     const unit = surface.noteSpacing == null ? pageUnit
         : Math.min(pageUnit, surface.noteSpacing * MAX_RADIUS_TO_SPACING / MARK_RADIUS);
@@ -79,17 +85,16 @@ function FacsimileOverlay({ surface, box, marks = [], frame, frameRef, anchors =
             bottom: zone.lry + unit * FRAME_PADDING,
         };
 
+    const rectOf = ({ left, top, right, bottom }: ReturnType<typeof frameBox>) =>
+        ({ x: left, y: top, width: right - left, height: bottom - top });
+
     const boxes = (frame ?? []).map(frameBox);
-    const frameRect = boxes.length == 0 ? null : (() => {
-        const left = Math.min(...boxes.map(b => b.left));
-        const top = Math.min(...boxes.map(b => b.top));
-        return {
-            x: left,
-            y: top,
-            width: Math.max(...boxes.map(b => b.right)) - left,
-            height: Math.max(...boxes.map(b => b.bottom)) - top,
-        };
-    })();
+    const frameRect = boxes.length == 0 ? null : rectOf({
+        left: Math.min(...boxes.map(b => b.left)),
+        top: Math.min(...boxes.map(b => b.top)),
+        right: Math.max(...boxes.map(b => b.right)),
+        bottom: Math.max(...boxes.map(b => b.bottom)),
+    });
 
     return (
         <svg className="facsimile-overlay"
@@ -101,7 +106,11 @@ function FacsimileOverlay({ surface, box, marks = [], frame, frameRef, anchors =
                     radius={isPoint(zone) ? unit * MARK_RADIUS : null} />)}
             {anchors.map(({ x, y, ref }, i) =>
                 <circle key={i} ref={ref} cx={x} cy={y} r={unit * MARK_RADIUS} opacity={0} />)}
-            {frameRect && <rect ref={frameRef} className="facsimile-frame" {...frameRect} rx={unit * FRAME_PADDING} />}
+            {frameRect && <rect ref={frameRef} className="facsimile-frame" {...frameRect} rx={unit * FRAME_PADDING}
+                style={{ animationDuration: `${LINK_HIGHLIGHT_MS}ms` }} />}
+            {targets.map(({ id, zone }) =>
+                <rect key={id} className={FACSIMILE_TARGET_CLASS} {...rectOf(frameBox(zone))} rx={unit * FRAME_PADDING}
+                    onClick={() => onTargetClick?.(id)} />)}
         </svg>
     );
 }

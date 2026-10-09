@@ -340,7 +340,7 @@ export default function useScoreActions({
   const resolveTimemap = useCallback(async (timemap: TimeMapEvent[]): Promise<TimeMapEvent[]> => {
     if (!verovio) throw new Error("Verovio is not ready");
     const mei = await verovio.getMEI()
-    const analyzer = new ScoreAnalyzer(0, mei)
+    const analyzer = new ScoreAnalyzer(mei)
     return mergeTimemapTies(timemap, analyzer.getTiedNotes())
   }, [verovio]);
 
@@ -380,7 +380,7 @@ export default function useScoreActions({
 
       // Build the section -> page map only after the data is loaded and
       // paginated.
-      const analyzer = new ScoreAnalyzer(0, meiStr);
+      const analyzer = new ScoreAnalyzer(meiStr);
       const sectionMap = await getSectionMap(analyzer);
 
       let renderPage: number | undefined = undefined;

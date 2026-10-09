@@ -9,12 +9,12 @@ import useScoreActions, { RenderActionResult, shouldShowSpinner } from './hooks/
 import useScoreRenderer from './hooks/useScoreRenderer';
 import useActionPipeline from './hooks/useActionPipeline';
 import useWaitCover from './hooks/useWaitCover';
-import { Action, RenderConfig, Transition, loadAction, renderAction } from './types';
+import { Action, PlayingState, RenderConfig, Transition, loadAction, renderAction } from './types';
 import LoadingSpinner from './components/LoadingSpinner';
 import useIdleCallback from './hooks/useIdleCallback';
 import { getReverseTransposition } from './utils/score-utils';
 import { preRenderOrder } from './utils/page-cache';
-import { clearEditorialPending, clearHighlighted, markHighlighted } from './SvgUtils';
+import { clearEditorialPending, clearHighlighted, clearLinkFrame, markHighlighted, markLinkFrame } from './SvgUtils';
 import { PENDING_HANDLED, PendingPlan, forgetLastCost, recordCost } from './utils/pending-wait';
 
 
@@ -84,8 +84,8 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const { facsimileClickable, handleFacsimileLinkClick } = useFacsimileLinkHandler();
 
     const handleScoreClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
-        if (!handleElementClick(event)) {
-            handleFacsimileLinkClick(event);
+        if (!handleFacsimileLinkClick(event)) {
+            handleElementClick(event);
         }
     }, [handleElementClick, handleFacsimileLinkClick]);
     const { ref: svgContainerRef, width: svgContainerWidth, height: svgContainerHeight } = useComponentSize();
@@ -632,6 +632,22 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPage, getCachedPage, setRenderedSvgData, setIsLoading]);
 
+
+    useEffect(() => {
+        if (navigationCommand?.type !== "linked") {
+            return;
+        }
+        clearLinkFrame(svgContainerRef.current);
+        if (markLinkFrame(svgContainerRef.current, String(navigationCommand.target))) {
+            clearNavigationCommand();
+        }
+    }, [navigationCommand, renderedSvgData, clearNavigationCommand, svgContainerRef]);
+
+    useEffect(() => {
+        if (playingState === PlayingState.PLAYING) {
+            clearLinkFrame(svgContainerRef.current);
+        }
+    }, [playingState, svgContainerRef]);
 
     useEffect(() => {
         if (navigationCommand?.type !== "element") {

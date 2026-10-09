@@ -1,34 +1,4 @@
-
-const interactiveHighlightFilter = (
-    <filter id="interactive-highlight" x="-100%" y="-100%" width="300%" height="300%">
-        <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
-        <feFlood floodColor="#3498db" floodOpacity="0.7" result="color" />
-        <feComposite in="color" in2="blur" operator="in" result="shadow" />
-        <feComposite in="SourceGraphic" in2="shadow" operator="over" />
-    </filter>
-);
-
-const interactiveActiveFilter = (
-    <filter id="interactive-active" x="-100%" y="-100%" width="300%" height="300%">
-        <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur" />
-        <feFlood floodColor="#e74c3c" floodOpacity="0.8" result="color" />
-        <feComposite in="color" in2="blur" operator="in" result="shadow" />
-        <feComposite in="SourceGraphic" in2="shadow" operator="over" />
-    </filter>
-);
-
-export const SVG_EDITORIAL_FILTERS =
-    <svg xmlns="http://www.w3.org/2000/svg" style={{ height: "0px", width: "0px" }}>
-        <defs>
-            {interactiveHighlightFilter}
-            {interactiveActiveFilter}
-        </defs>
-    </svg>
-
-
-
-
-
+import { LINK_HIGHLIGHT_MS } from "./types";
 
 const PENDING_CLASS = "editorial-pending";
 
@@ -119,4 +89,35 @@ export const markHighlighted = (container: HTMLElement | null, elementId: string
 export const clearHighlighted = (container: HTMLElement | null) => {
     container?.querySelectorAll(`.${HIGHLIGHTED_CLASS}`).forEach(e => e.classList.remove(HIGHLIGHTED_CLASS));
     container?.querySelectorAll(`svg.${WITH_HIGHLIGHTED_CLASS}`).forEach(e => e.classList.remove(WITH_HIGHLIGHTED_CLASS));
+};
+
+
+const LINK_FRAME_CLASS = "score-link-frame";
+const LINK_FRAME_PADDING = 0.3;
+
+// A frame around an element reached from the facsimile. Placed beside the element, whose
+// box is already in the coordinates of its parent: verovio puts no transform on it.
+export const markLinkFrame = (container: HTMLElement | null, elementId: string) => {
+    const element = container?.querySelector("svg")?.querySelector(`[id="${CSS.escape(elementId)}"]`);
+    if (!(element instanceof SVGGraphicsElement) || element.parentNode == null) {
+        return false;
+    }
+    const box = element.getBBox();
+    const padding = Math.min(box.width, box.height) * LINK_FRAME_PADDING;
+    const frame = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    frame.setAttribute("class", LINK_FRAME_CLASS);
+    frame.setAttribute("x", `${box.x - padding}`);
+    frame.setAttribute("y", `${box.y - padding}`);
+    frame.setAttribute("width", `${box.width + 2 * padding}`);
+    frame.setAttribute("height", `${box.height + 2 * padding}`);
+    frame.setAttribute("rx", `${padding}`);
+    frame.style.animationDuration = `${LINK_HIGHLIGHT_MS}ms`;
+    element.parentNode.insertBefore(frame, element.nextSibling);
+    setTimeout(() => frame.remove(), LINK_HIGHLIGHT_MS);
+    frame.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
+    return true;
+};
+
+export const clearLinkFrame = (container: HTMLElement | null) => {
+    container?.querySelectorAll(`.${LINK_FRAME_CLASS}`).forEach(e => e.remove());
 };

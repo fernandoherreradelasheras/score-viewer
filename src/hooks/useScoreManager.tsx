@@ -131,7 +131,7 @@ export function useScoreManager({
         scoreProcessor.addEnsureNotesRestsIdFilter();
         const originalMei = scoreProcessor.filterScore();
 
-        const analyzer = new ScoreAnalyzer(0, originalMei);
+        const analyzer = new ScoreAnalyzer(originalMei);
         const properties = {
           ...analyzer.getScoreProperties(),
           encodedTransposition: encodingProperties.encodedTransposition as Transposition ?? undefined,

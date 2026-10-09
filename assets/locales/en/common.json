@@ -226,8 +226,8 @@
       }
     },
     "noteInFacsimile": {
-      "title": "Show note on the facsimile on click",
-      "description": "Shows the matching note on the facsimile while it is displayed in split view. Only if the score encodes the link"
+      "title": "Link score and facsimile with Ctrl+click",
+      "description": "Ctrl+click (Cmd+click on Mac) on a note of the score shows it on the facsimile, and on a note of the facsimile shows it on the score. With the facsimile in split view, and only if the score encodes the link"
     },
     "resetSettings": "Reset settings to default"
   },

@@ -1,5 +1,5 @@
 import { Button, Segmented, Space, Typography } from 'antd';
-import { FacsimileItem, PlayingState } from './types';
+import { FacsimileItem, LINK_HIGHLIGHT_MS, PlayingState } from './types';
 import useStore, { FacsimileLayout } from "./store";
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ReactZoomPanPinchContentRef } from "react-zoom-pan-pinch";
@@ -92,6 +92,14 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
   if (frame && playingState === PlayingState.PLAYING) {
     setFrame(null);
   }
+
+  useEffect(() => {
+    if (!frame) {
+      return;
+    }
+    const timer = setTimeout(() => setFrame(null), LINK_HIGHLIGHT_MS);
+    return () => clearTimeout(timer);
+  }, [frame]);
 
   // Only to another image of the same part, or of the full score for one of it: which
   // part the reader follows is theirs.

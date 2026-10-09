@@ -95,7 +95,8 @@ interface ScoreNavigationState {
 
     goToSection: (sectionId: string) => void
     goToElement: (elementId: string, page: number) => void
-    navigationCommand: { type: 'section' | 'page' | 'element', target: string | number } | null
+    goToLinkedElement: (elementId: string, page: number) => void
+    navigationCommand: { type: 'section' | 'page' | 'element' | 'linked', target: string | number } | null
 
     clearNavigationCommand: () => void
 }
@@ -150,6 +151,12 @@ export const createScoreViewerStore = create<ScoreNavigationState>((set, get) =>
         currentPage: Math.max(1, Math.min(page, get().pageCount))
     }),
 
+    // The same for an element reached from the facsimile: it is framed, not opened.
+    goToLinkedElement: (elementId, page) => set({
+        navigationCommand: { type: 'linked', target: elementId },
+        currentPage: Math.max(1, Math.min(page, get().pageCount))
+    }),
+
     navigationCommand: null,
 
     clearNavigationCommand: () => set({ navigationCommand: null }),
@@ -158,7 +165,6 @@ export const createScoreViewerStore = create<ScoreNavigationState>((set, get) =>
 
 interface UILayoutState {
     isLoading: boolean
-    scoreSvg: string | null
     scale: number
     reachedEffectiveMaxScale: boolean
     isSplitView: boolean
@@ -172,7 +178,6 @@ interface UILayoutState {
 
 
     setIsLoading: (isLoading: boolean) => void
-    setScoreSvg: (svg: string | null) => void
     setScale: (scale: number) => void
     increaseScale: () => void
     decreaseScale: () => void
@@ -208,7 +213,6 @@ const DEFAULT_UI_LAYOUT_STATE = {
 
 const createUILayoutStore = create<UILayoutState>()(persist((set) => ({
     isLoading: true,
-    scoreSvg: null,
     scale: DEFAULT_SCALE,
     reachedEffectiveMaxScale: false,
     secondaryViewLayoutHint: null,
@@ -218,7 +222,6 @@ const createUILayoutStore = create<UILayoutState>()(persist((set) => ({
 
 
     setIsLoading: (isLoading: boolean) => set(() => ({ isLoading })),
-    setScoreSvg: (svg: string | null) => set(() => ({ scoreSvg: svg })),
     setScale: (scale: number) => set((state) => ({
         scale: scale <= MAX_SCALE && scale >= MIN_SCALE ? scale : state.scale,
     })),
@@ -447,7 +450,6 @@ class ScoreViewerStoreApi {
 
         // UI/Layout Store
         isLoading: createUILayoutStoreWithSelectors.use.isLoading,
-        scoreSvg: createUILayoutStoreWithSelectors.use.scoreSvg,
         scale: createUILayoutStoreWithSelectors.use.scale,
         reachedEffectiveMaxScale: createUILayoutStoreWithSelectors.use.reachedEffectiveMaxScale,
         isSplitView: createUILayoutStoreWithSelectors.use.isSplitView,
@@ -455,7 +457,6 @@ class ScoreViewerStoreApi {
         splitViewOrientation: createUILayoutStoreWithSelectors.use.splitViewOrientation,
         activeTab: createUILayoutStoreWithSelectors.use.activeTab,
         setIsLoading: createUILayoutStoreWithSelectors.use.setIsLoading,
-        setScoreSvg: createUILayoutStoreWithSelectors.use.setScoreSvg,
         setScale: createUILayoutStoreWithSelectors.use.setScale,
         increaseScale: createUILayoutStoreWithSelectors.use.increaseScale,
         decreaseScale: createUILayoutStoreWithSelectors.use.decreaseScale,
@@ -486,6 +487,7 @@ class ScoreViewerStoreApi {
         goToPreviousPage: createScoreViewerStoreWithSelectors.use.goToPreviousPage,
         goToSection: createScoreViewerStoreWithSelectors.use.goToSection,
         goToElement: createScoreViewerStoreWithSelectors.use.goToElement,
+        goToLinkedElement: createScoreViewerStoreWithSelectors.use.goToLinkedElement,
         navigationCommand: createScoreViewerStoreWithSelectors.use.navigationCommand,
         clearNavigationCommand: createScoreViewerStoreWithSelectors.use.clearNavigationCommand,
 
