@@ -1,257 +1,218 @@
-# React + TypeScript + Vite
+# Score Viewer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React component for reading and listening to scores encoded in
+[MEI](https://music-encoding.org/), rendered with [verovio](https://www.verovio.org/).
+It is also available as a standalone page to embed with an `<iframe>`.
 
-Currently, two official plugins are available:
+- **Score**: paginated rendering with zoom, fullscreen, section titles, a choice of verses,
+  measure numbers, original clefs, coloured notes, harmonic analysis, normalized ficta and
+  undoing the encoded transposition.
+- **Critical apparatus**: editorial interventions (`sic`/`corr`, `orig`/`reg`,
+  `abbr`/`expan`, `add`/`del`, `supplied`, `unclear`, `damage`, `annot`…) highlighted by
+  type, with a dialog that explains each one and lets the reader switch between the
+  readings of an `<app>`, `<choice>` or `<subst>`. Readings that belong to the same
+  variant group switch together.
+- **Audio**: plays recorded audio synchronized with the score. Notes are coloured by staff
+  and animated while they sound, and the score turns pages or scrolls along. A score can
+  have several audio versions.
+- **Facsimile**: images of the sources beside the score, with zoom and pan, one part at
+  a time or all of them side by side. When the MEI links notes to zones of the images,
+  the facsimile follows the music while it plays. Ctrl+click (Cmd+click on macOS) on a
+  note shows it on the other view, in either direction.
+- **Texts**: an introduction in Markdown, and the poem and its notes from the MEI
+  `<back>`.
+- **Interface** in English and Spanish, tabs or a split view, and touch support.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Incompatible changes to the configuration, the MEI conventions and the API are listed in
+[CHANGELOG.md](CHANGELOG.md).
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
-
-# Score Viewer Component
-
-A React component for viewing and playing musical scores in MEI format with synchronized audio playback.
-
-## Installation and Usage
-
-### As a React Component
+## Installation
 
 ```bash
 npm install score-viewer
-# or
-yarn add score-viewer
 ```
 
-```jsx
-import { ScoreViewer } from 'score-viewer';
-import 'score-viewer/style.css'; // Import styles
+React 19 (`react` and `react-dom`) is a peer dependency.
 
-// Option 1: Pass config as a prop
-const config = {
+## Usage as a React component
+
+```tsx
+import { useRef } from 'react';
+import ScoreViewer, { ScoreViewerConfig, ScoreViewerRef } from 'score-viewer';
+import 'score-viewer/style.css';
+
+const config: ScoreViewerConfig = {
   settings: {
-    renderTitlesFromMEI: true,
+    basePath: "/scores/",
+    facsimileImagesPath: "/facsimile/",
     showScoreSelector: true,
-    backgroundColor: "#f6eee3"
+    showTitle: false,
+    showDownloadButton: true,
+    showIntroductionSection: true,
+    showTextSection: true,
+    showFacsimileSection: true,
+    showOptions: true,
+    renderTitlesFromMEI: true,
+    allowUserLanguageChange: true,
+    language: "autodetect",
   },
   scores: [
     {
-      title: "Example Score",
-      audioUrl: "/path/to/audio.mp3",
-      meiUrl: "/path/to/score.mei",
-      encodingProperties: {
-        encodedTransposition: null
-      }
-    }
-  ]
+      title: "Un imposible me mata",
+      path: "un-imposible",
+      meiFile: "music.mei",
+      introductionFile: "intro.md",
+      audioFiles: [{ file: "un-imposible.mp3", name: "Recording" }],
+      facsimileItems: [{ name: "Soprano 1", file: "un-imposible-s1.jpg" }],
+      encodingProperties: { encodedTransposition: "-P4" },
+    },
+  ],
 };
 
 function App() {
-  return (
-    <div style={{ width: '100%', height: '100vh' }}>
-      <ScoreViewer config={config} />
-    </div>
-  );
+  const viewer = useRef<ScoreViewerRef>(null);
+  return <ScoreViewer ref={viewer} config={config} width="100%" height="100vh" />;
 }
 ```
 
+### Props
+
+| Prop | Type | |
+|---|---|---|
+| `config` | `ScoreViewerConfig` | Required. See [Configuration](#configuration). |
+| `width`, `height` | `string` | Required. Any CSS length. |
+| `onScoreAnalyzed` | `(scoreIndex, properties: ScoreProperties) => void` | Called once a score is loaded, with what was read from its MEI: sections, sources, parts, editorial features… |
+| `onVisualizationOptionsChanged` | `(options: VisualizationOptions) => void` | Called when the reader changes options the host may want to reflect, such as the original clefs. |
+
+### Ref
+
+| Method | |
+|---|---|
+| `goToSection(sectionId)` | Turns to the page where a `<section>` of the current score starts, by its `xml:id`. |
+| `selectScore(index \| null)` | Loads the score at that index of `config.scores`, or unloads the current one with `null`. Useful with `showScoreSelector: false` and a selector of your own. |
+
 ### Usage with Vite
 
-If you are using Vite, you must exclude `score-viewer` from dependency optimization to ensure the Verovio worker is loaded correctly. Add this to your `vite.config.ts`:
+Exclude `score-viewer` from dependency optimization, so the verovio worker it ships is
+loaded correctly:
 
-```typescript
+```ts
 export default defineConfig({
-  // ...
   optimizeDeps: {
-    exclude: ['score-viewer']
-  }
-})
+    exclude: ['score-viewer'],
+  },
+});
 ```
 
-This is necessary because `score-viewer` uses a web worker that references external assets, which can be mishandled by Vite's dependency pre-bundling. Excluding it from optimization ensures the worker is loaded correctly without impacting performance.
+### Limitations
 
-### As an Iframe in Hugo or other static sites
+- Only one viewer per page: the state is shared between instances, and the reader's
+  options are stored in `localStorage`.
+- Supported browsers are Chrome/Edge 87+, Firefox 78+ and Safari 14+. Some highlights of
+  the editorial layer need `:has()` (Firefox 121+).
 
-You can embed the Score Viewer in any static site using an iframe. This is perfect for Hugo sites or any non-React web environment.
+## Configuration
 
-#### Hugo Shortcode Example
+### Where files are read from
 
-Create a new shortcode in your Hugo site at `layouts/shortcodes/score-viewer.html`:
+- MEI, audio and introduction: `basePath + score.path + "/" + file`.
+- Facsimile images: `facsimileImagesPath + facsimileItems[].file`.
+
+### `settings`
+
+| Key | Type | |
+|---|---|---|
+| `basePath` | `string` | Required. Prefix of every score folder. |
+| `facsimileImagesPath` | `string` | Required. Folder of the facsimile images. |
+| `showScoreSelector` | `boolean` | Required. Shows the selector of the scores in `scores`. |
+| `showTitle` | `boolean` | Required. Shows the title of the current score above it. |
+| `showDownloadButton` | `boolean` | Required. Offers the MEI file for download in the score information dialog. |
+| `showIntroductionSection` | `boolean` | Required. Shows the introduction of the scores that have one. |
+| `showTextSection` | `boolean` | Required. Shows the poem read from the MEI `<back>`. |
+| `showFacsimileSection` | `boolean` | Required. Shows the facsimile of the scores that have images. |
+| `showOptions` | `boolean` | Required. Shows the options panel. |
+| `renderTitlesFromMEI` | `boolean` | Required. Draws the `@label` of each `<section>` above it when a score has several. |
+| `allowUserLanguageChange` | `boolean` | Required. Lets the reader change the language in the options panel. |
+| `language` | `string` | `"en"`, `"es"` or `"autodetect"` (the browser language). The reader's own choice, if allowed, takes precedence. |
+| `backgroundColor` | `string` | CSS colour behind the score. White by default. |
+| `selectorLabel` | `"work" \| "section"` | What the score selector calls its entries. `"work"` by default. |
+| `initialTab` | `"intro" \| "text" \| "music"` | The tab shown first, until the reader picks one. The music by default. |
+
+### `scores[]`
+
+| Key | Type | |
+|---|---|---|
+| `title` | `string` | Required. Name in the score selector. |
+| `path` | `string` | Required. Folder of the score under `basePath`. |
+| `meiFile` | `string` | Required. The MEI file in that folder. |
+| `encodingProperties` | `{ encodedTransposition?: string }` | Required, may be empty. `encodedTransposition` is the transposition the score was encoded with (`"-P4"`, `"+M3"`, `"P8"`…), which the reader can undo. |
+| `audioFiles` | `{ file: string, name?: string }[]` | Audio versions of the score. The first one plays by default; with more than one, the reader can switch between them. |
+| `introductionFile` | `string` | Markdown introduction. It must be served as `text/markdown` or `text/plain`. |
+| `facsimileItems` | `{ name: string, file: string, part?: string }[]` | Facsimile images. `part` is the `xml:id` of the `<perfRes>` whose part the image shows; without it, the image is taken for the full score. |
+
+`text` and `textCommentsFile` are deprecated and ignored: the poem and its notes are read
+from the MEI `<back>`.
+
+## MEI conventions
+
+Most of the MEI is rendered as verovio renders it. The viewer reads some extra
+conventions: editorial accidentals, variant groups in `<classDecls>`, links to the
+facsimile through `@facs`, parts through `<perfRes>` and `<staffDef @decls>`, and the
+poem in `<back>`. They are documented, with examples, in [CHANGELOG.md](CHANGELOG.md).
+
+Repeats are not expanded: the audio is expected to play the score straight through, as
+verovio times it.
+
+## Embedding with an iframe
+
+`npm run build:iframe` builds a standalone page into `dist/iframe/`. The page is
+`iframe/index.html` inside it, and it loads the configuration from the JSON file named in
+its `config` query parameter:
 
 ```html
-{{ $configJSON := .Get "config" | jsonify }}
-{{ $encodedConfig := $configJSON | urlquery }}
-{{ $height := .Get "height" | default "500px" }}
-{{ $width := .Get "width" | default "100%" }}
-
 <iframe
-  src="{{ .Site.BaseURL }}score-viewer/iframe/?config={{ $encodedConfig }}"
-  style="width: {{ $width }}; height: {{ $height }}; border: none;"
-  allow="autoplay"
+  src="https://example.com/score-viewer/iframe/index.html?config=https://example.com/scores/config.json"
+  style="width: 100%; height: 600px; border: none;"
+  allow="autoplay; fullscreen"
   loading="lazy">
 </iframe>
 ```
 
-Then use it in your Markdown content:
+A relative `basePath` or `facsimileImagesPath` in that file is resolved against the
+folder of the file itself; one that starts with `/` or `http` is used as it is.
+
+### Hugo shortcode
+
+`layouts/shortcodes/score-viewer.html`:
+
+```html
+{{ $height := .Get "height" | default "600px" }}
+<iframe
+  src="{{ "score-viewer/iframe/index.html" | relURL }}?config={{ .Get "config" | absURL }}"
+  style="width: 100%; height: {{ $height }}; border: none;"
+  allow="autoplay; fullscreen"
+  loading="lazy">
+</iframe>
+```
 
 ```markdown
-{{< score-viewer
-  height="600px"
-  config='{
-    "settings": {
-      "renderTitlesFromMEI": true,
-      "showScoreSelector": true,
-      "backgroundColor": "#f6eee3"
-    },
-    "scores": [
-      {
-        "title": "Example Score",
-        "audioUrl": "/scores/example.mp3",
-        "meiUrl": "/scores/example.mei",
-        "encodingProperties": {
-          "encodedTransposition": null
-        }
-      }
-    ]
-  }'
->}}
-```
-
-#### Plain HTML Embedding
-
-For any other static site or CMS:
-
-```html
-<iframe
-  src="https://your-cdn-or-server.com/score-viewer/iframe/?config=%7B%22settings%22%3A%7B%22renderTitlesFromMEI%22%3Atrue%2C%22showScoreSelector%22%3Atrue%2C%22backgroundColor%22%3A%22%23f6eee3%22%7D%2C%22scores%22%3A%5B%7B%22title%22%3A%22Example%20Score%22%2C%22audioUrl%22%3A%22%2Fscores%2Fexample.mp3%22%2C%22meiUrl%22%3A%22%2Fscores%2Fexample.mei%22%2C%22encodingProperties%22%3A%7B%22encodedTransposition%22%3Anull%7D%7D%5D%7D"
-  style="width: 100%; height: 500px; border: none;"
-  allow="autoplay"
-  loading="lazy">
-</iframe>
-```
-
-Or create the config dynamically:
-
-```html
-<script>
-  function createScoreViewerIframe(config, container) {
-    const encodedConfig = encodeURIComponent(JSON.stringify(config));
-    const iframe = document.createElement('iframe');
-    iframe.src = `https://your-cdn-or-server.com/score-viewer/iframe/?config=${encodedConfig}`;
-    iframe.style.width = '100%';
-    iframe.style.height = '500px';
-    iframe.style.border = 'none';
-    iframe.setAttribute('allow', 'autoplay');
-    iframe.setAttribute('loading', 'lazy');
-    document.getElementById(container).appendChild(iframe);
-  }
-
-  // Example usage
-  createScoreViewerIframe({
-    settings: {
-      renderTitlesFromMEI: true,
-      showScoreSelector: true,
-      backgroundColor: "#f6eee3"
-    },
-    scores: [
-      {
-        title: "Example Score",
-        audioUrl: "/scores/example.mp3",
-        meiUrl: "/scores/example.mei",
-        encodingProperties: {
-          encodedTransposition: null
-        }
-      }
-    ]
-  }, 'score-container');
-</script>
-<div id="score-container"></div>
+{{< score-viewer config="scores/config.json" height="700px" >}}
 ```
 
 ## Development
 
 ```bash
-# Run development server for component library
-npm run dev
-
-# Run development server for iframe version
-npm run dev:iframe
-
-# Build component library
-npm run build
-
-# Build iframe version
-npm run build:iframe
-
-# Build both versions
-npm run build:all
+npm run dev            # development server with the test scores in test-fixtures/
+npm run dev:iframe     # the iframe page
+npm run build          # validates the test MEI files, type-checks and builds the library
+npm run build:iframe   # builds the iframe page
+npm run build:all      # both
+npm run lint
+npm run validate:mei   # validates the test MEI files against MEI 5.1 (validate:mei:schematron adds the Schematron rules)
 ```
 
-## Configuration Options
-
-The `ScoreViewer` accepts a config object with the following structure:
-
-```typescript
-interface ScoreViewerConfig {
-  settings: {
-    showScoreSelector: boolean, // Whether to show the score selector dropdown
-    renderTitlesFromMEI: boolean, // Extract and render titles from MEI file
-    backgroundColor?: string // Optional background color for the score
-  },
-  scores: {
-    title: string, // Title of the score
-    audioUrl?: string, // Optional URL to audio file for playback
-    meiUrl: string, // URL to MEI file
-    encodingProperties: {
-      encodedTransposition?: string // Optional transposition value (e.g. "-P4")
-    }
-  }[]
-}
-```
+The development server serves `test-fixtures/` at its root, with the configuration in
+`assets/test.json`.
 
 ## License
 
