@@ -3,7 +3,7 @@ import { useControls } from "react-zoom-pan-pinch";
 import useStore from "../store";
 import { FacsimileLinks, FacsimileZone, PlayingState } from "../types";
 import { playerStaffColor } from "../types/colors";
-import { buildElementIntervals } from "../utils/timemap";
+import { buildElementIntervals, buildNoteTimings } from "../utils/timemap";
 import FacsimileOverlay, { ImageBox } from "./FacsimileOverlay";
 
 interface FacsimilePlayerOverlayProps {
@@ -40,13 +40,25 @@ function FacsimilePlayerOverlay({ links, surface, box, partStaves, onPartMoved }
             .sort((a, b) => a.onsetMs - b.onsetMs);
     }, [links, timemap, noteStaffMap]);
 
+    const noteTimings = useMemo(() => buildNoteTimings(timemap ?? []), [timemap]);
+
     const notStarted = linked.findIndex(e => e.onsetMs > playingPosition);
     const started = playingState == PlayingState.STOPPED ? [] :
         linked.slice(0, notStarted == -1 ? linked.length : notStarted);
 
     const marks = started
         .filter(e => e.zone.surface == surface && playingPosition < e.endMs)
-        .map(({ id, zone, staff }) => ({ id, zone, color: playerStaffColor(parseInt(staff) || 1) }));
+        .map(({ id, zone, staff, onsetMs }) => {
+            const timing = noteTimings.get(id);
+            // Only notes pulse, and only while playing, as on the score.
+            const pulse = timing && playingState == PlayingState.PLAYING ? {
+                durationMs: timing.durationMs,
+                durationQuarters: timing.durationQuarters,
+                elapsedMs: Math.max(0, playingPosition - onsetMs),
+                run: seekPosition,
+            } : undefined;
+            return { id, zone, color: playerStaffColor(parseInt(staff) || 1), pulse };
+        });
 
     const lastOfPart = started.filter(e => partStaves == null || partStaves.includes(e.staff)).pop();
 

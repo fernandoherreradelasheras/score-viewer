@@ -32,6 +32,25 @@ const pulseScale = (durationQuarters: number) => {
     return Math.min(MAX_SCALE, MIN_SCALE + SCALE_PER_OCTAVE * Math.log2(quarters / SHORTEST_QUARTERS));
 };
 
+/**
+ * The animation spans the whole note: a sharp attack, a quick settle to a sustained
+ * size, then a slow release. That is what makes a whole note read as longer than a
+ * quarter — the peak scale alone barely registers.
+ */
+export const pulseKeyframes = (cx: number, cy: number, durationMs: number, durationQuarters: number): Keyframe[] => {
+    const attackMs = Math.min(MAX_ATTACK_MS, Math.max(MIN_ATTACK_MS, durationMs * ATTACK_RATIO));
+    const settleMs = (durationMs - attackMs) * SETTLE_RATIO;
+    const peak = pulseScale(durationQuarters);
+    const sustain = 1 + (peak - 1) * SUSTAIN_RATIO;
+    const at = (scale: number) => scaleAbout(cx, cy, scale);
+    return [
+        { transform: at(1), easing: "ease-out" },
+        { transform: at(peak), offset: attackMs / durationMs, easing: "ease-in-out" },
+        { transform: at(sustain), offset: (attackMs + settleMs) / durationMs, easing: "ease-in" },
+        { transform: at(1) },
+    ];
+};
+
 export const createPulseVisualization = (): NoteVisualization => {
     const running = new Map<string, Animation[]>();
 
@@ -60,20 +79,7 @@ export const createPulseVisualization = (): NoteVisualization => {
             }
             clear(noteId);
 
-            // The animation spans the whole note: a sharp attack, a quick settle to a
-            // sustained size, then a slow release. That is what makes a whole note read
-            // as longer than a quarter — the peak scale alone barely registers.
-            const attackMs = Math.min(MAX_ATTACK_MS, Math.max(MIN_ATTACK_MS, durationMs * ATTACK_RATIO));
-            const settleMs = (durationMs - attackMs) * SETTLE_RATIO;
-            const peak = pulseScale(durationQuarters);
-            const sustain = 1 + (peak - 1) * SUSTAIN_RATIO;
-            const at = (scale: number) => scaleAbout(anchor.cx, anchor.cy, scale);
-            const keyframes = [
-                { transform: at(1), easing: "ease-out" },
-                { transform: at(peak), offset: attackMs / durationMs, easing: "ease-in-out" },
-                { transform: at(sustain), offset: (attackMs + settleMs) / durationMs, easing: "ease-in" },
-                { transform: at(1) },
-            ];
+            const keyframes = pulseKeyframes(anchor.cx, anchor.cy, durationMs, durationQuarters);
 
             const animations = parts.map(part => {
                 part.classList.add(PULSE_CLASS);

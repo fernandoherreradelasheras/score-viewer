@@ -1,5 +1,6 @@
-import { Ref } from "react";
+import { Ref, useEffect, useState } from "react";
 import { FacsimileSurface, FacsimileZone } from "../types";
+import { pulseKeyframes } from "../visualizations/pulse";
 
 // A zone encoded as a single point carries no extent, so the marks around it are sized
 // as fractions of the page width: roughly a notehead, and a notehead with its stem. On a
@@ -11,7 +12,37 @@ const FRAME_HEIGHT = 0.065;
 const FRAME_PADDING = 0.008;
 const MAX_RADIUS_TO_SPACING = 0.45;
 
-export type FacsimileMark = { id: string, zone: FacsimileZone, color: string };
+// The same pulse a sounding note gets on the score. A new `run` restarts it at the
+// elapsed time of then.
+export type FacsimilePulse = { durationMs: number, durationQuarters: number, elapsedMs: number, run: number };
+
+export type FacsimileMark = { id: string, zone: FacsimileZone, color: string, pulse?: FacsimilePulse };
+
+const center = (zone: FacsimileZone) => ({ x: (zone.ulx + zone.lrx) / 2, y: (zone.uly + zone.lry) / 2 });
+
+function FacsimileMarkShape({ zone, color, pulse, radius }:
+    { zone: FacsimileZone, color: string, pulse?: FacsimilePulse, radius: number | null }) {
+    const [element, setElement] = useState<SVGGraphicsElement | null>(null);
+    const { x, y } = center(zone);
+
+    useEffect(() => {
+        if (element == null || pulse == null || pulse.durationMs <= 0) {
+            return;
+        }
+        const animation = element.animate(
+            pulseKeyframes(x, y, pulse.durationMs, pulse.durationQuarters), { duration: pulse.durationMs });
+        animation.currentTime = pulse.elapsedMs;
+        return () => animation.cancel();
+        // The elapsed time is read when the pulse starts: following it on every tick
+        // would restart the animation on each one.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [element, x, y, pulse == null, pulse?.durationMs, pulse?.durationQuarters, pulse?.run]);
+
+    return radius != null
+        ? <circle ref={setElement} className="facsimile-mark" fill={color} stroke={color} cx={x} cy={y} r={radius} />
+        : <rect ref={setElement} className="facsimile-mark" fill={color} stroke={color}
+            x={zone.ulx} y={zone.uly} width={zone.lrx - zone.ulx} height={zone.lry - zone.uly} />;
+}
 
 // Where the image is laid out inside its positioned container, untransformed.
 export type ImageBox = { left: number, top: number, width: number, height: number };
@@ -33,7 +64,6 @@ function FacsimileOverlay({ surface, box, marks = [], frame, frameRef, anchors =
         : Math.min(pageUnit, surface.noteSpacing * MAX_RADIUS_TO_SPACING / MARK_RADIUS);
     const isPoint = (zone: FacsimileZone) =>
         zone.lrx - zone.ulx <= pageUnit * POINT_ZONE_MAX_SIZE && zone.lry - zone.uly <= pageUnit * POINT_ZONE_MAX_SIZE;
-    const center = (zone: FacsimileZone) => ({ x: (zone.ulx + zone.lrx) / 2, y: (zone.uly + zone.lry) / 2 });
 
     const frameBox = (zone: FacsimileZone) => isPoint(zone)
         ? {
@@ -66,11 +96,9 @@ function FacsimileOverlay({ surface, box, marks = [], frame, frameRef, anchors =
             viewBox={`0 0 ${surface.width} ${surface.height}`}
             preserveAspectRatio="none"
             style={{ position: "absolute", ...box, pointerEvents: "none", overflow: "visible" }}>
-            {marks.map(({ id, zone, color }) => isPoint(zone)
-                ? <circle key={id} className="facsimile-mark" fill={color} stroke={color}
-                    cx={center(zone).x} cy={center(zone).y} r={unit * MARK_RADIUS} />
-                : <rect key={id} className="facsimile-mark" fill={color} stroke={color}
-                    x={zone.ulx} y={zone.uly} width={zone.lrx - zone.ulx} height={zone.lry - zone.uly} />)}
+            {marks.map(({ id, zone, color, pulse }) =>
+                <FacsimileMarkShape key={id} zone={zone} color={color} pulse={pulse}
+                    radius={isPoint(zone) ? unit * MARK_RADIUS : null} />)}
             {anchors.map(({ x, y, ref }, i) =>
                 <circle key={i} ref={ref} cx={x} cy={y} r={unit * MARK_RADIUS} opacity={0} />)}
             {frameRect && <rect ref={frameRef} className="facsimile-frame" {...frameRect} rx={unit * FRAME_PADDING} />}

@@ -35,13 +35,13 @@ export const EDITORIAL_COLORS = {
 
 export const PLAYER_STAFF_COLORS = [
     "#AA3377", // staff 1 (púrpura)
-    "#EE6677", // staff 2 (rosa)
+    "#B45309", // staff 2 (ocre tostado, antes mostaza)
     "#228833", // staff 3 (verde)
-    "#B45309", // staff 4 (ocre tostado, antes mostaza)
+    "#EE6677", // staff 4 (rosa)
     "#0E7490", // staff 5 (cian oscuro, antes celeste)
     "#4477AA", // staff 6 (azul)
     "#AA3377", // staff 7 (repite 1)
-    "#EE6677", // staff 8 (repite 2)
+    "#B45309", // staff 8 (repite 2)
 ]
 
 export const playerStaffColor = (staff: number) =>

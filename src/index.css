@@ -334,6 +334,9 @@
   fill-opacity: 0.3;
   stroke-width: 2px;
   vector-effect: non-scaling-stroke;
+  transform-box: view-box;
+  transform-origin: 0 0;
+  will-change: transform;
 }
 
 /* The note clicked on the score, framed on the facsimile. Pulses to catch the eye and
