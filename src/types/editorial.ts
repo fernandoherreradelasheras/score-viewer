@@ -94,9 +94,3 @@ export interface Annotation {
     text: string
     targetIds: string[]
 }
-
-export interface CommentingElement {
-    type: string
-    id: string
-    label: string
-}

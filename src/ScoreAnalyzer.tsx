@@ -11,15 +11,13 @@ const EDITORIAL_SELF_TEST = EDITORIAL_ALL_TAGS.map(tag => `self::mei:${tag}`).jo
 
 
 class ScoreAnalyzer {
-    tonoNumber: number
     document: Document
     categories: Categories
 
 
-    constructor(tonoNumber: number, score: string) {
+    constructor(score: string) {
         const parser = new DOMParser();
         this.document = parser.parseFromString(score, "application/xml")
-        this.tonoNumber = tonoNumber
         this.categories = this.getCategories()
         this.collectCategoryMembers()
     }
