@@ -1,63 +1,33 @@
-import { Button, Space, Tooltip } from "antd";
 import useStore from "./store";
 import PlayerHighlighter from "./PlayerHighlighter";
-import { PlayCircleTwoTone, CloseCircleTwoTone, PauseCircleTwoTone } from '@ant-design/icons';
-import { PlayingState } from "./types";
+import PlaybackCursor from "./PlaybackCursor";
+import PlayerButtons from "./PlayerButtons";
 import useWebAudioPlayer from "./hooks/useWebAudioPlayer";
 import { useMemo } from "react";
 
 
 function AudioPlayer() {
     const score = useStore.use.score();
-    const playingState = useStore.use.playingState();
     const renderedSvgData = useStore.use.renderedSvgData();
     const selectedAudioIndex = useStore.use.selectedAudioIndex();
+    const autoScroll = useStore.use.autoScroll();
 
     const audioUrl = useMemo(
         () => score?.audioFiles?.[selectedAudioIndex]?.url ?? null,
         [score, selectedAudioIndex]
     );
 
-    const {
-        canPlay,
-        playPauseTooltip,
-        handlePlay,
-        handlePlayPause,
-        handleStop,
-    } = useWebAudioPlayer(audioUrl, score?.originalMei);
-
-
-
-    const playButton = useMemo(() =>
-        <Tooltip title="Play"><Button icon={<PlayCircleTwoTone style={{ fontSize: '36px' }} />} onClick={handlePlay} disabled={!canPlay} /></Tooltip>
-        , [canPlay, handlePlay]);
-
-    const stopButton = useMemo(() =>
-        <Tooltip title="Stop"><Button icon={<CloseCircleTwoTone style={{ fontSize: '36px' }} />} onClick={handleStop} /></Tooltip>
-        , [handleStop]);
-
-    const pauseButton = useMemo(() =>
-        <Tooltip title={playPauseTooltip()}><Button icon={<PauseCircleTwoTone style={{ fontSize: '36px' }} />} onClick={handlePlayPause} /></Tooltip>
-        , [playPauseTooltip, handlePlayPause]);
-
-    // Always show playControls if audio is available, regardless of canPlay status
-    const playControls = useMemo(() =>
-        audioUrl ?
-            <div style={{ position: "absolute", bottom: 0, right: 0, padding: "8px" }}>
-                <Space orientation="horizontal" size="small">
-                    {playingState !== PlayingState.STOPPED ? stopButton : null}
-                    {playingState === PlayingState.PLAYING ? pauseButton : playButton}
-                </Space>
-            </div> : null,
-        [audioUrl, playingState, playButton, stopButton, pauseButton]);
-
+    useWebAudioPlayer(audioUrl, score?.originalMei);
 
     return (
         <div style={{ width: "0px", height: "0px" }}>
             {renderedSvgData?.timemap && (
                 <PlayerHighlighter timemap={renderedSvgData.timemap} />
             )}
-            {playControls}
+            {renderedSvgData?.timemap && !autoScroll && (
+                <PlaybackCursor timemap={renderedSvgData.timemap} />
+            )}
+            {audioUrl ? <PlayerButtons /> : null}
         </div>
     );
 }

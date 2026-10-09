@@ -130,7 +130,7 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
 
   const { fetchScore, unloadScore, hasIntro } = useScoreManager({ config, normalizeFicta, onScoreAnalyzed, onFetchScoreError });
 
-  const { fetchTextParts, textIntroduction } = useTextParts({ config })
+  const { fetchTextParts, textIntroduction, introductionUrl } = useTextParts({ config })
 
   const loadAll = useCallback(async (scoreIndex: number) => {
     console.log(`Loading all for score index ${scoreIndex}`);
@@ -206,8 +206,8 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
 
   const introView = useMemo(() =>
     config.settings.showIntroductionSection && introAvailable ?
-      <TextView intro={textIntroduction} /> : null
-    , [config.settings.showIntroductionSection, introAvailable, textIntroduction])
+      <TextView intro={textIntroduction} introUrl={introductionUrl} /> : null
+    , [config.settings.showIntroductionSection, introAvailable, textIntroduction, introductionUrl])
 
 
   const scoreView = useMemo(() => {
@@ -262,8 +262,9 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
 
   const facsimileView = useMemo(() =>
     config.settings.showFacsimileSection && facsimileItems?.length ?
-      <FacsimileView path={config.settings.facsimileImagesPath} items={facsimileItems} /> : null
-    , [config.settings.showFacsimileSection, config.settings.facsimileImagesPath, facsimileItems])
+      <FacsimileView path={config.settings.facsimileImagesPath} items={facsimileItems}
+        isActiveTab={activeTab === 'facsimile'} /> : null
+    , [config.settings.showFacsimileSection, config.settings.facsimileImagesPath, facsimileItems, activeTab])
 
 
 

@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { FetchError } from '../types';
 import useStore from '../store';
 import { ScoreViewerConfig, ScoreViewerConfigScore } from '../types/config';
@@ -34,6 +34,7 @@ export function useTextParts({
   const setTextCache = useStore.use.setTextCache();
   const textIntroduction = useStore.use.textIntroduction();
   const setTextIntroduction = useStore.use.setTextIntroduction();
+  const [introductionUrl, setIntroductionUrl] = useState<string | null>(null);
 
   const getPath = useCallback((scoreDef: ScoreViewerConfigScore, path: string) => {
     return config.settings.basePath + scoreDef.path + "/" + path
@@ -76,8 +77,9 @@ export function useTextParts({
     const introductionUrl = hasSection(scoreDef.introductionFile) ? getPath(scoreDef, scoreDef.introductionFile!) : null
     console.log(`Fetching text parts for score ${scoreIndex}: introductionUrl: ${introductionUrl}`)
 
+    setIntroductionUrl(introductionUrl)
     await fetchIntroduction(introductionUrl)
   }, [config.scores, getPath, fetchIntroduction])
 
-  return { fetchTextParts, textIntroduction }
+  return { fetchTextParts, textIntroduction, introductionUrl }
 }

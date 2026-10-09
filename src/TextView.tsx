@@ -60,6 +60,8 @@ const formatStrophes = (strophes: string[][], initialLineNumber: number) => {
 export interface TextViewProps {
     title?: string;
     intro?: string | FetchError | null;
+    // URL the introduction was fetched from, to resolve its "./" image paths.
+    introUrl?: string | null;
     items?: LyricItem[] | null;
     comments?: string | null;
 }
@@ -69,7 +71,7 @@ function TextView(props: TextViewProps) {
     const splitView = useStore.use.isSplitView();
     const setSplitView = useStore.use.setIsSplitView();
     const playingState = useStore.use.playingState();
-    const { title, intro, items, comments } = props
+    const { title, intro, introUrl, items, comments } = props
 
     const renderIntro = useCallback((intro: string | FetchError) => {
         let introText = markdownSubtitle(t("textView.intro"))
@@ -160,7 +162,7 @@ function TextView(props: TextViewProps) {
                         rehypePlugins={[
                             rehypeRaw,
                             rehypePoemBlock,
-                            rehypeImages,
+                            [rehypeImages, { documentUrl: introUrl }],
                             rehypeFigure,
                             [rehypeExternalLinks, { target: "_blank", rel: "noopener noreferrer" }]
                         ]}>{markdownText}</Markdown>

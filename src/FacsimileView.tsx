@@ -7,6 +7,7 @@ import { CloseOutlined, ColumnWidthOutlined, ZoomInOutlined, ZoomOutOutlined } f
 import { useTranslation } from 'react-i18next';
 import FacsimileImageView, { FacsimileFrame } from './components/FacsimileImageView';
 import FacsimilePagination from './components/FacsimilePagination';
+import PlayerButtons from './PlayerButtons';
 import { bestFacsimileGrid, matchFacsimileSurface } from './utils/facsimile';
 
 const IMAGE_PADDING = 12;
@@ -19,7 +20,9 @@ const DEFAULT_ASPECT_RATIO = 1 / 1.41;
 type FacsimileViewSet = { part: string | null, items: FacsimileItem[] };
 
 
-function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }) {
+// The facsimile follows the music beside the score, and on its own tab, where the player
+// is brought along since the score is hidden.
+function FacsimileView({ path, items, isActiveTab }: { path: string, items: FacsimileItem[], isActiveTab: boolean }) {
   const { t } = useTranslation("common");
   const splitView = useStore.use.isSplitView();
   const splitViewOrientation = useStore.use.splitViewOrientation();
@@ -31,6 +34,8 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
   const playingState = useStore.use.playingState();
   const facsimileFocus = useStore.use.facsimileFocus();
   const setIsFacsimileLinked = useStore.use.setIsFacsimileLinked();
+  const followsPlayback = splitView || isActiveTab;
+  const showsPlayer = !splitView && isActiveTab && (score?.audioFiles?.length ?? 0) > 0;
 
   const links = score?.properties.facsimileLinks ?? null;
 
@@ -202,11 +207,13 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
       fitWidth={allParts}
       containerHeight={containerHeight}
       frame={frame?.view === view ? frame : null}
+      followsPlayback={followsPlayback}
       onPartMoved={surface => followPart(view, surface)}
       {...viewHandlers[view]} />
 
   return (
     <div style={{
+      position: "relative",
       display: "flex",
       flexDirection: "column",
       width: "100%",
@@ -274,6 +281,7 @@ function FacsimileView({ path, items }: { path: string, items: FacsimileItem[] }
         <div style={{ flex: "1 1 auto", minHeight: 0 }}>
           {imageView(0)}
         </div>}
+      {showsPlayer ? <PlayerButtons /> : null}
     </div>
   );
 }

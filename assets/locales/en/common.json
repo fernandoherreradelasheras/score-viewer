@@ -225,6 +225,10 @@
         "duration-bar": "Duration bar"
       }
     },
+    "playbackCursor": {
+      "title": "Playback cursor",
+      "description": "A band that moves along the system with the music while it plays"
+    },
     "noteInFacsimile": {
       "title": "Link score and facsimile with Ctrl+click",
       "description": "Ctrl+click (Cmd+click on Mac) on a note of the score shows it on the facsimile, and on a note of the facsimile shows it on the score. With the facsimile in split view, and only if the score encodes the link"

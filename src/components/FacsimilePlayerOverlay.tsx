@@ -122,6 +122,9 @@ function FacsimilePlayerOverlay({ links, surface, box, partStaves, onPartMoved }
     const headingToRef = useRef<string | null>(null);
     const moveRef = useRef(0);
     const seekRef = useRef(seekPosition);
+    // Shown on a playback already under way, as when its tab is opened while playing: the
+    // view is put on the music at once, not swept there from wherever the image was.
+    const joinsPlaybackRef = useRef(playingState == PlayingState.PLAYING);
 
     useEffect(() => {
         const move = ++moveRef.current;
@@ -131,6 +134,7 @@ function FacsimilePlayerOverlay({ links, surface, box, partStaves, onPartMoved }
         }
 
         if (playingState != PlayingState.PLAYING) {
+            joinsPlaybackRef.current = false;
             // The library runs its animations on its own clock: a short one to where the
             // view already is replaces the one under way.
             const { positionX, positionY, scale } = instance.state;
@@ -141,37 +145,56 @@ function FacsimilePlayerOverlay({ links, surface, box, partStaves, onPartMoved }
             return;
         }
 
-        const currentAnchor = currentAnchorRef.current;
-        if (!current || !currentAnchor) {
+        if (!current || !currentAnchorRef.current) {
             return;
         }
+        const joinsPlayback = joinsPlaybackRef.current;
+        const jumpMs = joinsPlayback ? 0 : JUMP_ANIMATION_MS;
         // Typed for HTML elements, but all it reads from the node is its client rect.
         const moveTo = (anchor: SVGCircleElement, animationTime: number, animationType: "easeOut" | "linear") =>
             zoomToElement(anchor as unknown as HTMLElement, { scale: instance.state.scale, animationTime, animationType });
 
-        // Travelling to this note already, or paused on the way to the next one.
-        const onTrack = headingToRef.current === current.id || headingToRef.current === next?.id;
-        const nextAnchor = nextAnchorRef.current;
-
-        if (!next || next.line != current.line || !nextAnchor) {
-            headingToRef.current = current.id;
-            if (!onTrack) {
-                moveTo(currentAnchor, JUMP_ANIMATION_MS, "easeOut");
+        const travel = () => {
+            joinsPlaybackRef.current = false;
+            const currentAnchor = currentAnchorRef.current;
+            if (!currentAnchor) {
+                return;
             }
+            // Travelling to this note already, or paused on the way to the next one.
+            const onTrack = headingToRef.current === current.id || headingToRef.current === next?.id;
+            const nextAnchor = nextAnchorRef.current;
+
+            if (!next || next.line != current.line || !nextAnchor) {
+                headingToRef.current = current.id;
+                if (!onTrack) {
+                    moveTo(currentAnchor, jumpMs, "easeOut");
+                }
+                return;
+            }
+
+            headingToRef.current = next.id;
+            const remaining = next.onsetMs - playingPosition;
+            if (onTrack) {
+                moveTo(nextAnchor, remaining, "linear");
+            } else {
+                moveTo(currentAnchor, jumpMs, "easeOut").then(() => {
+                    if (move === moveRef.current && nextAnchorRef.current) {
+                        moveTo(nextAnchorRef.current, Math.max(1, remaining - jumpMs), "linear");
+                    }
+                });
+            }
+        };
+
+        if (!joinsPlayback) {
+            travel();
             return;
         }
-
-        headingToRef.current = next.id;
-        const remaining = next.onsetMs - playingPosition;
-        if (onTrack) {
-            moveTo(nextAnchor, remaining, "linear");
-        } else {
-            moveTo(currentAnchor, JUMP_ANIMATION_MS, "easeOut").then(() => {
-                if (move === moveRef.current && nextAnchorRef.current) {
-                    moveTo(nextAnchorRef.current, Math.max(1, remaining - JUMP_ANIMATION_MS), "linear");
-                }
-            });
-        }
+        // Just shown, the wrapper hears of its size only at the next layout, when it
+        // realigns the content cancelling any move under way: the first one waits for it.
+        let request = requestAnimationFrame(() => {
+            request = requestAnimationFrame(travel);
+        });
+        return () => cancelAnimationFrame(request);
         // On a new note, a change of transport and a seek: the position is read when they
         // happen, and following every tick would restart the travel on each one.
         // eslint-disable-next-line react-hooks/exhaustive-deps

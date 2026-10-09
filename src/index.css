@@ -11,6 +11,17 @@
   overflow: hidden !important;
 }
 
+/* The music and the facsimile hidden behind another tab keep their size: the music goes on
+   rendering the pages the player turns to, and the facsimile keeps its zoom and position,
+   which its zoom library would lose to a size of nothing. */
+.ant-tabs-content.score-kept-pane.ant-tabs-content-hidden {
+  display: block;
+  visibility: hidden;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
 .score-splitter-panel {
   overflow: hidden !important;
 }
@@ -371,6 +382,16 @@
     stroke-width: 3px;
     opacity: 0;
   }
+}
+
+/* Travels along the system with the music in the paged view. */
+.svg-container.static-score svg .playback-cursor {
+  fill: #000;
+  fill-opacity: 0.08;
+  pointer-events: none;
+  transform-box: view-box;
+  transform-origin: 0 0;
+  will-change: transform;
 }
 
 /* What is linked to the score, while Ctrl or Cmd is held for a click to follow it. */

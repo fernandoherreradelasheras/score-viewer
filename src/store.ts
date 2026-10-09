@@ -265,11 +265,14 @@ interface PlayerState {
     playingPosition: number
     seekPosition: number
     autoScroll: boolean
+    // The audio of the score is loaded and can be played.
+    canPlay: boolean
 
     setPlayingState: (state: PlayingState) => void
     setPlayingPosition: (position: number) => void
     setSeekPosition: (position: number) => void
     setAutoScroll: (autoScroll: boolean) => void
+    setCanPlay: (canPlay: boolean) => void
     resetPlayerPosition: () => void
 }
 
@@ -278,11 +281,13 @@ const createPlayerStore = create<PlayerState>((set) => ({
     playingPosition: 0,
     seekPosition: -1,
     autoScroll: false,
+    canPlay: false,
 
     setPlayingState: (playingState: PlayingState) => set(() => ({ playingState: playingState })),
     setPlayingPosition: (position: number) => set(() => ({ playingPosition: position })),
     setSeekPosition: (position: number) => set(() => ({ seekPosition: position })),
     setAutoScroll: (autoScroll: boolean) => set(() => ({ autoScroll: autoScroll })),
+    setCanPlay: (canPlay: boolean) => set(() => ({ canPlay })),
     resetPlayerPosition: () => set(() => ({
         playingPosition: 0,
         seekPosition: 0,
@@ -304,6 +309,7 @@ interface ScoreSettings {
     measureNumberInterval: number
     showColoredNotes: boolean
     noteVisualization: NoteVisualizationId
+    showPlaybackCursor: boolean
     showNoteInFacsimile: boolean
 
     setShowNVerses: (n: number) => void
@@ -319,6 +325,7 @@ interface ScoreSettings {
     setMeasureNumberInterval: (interval: number) => void
     setShowColoredNotes: (showColoredNotes: boolean) => void
     setNoteVisualization: (noteVisualization: NoteVisualizationId) => void
+    setShowPlaybackCursor: (showPlaybackCursor: boolean) => void
     setShowNoteInFacsimile: (showNoteInFacsimile: boolean) => void
     resetEditorialOptions: () => void
     resetScoreSettings: () => void
@@ -338,6 +345,7 @@ const DEFAULT_SCORE_SETTINGS = {
     measureNumberInterval: 0,
     showColoredNotes: false,
     noteVisualization: "glow" as NoteVisualizationId,
+    showPlaybackCursor: true,
     showNoteInFacsimile: true,
 }
 
@@ -363,6 +371,7 @@ const createScoreSettingsStore = create<ScoreSettings>()(persist((set) => ({
     setMeasureNumberInterval: (interval: number) => set(() => ({ measureNumberInterval: interval })),
     setShowColoredNotes: (showColoredNotes: boolean) => set(() => ({ showColoredNotes })),
     setNoteVisualization: (noteVisualization: NoteVisualizationId) => set(() => ({ noteVisualization })),
+    setShowPlaybackCursor: (showPlaybackCursor: boolean) => set(() => ({ showPlaybackCursor })),
     setShowNoteInFacsimile: (showNoteInFacsimile: boolean) => set(() => ({ showNoteInFacsimile })),
     // The reader's readings, and only those: the rest of this slice is viewer settings,
     // which belong to the options panel and outlive the score on screen.
@@ -497,10 +506,12 @@ class ScoreViewerStoreApi {
         playingPosition: createPlayerStoreWithSelectors.use.playingPosition,
         seekPosition: createPlayerStoreWithSelectors.use.seekPosition,
         autoScroll: createPlayerStoreWithSelectors.use.autoScroll,
+        canPlay: createPlayerStoreWithSelectors.use.canPlay,
         setPlayingState: createPlayerStoreWithSelectors.use.setPlayingState,
         setPlayingPosition: createPlayerStoreWithSelectors.use.setPlayingPosition,
         setSeekPosition: createPlayerStoreWithSelectors.use.setSeekPosition,
         setAutoScroll: createPlayerStoreWithSelectors.use.setAutoScroll,
+        setCanPlay: createPlayerStoreWithSelectors.use.setCanPlay,
         resetPlayerPosition: createPlayerStoreWithSelectors.use.resetPlayerPosition,
 
         // Score Settings Store
@@ -517,6 +528,7 @@ class ScoreViewerStoreApi {
         measureNumberInterval: createScoreSettingsStoreWithSelectors.use.measureNumberInterval,
         showColoredNotes: createScoreSettingsStoreWithSelectors.use.showColoredNotes,
         noteVisualization: createScoreSettingsStoreWithSelectors.use.noteVisualization,
+        showPlaybackCursor: createScoreSettingsStoreWithSelectors.use.showPlaybackCursor,
         showNoteInFacsimile: createScoreSettingsStoreWithSelectors.use.showNoteInFacsimile,
         setShowNVerses: createScoreSettingsStoreWithSelectors.use.setShowNVerses,
         setShowEditorial: createScoreSettingsStoreWithSelectors.use.setShowEditorial,
@@ -531,6 +543,7 @@ class ScoreViewerStoreApi {
         setMeasureNumberInterval: createScoreSettingsStoreWithSelectors.use.setMeasureNumberInterval,
         setShowColoredNotes: createScoreSettingsStoreWithSelectors.use.setShowColoredNotes,
         setNoteVisualization: createScoreSettingsStoreWithSelectors.use.setNoteVisualization,
+        setShowPlaybackCursor: createScoreSettingsStoreWithSelectors.use.setShowPlaybackCursor,
         setShowNoteInFacsimile: createScoreSettingsStoreWithSelectors.use.setShowNoteInFacsimile,
         resetEditorialOptions: createScoreSettingsStoreWithSelectors.use.resetEditorialOptions,
         resetScoreSettings: createScoreSettingsStoreWithSelectors.use.resetScoreSettings,

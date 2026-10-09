@@ -13,11 +13,12 @@ It is also available as a standalone page to embed with an `<iframe>`.
   readings of an `<app>`, `<choice>` or `<subst>`. Readings that belong to the same
   variant group switch together.
 - **Audio**: plays recorded audio synchronized with the score. Notes are coloured by staff
-  and animated while they sound, and the score turns pages or scrolls along. A score can
-  have several audio versions.
+  and animated while they sound, a cursor travels along the system, and the score turns
+  pages or scrolls along. A score can have several audio versions.
 - **Facsimile**: images of the sources beside the score, with zoom and pan, one part at
   a time or all of them side by side. When the MEI links notes to zones of the images,
-  the facsimile follows the music while it plays. Ctrl+click (Cmd+click on macOS) on a
+  the facsimile follows the music while it plays, beside the score or on its own tab,
+  which then has the player buttons too. Ctrl+click (Cmd+click on macOS) on a
   note shows it on the other view, in either direction.
 - **Texts**: an introduction in Markdown, and the poem and its notes from the MEI
   `<back>`.
@@ -136,7 +137,7 @@ export default defineConfig({
 | `language` | `string` | `"en"`, `"es"` or `"autodetect"` (the browser language). The reader's own choice, if allowed, takes precedence. |
 | `backgroundColor` | `string` | CSS colour behind the score. White by default. |
 | `selectorLabel` | `"work" \| "section"` | What the score selector calls its entries. `"work"` by default. |
-| `initialTab` | `"intro" \| "text" \| "music"` | The tab shown first, until the reader picks one. The music by default. |
+| `initialTab` | `"intro" \| "text" \| "music" \| "facsimile"` | The tab shown first, until the reader picks one. The music by default, and also when the score has no such tab. |
 
 ### `scores[]`
 
@@ -147,7 +148,7 @@ export default defineConfig({
 | `meiFile` | `string` | Required. The MEI file in that folder. |
 | `encodingProperties` | `{ encodedTransposition?: string }` | Required, may be empty. `encodedTransposition` is the transposition the score was encoded with (`"-P4"`, `"+M3"`, `"P8"`…), which the reader can undo. |
 | `audioFiles` | `{ file: string, name?: string }[]` | Audio versions of the score. The first one plays by default; with more than one, the reader can switch between them. |
-| `introductionFile` | `string` | Markdown introduction. It must be served as `text/markdown` or `text/plain`. |
+| `introductionFile` | `string` | Markdown introduction. It must be served as `text/markdown` or `text/plain`. Image paths starting with `./` or `../` are resolved against the Markdown file; other relative paths, against the site root. |
 | `facsimileItems` | `{ name: string, file: string, part?: string }[]` | Facsimile images. `part` is the `xml:id` of the `<perfRes>` whose part the image shows; without it, the image is taken for the full score. |
 
 `text` and `textCommentsFile` are deprecated and ignored: the poem and its notes are read

@@ -84,13 +84,15 @@ interface FacsimileImageViewProps {
   // The height the image is fitted to when not fitting the width.
   containerHeight: number;
   frame: FacsimileFrame | null;
+  // Marks what sounds and travels with it.
+  followsPlayback: boolean;
   onPartMoved: (surface: number) => void;
   onAspectRatio?: (aspectRatio: number | null) => void;
   transformRef?: Ref<ReactZoomPanPinchContentRef>;
 }
 
 function FacsimileImageView({ path, items, currentItem, itemSurfaces, fitWidth, containerHeight, frame,
-  onPartMoved, onAspectRatio, transformRef }: FacsimileImageViewProps) {
+  followsPlayback, onPartMoved, onAspectRatio, transformRef }: FacsimileImageViewProps) {
   const splitView = useStore.use.isSplitView();
   const splitViewOrientation = useStore.use.splitViewOrientation();
   const score = useStore.use.score();
@@ -153,6 +155,10 @@ function FacsimileImageView({ path, items, currentItem, itemSurfaces, fitWidth, 
 
   const imageFile = currentItem < items.length ? path + items[currentItem].file : '';
   const imageTitle = currentItem < items.length ? items[currentItem].name : '';
+
+  // Measured on the image on show: a tab hidden until now still has the size of nothing,
+  // and the marks laid over it would send the view astray.
+  const imageShown = imageBox?.src === imageFile && imageBox.width > 0;
 
   const imageStyle = useMemo(() => {
     if (fitWidth || isVerticalSplit) {
@@ -218,10 +224,11 @@ function FacsimileImageView({ path, items, currentItem, itemSurfaces, fitWidth, 
         {...(isHorizontalSplit && !fitWidth ? { contentStyle: { width: "100%", height: "100%" } } : {})}>
         <div style={containerStyle}>
           <img ref={setImage} src={imageFile} alt={imageTitle} style={imageStyle} onLoad={onImageLoad} />
-          {links && surface >= 0 && splitView && imageBox?.src === imageFile ? <>
-            <FacsimilePlayerOverlay links={links} surface={surface} box={imageBox}
-              partStaves={partStaves} onPartMoved={onPartMoved} />
-            {frame?.zones[0]?.surface === surface ?
+          {links && surface >= 0 && imageShown ? <>
+            {followsPlayback ?
+              <FacsimilePlayerOverlay links={links} surface={surface} box={imageBox}
+                partStaves={partStaves} onPartMoved={onPartMoved} /> : null}
+            {splitView && frame?.zones[0]?.surface === surface ?
               <FacsimileOverlay key={frame.seq} surface={links.surfaces[surface]} box={imageBox}
                 frame={frame.zones} frameRef={setFrameElement} /> : null}
             {facsimileClickable ?

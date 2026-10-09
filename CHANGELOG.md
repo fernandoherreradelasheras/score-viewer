@@ -30,6 +30,11 @@ first. Ordinary fixes and additions are not — see the git log for those.
   Until now every editorial accidental was shown after normalizing, so a measure
   repeating a ficta drew the same accidental on each note.
 
+### Configuration
+
+- `settings.initialTab` accepts `"facsimile"` too, which was reported as a configuration
+  error even though the viewer could open on that tab.
+
 ### Interaction
 
 - A note of the score is shown on the facsimile with Ctrl+click (Cmd+click on macOS)

@@ -1,10 +1,11 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { Tabs, TabsProps, Space } from 'antd';
 import { FileTextOutlined, FileImageOutlined } from '@ant-design/icons';
 import Icon from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import MusicSvg from "../../assets/music.svg?react";
 import useStore from '../store';
+import { PlayingState } from '../types';
 
 interface TabLayoutProps {
   scoreView: React.ReactNode;
@@ -51,15 +52,21 @@ export default function TabLayout({
         label: <Space orientation='horizontal'><FileTextOutlined />{t('tab.text')}</Space>,
         children: textView
       } : null,
+      // Rendered from the start and kept laid out while hidden (see .score-kept-pane):
+      // the player lives in it, and the facsimile follows it from its own tab.
       {
         key: 'music',
         label: <Space orientation='horizontal'><Icon component={MusicSvg} />{t('tab.music')}</Space>,
-        children: scoreView
+        children: scoreView,
+        forceRender: true,
+        className: 'score-kept-pane score-music-pane',
       },
+      // Kept laid out as well, for the image to stay where the reader left it.
       showAnySection && facsimileView ? {
         key: 'facsimile',
         label: <Space orientation='horizontal'> <FileImageOutlined />{t('tab.facsimile')}</Space>,
-        children: facsimileView
+        children: facsimileView,
+        className: 'score-kept-pane',
       } : null
     ].filter(tab => tab != null),
     [scoreView, textView, introView, facsimileView, showAnySection, t]
@@ -74,6 +81,18 @@ export default function TabLayout({
   // The active tab is a preference kept across scores, so it may name a tab the current
   // score does not have (or whose sections are still unknown); the music stands in for it.
   const effectiveTab = tabsItems.some(tab => tab.key === activeTab) ? activeTab : 'music';
+
+  // The music can be followed on its facsimile, but not while reading a text.
+  const playingState = useStore.use.playingState();
+  const setPlayingState = useStore.use.setPlayingState();
+  useEffect(() => {
+    if (effectiveTab !== 'music' && effectiveTab !== 'facsimile' && playingState === PlayingState.PLAYING) {
+      setPlayingState(PlayingState.PAUSED);
+    }
+    // Only a change of tab pauses: reacting to the playing state as well would pause a
+    // playback started from another tab.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveTab]);
 
   return (
     <Tabs

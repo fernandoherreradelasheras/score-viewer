@@ -225,6 +225,10 @@
         "duration-bar": "Barra de duraci\u00f3n"
       }
     },
+    "playbackCursor": {
+      "title": "Cursor de reproducción",
+      "description": "Una banda que recorre el sistema al ritmo de la música durante la reproducción"
+    },
     "noteInFacsimile": {
       "title": "Enlazar partitura y facsímil con Ctrl+clic",
       "description": "Ctrl+clic (Cmd+clic en Mac) en una nota de la partitura la muestra en el facsímil, y en una nota del facsímil la muestra en la partitura. Con el facsímil en vista dividida y solo si la partitura tiene la relación codificada"

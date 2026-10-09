@@ -37,7 +37,7 @@ export interface ScoreViewerConfigScore {
   };
 }
 
-export type InitialTab = "intro" | "text" | "music";
+export type InitialTab = "intro" | "text" | "music" | "facsimile";
 
 export interface ScoreViewerConfigSettings {
   showScoreSelector: boolean;

@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback, useMemo } from "react";
+import { useRef, useEffect, useCallback, useMemo } from "react";
 import useStore from "../store";
 import { TimeMapEvent, PlayingState } from "../types";
 import useVerovio from "../useVerovio";
@@ -31,7 +31,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
     const sourceNodesRef = useRef<Map<string, AudioBufferSourceNode>>(new Map());
     const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
 
-    const [canPlay, setCanPlay] = useState(false);
+    const setCanPlay = useStore.use.setCanPlay();
     const needsUserInteractionRef = useRef(true);
 
     const currentPageRef = useRef(currentPage);
@@ -120,18 +120,6 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         }
     }, [autoScroll, playingState, verovio, goToPage])
 
-
-    const handlePlayPause = useCallback(() => {
-        if (playingState === PlayingState.PLAYING) {
-            setPlayingState(PlayingState.PAUSED);
-        } else if (playingState === PlayingState.PAUSED) {
-            setPlayingState(PlayingState.PLAYING);
-        }
-    }, [playingState, setPlayingState]);
-
-    const handlePlay = useCallback(() => {
-        setPlayingState(PlayingState.PLAYING);
-    }, [setPlayingState]);
 
     const onAudioEnded = useCallback(() => {
         setPlayingState(PlayingState.STOPPED);
@@ -228,18 +216,6 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
 
 
 
-
-    const playPauseTooltip = useCallback(() => {
-        return playingState === PlayingState.PLAYING ? "Pause" : "Play";
-    }, [playingState]);
-
-
-    const handleStop = useCallback(() => {
-        stopPlayback();
-        onAudioEnded();
-    }, [stopPlayback, onAudioEnded]);
-
-
     useEffect(() => {
         const context = getAudioContext();
         if (!context) return;
@@ -318,6 +294,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
     useEffect(() => {
         return () => {
             stopPlayback()
+            setCanPlay(false)
             if (audioContextRef.current?.state === 'running') {
                 audioContextRef.current.suspend().then(() => {
                     console.log("Audio context suspended");
@@ -377,11 +354,4 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [playingState, resumeAudioContext]);
 
-    return {
-        canPlay,
-        playPauseTooltip,
-        handlePlay,
-        handlePlayPause,
-        handleStop
-    };
 }

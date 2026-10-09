@@ -33,7 +33,7 @@ function PlayerControls({ audioDuration = 0 }: PlayerControlProps) {
     const setSelectedAudioIndex = useStore.use.setSelectedAudioIndex()
 
     const [positionString, setPositionString] = useState("00:00")
-    const [durationString, setDurationString] = useState("00:00")
+    const [durationString, setDurationString] = useState(() => formatTime(audioDuration))
     const [playerMode, setPlayerMode] = useState("static")
     const [currentDuration, setCurrentDuration] = useState(audioDuration || 0);
 

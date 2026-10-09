@@ -37,6 +37,8 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
     const noteVisualization = useStore.use.noteVisualization();
     const setNoteVisualization = useStore.use.setNoteVisualization();
     const showNoteInFacsimile = useStore.use.showNoteInFacsimile();
+    const showPlaybackCursor = useStore.use.showPlaybackCursor();
+    const setShowPlaybackCursor = useStore.use.setShowPlaybackCursor();
     const setShowNoteInFacsimile = useStore.use.setShowNoteInFacsimile();
     const resetScoreSettings = useStore.use.resetScoreSettings();
     const resetUILayout = useStore.use.resetUILayout();
@@ -107,6 +109,23 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
                     onChange={onNoteVisualizationChange}
                     style={{ width: "100%" }}
                 />
+            </Col>
+        </Row> : null;
+
+    const playbackCursorRow = audioFiles.length > 0 ?
+        <Row align={"middle"}>
+            <Col span={20}>
+                <Space orientation="vertical">
+                    <Typography.Text strong={true} {...(!showPlaybackCursor ? { type: 'secondary' } : {})}>
+                        {t('scoreOptions.playbackCursor.title')}
+                    </Typography.Text>
+                    <Typography.Text style={{ fontWeight: "lighter", fontSize: "0.8em" }} {...(!showPlaybackCursor ? { type: 'secondary' } : {})}>
+                        {t('scoreOptions.playbackCursor.description')}
+                    </Typography.Text>
+                </Space>
+            </Col>
+            <Col span={4}>
+                <Switch value={showPlaybackCursor} onChange={setShowPlaybackCursor} />
             </Col>
         </Row> : null;
 
@@ -232,6 +251,7 @@ function ScoreOptionsPanel({ allowUserLanguageChange, hasSecondaryContent, onClo
                 </Typography.Title>
                 <Space orientation="vertical" size="middle">
                     {noteVisualizationRow}
+                    {playbackCursorRow}
                     {noteInFacsimileRow}
                     <Row align={"middle"}>
                         <Col span={20}>
