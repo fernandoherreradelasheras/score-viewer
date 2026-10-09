@@ -274,6 +274,7 @@
     "backgroundColorString": "backgroundColor must be a string if provided",
     "languageString": "language must be a string if provided",
     "initialTabInvalid": "initialTab must be one of: {{values}}",
+    "initialScoreInvalid": "settings.initialScore must be the index or the path of one of the scores",
     "scoresArray": "Scores must be an array",
     "scoresNotEmpty": "At least one score is required",
     "scoreTitleRequired": "Score title is required and must be a string",

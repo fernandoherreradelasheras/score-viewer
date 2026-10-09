@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InitialTab, ScoreViewerConfig } from '../types/config';
+import { resolveScoreIndex } from '../utils/initial-score';
 
 const INITIAL_TABS: InitialTab[] = ["intro", "text", "music", "facsimile"];
 
@@ -117,6 +118,14 @@ export const useConfigValidation = (config: ScoreViewerConfig) => {
         errors.push({
           field: 'settings.initialTab',
           message: t('configValidation.initialTabInvalid', { values: INITIAL_TABS.join(', ') })
+        });
+      }
+
+      if (settings.initialScore !== undefined &&
+        (!Array.isArray(config.scores) || resolveScoreIndex(config.scores, settings.initialScore) === null)) {
+        errors.push({
+          field: 'settings.initialScore',
+          message: t('configValidation.initialScoreInvalid')
         });
       }
     }

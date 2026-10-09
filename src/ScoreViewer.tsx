@@ -24,6 +24,7 @@ import ScoreViewerHeader from './components/ScoreViewerHeader';
 import SettingsButton from './components/SettingsButton';
 import { useScoreViewerEffects } from './hooks/useScoreViewerEffects';
 import { useFullscreenElement } from './hooks/useFullscreenElement';
+import { resolveScoreIndex } from './utils/initial-score';
 
 
 export interface ScoreViewerProps {
@@ -119,6 +120,10 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
 
   const scoreViewContainerRef = useRef<ScoreViewContainerRef>(null);
   const loadingScoreIndexRef = useRef<number | null>(null);
+  const initialScoreIndex = config.settings.initialScore !== undefined ?
+    resolveScoreIndex(config.scores, config.settings.initialScore) :
+    config.settings.showScoreSelector && config.scores.length > 0 ? 0 : null
+  const [selectedScoreIndex, setSelectedScoreIndex] = useState<number | null>(initialScoreIndex);
   const [openDrawer, setOpenDrawer] = useState(false);
 
 
@@ -142,6 +147,7 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
     // Which sections the new score offers is settled when it arrives, not here: see the
     // effect below.
     loadingScoreIndexRef.current = scoreIndex;
+    setSelectedScoreIndex(scoreIndex);
     setSelectedAudioIndex(0);
     await fetchTextParts(scoreIndex);
     // Allow the container to get the final size (might depend on having tabs content)
@@ -158,6 +164,7 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
     selectScore: async (scoreIndex: number | null) => {
       if (scoreIndex === null) {
         unloadScore()
+        setSelectedScoreIndex(null)
       } else if (scoreIndex >= 0 && scoreIndex < config.scores.length) {
         await loadAll(scoreIndex);
       }
@@ -174,8 +181,7 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
   // All effects moved to useScoreViewerEffects hook
   useScoreViewerEffects({
     configLanguage: config.settings.language,
-    configScores: config.scores,
-    configShowScoreSelector: config.settings.showScoreSelector,
+    initialScoreIndex,
     activeTab: shownTab,
     scoreViewContainerRef,
     showOriginalClefs,
@@ -336,6 +342,7 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
       showOptions={config.settings.showOptions && !settingsInTabBar}
       selectorLabel={config.settings.selectorLabel || "work"}
       scoreItems={scoreItems}
+      selectedScoreIndex={selectedScoreIndex}
       onScoreSelectedChanged={onScoreSelectedChanged}
       facsimileView={facsimileView}
       introView={introView}
@@ -344,7 +351,7 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
     />
   ), [
     showScoreSelector, settingsInTabBar, config.settings.showOptions,
-    config.settings.selectorLabel, scoreItems, onScoreSelectedChanged,
+    config.settings.selectorLabel, scoreItems, selectedScoreIndex, onScoreSelectedChanged,
     facsimileView, introView, textView, showDrawer
   ]);
 

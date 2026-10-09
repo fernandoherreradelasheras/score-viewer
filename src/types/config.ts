@@ -55,6 +55,9 @@ export interface ScoreViewerConfigSettings {
   allowUserLanguageChange: boolean;
   selectorLabel?: string | "work" | "section";
   initialTab?: InitialTab;
+  // The score loaded when the viewer mounts: its index in `scores` or its `path`.
+  // When given, it is loaded even with `showScoreSelector: false`.
+  initialScore?: number | string;
 }
 
 export interface ScoreViewerConfig {

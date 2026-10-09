@@ -7,6 +7,8 @@ import { ScoreViewerConfig } from "../src/types/config";
 const query = new URLSearchParams(window.location.search)
 const configUrl = query.get("config") || ""
 const parent = configUrl.slice(0, configUrl.lastIndexOf('/'))
+const scoreParam = query.get("score")
+const initialScore = scoreParam === null ? undefined : /^\d+$/.test(scoreParam) ? Number(scoreParam) : scoreParam
 
 const wrapUrl = (url: string) =>
     url.startsWith("http") || url.startsWith("/") ? url : `${parent}/${url}`
@@ -32,6 +34,9 @@ function ScoreViewerWrapper() {
                     }
                     if (typeof settings.facsimileImagesPath === "string") {
                         settings.facsimileImagesPath = wrapUrl(settings.facsimileImagesPath)
+                    }
+                    if (initialScore !== undefined) {
+                        settings.initialScore = initialScore
                     }
                 }
                 setConfig(data)

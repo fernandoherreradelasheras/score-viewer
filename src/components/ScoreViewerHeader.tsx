@@ -11,6 +11,7 @@ interface ScoreViewerHeaderProps {
   showOptions: boolean;
   selectorLabel: string | "work" | "section";
   scoreItems: DefaultOptionType[];
+  selectedScoreIndex: number | null;
   onScoreSelectedChanged: (value: number) => void;
 
   facsimileView: React.ReactNode | null;
@@ -25,6 +26,7 @@ export default function ScoreViewerHeader({
   showOptions,
   selectorLabel,
   scoreItems,
+  selectedScoreIndex,
   onScoreSelectedChanged: onScoreChanged,
   facsimileView,
   introView,
@@ -42,12 +44,12 @@ export default function ScoreViewerHeader({
         <Typography.Text style={{ marginLeft: "10px" }}>{label}:</Typography.Text>
         <Select
           style={{ minWidth: "200px", marginRight: "10px" }}
-          defaultValue={0}
+          value={selectedScoreIndex ?? undefined}
           options={scoreItems}
           onChange={onScoreChanged} />
       </Space>
       : null
-    , [showScoreSelector, scoreItems, onScoreChanged, label]);
+    , [showScoreSelector, scoreItems, selectedScoreIndex, onScoreChanged, label]);
 
   const splitViewSelector = useMemo(() => isSplitView ?
     <SplitViewSelector

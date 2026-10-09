@@ -4,12 +4,10 @@ import { isMobile, useMobileOrientation } from 'react-device-detect';
 import { ScoreViewContainerRef } from '../ScoreViewContainer';
 import { VisualizationOptions } from '../types';
 import { LANGUAGE_SESSION_STORAGE_KEY } from '../types';
-import { ScoreViewerConfigScore } from '../types/config';
 
 interface UseScoreViewerEffectsProps {
   configLanguage?: string;
-  configScores: ScoreViewerConfigScore[];
-  configShowScoreSelector: boolean;
+  initialScoreIndex: number | null;
   activeTab: string;
   scoreViewContainerRef: React.RefObject<ScoreViewContainerRef | null>;
   showOriginalClefs: boolean | null;
@@ -20,8 +18,7 @@ interface UseScoreViewerEffectsProps {
 
 export function useScoreViewerEffects({
   configLanguage,
-  configScores,
-  configShowScoreSelector,
+  initialScoreIndex,
   activeTab,
   scoreViewContainerRef,
   showOriginalClefs,
@@ -41,9 +38,9 @@ export function useScoreViewerEffects({
   // Initial score loading effect
   useEffect(() => {
     console.log("iniital effect to load score");
-    if (configScores.length > 0 && configShowScoreSelector && !hasInitiallyLoaded.current) {
+    if (initialScoreIndex !== null && !hasInitiallyLoaded.current) {
       hasInitiallyLoaded.current = true;
-      loadAll(0);
+      loadAll(initialScoreIndex);
     }
     // A one-shot load on mount: the guard above already makes it one, and re-running it
     // whenever the config or the loader identity changes would only repeat that check.

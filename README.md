@@ -91,7 +91,7 @@ function App() {
 | Method | |
 |---|---|
 | `goToSection(sectionId)` | Turns to the page where a `<section>` of the current score starts, by its `xml:id`. |
-| `selectScore(index \| null)` | Loads the score at that index of `config.scores`, or unloads the current one with `null`. Useful with `showScoreSelector: false` and a selector of your own. |
+| `selectScore(index \| null)` | Loads the score at that index of `config.scores`, or unloads the current one with `null`. The score selector, when shown, follows it. Useful with `showScoreSelector: false` and a selector of your own. |
 
 ### Usage with Vite
 
@@ -139,6 +139,7 @@ export default defineConfig({
 | `backgroundColor` | `string` | CSS colour behind the score. White by default. |
 | `selectorLabel` | `"work" \| "section"` | What the score selector calls its entries. `"work"` by default. |
 | `initialTab` | `"intro" \| "text" \| "music" \| "facsimile"` | The tab shown first, until the reader picks one. The music by default, and also when the score has no such tab. |
+| `initialScore` | `number \| string` | The score loaded first: its index in `scores` or its `path`. When given, it is loaded even with `showScoreSelector: false`. Only read when the viewer mounts; use `ref.selectScore` afterwards, or remount the viewer with another `key`. |
 
 ### `scores[]`
 
@@ -182,6 +183,13 @@ its `config` query parameter:
 
 A relative `basePath` or `facsimileImagesPath` in that file is resolved against the
 folder of the file itself; one that starts with `/` or `http` is used as it is.
+
+The optional `score` parameter picks the score to open, overriding `settings.initialScore`:
+a number is its index in `scores`, anything else its `path`.
+
+```
+…/iframe/index.html?config=https://example.com/scores/config.json&score=un-imposible
+```
 
 ### Hugo shortcode
 
