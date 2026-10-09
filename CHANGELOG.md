@@ -30,6 +30,21 @@ first. Ordinary fixes and additions are not — see the git log for those.
   Until now every editorial accidental was shown after normalizing, so a measure
   repeating a ficta drew the same accidental on each note.
 
+### Interaction
+
+- A note of the score is shown on the facsimile with Ctrl+click (Cmd+click on macOS)
+  instead of a plain click, which is left to the editorial dialog. The link now works
+  the other way too: Ctrl/Cmd+click on a note of the facsimile turns to its page in the
+  score and frames it there. The "Show note on the facsimile on click" setting, renamed
+  "Link score and facsimile with Ctrl+click", turns on both directions.
+- The frame that points out a note, on the score or on the facsimile, fades out after
+  two seconds instead of staying until the next click.
+
+### API
+
+- `scoreSvg` and `setScoreSvg` are removed from the store returned by `useStore`. Nothing
+  was setting them.
+
 ## 1.1.15
 
 ### Configuration
