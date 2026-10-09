@@ -35,7 +35,6 @@ function FacsimileView({ path, items, isActiveTab }: { path: string, items: Facs
   const facsimileFocus = useStore.use.facsimileFocus();
   const setIsFacsimileLinked = useStore.use.setIsFacsimileLinked();
   const followsPlayback = splitView || isActiveTab;
-  const showsPlayer = !splitView && isActiveTab && (score?.audioFiles?.length ?? 0) > 0;
 
   const links = score?.properties.facsimileLinks ?? null;
 
@@ -71,7 +70,21 @@ function FacsimileView({ path, items, isActiveTab }: { path: string, items: Facs
     setFrame(null);
   }, []);
 
-  const isLinked = splitView && viewSurfaces.some(surfaces => surfaces.some(s => s >= 0));
+  const hasLinkedImages = viewSurfaces.some(surfaces => surfaces.some(s => s >= 0));
+  const isLinked = splitView && hasLinkedImages;
+
+  // On its own tab, the player comes along only if there is music to follow on the images;
+  // otherwise the music is left behind, as for the texts.
+  const playsOnTab = !splitView && isActiveTab;
+  const showsPlayer = playsOnTab && hasLinkedImages && (score?.audioFiles?.length ?? 0) > 0;
+  const setPlayingState = useStore.use.setPlayingState();
+  useEffect(() => {
+    if (playsOnTab && !hasLinkedImages && playingState === PlayingState.PLAYING) {
+      setPlayingState(PlayingState.PAUSED);
+    }
+    // Only coming onto the tab pauses, not every change of the playing state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playsOnTab]);
   useEffect(() => {
     setIsFacsimileLinked(isLinked);
   }, [isLinked, setIsFacsimileLinked]);

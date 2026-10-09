@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Tabs, TabsProps, Space } from 'antd';
 import { FileTextOutlined, FileImageOutlined } from '@ant-design/icons';
 import Icon from '@ant-design/icons';
@@ -40,6 +40,24 @@ export default function TabLayout({
   // with it the whole verovio pipeline). Panes are keyed, so the score keeps its
   // mounted instance while sibling tabs come and go.
   const showAnySection = showIntroductionSection || showTextSection || showFacsimileSection;
+
+  // The size the music had on show, which it keeps while hidden: taking that of the tab on
+  // show instead would render it again for nothing, and again on coming back.
+  const [musicSize, setMusicSize] = useState<{ width: number, height: number } | null>(null);
+  const musicObserver = useRef<ResizeObserver | null>(null);
+  const observeMusic = useCallback((node: HTMLDivElement | null) => {
+    musicObserver.current?.disconnect();
+    if (!node) {
+      return;
+    }
+    musicObserver.current = new ResizeObserver(([entry]) => {
+      if (!node.closest('.ant-tabs-content-hidden')) {
+        setMusicSize({ width: entry.contentRect.width, height: entry.contentRect.height });
+      }
+    });
+    musicObserver.current.observe(node);
+  }, []);
+
   const tabsItems: TabsProps['items'] = useMemo(() =>
     [
       showAnySection && introView ? {
@@ -57,7 +75,7 @@ export default function TabLayout({
       {
         key: 'music',
         label: <Space orientation='horizontal'><Icon component={MusicSvg} />{t('tab.music')}</Space>,
-        children: scoreView,
+        children: <div ref={observeMusic} style={{ height: "100%" }}>{scoreView}</div>,
         forceRender: true,
         className: 'score-kept-pane score-music-pane',
       },
@@ -69,7 +87,7 @@ export default function TabLayout({
         className: 'score-kept-pane',
       } : null
     ].filter(tab => tab != null),
-    [scoreView, textView, introView, facsimileView, showAnySection, t]
+    [scoreView, textView, introView, facsimileView, showAnySection, observeMusic, t]
   );
 
   const onTabChange = useCallback((key: string) => {
@@ -94,9 +112,12 @@ export default function TabLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveTab]);
 
+  const items = effectiveTab === 'music' || musicSize == null ? tabsItems
+    : tabsItems.map(item => item.key === 'music' ? { ...item, style: musicSize } : item);
+
   return (
     <Tabs
-      items={tabsItems}
+      items={items}
       activeKey={effectiveTab}
       renderTabBar={shouldShowTabBar ? undefined : () => <></>}
       onChange={onTabChange}

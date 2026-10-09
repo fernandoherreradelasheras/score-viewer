@@ -18,7 +18,8 @@ It is also available as a standalone page to embed with an `<iframe>`.
 - **Facsimile**: images of the sources beside the score, with zoom and pan, one part at
   a time or all of them side by side. When the MEI links notes to zones of the images,
   the facsimile follows the music while it plays, beside the score or on its own tab,
-  which then has the player buttons too. Ctrl+click (Cmd+click on macOS) on a
+  which then has the player buttons too. On a tab without such links, the music pauses as
+  it does for the texts. Ctrl+click (Cmd+click on macOS) on a
   note shows it on the other view, in either direction.
 - **Texts**: an introduction in Markdown, and the poem and its notes from the MEI
   `<back>`.
