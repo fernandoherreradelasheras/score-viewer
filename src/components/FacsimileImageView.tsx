@@ -1,7 +1,7 @@
 import { Ref, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ReactZoomPanPinchContentRef, TransformComponent, TransformWrapper, useControls } from "react-zoom-pan-pinch";
 import useStore from "../store";
-import { FacsimileItem, FacsimileZone } from '../types';
+import { FacsimileItem, FacsimileZone, PlayingState } from '../types';
 import FacsimileOverlay, { FACSIMILE_TARGET_CLASS, ImageBox } from './FacsimileOverlay';
 import FacsimilePlayerOverlay from './FacsimilePlayerOverlay';
 import { useFacsimileLinkHandler } from '../hooks/useFacsimileLinkHandler';
@@ -49,18 +49,22 @@ function FacsimileFrameZoom({ frame, seq, zoomedSeqRef }:
 }
 
 // Another image, or another layout, starts again from the whole image, or from the top
-// of it when it only fits the width of the view. A cell keeps its scale. Keyed on the image once loaded, not on its index:
+// of it when it only fits the width of the view. A cell keeps its scale, and so does an
+// image the playback goes on in, from its top left corner, where the music goes on.
+// Keyed on the image once loaded, not on its index:
 // another score starts at the same index, and before the load the content still has the
 // size of the previous image.
-function FacsimileViewReset({ loadedImage, fitWidth }: { loadedImage: string | null, fitWidth: boolean }) {
+function FacsimileViewReset({ loadedImage, fitWidth, followsPlayback }: { loadedImage: string | null, fitWidth: boolean, followsPlayback: boolean }) {
   const splitView = useStore.use.isSplitView();
   const splitViewOrientation = useStore.use.splitViewOrientation();
+  const playingState = useStore.use.playingState();
   const { centerView, setTransform, instance } = useControls();
 
   // Not keyed on the handlers: useControls hands out new ones on every render, and every
-  // render would snap the image back.
+  // render would snap the image back. Nor on the playing state: only a new image is reset.
   useEffect(() => {
-    if (fitWidth) {
+    const playing = followsPlayback && playingState === PlayingState.PLAYING;
+    if (fitWidth || playing) {
       setTransform(0, 0, instance.state.scale, 0);
     } else if (splitView && splitViewOrientation === 'vertical') {
       setTransform(0, 0, 1, 0);
@@ -215,7 +219,8 @@ function FacsimileImageView({ path, items, currentItem, itemSurfaces, fitWidth, 
         excluded: [FACSIMILE_TARGET_CLASS],
       }}
     >
-      <FacsimileViewReset loadedImage={imageBox?.src === imageFile ? imageFile : null} fitWidth={fitWidth} />
+      <FacsimileViewReset loadedImage={imageBox?.src === imageFile ? imageFile : null} fitWidth={fitWidth}
+        followsPlayback={followsPlayback && links != null && surface >= 0} />
       <FacsimileFrameZoom frame={frameElement} seq={frame?.seq ?? null} zoomedSeqRef={zoomedFrameSeqRef} />
       <TransformComponent
         wrapperStyle={{ width: "100%", height: "100%", minHeight: 0 }}

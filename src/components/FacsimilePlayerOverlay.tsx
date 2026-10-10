@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useControls } from "react-zoom-pan-pinch";
 import useStore from "../store";
-import { FacsimileLinks, FacsimileZone, PlayingState } from "../types";
+import { FacsimileLinks, PlayingState } from "../types";
 import { playerStaffColor } from "../types/colors";
 import { buildElementIntervals, buildNoteTimings, noteTimingAt } from "../utils/timemap";
+import { facsimilePath } from "../utils/facsimile";
 import usePlaybackTimemap from "../hooks/usePlaybackTimemap";
 import FacsimileOverlay, { ImageBox } from "./FacsimileOverlay";
 
@@ -16,11 +17,6 @@ interface FacsimilePlayerOverlayProps {
     onPartMoved: (surface: number) => void;
 }
 
-// A line of the manuscript ends where the music goes back to the left, or where a part
-// lands this far above or below, as fractions of the page width. In a full score the
-// voices starting together are not quite aligned, hence the tolerance.
-const LINE_JUMP = 0.15;
-const FULL_SCORE_ALIGNMENT = 0.01;
 const JUMP_ANIMATION_MS = 250;
 
 // Kept apart from the image so that the position ticks re-render the marks alone.
@@ -62,49 +58,13 @@ function FacsimilePlayerOverlay({ links, surface, box, partStaves, onPartMoved }
     const lastOfPart = started.filter(e => partStaves == null || partStaves.includes(e.staff)).pop();
 
     // What the view travels along: the part of the image, or else its first staff, or in a
-    // full score every voice, each instant where something starts taken as one point.
-    // Each point is held at the height of its line, so the view does not bob with the pitch.
+    // full score every voice.
     const followed = useMemo(() => {
         const onSurface = linked.filter(e => e.zone.surface == surface);
-        const unit = links.surfaces[surface].width;
-        const center = (zone: FacsimileZone) => ({ x: (zone.ulx + zone.lrx) / 2, y: (zone.uly + zone.lry) / 2 });
-        const mean = (values: number[]) => values.reduce((sum, value) => sum + value, 0) / values.length;
-
-        let points: { id: string, onsetMs: number, x: number, y: number }[];
-        if (partStaves == null) {
-            const byOnset = new Map<number, FacsimileZone[]>();
-            onSurface.forEach(e => byOnset.set(e.onsetMs, [...byOnset.get(e.onsetMs) ?? [], e.zone]));
-            points = [...byOnset].map(([onsetMs, zones]) => ({
-                id: `onset-${onsetMs}`,
-                onsetMs,
-                x: mean(zones.map(zone => center(zone).x)),
-                y: mean(zones.map(zone => center(zone).y)),
-            }));
-        } else {
-            const staves = partStaves.length > 0 ? partStaves
-                : onSurface.map(e => e.staff).sort((a, b) => parseInt(a) - parseInt(b)).slice(0, 1);
-            points = onSurface
-                .filter(e => staves.includes(e.staff))
-                .map(e => ({ id: e.id, onsetMs: e.onsetMs, ...center(e.zone) }));
-        }
-
-        const lines: (typeof points)[] = [];
-        points.forEach((point, i) => {
-            const line = lines[lines.length - 1];
-            const previous = points[i - 1];
-            const newLine = !line || (partStaves == null
-                ? point.x < previous.x - unit * FULL_SCORE_ALIGNMENT
-                : point.x < previous.x || Math.abs(point.y - line[0].y) > unit * LINE_JUMP);
-            if (newLine) {
-                lines.push([point]);
-            } else {
-                line.push(point);
-            }
-        });
-        return lines.flatMap((line, index) => {
-            const y = line.reduce((sum, point) => sum + point.y, 0) / line.length;
-            return line.map(point => ({ ...point, y, line: index }));
-        });
+        const staves = partStaves == null ? null : partStaves.length > 0 ? partStaves
+            : onSurface.map(e => e.staff).sort((a, b) => parseInt(a) - parseInt(b)).slice(0, 1);
+        const elements = staves == null ? onSurface : onSurface.filter(e => staves.includes(e.staff));
+        return facsimilePath(elements, staves != null, links.surfaces[surface].width);
     }, [linked, surface, partStaves, links]);
 
     const upcoming = followed.findIndex(e => e.onsetMs > playingPosition);
