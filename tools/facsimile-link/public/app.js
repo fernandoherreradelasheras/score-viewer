@@ -774,6 +774,7 @@ async function renderScoreStrip(meiText) {
     adjustPageHeight: true,
     scale: 35,
     footer: 'none', header: 'none',
+    mnumInterval: 1,
     pageMarginTop: 10, pageMarginBottom: 10, pageMarginLeft: 10, pageMarginRight: 10,
     // As in the source: original clefs (the <rdg> of <app type="app_clefs">;
     // any other <app> falls back to its <lem>) and the encoded transposition undone.
