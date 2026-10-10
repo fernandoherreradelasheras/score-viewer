@@ -1,0 +1,5 @@
+verovio==6.1.*
+synctoolbox==1.4.*
+librosa
+numpy
+pretty_midi

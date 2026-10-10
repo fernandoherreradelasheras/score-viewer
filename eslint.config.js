@@ -5,7 +5,7 @@ import tseslint from 'typescript-eslint';
 import { defineConfig, globalIgnores } from 'eslint/config';
 
 export default defineConfig([
-  globalIgnores(['dist', 'sample_code', 'test-fixtures', '.agent', 'vite.config.ts.timestamp-*']),
+  globalIgnores(['dist', 'sample_code', 'test-fixtures', '.agent', 'vite.config.ts.timestamp-*', 'tools/audio-sync/.venv']),
   {
     files: ['src/**/*.{ts,tsx}', 'lib/**/*.ts', 'iframe/**/*.{ts,tsx}'],
     extends: [js.configs.recommended, tseslint.configs.recommended, reactHooks.configs.flat.recommended],
