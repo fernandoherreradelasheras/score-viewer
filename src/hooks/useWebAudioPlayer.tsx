@@ -53,9 +53,12 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
     currentPageRef.current = currentPage;
 
     // Read through refs: checkPageForPosition runs from the requestAnimationFrame
-    // loop, which holds the closure captured when playback started.
+    // loop, which holds the closure captured when playback started. Playback restarted
+    // in auto-scroll (a seek, a pause) would otherwise never turn a page again.
     const elementPagesRef = useRef(elementPages);
     elementPagesRef.current = elementPages;
+    const autoScrollRef = useRef(autoScroll);
+    autoScrollRef.current = autoScroll;
 
     const timemapRef = useRef<TimeMapEvent[]>([]);
     timemapRef.current = timemap;
@@ -122,7 +125,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
     }, []);
 
     const checkPageForPosition = useCallback(async (position: number) => {
-        if (autoScroll || playingState === PlayingState.STOPPED) return;
+        if (autoScrollRef.current || playingState === PlayingState.STOPPED) return;
 
         const timemap = timemapRef.current;
         let elementId: string | undefined;
@@ -137,7 +140,27 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         if (playingPage && playingPage > 0 && playingPage !== currentPageRef.current) {
             goToPage(playingPage);
         }
-    }, [autoScroll, playingState, verovio, goToPage])
+    }, [playingState, verovio, goToPage])
+
+    // Back from auto-scroll the paged score is laid out on the page it was left on, which
+    // the music may be long past: once it is, the page of the position is shown, also
+    // while paused, when no playback tick would turn it.
+    const renderedSvgData = useStore.use.renderedSvgData();
+    const wasAutoScrollRef = useRef(autoScroll);
+    const leftAutoScrollRef = useRef(false);
+    useEffect(() => {
+        leftAutoScrollRef.current = wasAutoScrollRef.current && !autoScroll;
+        wasAutoScrollRef.current = autoScroll;
+    }, [autoScroll]);
+    useEffect(() => {
+        if (!leftAutoScrollRef.current || !renderedSvgData || renderedSvgData.id === "svg-auto-scrolling") {
+            return;
+        }
+        leftAutoScrollRef.current = false;
+        checkPageForPosition(playingState === PlayingState.PLAYING ? getCurrentPosition() : pausedPositionRef.current);
+        // A paged render after leaving auto-scroll is the whole trigger.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [renderedSvgData]);
 
 
     const onAudioEnded = useCallback(() => {

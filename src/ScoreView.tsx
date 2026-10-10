@@ -627,10 +627,12 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
             timemap: renderedSvgData.timemap
         });
         scheduleAction(action, PENDING_HANDLED);
-        // A page turn and nothing else: everything else it reads describes the page to
-        // put on screen, not a reason to turn to it.
+        // A page turn, or a render that left another page on screen: a turn asked for while
+        // a load was running, as on coming back from auto-scroll, found nothing to turn yet
+        // and would otherwise be lost once the load drew its own page. Everything else it
+        // reads describes the page to put on screen, not a reason to turn to it.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentPage, getCachedPage, setRenderedSvgData, setIsLoading]);
+    }, [currentPage, renderedSvgData, getCachedPage, setRenderedSvgData, setIsLoading]);
 
 
     useEffect(() => {
