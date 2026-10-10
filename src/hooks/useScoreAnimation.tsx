@@ -1,6 +1,8 @@
 import { useRef, useEffect, RefObject } from 'react';
 import { TimeMapEvent, PlayingState } from '../types';
 import { RenderedData } from './useScoreRenderer';
+import { useSelectedAudioSync, useStaffOf } from './usePlaybackTimemap';
+import { playbackTimemap } from '../utils/audio-sync';
 
 interface ScoreAnimationConfig {
   playingState: PlayingState;
@@ -16,6 +18,8 @@ export default function useScoreAnimation({
 }: ScoreAnimationConfig) {
   // Reference to the Web Animation API instance
   const animationRef = useRef<Animation | null>(null);
+  const sync = useSelectedAudioSync();
+  const staffOf = useStaffOf();
 
 
   const getAudioDurationMillis = (timemap: TimeMapEvent[]) => {
@@ -23,38 +27,37 @@ export default function useScoreAnimation({
   };
 
 
-  const generateKeyframes = (renderedSvgData: RenderedData) => {
+  const generateKeyframes = (timemap: TimeMapEvent[]) => {
     if (!svgContainerRef.current) {
       return [];
     }
 
     const viewportBB = svgContainerRef.current.getBoundingClientRect();
-    const audioDuration = getAudioDurationMillis(renderedSvgData.timemap);
+    const audioDuration = getAudioDurationMillis(timemap);
     const initialX = Math.round(
       viewportBB.left +
       2 * svgContainerRef.current.clientWidth / 3 +
       (viewportBB.right - viewportBB.width)
     );
 
-    const measuresOn = renderedSvgData.timemap
-      .filter((e) => e.measureOn !== undefined)
-      .map((e) => { return { id: e.measureOn, ts: e.tstamp }; });
-
     const keyframes: Keyframe[] = [];
+    const addKeyframe = (x: number, ts: number) => keyframes.push({
+      transform: `translateX(${initialX - Math.floor(x)}px)`,
+      offset: ts / audioDuration
+    });
 
-    measuresOn.forEach((measure) => {
-      if (measure.id) {
-        const escapedId = CSS.escape(measure.id);
-        const measureElement = svgContainerRef.current?.querySelector(`#${escapedId}`);
+    // At a jump of a synced recording the score has scrolled to the end of the measure
+    // it leaves, and moves at once to where the recording goes on.
+    let previousMeasure: Element | null = null;
+    timemap.forEach((event) => {
+      if (event.passStart && previousMeasure) {
+        addKeyframe(previousMeasure.getBoundingClientRect().right, event.tstamp);
+      }
+      if (event.measureOn) {
+        const measureElement = svgContainerRef.current?.querySelector(`#${CSS.escape(event.measureOn)}`);
         if (measureElement) {
-          const bb = measureElement.getBoundingClientRect();
-          const xPosition = initialX - Math.floor(bb.left);
-          const offset = measure.ts / audioDuration;
-
-          keyframes.push({
-            transform: `translateX(${xPosition}px)`,
-            offset: offset
-          });
+          addKeyframe(measureElement.getBoundingClientRect().left, event.tstamp);
+          previousMeasure = measureElement;
         }
       }
     });
@@ -83,8 +86,9 @@ export default function useScoreAnimation({
       return;
     }
 
-    const keyframes = generateKeyframes(renderedSvgData);
-    const audioDuration = getAudioDurationMillis(renderedSvgData.timemap);
+    const timemap = playbackTimemap(renderedSvgData.timemap, sync, staffOf);
+    const keyframes = generateKeyframes(timemap);
+    const audioDuration = getAudioDurationMillis(timemap);
 
     const timing: KeyframeAnimationOptions = {
       duration: audioDuration,
@@ -93,7 +97,7 @@ export default function useScoreAnimation({
     };
 
 
-    // Create the animation
+    animationRef.current?.cancel();
     animationRef.current = svgElement.animate(keyframes, timing);
     if (initialPosition > 0) {
       animationRef.current.currentTime = initialPosition;

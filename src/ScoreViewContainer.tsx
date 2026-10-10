@@ -8,6 +8,8 @@ import useStore from "./store";
 import { TimeMapEvent, PlayingState } from './types';
 import { forwardRef, Ref, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useIsVisible } from './hooks/useIsVisible';
+import usePlaybackTimemap, { useSelectedAudioSync } from './hooks/usePlaybackTimemap';
+import { syncEnd } from './utils/audio-sync';
 import MouseTracker from './MouseTracker';
 import { useTranslation } from 'react-i18next';
 
@@ -89,10 +91,10 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
     });
 
 
-    const audioDuration = useMemo(() => {
-        return renderedSvgData?.timemap && renderedSvgData.timemap.length > 0 ?
-            getAudioDurationMillis(renderedSvgData.timemap) : 0;
-    }, [renderedSvgData]);
+    const playbackTimemap = usePlaybackTimemap();
+    const audioSync = useSelectedAudioSync();
+    const audioDuration = useMemo(() => audioSync ?
+        syncEnd(audioSync) : getAudioDurationMillis(playbackTimemap), [audioSync, playbackTimemap]);
 
     // Pause when not visible
     useEffect(() => {

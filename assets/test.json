@@ -106,7 +106,7 @@
             }
         },
         {
-            "_covers": "multiple pages, multiple audio",
+            "_covers": "multiple pages, multiple audio, a recording off the score's timing tied to it by an audio sync (slower up to m. 10, a 1.5 s pause, faster up to m. 25), and a rendering that takes the repeat (m. 4-24), synced with a jump back",
             "title": "two audios",
             "path": "multipage",
             "meiFile": "music.mei",
@@ -118,6 +118,16 @@
                 {
                     "file": "oboe.mp3",
                     "name": "oboe audio"
+                },
+                {
+                    "file": "recording.mp3",
+                    "name": "recording (synced)",
+                    "sync": "recording.sync.json"
+                },
+                {
+                    "file": "multipage.mp3",
+                    "name": "with the repeat (synced)",
+                    "sync": "multipage.sync.json"
                 }
             ],
             "encodingProperties": {
@@ -253,6 +263,27 @@
             ],
             "encodingProperties": {
                 "encodedTransposition": "-P4"
+            }
+        },
+        {
+            "_covers": "a historical recording (transposed, off pitch, skipping the repeat) tied to the score by the audio sync drafted with tools/audio-sync, and by that sync corrected by ear with the Sync tap tool",
+            "title": "Gute Nacht (Duhan, 1928)",
+            "path": "audio-sync",
+            "meiFile": "prepared.mei",
+            "audioFiles": [
+                {
+                    "file": "winterreise-01-duhan-1928.mp3",
+                    "name": "Hans Duhan, 1928 (sync drafted by align.py)",
+                    "sync": "winterreise-01-duhan-1928.full.sync.json"
+                },
+                {
+                    "file": "winterreise-01-duhan-1928.mp3",
+                    "name": "Hans Duhan, 1928 (sync corrected by ear)",
+                    "sync": "winterreise-01-duhan-1928.full.sync.take2.json"
+                }
+            ],
+            "encodingProperties": {
+                "encodedTransposition": ""
             }
         }
     ]

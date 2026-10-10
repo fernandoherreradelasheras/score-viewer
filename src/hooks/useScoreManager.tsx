@@ -1,9 +1,10 @@
-import { Score, ScoreProperties, Transposition } from '../types';
+import { AudioSync, Score, ScoreProperties, Transposition } from '../types';
 import useStore from '../store';
 import ScoreProcessor from '../ScoreProcessor';
 import ScoreAnalyzer from '../ScoreAnalyzer';
 import { ScoreViewerConfig, ScoreViewerConfigScore } from '../types/config';
 import { parsePoemFromMei } from '../utils/poem-from-mei';
+import { parseAudioSync } from '../utils/audio-sync';
 import { useCallback } from 'react';
 
 // Warnings (but do not fail) when a score config still carries legacy properties
@@ -19,6 +20,21 @@ const warnDeprecatedTextConfig = (scoreDef: ScoreViewerConfigScore) => {
       `[score-viewer] The "textCommentsFile" property on score "${scoreDef.title}" is deprecated and will be ignored. ` +
       `Text notes are now read from the MEI <back> block; please migrate them into the MEI.`
     )
+  }
+}
+
+// A sync that cannot be read leaves the audio on the score's own timing, which is
+// wrong for a recording but still plays.
+const fetchAudioSync = async (url: string): Promise<AudioSync | null> => {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`${res.status} ${res.statusText}`);
+    }
+    return parseAudioSync(await res.json());
+  } catch (error) {
+    console.warn(`[score-viewer] Ignoring the audio sync ${url}: ${(error as Error).message}`);
+    return null;
   }
 }
 
@@ -136,12 +152,13 @@ export function useScoreManager({
           ...analyzer.getScoreProperties(),
           encodedTransposition: encodingProperties.encodedTransposition as Transposition ?? undefined,
         }
-        const audioFiles = (scoreDef.audioFiles ?? [])
+        const audioFiles = await Promise.all((scoreDef.audioFiles ?? [])
           .filter((audio) => audio.file && audio.file !== "")
-          .map((audio) => ({
+          .map(async (audio) => ({
             url: path + audio.file,
             name: audio.name,
-          }))
+            sync: audio.sync ? await fetchAudioSync(path + audio.sync) : null,
+          })))
 
         const editorialItems = analyzer.getEditorial();
         const { lyrics, comments } = parsePoemFromMei(originalMei);

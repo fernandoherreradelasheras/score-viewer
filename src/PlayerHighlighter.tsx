@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef } from "react";
 import useStore from "./store";
 import { TimeMapEvent, PlayingState } from "./types";
 import { PLAYER_STAFF_COLORS, playerStaffColor } from "./types/colors";
-import { buildNoteTimings } from "./utils/timemap";
+import { buildNoteTimings, noteTimingAt } from "./utils/timemap";
 import { buildTieLinks } from "./utils/ties";
 import { createNoteVisualization } from "./visualizations";
 
@@ -94,7 +94,7 @@ function PlayerHighlighter({ timemap }: { timemap: TimeMapEvent[] }) {
     // Attacked at `position`, not at the onset: after a seek into the middle of a
     // note its animation must end with the note, not a whole duration later.
     const attackNote = (id: string, staff: number, position: number) => {
-        const timing = noteTimings.get(id)
+        const timing = noteTimingAt(noteTimings.get(id), position)
         visualization.attack({
             noteId: id,
             element: document.getElementById(id) as SVGGElement | null,

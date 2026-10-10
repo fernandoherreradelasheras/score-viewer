@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import useStore from "./store";
 import { Context } from './Context';
 import { useComponentSize } from "react-use-size";
@@ -9,6 +9,7 @@ import { PlayingState, Score, loadAutoScrollAction } from './types';
 import { ScoreViewProps } from './ScoreView';
 import LoadingSpinner from './components/LoadingSpinner';
 import { getReverseTransposition } from './utils/score-utils';
+import { useSelectedAudioSync } from './hooks/usePlaybackTimemap';
 
 
 
@@ -59,6 +60,22 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
     const { executeAction } = useScoreActions({
         verovio
     });
+
+    // The keyframes are timed on the audio being played, so another version of the score
+    // needs them again. Where it resumes comes as a seek afterwards.
+    const sync = useSelectedAudioSync();
+    const animatedSyncRef = useRef(sync);
+    useEffect(() => {
+        if (animatedSyncRef.current === sync) {
+            return;
+        }
+        animatedSyncRef.current = sync;
+        if (renderedSvgData?.id === "svg-auto-scrolling" && playingState !== PlayingState.STOPPED) {
+            startAnimation(renderedSvgData, playingPosition, playingState !== PlayingState.PLAYING);
+        }
+        // Only a change of audio sync restarts the animation; the rest is read when it does.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [sync]);
 
     const addLoadAction = useCallback((score: Score) => {
         if (showEditorial) {

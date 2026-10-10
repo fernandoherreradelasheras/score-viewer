@@ -6,6 +6,9 @@ import { FacsimileItem } from "./score";
 export interface ScoreViewerConfigAudioFile {
   file: string;
   name?: string;
+  // An AudioSync JSON file that ties a recording to the score. Without it the audio
+  // is expected to follow verovio's timing.
+  sync?: string;
 }
 
 /**

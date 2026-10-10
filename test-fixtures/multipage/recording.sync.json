@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "score": { "measures": 40, "quarters": 160 },
+  "anchors": [
+    { "time": 0, "measure": 0, "n": "1" },
+    { "time": 21.429, "measure": 9, "offset": 4, "n": "10" },
+    { "time": 22.929, "measure": 10, "n": "11" },
+    { "time": 43.5, "measure": 25, "n": "26" },
+    { "time": 67.5, "measure": 39, "n": "40" },
+    { "time": 69.214, "measure": 39, "offset": 4, "n": "40" }
+  ],
+  "end": 72.6
+}

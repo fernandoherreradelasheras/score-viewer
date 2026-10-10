@@ -17,6 +17,8 @@ export type TimeMapEvent = {
     tempo?: number | undefined;
     /** Staff number of each entry in `on`, positionally aligned with it. */
     stavesOn?: number[] | undefined;
+    /** First event after a jump in a synced recording: a repeat, or a passage left out. */
+    passStart?: boolean | undefined;
 }
 
 

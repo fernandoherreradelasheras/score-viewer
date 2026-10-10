@@ -3,7 +3,8 @@ import { useControls } from "react-zoom-pan-pinch";
 import useStore from "../store";
 import { FacsimileLinks, FacsimileZone, PlayingState } from "../types";
 import { playerStaffColor } from "../types/colors";
-import { buildElementIntervals, buildNoteTimings } from "../utils/timemap";
+import { buildElementIntervals, buildNoteTimings, noteTimingAt } from "../utils/timemap";
+import usePlaybackTimemap from "../hooks/usePlaybackTimemap";
 import FacsimileOverlay, { ImageBox } from "./FacsimileOverlay";
 
 interface FacsimilePlayerOverlayProps {
@@ -27,16 +28,14 @@ function FacsimilePlayerOverlay({ links, surface, box, partStaves, onPartMoved }
     const playingState = useStore.use.playingState();
     const playingPosition = useStore.use.playingPosition();
     const seekPosition = useStore.use.seekPosition();
-    const timemap = useStore.use.renderedSvgData()?.timemap;
+    const timemap = usePlaybackTimemap();
     const noteStaffMap = useStore.use.score()?.properties.noteStaffMap;
 
     const linked = useMemo(() => {
         const intervals = buildElementIntervals(timemap ?? []);
         return Object.entries(links.zones)
-            .flatMap(([id, zone]) => {
-                const interval = intervals.get(id);
-                return interval ? [{ id, zone, staff: noteStaffMap?.[id] ?? "", ...interval }] : [];
-            })
+            .flatMap(([id, zone]) => (intervals.get(id) ?? [])
+                .map(interval => ({ id, zone, staff: noteStaffMap?.[id] ?? "", ...interval })))
             .sort((a, b) => a.onsetMs - b.onsetMs);
     }, [links, timemap, noteStaffMap]);
 
@@ -49,7 +48,7 @@ function FacsimilePlayerOverlay({ links, surface, box, partStaves, onPartMoved }
     const marks = started
         .filter(e => e.zone.surface == surface && playingPosition < e.endMs)
         .map(({ id, zone, staff, onsetMs }) => {
-            const timing = noteTimings.get(id);
+            const timing = noteTimingAt(noteTimings.get(id), onsetMs);
             // Only notes pulse, and only while playing, as on the score.
             const pulse = timing && playingState == PlayingState.PLAYING ? {
                 durationMs: timing.durationMs,

@@ -282,6 +282,7 @@
     "scoreMeiFileRequired": "Score meiFile is required and must be a string",
     "scoreEncodingPropertiesRequired": "encodingProperties object is required",
     "scoreAudioFilesArray": "audioFiles must be an array if provided",
+    "scoreAudioSyncString": "sync must be the path of an audio sync file if provided",
     "scoreFacsimileItemsArray": "facsimileItems must be an array if provided",
     "scoreFacsimileItemPartString": "part must be a string (the xml:id of a <perfRes>) if provided",
     "configurationError": "Configuration Error",

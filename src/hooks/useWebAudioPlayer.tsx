@@ -1,12 +1,29 @@
-import { useRef, useEffect, useCallback, useMemo } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import useStore from "../store";
-import { TimeMapEvent, PlayingState } from "../types";
+import { AudioSync, TimeMapEvent, PlayingState } from "../types";
 import useVerovio from "../useVerovio";
+import { convertPosition, syncEnd } from "../utils/audio-sync";
 
 let sharedAudioContext: AudioContext | null = null;
 const MS_OVER_LAST_TIMESTAMP = 1000;
 
-export default function useWebAudioPlayer(audioUrl: string | null, originalMei: string | undefined) {
+// The context time of what is being heard: audio reaches the ears some time after the
+// context renders it, a few milliseconds through a cable and some tenths of a second
+// through Bluetooth. Following `currentTime` instead puts the score ahead of the sound.
+const heardTime = (context: AudioContext) => {
+    const stamp = context.getOutputTimestamp?.();
+    if (stamp?.contextTime && stamp.performanceTime) {
+        return stamp.contextTime + (performance.now() - stamp.performanceTime) / 1000;
+    }
+    return context.currentTime - (context.outputLatency ?? 0) - (context.baseLatency ?? 0);
+};
+
+// How far behind the context the sound is heard, as the browser reports it.
+export const outputLatencyMs = (): number | null =>
+    sharedAudioContext ? Math.max(0, Math.round((sharedAudioContext.currentTime - heardTime(sharedAudioContext)) * 1000)) : null;
+
+export default function useWebAudioPlayer(audioUrl: string | null, originalMei: string | undefined,
+    timemap: TimeMapEvent[], sync: AudioSync | null) {
     // Get state and base functionality from base hook
 
     const playingState = useStore.use.playingState();
@@ -18,8 +35,6 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
     const goToPage = useStore.use.goToPage();
     const elementPages = useStore.use.elementPages();
     const autoScroll = useStore.use.autoScroll();
-
-    const renderedSvgData = useStore.use.renderedSvgData();
 
     const verovio = useVerovio();
 
@@ -43,7 +58,11 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
     elementPagesRef.current = elementPages;
 
     const timemapRef = useRef<TimeMapEvent[]>([]);
-    timemapRef.current = renderedSvgData?.timemap ?? [];
+    timemapRef.current = timemap;
+
+    // The timemap of the previous render: on an audio switch, the one whose time axis the
+    // position still is on.
+    const previousTimemapRef = useRef<TimeMapEvent[]>(timemap);
 
 
     const getAudioContext = useCallback(() => {
@@ -130,7 +149,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         const context = getAudioContext();
         if (!context || startTimeRef.current === 0) return pausedPositionRef.current;
 
-        const positionSeconds = context.currentTime - startTimeRef.current;
+        const positionSeconds = heardTime(context) - startTimeRef.current;
         return Math.max(0, positionSeconds * 1000);
     }, [getAudioContext]);
 
@@ -161,12 +180,9 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         setPlayingPosition(0);
     }, [pausePlayback, setPlayingPosition]);
 
-    const timemap = useMemo(() => {
-        if (renderedSvgData?.timemap) {
-            return renderedSvgData.timemap as TimeMapEvent[];
-        }
-        return [];
-    }, [renderedSvgData]);
+    const playbackEnd = useCallback(() =>
+        sync ? syncEnd(sync) : timemap[timemap.length - 1].tstamp + MS_OVER_LAST_TIMESTAMP
+        , [sync, timemap]);
 
     const updatePlaybackPosition = useCallback(function tick() {
         if (playingState !== PlayingState.PLAYING) return;
@@ -174,7 +190,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         const position = getCurrentPosition();
         setPlayingPosition(position);
 
-        if (timemap && timemap.length > 0 && position > timemap[timemap.length - 1].tstamp + MS_OVER_LAST_TIMESTAMP) {
+        if (timemap.length > 0 && position > playbackEnd()) {
             stopPlayback();
             onAudioEnded();
             return;
@@ -183,7 +199,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         checkPageForPosition(position);
 
         animationFrameRef.current = requestAnimationFrame(tick);
-    }, [getCurrentPosition, setPlayingPosition, timemap, stopPlayback, onAudioEnded, checkPageForPosition, playingState]);
+    }, [getCurrentPosition, setPlayingPosition, timemap, playbackEnd, stopPlayback, onAudioEnded, checkPageForPosition, playingState]);
 
     const startPlayback = useCallback((startPosition: number) => {
         // Not stopPlayback: its transient position 0 would make the highlighter play
@@ -269,8 +285,11 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
 
         // While playing, the live position is the authoritative one; while paused,
         // startTimeRef is stale and only pausedPositionRef holds the real position.
+        // Versions of the same score need not share a time axis, so the position goes
+        // over through the score.
         const resumeAt = isSameScore && playingState !== PlayingState.STOPPED
-            ? (playingState === PlayingState.PLAYING ? getCurrentPosition() : pausedPositionRef.current)
+            ? convertPosition(previousTimemapRef.current, timemap,
+                playingState === PlayingState.PLAYING ? getCurrentPosition() : pausedPositionRef.current)
             : null;
 
         if (playingState !== PlayingState.STOPPED) {
@@ -353,5 +372,9 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         // as the position moves, and reacting to them would restart the audio.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [playingState, resumeAudioContext]);
+
+    useEffect(() => {
+        previousTimemapRef.current = timemap;
+    }, [timemap]);
 
 }

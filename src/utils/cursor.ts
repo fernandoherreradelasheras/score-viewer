@@ -1,10 +1,10 @@
 import { TimeMapEvent } from "../types";
 
 // The instants where something starts, notes or rests: where the cursor stops.
-export type CursorStop = { tstamp: number, ids: string[] };
+export type CursorStop = { tstamp: number, ids: string[], passStart?: boolean | undefined };
 
 export const cursorStops = (timemap: TimeMapEvent[]): CursorStop[] => timemap
-    .map(event => ({ tstamp: event.tstamp, ids: [...event.on ?? [], ...event.restsOn ?? []] }))
+    .map(event => ({ tstamp: event.tstamp, ids: [...event.on ?? [], ...event.restsOn ?? []], passStart: event.passStart }))
     .filter(stop => stop.ids.length > 0);
 
 export const lastStopAt = (stops: CursorStop[], position: number) => {

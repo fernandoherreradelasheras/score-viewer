@@ -117,7 +117,7 @@ export default defineConfig({
 
 ### Where files are read from
 
-- MEI, audio and introduction: `basePath + score.path + "/" + file`.
+- MEI, audio, audio sync and introduction: `basePath + score.path + "/" + file`.
 - Facsimile images: `facsimileImagesPath + facsimileItems[].file`.
 
 ### `settings`
@@ -149,7 +149,7 @@ export default defineConfig({
 | `path` | `string` | Required. Folder of the score under `basePath`. |
 | `meiFile` | `string` | Required. The MEI file in that folder. |
 | `encodingProperties` | `{ encodedTransposition?: string }` | Required, may be empty. `encodedTransposition` is the transposition the score was encoded with (`"-P4"`, `"+M3"`, `"P8"`…), which the reader can undo. |
-| `audioFiles` | `{ file: string, name?: string }[]` | Audio versions of the score. The first one plays by default; with more than one, the reader can switch between them. |
+| `audioFiles` | `{ file: string, name?: string, sync?: string }[]` | Audio versions of the score. The first one plays by default; with more than one, the reader can switch between them. `sync` is the [audio sync](#audio-sync) file of a recording that does not follow verovio's timing. |
 | `introductionFile` | `string` | Markdown introduction. It must be served as `text/markdown` or `text/plain`. Image paths starting with `./` or `../` are resolved against the Markdown file; other relative paths, against the site root. |
 | `facsimileItems` | `{ name: string, file: string, part?: string }[]` | Facsimile images. `part` is the `xml:id` of the `<perfRes>` whose part the image shows; without it, the image is taken for the full score. |
 
@@ -165,6 +165,61 @@ poem in `<back>`. They are documented, with examples, in [CHANGELOG.md](CHANGELO
 
 Repeats are not expanded: the audio is expected to play the score straight through, as
 verovio times it.
+
+## Audio sync
+
+An audio without `sync` is taken for a rendering of the score's MIDI, timed as verovio
+times it. A recording has a timing of its own, and its `sync` file says where it reaches
+points of the score:
+
+```json
+{
+  "version": 1,
+  "score": { "measures": 40, "quarters": 160 },
+  "anchors": [
+    { "time": 0.42, "measure": 0, "n": "1" },
+    { "time": 21.43, "measure": 9, "offset": 4, "n": "10" },
+    { "time": 22.93, "measure": 10, "n": "11" },
+    { "time": 43.5, "measure": 25, "n": "26" },
+    { "time": 62.36, "measure": 35, "offset": 4, "n": "36" },
+    { "time": 62.36, "measure": 29, "n": "30" },
+    { "time": 81.21, "measure": 39, "offset": 4, "n": "40" }
+  ],
+  "end": 72.6
+}
+```
+
+| Key | |
+|---|---|
+| `anchors[].time` | Seconds into the recording, sorted. |
+| `anchors[].measure` | The measure by its position in the score, 0 being the first. Not its `@n`, which may repeat or skip. |
+| `anchors[].offset` | Quarters into that measure. 0 by default. |
+| `anchors[].n` | Informative only: the measure's `@n`. |
+| `score` | Measures and quarters of the score the anchors were set on. When they differ from the score loaded, a warning is logged. |
+| `holds` | `{ measure, staff }[]`: measures, by position, where the recording does not keep the rests of a staff, as a singer holding a note through them. Each note of that staff sounds on until the next one or the end of the measure, and its rests are not marked. |
+| `end` | Where playback stops, in seconds. The last anchor by default. |
+
+Between two anchors the score is spread evenly by quarters; before the first, at the
+pace of the first stretch. What two consecutive anchors mean depends on how they move:
+
+| From one anchor to the next | |
+|---|---|
+| Forward in the score and in time | The music plays. |
+| Same point of the score, later in time | A pause: the music waits there. |
+| Same time, back in the score | A repeat: the recording plays that passage again. |
+| Same time, forward in the score | The recording leaves out the measures in between. |
+
+Each stretch the recording plays straight through needs an anchor where it starts and
+one where it ends. A repeat taken by the recording is synced this way, whatever the
+score encodes: verovio is not asked to expand it. Audio without a sync file still has to
+play the score straight through.
+
+The last anchor is where the synced score ends: nothing after it is highlighted, and
+playback stops there unless `end` says otherwise. To follow a recording to its final
+note, put the last anchor at the end of the last measure.
+
+A sync file that cannot be read, or that does not fit the score, is ignored with a
+warning, and the audio plays on verovio's timing.
 
 ## Embedding with an iframe
 

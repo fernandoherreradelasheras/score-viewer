@@ -15,7 +15,7 @@ const MAX_DRIFT_MS = 100;
 
 type SystemFrame = { top: number, bottom: number, right: number, staffSpace: number };
 
-type Placement = { x: number, system: SVGGElement, frame: SystemFrame };
+type Placement = { x: number, system: SVGGElement, frame: SystemFrame, measureRight: number | null };
 
 type Cursor = { element: SVGRectElement, animation: Animation, stop: number };
 
@@ -34,6 +34,12 @@ const systemFrame = (system: SVGGElement): SystemFrame | null => {
         right: Math.max(...boxes.map(box => box.x + box.width)),
         staffSpace: Math.abs(boxes[1].y - boxes[0].y),
     };
+};
+
+const measureRight = (measure: Element | null) => {
+    const boxes = [...measure?.querySelectorAll(":scope > .staff > path") ?? []]
+        .map(line => (line as SVGGraphicsElement).getBBox());
+    return boxes.length ? Math.max(...boxes.map(box => box.x + box.width)) : null;
 };
 
 const centerX = (element: SVGGElement) => {
@@ -99,6 +105,7 @@ function PlaybackCursor({ timemap }: { timemap: TimeMapEvent[] }) {
                 x: found.reduce((sum, element) => sum + centerX(element), 0) / found.length,
                 system,
                 frame,
+                measureRight: measureRight(found[0].closest(".measure")),
             } : null);
         }
         return page.placements.get(index) ?? null;
@@ -109,8 +116,11 @@ function PlaybackCursor({ timemap }: { timemap: TimeMapEvent[] }) {
         if (from == null) {
             return;
         }
+        // Before a jump of a synced recording the cursor runs to the end of its measure,
+        // not back or ahead to where the recording goes on.
         const next = placement(index + 1);
-        const toX = next != null && next.system === from.system ? next.x : from.frame.right;
+        const toX = stops[index + 1]?.passStart ? from.measureRight ?? from.frame.right :
+            next != null && next.system === from.system ? next.x : from.frame.right;
         const endMs = stops[index + 1]?.tstamp ?? timemap[timemap.length - 1]?.tstamp ?? stops[index].tstamp;
 
         const { top, bottom, staffSpace } = from.frame;

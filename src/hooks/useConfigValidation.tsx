@@ -177,6 +177,15 @@ export const useConfigValidation = (config: ScoreViewerConfig) => {
             field: `scores[${index}].audioFiles`,
             message: t('configValidation.scoreAudioFilesArray')
           });
+        } else {
+          score.audioFiles?.forEach((audio, audioIndex) => {
+            if (audio.sync !== undefined && typeof audio.sync !== 'string') {
+              errors.push({
+                field: `scores[${index}].audioFiles[${audioIndex}].sync`,
+                message: t('configValidation.scoreAudioSyncString')
+              });
+            }
+          });
         }
 
         if (score.facsimileItems && !Array.isArray(score.facsimileItems)) {

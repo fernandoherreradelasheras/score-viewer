@@ -4,6 +4,34 @@ import { EditorialItem } from './editorial';
 export type AudioFile = {
     url: string;
     name?: string;
+    // Null when the audio is a rendering of the score's own MIDI, timed as verovio times it.
+    sync?: AudioSync | null;
+}
+
+// Where the recording reaches a point of the score. The point is a measure by its
+// position among the measures of the score (0 is the first), plus `offset` quarters
+// into it.
+export type AudioSyncAnchor = {
+    time: number;
+    measure: number;
+    offset?: number;
+    n?: string;
+}
+
+// A measure where the recording does not keep the rests of a staff: each note sounds on
+// until the next one, or the end of the measure, as a singer may hold a note through them.
+export type AudioSyncHold = {
+    measure: number;
+    staff: number;
+}
+
+export type AudioSync = {
+    version: 1;
+    // What the score looked like when the anchors were set, to tell a stale file.
+    score?: { measures: number; quarters: number };
+    anchors: AudioSyncAnchor[];
+    holds?: AudioSyncHold[];
+    end?: number;
 }
 
 export type FacsimileItem = {

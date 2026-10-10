@@ -280,6 +280,7 @@
     "scoreMeiFileRequired": "El archivo MEI de la partitura es requerido y debe ser una cadena de texto",
     "scoreEncodingPropertiesRequired": "El objeto encodingProperties es requerido",
     "scoreAudioFilesArray": "audioFiles debe ser un array si se proporciona",
+    "scoreAudioSyncString": "sync debe ser la ruta de un fichero de sincronización de audio si se proporciona",
     "scoreFacsimileItemsArray": "facsimileItems debe ser un array si se proporciona",
     "scoreFacsimileItemPartString": "part debe ser una cadena de texto (el xml:id de un <perfRes>) si se proporciona",
     "configurationError": "Error de Configuración",
