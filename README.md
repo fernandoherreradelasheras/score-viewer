@@ -279,6 +279,16 @@ npm run validate:mei   # validates the test MEI files against MEI 5.1 (validate:
 The development server serves `test-fixtures/` at its root, with the configuration in
 `assets/test.json`.
 
+`tools/` holds tools that are run from a checkout of the repository and are not part of
+the npm package:
+
+- [audio-sync](tools/audio-sync/README.md) drafts the audio sync of a recording.
+- [facsimile-link](tools/facsimile-link/README.md) links the notes and rests of the
+  scores of a configuration to their place on the facsimile images:
+  `SCORES_CONFIGURATION=config.json npm run facsimile-link`, or
+  `npm run facsimile-link -- score.mei image.jpg…` for a single score whose images are of
+  the full score.
+
 ## License
 
 MIT

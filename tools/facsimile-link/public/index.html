@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Facsimile links</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:," />
+  <!-- the verovio of the repository's node_modules, the one the viewer renders with -->
+  <script src="/vendor/verovio/verovio-toolkit-wasm.js"></script>
+  <script>
+    // The wasm runtime only reports that it is ready through onRuntimeInitialized,
+    // which must be set before the (asynchronous) instantiation finishes: set it
+    // here, right after the script ran, not later from app.js.
+    window.__verovioReady = new Promise(function (resolve) {
+      var m = window.verovio && window.verovio.module;
+      if (!m) return resolve(false);
+      var prev = m.onRuntimeInitialized;
+      m.onRuntimeInitialized = function () { if (prev) prev(); resolve(true); };
+    });
+  </script>
+</head>
+<body>
+  <div id="app">
+    <!-- TOP: facsimile viewer (where the work happens) -->
+    <section id="facsimile-area">
+      <header id="facs-header">
+        <select id="score-select" title="Score"></select>
+        <span class="sep">·</span>
+        <span id="page-label">loading…</span>
+        <span class="sep">·</span>
+        <span id="status-line">—</span>
+        <span class="spacer"></span>
+        <span id="dirty-label"></span>
+        <span id="zoom-label"></span>
+        <select id="strip-mode" title="How the score strip follows the current event (m)"></select>
+        <button id="fit-btn" title="Fit page (0)">fit</button>
+        <button id="save-btn" title="Save to the MEI (s)">save</button>
+      </header>
+      <div id="viewport">
+        <div id="canvas">
+          <img id="page-img" alt="facsimile page" draggable="false" />
+        </div>
+        <svg id="markers" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+    </section>
+
+    <div id="splitter" title="drag to resize"></div>
+
+    <!-- BOTTOM: verovio strip, shows where we are in the score -->
+    <section id="score-area">
+      <div id="score-scroll">
+        <div id="score-svg"></div>
+      </div>
+    </section>
+
+    <footer id="legend">
+      <b>←/→</b>&nbsp;event · <b>↑/↓</b>&nbsp;part · <b>n</b>&nbsp;next unlinked ·
+      <b>z/x</b>&nbsp;image · <b>Z/X</b>&nbsp;all images · <b>click</b>&nbsp;place ·
+      <b>t</b>&nbsp;same figure · <b>r</b>&nbsp;unlink · <b>wheel</b>&nbsp;zoom ·
+      <b>space+drag</b>&nbsp;pan · <b>0</b>&nbsp;fit · <b>m</b>&nbsp;strip mode · <b>s</b>&nbsp;save ·
+      <b>a</b>&nbsp;auto-advance:&nbsp;<span id="autoadv">on</span>
+    </footer>
+
+    <div id="toast"></div>
+    <div id="loading-overlay">Loading the score and verovio…</div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

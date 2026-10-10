@@ -30,7 +30,10 @@
     "prepublishOnly": "npm whoami && npm run lint && npm run build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "preview:iframe": "vite preview --outDir dist/iframe"
+    "preview:iframe": "vite preview --outDir dist/iframe",
+    "facsimile-link": "node tools/facsimile-link/server.mjs",
+    "facsimile-link:check-parts": "node tools/facsimile-link/check-parts.mjs",
+    "test:facsimile-link": "node --test \"tools/facsimile-link/test/*.test.mjs\""
   },
   "dependencies": {
     "@ant-design/icons": "^6.3.4",

@@ -29,4 +29,18 @@ export default defineConfig([
       globals: globals.node,
     },
   },
+  {
+    files: ['tools/facsimile-link/**/*.mjs'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+  {
+    files: ['tools/facsimile-link/public/**/*.js'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      globals: globals.browser,
+    },
+  },
 ]);
