@@ -76,7 +76,7 @@ const svgEl = {};                   // eventId -> <g> in the strip
 let curSvgNote = null;
 let onset = {};                     // eventId -> quarter-note position (verovio timemap)
 let spaceHeld = false;
-let lastAnchor = null;              // { file, x } of the last placed/visited point
+let lastAnchor = null;              // { file, x, y } of the last placed/visited point
 
 // Read-only view of the state, for debugging from the browser console.
 window.facsimileLink = {
@@ -430,7 +430,7 @@ async function goto(v, i) {
 
   const z = zones[eventZone[id]];
   if (z) {
-    lastAnchor = { file: z.file, x: z.x };
+    lastAnchor = { file: z.file, x: z.x, y: z.y };
     if (z.file !== curFile) {
       await loadImage(z.file, true);
       centerOnImage(z.x, z.y);
@@ -649,7 +649,7 @@ function placeCurrent(imgX, imgY) {
     eventZone[t] = zk;
   }
   pruneZones();
-  lastAnchor = { file: curFile, x };
+  lastAnchor = { file: curFile, x, y };
   setDirty();
   updateStatus();
   drawMarkers();
@@ -1026,18 +1026,19 @@ async function save() {
 const escHtml = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 const escAttr = (s) => escHtml(s).replace(/"/g, '&quot;');
 
+const TOAST_MARGIN = 12;
 let toastTimer = null;
 function toast(msg, ms = 1800) {
   const t = $('toast');
   t.textContent = msg;
-  // Show it in the half opposite the current point so it never covers it.
+  // Over the facsimile, never over the score strip, in the half opposite the
+  // current (or last placed) point so it never covers it.
+  const r = viewport.getBoundingClientRect();
   const z = zones[eventZone[curId()]];
-  let low = false;
-  if (z && z.file === curFile) {
-    const r = viewport.getBoundingClientRect();
-    low = r.top + ty + z.y * scale > window.innerHeight / 2;
-  }
+  const p = z && z.file === curFile ? z : lastAnchor?.file === curFile ? lastAnchor : null;
+  const low = !!p && ty + p.y * scale > r.height / 2;
   t.classList.toggle('top', low);
+  t.style.top = `${low ? r.top + TOAST_MARGIN : r.bottom - t.offsetHeight - TOAST_MARGIN}px`;
   t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), ms);

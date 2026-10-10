@@ -153,7 +153,7 @@ g.cur, g.cur > :not(.verse), g.cur > :not(.verse) * { fill: var(--accent) !impor
 /* ---- toast + loading ---- */
 #toast {
   position: fixed;
-  bottom: 34px;
+  top: 0;
   left: 50%;
   transform: translateX(-50%) translateY(20px);
   background: #000a;
@@ -166,7 +166,7 @@ g.cur, g.cur > :not(.verse), g.cur > :not(.verse) * { fill: var(--accent) !impor
   z-index: 50;
 }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-#toast.top { top: 16px; bottom: auto; transform: translateX(-50%) translateY(-20px); }
+#toast.top { transform: translateX(-50%) translateY(-20px); }
 #toast.top.show { transform: translateX(-50%) translateY(0); }
 
 #loading-overlay {
