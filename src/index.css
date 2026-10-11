@@ -30,6 +30,12 @@
   pointer-events: none;
 }
 
+/* Whatever inside them sets its own visibility would show through, and take the clicks
+   meant for the tab on show. */
+.ant-tabs-content.score-kept-pane.ant-tabs-content-hidden * {
+  visibility: hidden !important;
+}
+
 .score-splitter-panel {
   overflow: hidden !important;
 }
@@ -93,7 +99,6 @@
   stroke: transparent !important;
   stroke-width: calc(1.2 * (var(--editorial-offset, 120px) + 10px));
   pointer-events: auto;
-  visibility: visible;
 }
 
 /* Containers (app / choice / subst): dashed ring, no fill.
@@ -131,7 +136,6 @@
   outline: 55px solid var(--editorial-color, #6F6F9E);
   outline-offset: var(--editorial-offset, 120px);
   stroke: transparent !important;
-  visibility: visible;
   transition: fill-opacity 0.15s ease, outline-width 0.15s ease;
 }
 
@@ -154,7 +158,6 @@
   outline: 40px solid var(--editorial-color, #6F6F9E);
   outline-offset: var(--editorial-offset, 120px);
   stroke: transparent !important;
-  visibility: visible;
 }
 
 /* The same for an intervention with no content-bounding-box. */
