@@ -283,6 +283,8 @@
     "scoreEncodingPropertiesRequired": "encodingProperties object is required",
     "scoreAudioFilesArray": "audioFiles must be an array if provided",
     "scoreAudioSyncString": "sync must be the path of an audio sync file if provided",
+    "scoreAudioSource": "an audio file needs exactly one of file or midi",
+    "scoreAudioMidiSync": "midi audio follows the score timing and takes no sync",
     "scoreFacsimileItemsArray": "facsimileItems must be an array if provided",
     "scoreFacsimileItemPartString": "part must be a string (the xml:id of a <perfRes>) if provided",
     "configurationError": "Configuration Error",

@@ -66,6 +66,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const withoutTransposition = useStore.use.withoutTransposition();
     const renderedSvgData = useStore.use.renderedSvgData();
     const setRenderedSvgData = useStore.use.setRenderedSvgData();
+    const setScoreMidi = useStore.use.setScoreMidi();
     const showOriginalClefs = useStore.use.showOriginalClefs();
     const showColoredNotes = useStore.use.showColoredNotes();
     const getCachedPage = useStore.use.getCachedPage();
@@ -165,6 +166,11 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
         const svgHTML = svgContainerRef.current?.innerHTML || '';
         const svgDataWithHTML = { ...newSvg, svgHTML };
 
+        // In the same update as the timemap: the player converts the position it
+        // resumes at from the previous timemap to the one the MIDI follows.
+        if (renderResult.scoreMidi !== undefined) {
+            setScoreMidi(renderResult.scoreMidi);
+        }
         setRenderedSvgData(svgDataWithHTML);
 
         // Cache the current page for instant back navigation
@@ -195,7 +201,7 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
                 setReachedEffectiveMaxScale(reached);
             }
         }, 400);
-    }, [svgContainerRef, setRenderedSvgData, setCachedPage, setIsLoading, setScale, calculateEffectiveMaxScale, reachedEffectiveMaxScale, setReachedEffectiveMaxScale]);
+    }, [svgContainerRef, setRenderedSvgData, setScoreMidi, setCachedPage, setIsLoading, setScale, calculateEffectiveMaxScale, reachedEffectiveMaxScale, setReachedEffectiveMaxScale]);
 
     // An exception from the toolkit happens in a worker callback, out of reach of the
     // ErrorBoundary, so it is kept here and thrown again from the render.

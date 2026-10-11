@@ -1,6 +1,7 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { VerovioOptions } from 'verovio';
 import ScoreAnalyzer from '../ScoreAnalyzer';
+import { ScoreMidi } from '../types';
 
 import {
   TimeMapEvent,
@@ -8,6 +9,7 @@ import {
   Action,
   LoadConfig,
   LoadAutoScrollConfig,
+  MidiSource,
   RenderConfig,
   RenderAutoScrollConfig,
   renderAction,
@@ -132,15 +134,20 @@ const initialClassForTransition = (transition: Transition) => {
 };
 
 
+// `scoreMidi` is the MIDI rendered along with the page, to store together with its
+// timemap: undefined when the music on display has not changed, null when it could
+// not be rendered.
 export interface RenderActionResult {
   newSvg: RenderedData;
   loadedPagesCount: number;
   scale: number;
   renderPage: number;
+  scoreMidi?: ScoreMidi | null;
 }
 
-interface RenderAutoScrollResult {
+export interface RenderAutoScrollResult {
   newSvg: RenderedData;
+  scoreMidi?: ScoreMidi | null;
 }
 
 interface ScoreActionsConfig {
@@ -292,6 +299,7 @@ export default function useScoreActions({
   const measureNumberInterval = useStore.use.measureNumberInterval();
   const setScoreLayout = useStore.use.setScoreLayout();
   const setElementPages = useStore.use.setElementPages();
+  const scoreCache = useStore.use.scoreCache();
   const score = useStore.use.score();
 
 
@@ -315,6 +323,34 @@ export default function useScoreActions({
     await verovio.loadData(meiStr);
     const timemap = await verovio.renderToTimemap({ includeMeasures: true, includeRests: true });
     return timemap;
+  }, [verovio]);
+
+  // For the scores with a `midi` audio: what their MIDI is rendered from on this load.
+  const midiSource = useCallback((scoreUrl: string, meiStr: string, options: VerovioOptions): MidiSource | undefined =>
+    scoreCache[scoreUrl]?.audioFiles.some(audio => audio.source.kind === 'midi')
+      ? { scoreUrl, meiStr, music: JSON.stringify([options.appXPathQuery, options.choiceXPathQuery, options.substXPathQuery, options.transpose]) }
+      : undefined
+    , [scoreCache]);
+
+  // What the last MIDI was rendered from: a relayout, as on a resize, loads the same
+  // music again and must not render it again.
+  const renderedMidiRef = useRef<MidiSource | null>(null);
+
+  // On the data loaded and rendered: the MIDI of the readings on display, with the
+  // transposition shown. Rendered after the page so as not to delay it, and only when
+  // the music changed; a failure leaves it for the next load.
+  const renderMidi = useCallback(async (source: MidiSource): Promise<ScoreMidi | null | undefined> => {
+    if (!verovio) return undefined;
+    const rendered = renderedMidiRef.current;
+    if (rendered?.scoreUrl === source.scoreUrl && rendered.meiStr === source.meiStr && rendered.music === source.music) return undefined;
+    try {
+      const midi = await verovio.renderToMIDI();
+      renderedMidiRef.current = source;
+      return { scoreUrl: source.scoreUrl, midi };
+    } catch (error) {
+      console.error("Error rendering the score's MIDI:", error);
+      return null;
+    }
   }, [verovio]);
 
   // The verovio options that depend on the user's editorial/display settings: for a
@@ -409,7 +445,8 @@ export default function useScoreActions({
         renderPage: pageToRender,
         scale,
         loadedPagesCount,
-        timemap: await resolveTimemap(timemap)
+        timemap: await resolveTimemap(timemap),
+        midi: midiSource(scoreUrl, meiStr, options),
       });
     } catch (error) {
       console.error("Error performing load action:", error);
@@ -421,6 +458,7 @@ export default function useScoreActions({
     targetHeight,
     scoreRenderOptions,
     loadAndBuildTimemap,
+    midiSource,
     getSectionMap,
     resolveTimemap,
     setScoreLayout,
@@ -434,7 +472,7 @@ export default function useScoreActions({
   const performLoadAutoScrollAction = useCallback(async (config: LoadAutoScrollConfig) => {
     if (!verovio) return null;
 
-    const { height, meiStr } = config;
+    const { height, meiStr, scoreUrl } = config;
 
     console.log(`loading score: mode=autoscroll height=${height}`);
 
@@ -458,7 +496,7 @@ export default function useScoreActions({
 
       await verovio.setOptions(options);
       const timemap = await loadAndBuildTimemap(meiStr);
-      return renderAutoScrollAction({ height, timemap: await resolveTimemap(timemap) });
+      return renderAutoScrollAction({ height, timemap: await resolveTimemap(timemap), midi: midiSource(scoreUrl, meiStr, options) });
     } catch (error) {
       console.error("Error performing auto-scroll load action:", error);
       throw error;
@@ -471,6 +509,7 @@ export default function useScoreActions({
     showOriginalClefs,
     score,
     loadAndBuildTimemap,
+    midiSource,
     resolveTimemap
   ]);
 
@@ -486,7 +525,7 @@ export default function useScoreActions({
   const performRenderAction = useCallback(async (config: RenderConfig, element: HTMLDivElement): Promise<RenderActionResult | null> => {
     if (!verovio || !element) return null;
 
-    const { transition, loadedHeight, loadedWidth, renderPage, scale, loadedPagesCount, scoreUrl, timemap } = config;
+    const { transition, loadedHeight, loadedWidth, renderPage, scale, loadedPagesCount, scoreUrl, timemap, midi } = config;
     console.log(`Rendering score: mode=normal page=${renderPage} scale=${scale} transition=${transition}`);
     const startTime = performance.now();
 
@@ -535,6 +574,8 @@ export default function useScoreActions({
       }
       const domTime = performance.now() - domStart;
 
+      const scoreMidi = midi ? await renderMidi(midi) : undefined;
+
       const firstMeasureId = svgElement.querySelector(".measure[id]")?.id ?? null;
 
       const resolvedTimemap = resolveTimemapAnimations(timemap, score?.properties.noteStaffMap ?? {});
@@ -553,12 +594,12 @@ export default function useScoreActions({
       const duration = performance.now() - startTime;
       console.log(`[useScoreActions] performRenderAction took ${duration.toFixed(0)}ms (renderToSVG ${svgTime.toFixed(0)}ms, DOM manipulation ${domTime.toFixed(0)}ms)`);
 
-      return { newSvg, loadedPagesCount, scale, renderPage } as RenderActionResult;
+      return { newSvg, loadedPagesCount, scale, renderPage, scoreMidi } as RenderActionResult;
     } catch (error) {
       console.error("Error rendering page:", error);
       throw error;
     }
-  }, [verovio, score, setElementPages]);
+  }, [verovio, score, setElementPages, renderMidi]);
 
   /**
    * Render the score for auto-scrolling
@@ -566,7 +607,7 @@ export default function useScoreActions({
   const performRenderAutoScrollAction = useCallback(async (config: RenderAutoScrollConfig, element: HTMLDivElement): Promise<RenderAutoScrollResult | null> => {
     if (!verovio || !element) return null;
 
-    const { height, timemap } = config;
+    const { height, timemap, midi } = config;
     console.log(`Rendering score: mode=autoscroll height=${height}`);
 
 
@@ -583,6 +624,8 @@ export default function useScoreActions({
 
       element.style.height = `${renderedHeight}px`;
 
+      const scoreMidi = midi ? await renderMidi(midi) : undefined;
+
       const resolvedTimemap = resolveTimemapAnimations(timemap, score?.properties.noteStaffMap ?? {});
 
       const newSvg: RenderedData = {
@@ -596,12 +639,12 @@ export default function useScoreActions({
         page: 1
       };
 
-      return { newSvg };
+      return { newSvg, scoreMidi };
     } catch (error) {
       console.error("Error rendering auto-scroll page:", error);
       throw error;
     }
-  }, [verovio, score?.properties.noteStaffMap]);
+  }, [verovio, score?.properties.noteStaffMap, renderMidi]);
 
   /**
    * Execute an action based on its type

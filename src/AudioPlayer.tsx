@@ -2,7 +2,7 @@ import useStore from "./store";
 import PlayerHighlighter from "./PlayerHighlighter";
 import PlaybackCursor from "./PlaybackCursor";
 import PlayerButtons from "./PlayerButtons";
-import useWebAudioPlayer from "./hooks/useWebAudioPlayer";
+import useWebAudioPlayer, { PlayableAudio } from "./hooks/useWebAudioPlayer";
 import usePlaybackTimemap, { useSelectedAudioSync } from "./hooks/usePlaybackTimemap";
 import { useMemo } from "react";
 
@@ -14,13 +14,19 @@ function AudioPlayer() {
     const sync = useSelectedAudioSync();
     const selectedAudioIndex = useStore.use.selectedAudioIndex();
     const autoScroll = useStore.use.autoScroll();
+    const scoreMidi = useStore.use.scoreMidi();
 
-    const audioUrl = useMemo(
-        () => score?.audioFiles?.[selectedAudioIndex]?.url ?? null,
-        [score, selectedAudioIndex]
-    );
+    const source = score?.audioFiles?.[selectedAudioIndex]?.source ?? null;
+    const midi = scoreMidi && scoreMidi.scoreUrl === score?.url ? scoreMidi.midi : null;
 
-    useWebAudioPlayer(audioUrl, score?.originalMei, timemap, sync);
+    const audio = useMemo((): PlayableAudio | null => {
+        if (source?.kind === 'midi') {
+            return midi ? { kind: 'midi', midi } : null;
+        }
+        return source;
+    }, [source, midi]);
+
+    useWebAudioPlayer(audio, score?.originalMei, timemap, sync);
 
     return (
         <div style={{ width: "0px", height: "0px" }}>
@@ -30,7 +36,7 @@ function AudioPlayer() {
             {renderedSvgData?.timemap && !autoScroll && (
                 <PlaybackCursor timemap={timemap} />
             )}
-            {audioUrl ? <PlayerButtons /> : null}
+            {source ? <PlayerButtons /> : null}
         </div>
     );
 }

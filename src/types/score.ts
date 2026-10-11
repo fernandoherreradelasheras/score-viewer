@@ -1,8 +1,14 @@
 // Score-related types
 import { EditorialItem } from './editorial';
 
+// A `midi` source is the MIDI verovio renders for the readings on display,
+// synthesized in the browser.
+export type AudioSource =
+    | { kind: 'file'; url: string }
+    | { kind: 'midi' };
+
 export type AudioFile = {
-    url: string;
+    source: AudioSource;
     name?: string;
     // Null when the audio is a rendering of the score's own MIDI, timed as verovio times it.
     sync?: AudioSync | null;

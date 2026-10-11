@@ -12,6 +12,7 @@ import {
     TextPartsCache,
     FetchError,
     TimeMapEvent,
+    ScoreMidi,
 } from './types'
 
 import { RenderedData } from './hooks/useScoreRenderer'
@@ -267,12 +268,19 @@ interface PlayerState {
     autoScroll: boolean
     // The audio of the score is loaded and can be played.
     canPlay: boolean
+    // The audio could not be loaded: playing tries to load it again.
+    audioLoadFailed: boolean
+    // The MIDI verovio renders for the readings on display, kept only for scores with
+    // a `midi` audio file.
+    scoreMidi: ScoreMidi | null
 
     setPlayingState: (state: PlayingState) => void
     setPlayingPosition: (position: number) => void
     setSeekPosition: (position: number) => void
     setAutoScroll: (autoScroll: boolean) => void
     setCanPlay: (canPlay: boolean) => void
+    setAudioLoadFailed: (audioLoadFailed: boolean) => void
+    setScoreMidi: (scoreMidi: ScoreMidi | null) => void
     resetPlayerPosition: () => void
 }
 
@@ -282,12 +290,16 @@ const createPlayerStore = create<PlayerState>((set) => ({
     seekPosition: -1,
     autoScroll: false,
     canPlay: false,
+    audioLoadFailed: false,
+    scoreMidi: null,
 
     setPlayingState: (playingState: PlayingState) => set(() => ({ playingState: playingState })),
     setPlayingPosition: (position: number) => set(() => ({ playingPosition: position })),
     setSeekPosition: (position: number) => set(() => ({ seekPosition: position })),
     setAutoScroll: (autoScroll: boolean) => set(() => ({ autoScroll: autoScroll })),
     setCanPlay: (canPlay: boolean) => set(() => ({ canPlay })),
+    setAudioLoadFailed: (audioLoadFailed: boolean) => set(() => ({ audioLoadFailed })),
+    setScoreMidi: (scoreMidi: ScoreMidi | null) => set(() => ({ scoreMidi })),
     resetPlayerPosition: () => set(() => ({
         playingPosition: 0,
         seekPosition: 0,
@@ -512,6 +524,10 @@ class ScoreViewerStoreApi {
         setSeekPosition: createPlayerStoreWithSelectors.use.setSeekPosition,
         setAutoScroll: createPlayerStoreWithSelectors.use.setAutoScroll,
         setCanPlay: createPlayerStoreWithSelectors.use.setCanPlay,
+        audioLoadFailed: createPlayerStoreWithSelectors.use.audioLoadFailed,
+        setAudioLoadFailed: createPlayerStoreWithSelectors.use.setAudioLoadFailed,
+        scoreMidi: createPlayerStoreWithSelectors.use.scoreMidi,
+        setScoreMidi: createPlayerStoreWithSelectors.use.setScoreMidi,
         resetPlayerPosition: createPlayerStoreWithSelectors.use.resetPlayerPosition,
 
         // Score Settings Store

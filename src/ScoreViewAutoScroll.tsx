@@ -3,8 +3,8 @@ import useStore from "./store";
 import { Context } from './Context';
 import { useComponentSize } from "react-use-size";
 import useScoreAnimation from './hooks/useScoreAnimation';
-import useScoreActions from './hooks/useScoreActions';
-import useScoreRenderer, { RenderedData } from './hooks/useScoreRenderer';
+import useScoreActions, { RenderAutoScrollResult } from './hooks/useScoreActions';
+import useScoreRenderer from './hooks/useScoreRenderer';
 import { PlayingState, Score, loadAutoScrollAction } from './types';
 import { ScoreViewProps } from './ScoreView';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -32,6 +32,7 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
 
     const renderedSvgData = useStore.use.renderedSvgData();
     const setRenderedSvgData = useStore.use.setRenderedSvgData();
+    const setScoreMidi = useStore.use.setScoreMidi();
 
     const [showSpinner, setShowSpinner] = useState(false);
 
@@ -82,7 +83,7 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
             setShowEditorial(false);
         }
         const transposition = withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : null;
-        const action = loadAutoScrollAction({ height: svgContainerHeight, meiStr: score.singleVerseMei, transposition });
+        const action = loadAutoScrollAction({ scoreUrl: score.url, height: svgContainerHeight, meiStr: score.singleVerseMei, transposition });
         setPendingAction(action);
     }, [showEditorial, setShowEditorial, withoutTransposition, svgContainerHeight, setPendingAction])
 
@@ -134,8 +135,10 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
                     // Handle the results of render actions
                     if (result) {
                         if (pendingAction.type === "renderAutoScroll") {
-                            const autoScrollResult = result as { newSvg: RenderedData };
-                            const { newSvg } = autoScrollResult;
+                            const { newSvg, scoreMidi } = result as RenderAutoScrollResult;
+                            if (scoreMidi !== undefined) {
+                                setScoreMidi(scoreMidi);
+                            }
                             setRenderedSvgData(newSvg);
                             setIsLoading(false);
                             setupAutoScrollLayout();

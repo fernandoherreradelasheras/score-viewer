@@ -1,8 +1,16 @@
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
 import useStore from "../store";
 import { AudioSync, TimeMapEvent, PlayingState } from "../types";
 import useVerovio from "../useVerovio";
 import { convertPosition, syncEnd } from "../utils/audio-sync";
+import { releaseMidiSyntheses, synthesizeMidi } from "../utils/midi-synth";
+
+export type PlayableAudio =
+    | { kind: 'file'; url: string }
+    | { kind: 'midi'; midi: string };
+
+const playableAudioKey = (audio: PlayableAudio | null) =>
+    audio == null ? null : audio.kind === 'file' ? audio.url : audio.midi;
 
 let sharedAudioContext: AudioContext | null = null;
 const MS_OVER_LAST_TIMESTAMP = 1000;
@@ -22,7 +30,7 @@ const heardTime = (context: AudioContext) => {
 export const outputLatencyMs = (): number | null =>
     sharedAudioContext ? Math.max(0, Math.round((sharedAudioContext.currentTime - heardTime(sharedAudioContext)) * 1000)) : null;
 
-export default function useWebAudioPlayer(audioUrl: string | null, originalMei: string | undefined,
+export default function useWebAudioPlayer(audio: PlayableAudio | null, originalMei: string | undefined,
     timemap: TimeMapEvent[], sync: AudioSync | null) {
     // Get state and base functionality from base hook
 
@@ -48,6 +56,8 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
     const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
 
     const setCanPlay = useStore.use.setCanPlay();
+    const audioLoadFailed = useStore.use.audioLoadFailed();
+    const setAudioLoadFailed = useStore.use.setAudioLoadFailed();
     const needsUserInteractionRef = useRef(true);
 
     const currentPageRef = useRef(currentPage);
@@ -121,14 +131,21 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         return false; // Handle any other state appropriately
     }, [getAudioContext]);
 
-    const fetchAudioBuffer = useCallback(async (url: string, context: AudioContext): Promise<AudioBuffer> => {
-        const response = await fetch(url);
+    // Who asks for the syntheses of this player: another viewer on the page asks for its own.
+    const [synthesisConsumer] = useState(() => ({}));
+
+    const loadAudioBuffer = useCallback(async (audio: PlayableAudio, context: AudioContext): Promise<AudioBuffer> => {
+        if (audio.kind === 'midi') {
+            return synthesizeMidi(audio.midi, context.sampleRate, synthesisConsumer);
+        }
+        releaseMidiSyntheses(synthesisConsumer);
+        const response = await fetch(audio.url);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const arrayBuffer = await response.arrayBuffer();
         return await context.decodeAudioData(arrayBuffer);
-    }, []);
+    }, [synthesisConsumer]);
 
     const checkPageForPosition = useCallback(async (position: number) => {
         if (autoScrollRef.current || playingState === PlayingState.STOPPED) return;
@@ -182,6 +199,12 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         return Math.max(0, positionSeconds * 1000);
     }, [getAudioContext]);
 
+    // The clock only tells the position while the audio sounds. Before that, as while
+    // the next audio loads, it is the position kept, which a pause must not overwrite.
+    const livePosition = useCallback(() =>
+        sourceNodesRef.current.size > 0 ? getCurrentPosition() : pausedPositionRef.current
+        , [getCurrentPosition]);
+
 
     const pausePlayback = useCallback(() => {
         if (animationFrameRef.current) {
@@ -192,7 +215,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         const context = getAudioContext();
         if (!context) return;
 
-        pausedPositionRef.current = getCurrentPosition();
+        pausedPositionRef.current = livePosition();
         sourceNodesRef.current.forEach(source => {
             try {
                 source.stop();
@@ -201,7 +224,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
             }
         });
         sourceNodesRef.current.clear();
-    }, [getAudioContext, getCurrentPosition]);
+    }, [getAudioContext, livePosition]);
 
     const stopPlayback = useCallback(() => {
         pausePlayback();
@@ -278,6 +301,12 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
     // stores outlive a viewer, and a new one mounted while another played would find
     // that one's score there and take its own first load for a version switch.
     const loadedMeiRef = useRef<string | undefined | null>(null);
+    // A synthesis takes seconds: an audio asked for in the meantime must not be
+    // replaced by it when it finishes.
+    const loadRequestRef = useRef(0);
+    const audioKey = playableAudioKey(audio);
+    // Playing an audio that could not be loaded loads it again.
+    const [reloadRequest, setReloadRequest] = useState(0);
 
     useEffect(() => {
         const restorePosition = (position: number) => {
@@ -291,15 +320,18 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
             }
         }
 
-        const loadAudio = async (audioUrl: string, resumeAt: number | null) => {
-            console.log(`Loading audio from URL: ${audioUrl}`);
+        const loadAudio = async (audio: PlayableAudio, resumeAt: number | null) => {
+            console.log(audio.kind === 'file' ? `Loading audio from URL: ${audio.url}` : "Synthesizing the score's MIDI");
             const context = getAudioContext();
             if (!context) {
                 return
             }
             audioBuffersRef.current.clear();
+            setAudioLoadFailed(false);
+            const request = ++loadRequestRef.current;
             try {
-                const buffer = await fetchAudioBuffer(audioUrl, context);
+                const buffer = await loadAudioBuffer(audio, context);
+                if (request !== loadRequestRef.current) return;
                 audioBuffersRef.current.set('main', buffer);
                 setCanPlay(true);
                 if (resumeAt != null && playingStateRef.current !== PlayingState.STOPPED) {
@@ -307,36 +339,51 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
                     restorePosition(Math.min(resumeAt, buffer.duration * 1000));
                 }
             } catch (error) {
-                console.error("Failed to load main audio:", error);
+                if (request === loadRequestRef.current) {
+                    console.error("Failed to load main audio:", error);
+                    setAudioLoadFailed(true);
+                    // Where it would have resumed stays kept for the next attempt.
+                    if (playingStateRef.current === PlayingState.PLAYING) {
+                        setPlayingState(PlayingState.PAUSED);
+                    }
+                }
             }
         }
 
         const isSameScore = loadedMeiRef.current === originalMei;
         loadedMeiRef.current = originalMei;
 
-        // While playing, the live position is the authoritative one; while paused,
-        // startTimeRef is stale and only pausedPositionRef holds the real position.
         // Versions of the same score need not share a time axis, so the position goes
         // over through the score.
         const resumeAt = isSameScore && playingState !== PlayingState.STOPPED
-            ? convertPosition(previousTimemapRef.current, timemap,
-                playingState === PlayingState.PLAYING ? getCurrentPosition() : pausedPositionRef.current)
+            ? convertPosition(previousTimemapRef.current, timemap, livePosition())
             : null;
 
         // Even with the transport stopped: no source of the previous audio may outlive it.
-        stopPlayback();
-        if (playingState !== PlayingState.STOPPED && resumeAt == null) {
-            setPlayingState(PlayingState.STOPPED);
+        if (resumeAt == null) {
+            stopPlayback();
+            if (playingState !== PlayingState.STOPPED) {
+                setPlayingState(PlayingState.STOPPED);
+            }
+        } else {
+            // A synthesis can take seconds: meanwhile the listener sees where it will
+            // resume, not the start of the score.
+            pausePlayback();
+            pausedPositionRef.current = resumeAt;
+            setPlayingPosition(resumeAt);
         }
         setCanPlay(false);
 
-        if (audioUrl) {
-            loadAudio(audioUrl, resumeAt)
+        if (audio) {
+            loadAudio(audio, resumeAt)
+        } else {
+            loadRequestRef.current++;
+            releaseMidiSyntheses(synthesisConsumer);
         }
         // Only a change of audio file or score reloads: the transport state is read to
         // decide where to resume, and reacting to it would reload on every play or pause.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [audioUrl, originalMei]);
+    }, [audioKey, originalMei, reloadRequest]);
 
 
     // We need a clean up effect to release the audio context when the component gets removed.
@@ -344,6 +391,8 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         return () => {
             stopPlayback()
             setCanPlay(false)
+            setAudioLoadFailed(false)
+            releaseMidiSyntheses(synthesisConsumer)
             // The stores are shared: the next viewer must not start out playing.
             setPlayingState(PlayingState.STOPPED)
             resetPlayerPosition()
@@ -383,7 +432,9 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
     useEffect(() => {
         switch (playingState) {
             case PlayingState.PLAYING:
-                if (needsUserInteractionRef.current) {
+                if (audioLoadFailed) {
+                    setReloadRequest(request => request + 1);
+                } else if (needsUserInteractionRef.current) {
                     resumeAudioContext().then(success => {
                         if (success) {
                             startPlayback(pausedPositionRef.current);

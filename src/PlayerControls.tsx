@@ -116,7 +116,7 @@ function PlayerControls({ audioDuration = 0 }: PlayerControlProps) {
     const audioVersionOptions = useMemo(() =>
         audioFiles.map((audio, index) => ({
             value: index,
-            label: audio.name ?? audio.url.split('/').pop() ?? audio.url
+            label: audio.name ?? (audio.source.kind === 'file' ? audio.source.url.split('/').pop() ?? audio.source.url : 'MIDI')
         })),
         [audioFiles])
 

@@ -141,6 +141,7 @@ function createWorkerProxy(): VerovioWorkerProxy {
         getPageCount: () => callWorkerMethod<number>('getPageCount'),
         renderToSVG: (page) => callWorkerMethod<string>('renderToSVG', page),
         renderToTimemap: (options) => callWorkerMethod<TimeMapEvent[]>('renderToTimemap', options),
+        renderToMIDI: () => callWorkerMethod<string>('renderToMIDI'),
         getMEI: (options) => callWorkerMethod<string>('getMEI', options),
         getPageWithElement: (elementId) => callWorkerMethod<number>('getPageWithElement', elementId),
         getElementsAtTime: (time) => callWorkerMethod<{ notes: string[]; page: number }>('getElementsAtTime', time),

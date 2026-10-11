@@ -179,6 +179,13 @@ export const useConfigValidation = (config: ScoreViewerConfig) => {
           });
         } else {
           score.audioFiles?.forEach((audio, audioIndex) => {
+            const field = `scores[${index}].audioFiles[${audioIndex}]`;
+            if (!!audio.midi === (typeof audio.file === 'string' && audio.file !== '')) {
+              errors.push({ field, message: t('configValidation.scoreAudioSource') });
+            }
+            if (audio.midi && audio.sync !== undefined) {
+              errors.push({ field: `${field}.sync`, message: t('configValidation.scoreAudioMidiSync') });
+            }
             if (audio.sync !== undefined && typeof audio.sync !== 'string') {
               errors.push({
                 field: `scores[${index}].audioFiles[${audioIndex}].sync`,

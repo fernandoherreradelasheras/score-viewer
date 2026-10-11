@@ -17,7 +17,7 @@
     },
     "scores": [
         {
-            "_covers": "single audio version + introduction + facsimiles. No MEI text",
+            "_covers": "audio version + synthesized MIDI version + introduction + facsimiles. No MEI text",
             "title": "Un imposible me mata",
             "path": "un-imposible",
             "meiFile": "music.mei",
@@ -26,6 +26,10 @@
                 {
                     "file": "un-imposible.mp3",
                     "name": "audio un imposible"
+                },
+                {
+                    "midi": true,
+                    "name": "MIDI"
                 }
             ],
             "facsimileItems": [
@@ -72,10 +76,15 @@
             }
         },
         {
-            "_covers": "editorial content (choice) + sections",
+            "_covers": "editorial content (choice) + sections + synthesized MIDI only, following the readings picked",
             "title": "Editorial variants",
             "path": "variants",
             "meiFile": "music.mei",
+            "audioFiles": [
+                {
+                    "midi": true
+                }
+            ],
             "encodingProperties": {
                 "encodedTransposition": "-P4"
             }
@@ -280,6 +289,20 @@
                     "file": "winterreise-01-duhan-1928.mp3",
                     "name": "Hans Duhan, 1928 (sync corrected by ear)",
                     "sync": "winterreise-01-duhan-1928.full.sync.take2.json"
+                }
+            ],
+            "encodingProperties": {
+                "encodedTransposition": ""
+            }
+        },
+        {
+            "_covers": "synthesized MIDI only: the instrument each staff gets (see test-fixtures/midi-instruments/README.md)",
+            "title": "Instrumentos MIDI",
+            "path": "midi-instruments",
+            "meiFile": "music.mei",
+            "audioFiles": [
+                {
+                    "midi": true
                 }
             ],
             "encodingProperties": {

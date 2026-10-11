@@ -4,7 +4,9 @@ import { FacsimileItem } from "./score";
 // by default; the options panel lets the user switch version for the current
 // score (not a persistent selection).
 export interface ScoreViewerConfigAudioFile {
-  file: string;
+  file?: string;
+  // Instead of a file, the score's own MIDI, synthesized in the browser.
+  midi?: boolean;
   name?: string;
   // An AudioSync JSON file that ties a recording to the score. Without it the audio
   // is expected to follow verovio's timing.

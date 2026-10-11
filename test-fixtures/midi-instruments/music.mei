@@ -1,0 +1,948 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="https://music-encoding.org/schema/5.1/mei-all.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="https://music-encoding.org/schema/5.1/mei-all.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<mei xmlns="http://www.music-encoding.org/ns/mei" meiversion="5.1">
+   <meiHead>
+      <fileDesc>
+         <titleStmt>
+            <title type="main">MIDI instruments</title>
+         </titleStmt>
+         <pubStmt>
+            <date isodate="2026-10-11"/>
+         </pubStmt>
+      </fileDesc>
+   </meiHead>
+   <music>
+      <body>
+         <mdiv>
+            <score>
+               <scoreDef midi.bpm="100.0">
+                  <staffGrp>
+                     <staffDef n="1" lines="5" meter.count="4" meter.unit="4">
+                        <label>Parte 1</label>
+                        <clef shape="G" line="2"/>
+                     </staffDef>
+                     <staffDef n="2" lines="5" meter.count="4" meter.unit="4">
+                        <label>Tenor</label>
+                        <clef shape="G" line="2" dis="8" dis.place="below"/>
+                     </staffDef>
+                     <staffDef n="3" lines="5" meter.count="4" meter.unit="4">
+                        <label>Arpa</label>
+                        <clef shape="G" line="2"/>
+                     </staffDef>
+                     <staffDef n="4" lines="5" meter.count="4" meter.unit="4">
+                        <label>Violín</label>
+                        <clef shape="G" line="2"/>
+                     </staffDef>
+                     <staffDef n="5" lines="5" meter.count="4" meter.unit="4">
+                        <label>Flauta</label>
+                        <clef shape="G" line="2"/>
+                        <instrDef midi.instrnum="68"/>
+                     </staffDef>
+                     <staffDef n="6" lines="5" meter.count="4" meter.unit="4">
+                        <label>Bajo continuo</label>
+                        <clef shape="F" line="4"/>
+                     </staffDef>
+                     <staffGrp symbol="brace" bar.thru="true">
+                        <label>Órgano</label>
+                        <staffDef n="7" lines="5" meter.count="4" meter.unit="4">
+                           <clef shape="G" line="2"/>
+                        </staffDef>
+                        <staffDef n="8" lines="5" meter.count="4" meter.unit="4">
+                           <clef shape="F" line="4"/>
+                        </staffDef>
+                     </staffGrp>
+                     <staffDef n="9" lines="5" meter.count="4" meter.unit="4">
+                        <clef shape="G" line="2"/>
+                     </staffDef>
+                  </staffGrp>
+               </scoreDef>
+               <section>
+                <measure n="1">
+                   <staff n="1">
+                      <layer n="1">
+                         <note pname="c" oct="5" dur="4"><verse n="1"><syl>la</syl></verse></note>
+                         <note pname="d" oct="5" dur="4"><verse n="1"><syl>la</syl></verse></note>
+                         <note pname="e" oct="5" dur="4"><verse n="1"><syl>la</syl></verse></note>
+                         <note pname="f" oct="5" dur="4"><verse n="1"><syl>la</syl></verse></note>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                </measure>
+                <measure n="2">
+                   <staff n="1">
+                      <layer n="1">
+                         <note pname="g" oct="5" dur="2"><verse n="1"><syl>la</syl></verse></note>
+                         <note pname="e" oct="5" dur="2"><verse n="1"><syl>la</syl></verse></note>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                </measure>
+                <measure n="3">
+                   <staff n="1">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <note pname="e" oct="3" dur="4"/>
+                         <note pname="d" oct="3" dur="4"/>
+                         <note pname="c" oct="3" dur="4"/>
+                         <note pname="b" oct="2" dur="4"/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                </measure>
+                <measure n="4">
+                   <staff n="1">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <note pname="a" oct="2" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                </measure>
+                <measure n="5">
+                   <staff n="1">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <note pname="c" oct="4" dur="4"/>
+                         <note pname="e" oct="4" dur="4"/>
+                         <note pname="g" oct="4" dur="4"/>
+                         <note pname="c" oct="5" dur="4"/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                </measure>
+                <measure n="6">
+                   <staff n="1">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <note pname="e" oct="5" dur="2"/>
+                         <note pname="c" oct="5" dur="2"/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                </measure>
+                <measure n="7">
+                   <staff n="1">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <note pname="g" oct="4" dur="4"/>
+                         <note pname="a" oct="4" dur="4"/>
+                         <note pname="b" oct="4" dur="4"/>
+                         <note pname="c" oct="5" dur="4"/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                </measure>
+                <measure n="8">
+                   <staff n="1">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <note pname="d" oct="5" dur="2"/>
+                         <note pname="g" oct="5" dur="2"/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                </measure>
+                <measure n="9">
+                   <staff n="1">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <note pname="c" oct="5" dur="4"/>
+                         <note pname="b" oct="4" dur="4"/>
+                         <note pname="a" oct="4" dur="4"/>
+                         <note pname="g" oct="4" dur="4"/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                </measure>
+                <measure n="10">
+                   <staff n="1">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <note pname="c" oct="5" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                </measure>
+                <measure n="11">
+                   <staff n="1">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <note pname="c" oct="3" dur="4"/>
+                         <note pname="g" oct="2" dur="4"/>
+                         <note pname="c" oct="3" dur="4"/>
+                         <note pname="e" oct="3" dur="4"/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                </measure>
+                <measure n="12">
+                   <staff n="1">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <note pname="f" oct="2" dur="2"/>
+                         <note pname="g" oct="2" dur="2"/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                </measure>
+                <measure n="13">
+                   <staff n="1">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <note pname="c" oct="4" dur="2"/>
+                         <note pname="e" oct="4" dur="2"/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <note pname="c" oct="3" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                </measure>
+                <measure n="14">
+                   <staff n="1">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <note pname="g" oct="4" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <note pname="c" oct="3" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                </measure>
+                <measure n="15">
+                   <staff n="1">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <note pname="c" oct="4" dur="4"/>
+                         <note pname="d" oct="4" dur="4"/>
+                         <note pname="e" oct="4" dur="4"/>
+                         <note pname="f" oct="4" dur="4"/>
+                      </layer>
+                   </staff>
+                </measure>
+                <measure n="16">
+                   <staff n="1">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <mRest/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <note pname="g" oct="4" dur="1"/>
+                      </layer>
+                   </staff>
+                </measure>
+                <scoreDef>
+                   <staffGrp>
+                      <staffDef n="4" lines="5">
+                         <clef shape="G" line="2"/>
+                      </staffDef>
+                      <staffDef n="6" lines="5">
+                         <clef shape="F" line="4"/>
+                      </staffDef>
+                   </staffGrp>
+                </scoreDef>
+                <measure n="17">
+                   <staff n="1">
+                      <layer n="1">
+                         <note pname="e" oct="5" dur="1"><verse n="1"><syl>la</syl></verse></note>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <note pname="g" oct="3" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <note pname="c" oct="5" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <note pname="g" oct="4" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <note pname="e" oct="5" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <note pname="c" oct="3" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <note pname="e" oct="4" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <note pname="c" oct="3" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <note pname="g" oct="4" dur="1"/>
+                      </layer>
+                   </staff>
+                </measure>
+                <measure n="18">
+                   <staff n="1">
+                      <layer n="1">
+                         <note pname="e" oct="5" dur="1"><verse n="1"><syl>la</syl></verse></note>
+                      </layer>
+                   </staff>
+                   <staff n="2">
+                      <layer n="1">
+                         <note pname="g" oct="3" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="3">
+                      <layer n="1">
+                         <note pname="c" oct="5" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="4">
+                      <layer n="1">
+                         <note pname="g" oct="4" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="5">
+                      <layer n="1">
+                         <note pname="e" oct="5" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="6">
+                      <layer n="1">
+                         <note pname="c" oct="3" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="7">
+                      <layer n="1">
+                         <note pname="e" oct="4" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="8">
+                      <layer n="1">
+                         <note pname="c" oct="3" dur="1"/>
+                      </layer>
+                   </staff>
+                   <staff n="9">
+                      <layer n="1">
+                         <note pname="g" oct="4" dur="1"/>
+                      </layer>
+                   </staff>
+                </measure>
+               </section>
+            </score>
+         </mdiv>
+      </body>
+   </music>
+</mei>

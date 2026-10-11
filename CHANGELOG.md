@@ -6,6 +6,14 @@ Incompatible changes on the 1.1.x line.
 may change without compatibility shims. Every such change is recorded here, newest
 first. Ordinary fixes and additions are not — see the git log for those.
 
+## 1.1.19
+
+### API
+
+- `Score.audioFiles[].url` is replaced by `source`: `{ kind: "file", url }` for an audio
+  file, or `{ kind: "midi" }` for the score's own MIDI, synthesized in the browser (see
+  "MIDI audio" in the README).
+
 ## 1.1.16
 
 ### MEI conventions

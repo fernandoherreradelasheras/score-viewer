@@ -5,3 +5,8 @@ declare module '@microflash/rehype-figure' {
     const rehypeFigure: Plugin<[], Root>;
     export default rehypeFigure;
 }
+
+declare module '*?asset' {
+    const url: string;
+    export default url;
+}

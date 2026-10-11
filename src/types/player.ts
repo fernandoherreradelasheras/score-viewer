@@ -21,4 +21,9 @@ export type TimeMapEvent = {
     passStart?: boolean | undefined;
 }
 
-
+// A Standard MIDI File, base64 encoded as verovio returns it, and the score it was
+// rendered from.
+export type ScoreMidi = {
+    scoreUrl: string;
+    midi: string;
+}

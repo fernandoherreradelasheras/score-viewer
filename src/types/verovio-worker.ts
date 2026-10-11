@@ -38,6 +38,7 @@ export interface VerovioWorkerProxy {
     getPageCount: () => Promise<number>;
     renderToSVG: (page: number) => Promise<string>;
     renderToTimemap: (options?: TimeMapOptions) => Promise<TimeMapEvent[]>;
+    renderToMIDI: () => Promise<string>;
     getMEI: (options?: GetMeiOptions) => Promise<string>;
     getPageWithElement: (elementId: string) => Promise<number>;
     getElementsAtTime: (time: number) => Promise<{ notes: string[]; page: number }>;

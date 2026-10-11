@@ -1,4 +1,5 @@
 import { ANNOTATION_TARGET_TYPE, ANNOTATION_TARGET_WRAPPER, EDITORIAL_ALL_TAGS, EDITORIAL_SELECTION_TAGS } from "./types/editorial";
+import { midiProgramFor } from "./utils/midi-instruments";
 
 type FilterParams = { n?: number }
 
@@ -227,6 +228,41 @@ const EnsureEditorialElementsWithoutIdFilter: FilterFunc = (doc: Document) => {
     })
 }
 
+const staffLabel = (staffDef: Element): string => {
+    for (let e: Element | null = staffDef; e != null && (e.localName == "staffDef" || e.localName == "staffGrp"); e = e.parentElement) {
+        const label = e.getAttribute("label") ?? [...e.children].find(c => c.localName == "label")?.textContent
+        if (label) return label
+    }
+    return ""
+}
+
+// The staves without an <instrDef> get one, so that verovio's MIDI plays each with
+// its instrument. A staff is known by the first of its staffDefs, which carries its label.
+const AssignMidiInstrumentsFilter: FilterFunc = (doc: Document) => {
+    const staffDefs = [...doc.getElementsByTagNameNS(MEI_NS, "staffDef")]
+    const instrumented = new Set(staffDefs
+        .filter(staffDef => staffDef.getElementsByTagNameNS(MEI_NS, "instrDef").length > 0)
+        .map(staffDef => staffDef.getAttribute("n")))
+    const withLyrics = new Set([...doc.getElementsByTagNameNS(MEI_NS, "syl")].map(syl => {
+        let e = syl.parentElement
+        while (e != null && e.localName != "staff") e = e.parentElement
+        return e?.getAttribute("n")
+    }))
+    const programs = new Map<string, number>()
+    staffDefs.forEach(staffDef => {
+        const n = staffDef.getAttribute("n")
+        if (n == null || instrumented.has(n)) return
+        if (!programs.has(n)) {
+            programs.set(n, midiProgramFor(staffLabel(staffDef), withLyrics.has(n)))
+        }
+        const instrDef = doc.createElementNS(MEI_NS, "instrDef")
+        instrDef.setAttribute("midi.instrnum", String(programs.get(n)))
+        // Right after the labels: an <ambitus> has to stay last.
+        const labels = [...staffDef.children].filter(c => c.localName == "label" || c.localName == "labelAbbr")
+        staffDef.insertBefore(instrDef, labels.length > 0 ? labels[labels.length - 1].nextSibling : staffDef.firstChild)
+    })
+}
+
 class ScoreProcessor {
     score: string
     filters: Filters
@@ -262,6 +298,9 @@ class ScoreProcessor {
     }
     addRemoveBracketSpanFilter() {
         this.filters.push([FilterRemoveBracketSpan, {}])
+    }
+    addMidiInstrumentsFilter() {
+        this.filters.push([AssignMidiInstrumentsFilter, {}])
     }
 
     filterScore(): string {

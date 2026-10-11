@@ -10,6 +10,7 @@ function PlayerButtons() {
     const setPlayingState = useStore.use.setPlayingState();
     const setSeekPosition = useStore.use.setSeekPosition();
     const canPlay = useStore.use.canPlay();
+    const audioLoadFailed = useStore.use.audioLoadFailed();
 
     const stop = () => {
         setPlayingState(PlayingState.STOPPED);
@@ -28,9 +29,9 @@ function PlayerButtons() {
                         <Button data-testid="player-pause" icon={<PauseCircleTwoTone style={{ fontSize: '36px' }} />}
                             onClick={() => setPlayingState(PlayingState.PAUSED)} />
                     </Tooltip> :
-                    <Tooltip title="Play">
+                    <Tooltip title={audioLoadFailed ? "Retry" : "Play"}>
                         <Button data-testid="player-play" icon={<PlayCircleTwoTone style={{ fontSize: '36px' }} />}
-                            onClick={() => setPlayingState(PlayingState.PLAYING)} disabled={!canPlay} />
+                            onClick={() => setPlayingState(PlayingState.PLAYING)} disabled={!canPlay && !audioLoadFailed} />
                     </Tooltip>}
             </Space>
         </div>

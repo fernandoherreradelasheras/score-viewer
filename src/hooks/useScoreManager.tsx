@@ -1,4 +1,4 @@
-import { AudioSync, Score, ScoreProperties, Transposition } from '../types';
+import { AudioFile, AudioSync, Score, ScoreProperties, Transposition } from '../types';
 import useStore from '../store';
 import ScoreProcessor from '../ScoreProcessor';
 import ScoreAnalyzer from '../ScoreAnalyzer';
@@ -145,6 +145,9 @@ export function useScoreManager({
         scoreProcessor.addWrapAnnotationTargetsFilter();
         scoreProcessor.addEnsureEditorialElementsWithoutIdFilter();
         scoreProcessor.addEnsureNotesRestsIdFilter();
+        if (scoreDef.audioFiles?.some(audio => audio.midi)) {
+          scoreProcessor.addMidiInstrumentsFilter();
+        }
         const originalMei = scoreProcessor.filterScore();
 
         const analyzer = new ScoreAnalyzer(originalMei);
@@ -152,13 +155,17 @@ export function useScoreManager({
           ...analyzer.getScoreProperties(),
           encodedTransposition: encodingProperties.encodedTransposition as Transposition ?? undefined,
         }
-        const audioFiles = await Promise.all((scoreDef.audioFiles ?? [])
-          .filter((audio) => audio.file && audio.file !== "")
-          .map(async (audio) => ({
-            url: path + audio.file,
+        const audioFiles: AudioFile[] = await Promise.all((scoreDef.audioFiles ?? [])
+          .filter((audio) => audio.midi || (audio.file && audio.file !== ""))
+          .map(async (audio) => audio.midi ? {
+            source: { kind: 'midi' as const },
+            name: audio.name,
+            sync: null,
+          } : {
+            source: { kind: 'file' as const, url: path + audio.file },
             name: audio.name,
             sync: audio.sync ? await fetchAudioSync(path + audio.sync) : null,
-          })))
+          }))
 
         const editorialItems = analyzer.getEditorial();
         const { lyrics, comments } = parsePoemFromMei(originalMei);

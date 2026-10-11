@@ -149,7 +149,7 @@ export default defineConfig({
 | `path` | `string` | Required. Folder of the score under `basePath`. |
 | `meiFile` | `string` | Required. The MEI file in that folder. |
 | `encodingProperties` | `{ encodedTransposition?: string }` | Required, may be empty. `encodedTransposition` is the transposition the score was encoded with (`"-P4"`, `"+M3"`, `"P8"`…), which the reader can undo. |
-| `audioFiles` | `{ file: string, name?: string, sync?: string }[]` | Audio versions of the score. The first one plays by default; with more than one, the reader can switch between them. `sync` is the [audio sync](#audio-sync) file of a recording that does not follow verovio's timing. |
+| `audioFiles` | `{ file?: string, midi?: boolean, name?: string, sync?: string }[]` | Audio versions of the score. The first one plays by default; with more than one, the reader can switch between them. Each one is either a `file` or `midi: true`, the [score's own MIDI](#midi-audio). `sync` is the [audio sync](#audio-sync) file of a recording that does not follow verovio's timing. |
 | `introductionFile` | `string` | Markdown introduction. It must be served as `text/markdown` or `text/plain`. Image paths starting with `./` or `../` are resolved against the Markdown file; other relative paths, against the site root. |
 | `facsimileItems` | `{ name: string, file: string, part?: string }[]` | Facsimile images. `part` is the `xml:id` of the `<perfRes>` whose part the image shows; without it, the image is taken for the full score. |
 
@@ -166,10 +166,43 @@ poem in `<back>`. They are documented, with examples, in [CHANGELOG.md](CHANGELO
 Repeats are not expanded: the audio is expected to play the score straight through, as
 verovio times it.
 
+## MIDI audio
+
+A score without a recording can still be played: an `audioFiles` entry `{ "midi": true }`
+synthesizes in the browser the MIDI verovio renders for it.
+
+```json
+"audioFiles": [
+  { "file": "recording.mp3", "name": "Recording" },
+  { "midi": true, "name": "MIDI" }
+]
+```
+
+- The MIDI is rendered from the readings on display: picking another reading of an
+  `<app>`, `<choice>` or `<subst>` synthesizes the audio again. So does the transposition
+  shown.
+- It follows verovio's timing, so it takes no `sync`.
+- Each staff sounds with the General MIDI program in its `<instrDef @midi.instrnum>`. A
+  staff without one is taken for:
+  - the instrument its label names (`Arpa`, `Órgano`, `Violín`, `Bajo continuo`…; the
+    label of its `<staffGrp>` if it has none of its own),
+  - otherwise a voice, when it has lyrics or its label names one (`Tiple`, `Tenor`,
+    `Cantus`, `Bassus`…),
+  - otherwise a piano.
+- Synthesis runs in a worker, about twenty times faster than the music plays. Play is
+  enabled when it ends.
+- The sound bank ships with the library as `dist/assets/score-viewer-*.sf3` (21 MB), and
+  is downloaded once, on the first synthesis: a site whose scores all have recordings
+  never downloads it. It is built by `tools/soundbank/build.mts` from:
+  - FluidR3_GM by Frank Wen, MIT license, for every instrument;
+  - the "Vocal Oooh" of
+    [KBH Real and Swelling Choirs](https://musical-artifacts.com/artifacts/387) by lfz,
+    CC BY, for the voices (programs 52 and 53), with FluidR3's Voice Oohs below C3.
+
 ## Audio sync
 
 An audio without `sync` is taken for a rendering of the score's MIDI, timed as verovio
-times it. A recording has a timing of its own, and its `sync` file says where it reaches
+times it, like the [MIDI audio](#midi-audio). A recording has a timing of its own, and its `sync` file says where it reaches
 points of the score:
 
 ```json
