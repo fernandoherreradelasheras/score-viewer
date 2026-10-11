@@ -121,8 +121,9 @@
   "ok": "Ok",
   "reset": "Reset",
   "audioVersion": {
-    "title": "Audio version",
-    "description": "Choose which rendered audio version to play for this score"
+    "recording": "Recording",
+    "synthesized": "Synthesized from the score",
+    "title": "Audio version"
   },
   "playerMode": {
     "autoscroll": "auto scroll",

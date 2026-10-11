@@ -121,8 +121,9 @@
   "ok": "Ok",
   "reset": "Reset",
   "audioVersion": {
-    "title": "Versión de audio",
-    "description": "Elige qué versión de audio reproducir para esta partitura"
+    "recording": "Grabación",
+    "synthesized": "Sintetizado desde la partitura",
+    "title": "Versión de audio"
   },
   "playerMode": {
     "autoscroll": "auto scroll",

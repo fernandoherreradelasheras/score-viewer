@@ -115,6 +115,28 @@
             }
         },
         {
+            "_covers": "audio version picker: two pre-recorded mp3s and the synthesized MIDI of the score",
+            "title": "Dos grabaciones y MIDI",
+            "path": "multipage",
+            "meiFile": "music.mei",
+            "audioFiles": [
+                {
+                    "file": "harp.mp3",
+                    "name": "Grabación arpa"
+                },
+                {
+                    "file": "oboe.mp3",
+                    "name": "Oboe y bajo continuo, grabación en directo (Sevilla, 2019)"
+                },
+                {
+                    "midi": true
+                }
+            ],
+            "encodingProperties": {
+                "encodedTransposition": ""
+            }
+        },
+        {
             "_covers": "multiple pages, multiple audio, a recording off the score's timing tied to it by an audio sync (slower up to m. 10, a 1.5 s pause, faster up to m. 25), and a rendering that takes the repeat (m. 4-24), synced with a jump back",
             "title": "two audios",
             "path": "multipage",

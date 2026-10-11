@@ -2,6 +2,7 @@ import { Button, Space, Tooltip } from "antd";
 import { PlayCircleTwoTone, CloseCircleTwoTone, PauseCircleTwoTone } from '@ant-design/icons';
 import useStore from "./store";
 import { PlayingState } from "./types";
+import AudioVersionMenu from "./AudioVersionMenu";
 
 // The transport of the player, wherever it is shown: the player itself follows the
 // playing state of the store.
@@ -19,7 +20,8 @@ function PlayerButtons() {
 
     return (
         <div style={{ position: "absolute", bottom: 0, right: 0, padding: "8px" }}>
-            <Space orientation="horizontal" size="small">
+            <Space orientation="horizontal" size="small" align="center">
+                <AudioVersionMenu />
                 {playingState !== PlayingState.STOPPED ?
                     <Tooltip title="Stop">
                         <Button data-testid="player-stop" icon={<CloseCircleTwoTone style={{ fontSize: '36px' }} />} onClick={stop} />
