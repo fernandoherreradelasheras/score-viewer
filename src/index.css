@@ -2,6 +2,11 @@
   pointer-events: none;
 }
 
+.svg-container {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 .score-tabs-body {
   height: 100%;
 }
