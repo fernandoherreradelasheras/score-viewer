@@ -101,8 +101,13 @@ function PlaybackCursor({ timemap }: { timemap: TimeMapEvent[] }) {
                 page.frames.set(system, systemFrame(system));
             }
             const frame = system ? page.frames.get(system) : null;
+            // The leftmost of what starts at the stop. A whole-measure rest is drawn in
+            // the middle of its measure, and the note a tie carries on (merged into the
+            // stop of the note it continues) further to the right: either would put the
+            // cursor ahead of the stop, and send it back at the next one.
+            const inSystem = found.filter(element => element.closest(".system") === system);
             page.placements.set(index, system && frame ? {
-                x: found.reduce((sum, element) => sum + centerX(element), 0) / found.length,
+                x: Math.min(...inSystem.map(centerX)),
                 system,
                 frame,
                 measureRight: measureRight(found[0].closest(".measure")),
