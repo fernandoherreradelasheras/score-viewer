@@ -1,4 +1,5 @@
 // Player-related types
+import type { MidiSource } from './actions';
 
 export enum PlayingState {
     PLAYING,
@@ -21,9 +22,8 @@ export type TimeMapEvent = {
     passStart?: boolean | undefined;
 }
 
-// A Standard MIDI File, base64 encoded as verovio returns it, and the score it was
+// A Standard MIDI File, base64 encoded as verovio returns it, and what it was
 // rendered from.
-export type ScoreMidi = {
-    scoreUrl: string;
+export type ScoreMidi = MidiSource & {
     midi: string;
 }

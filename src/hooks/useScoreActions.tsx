@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { VerovioOptions } from 'verovio';
 import ScoreAnalyzer from '../ScoreAnalyzer';
 import { ScoreMidi } from '../types';
@@ -301,6 +301,11 @@ export default function useScoreActions({
   const setElementPages = useStore.use.setElementPages();
   const scoreCache = useStore.use.scoreCache();
   const score = useStore.use.score();
+  const scoreMidi = useStore.use.scoreMidi();
+  const scoreMidiRef = useRef(scoreMidi);
+  useEffect(() => {
+    scoreMidiRef.current = scoreMidi;
+  }, [scoreMidi]);
 
 
   const getSectionMap = useCallback(async (analyzer: ScoreAnalyzer) => {
@@ -332,21 +337,18 @@ export default function useScoreActions({
       : undefined
     , [scoreCache]);
 
-  // What the last MIDI was rendered from: a relayout, as on a resize, loads the same
-  // music again and must not render it again.
-  const renderedMidiRef = useRef<MidiSource | null>(null);
-
   // On the data loaded and rendered: the MIDI of the readings on display, with the
   // transposition shown. Rendered after the page so as not to delay it, and only when
-  // the music changed; a failure leaves it for the next load.
+  // the music changed: a relayout, as on a resize, loads the same music again. It is
+  // checked against the stored MIDI, as the result of a superseded load is discarded;
+  // a failure leaves it for the next load.
   const renderMidi = useCallback(async (source: MidiSource): Promise<ScoreMidi | null | undefined> => {
     if (!verovio) return undefined;
-    const rendered = renderedMidiRef.current;
-    if (rendered?.scoreUrl === source.scoreUrl && rendered.meiStr === source.meiStr && rendered.music === source.music) return undefined;
+    const stored = scoreMidiRef.current;
+    if (stored?.scoreUrl === source.scoreUrl && stored.meiStr === source.meiStr && stored.music === source.music) return undefined;
     try {
       const midi = await verovio.renderToMIDI();
-      renderedMidiRef.current = source;
-      return { scoreUrl: source.scoreUrl, midi };
+      return { ...source, midi };
     } catch (error) {
       console.error("Error rendering the score's MIDI:", error);
       return null;
