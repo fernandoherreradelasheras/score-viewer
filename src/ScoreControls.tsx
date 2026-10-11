@@ -1,5 +1,5 @@
 import { cloneElement, useMemo, useState } from 'react';
-import { Space, Pagination, Button, Tooltip } from 'antd';
+import { Space, Pagination, Button } from 'antd';
 import { ZoomInOutlined, ZoomOutOutlined, FullscreenOutlined, FullscreenExitOutlined, ProfileOutlined } from '@ant-design/icons';
 import { PlayingState } from './types';
 import PlayerControls from './PlayerControls';
@@ -51,12 +51,10 @@ const ScoreControls = ({ style, fullScreenElement, showDownloadButton, backgroun
                 onClick={handleFullScreenToggle}
                 disabled={playingState === PlayingState.PLAYING} />
 
-            <Tooltip title={t('scoreInfo.button')}>
-                <Button
-                    icon={<ProfileOutlined />}
-                    onClick={() => setShowScoreInfo(true)}
-                    disabled={!score} >{t('scoreInfo.button')}</Button>
-            </Tooltip>
+            <Button
+                icon={<ProfileOutlined />}
+                onClick={() => setShowScoreInfo(true)}
+                disabled={!score} >{t('scoreInfo.button')}</Button>
 
         </Space>
     ), [canZoomIn, canZoomOut, playingState, isFullScreen, score, t, zoomIn, zoomOut, handleFullScreenToggle]);

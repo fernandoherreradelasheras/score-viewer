@@ -196,6 +196,7 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
 
   const scoreItems: DefaultOptionType[] = useMemo(() => config.scores.map((score, index) => ({
     label: score.title,
+    title: "",
     value: index,
   })), [config.scores])
 

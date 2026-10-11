@@ -44,6 +44,7 @@ export default function ScoreViewerHeader({
         <Typography.Text style={{ marginLeft: "10px" }}>{label}:</Typography.Text>
         <Select
           style={{ minWidth: "200px", marginRight: "10px" }}
+          title=""
           value={selectedScoreIndex ?? undefined}
           options={scoreItems}
           onChange={onScoreChanged} />
