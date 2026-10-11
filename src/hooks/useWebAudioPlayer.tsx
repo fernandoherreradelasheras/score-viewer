@@ -30,6 +30,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
     const seekPosition = useStore.use.seekPosition();
     const setSeekPosition = useStore.use.setSeekPosition();
     const setPlayingState = useStore.use.setPlayingState();
+    const resetPlayerPosition = useStore.use.resetPlayerPosition();
     const setPlayingPosition = useStore.use.setPlayingPosition();
     const currentPage = useStore.use.currentPage();
     const goToPage = useStore.use.goToPage();
@@ -51,6 +52,11 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
 
     const currentPageRef = useRef(currentPage);
     currentPageRef.current = currentPage;
+
+    // The transport state when an audio finishes loading, which may not be the one it
+    // started loading in: the listener can pause or stop meanwhile.
+    const playingStateRef = useRef(playingState);
+    playingStateRef.current = playingState;
 
     // Read through refs: checkPageForPosition runs from the requestAnimationFrame
     // loop, which holds the closure captured when playback started. Playback restarted
@@ -268,8 +274,10 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
     }, [getAudioContext]);
 
     // Lets an audio-version switch be told apart from a score change: the first has to
-    // resume where the listener was, the second must start over.
-    const loadedMeiRef = useRef(originalMei);
+    // resume where the listener was, the second must start over. It starts empty: the
+    // stores outlive a viewer, and a new one mounted while another played would find
+    // that one's score there and take its own first load for a version switch.
+    const loadedMeiRef = useRef<string | undefined | null>(null);
 
     useEffect(() => {
         const restorePosition = (position: number) => {
@@ -278,7 +286,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
                 // Reuse the seek path: it restarts the sources when playing, repositions
                 // them when paused, and rebuilds the highlighter's event queue either way.
                 setSeekPosition(position);
-            } else if (playingState === PlayingState.PLAYING) {
+            } else if (playingStateRef.current === PlayingState.PLAYING) {
                 startPlayback(0);
             }
         }
@@ -294,7 +302,7 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
                 const buffer = await fetchAudioBuffer(audioUrl, context);
                 audioBuffersRef.current.set('main', buffer);
                 setCanPlay(true);
-                if (resumeAt != null) {
+                if (resumeAt != null && playingStateRef.current !== PlayingState.STOPPED) {
                     // A shorter rendering of the same score must not seek past its end.
                     restorePosition(Math.min(resumeAt, buffer.duration * 1000));
                 }
@@ -315,11 +323,10 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
                 playingState === PlayingState.PLAYING ? getCurrentPosition() : pausedPositionRef.current)
             : null;
 
-        if (playingState !== PlayingState.STOPPED) {
-            stopPlayback();
-            if (resumeAt == null) {
-                setPlayingState(PlayingState.STOPPED);
-            }
+        // Even with the transport stopped: no source of the previous audio may outlive it.
+        stopPlayback();
+        if (playingState !== PlayingState.STOPPED && resumeAt == null) {
+            setPlayingState(PlayingState.STOPPED);
         }
         setCanPlay(false);
 
@@ -337,6 +344,9 @@ export default function useWebAudioPlayer(audioUrl: string | null, originalMei: 
         return () => {
             stopPlayback()
             setCanPlay(false)
+            // The stores are shared: the next viewer must not start out playing.
+            setPlayingState(PlayingState.STOPPED)
+            resetPlayerPosition()
             if (audioContextRef.current?.state === 'running') {
                 audioContextRef.current.suspend().then(() => {
                     console.log("Audio context suspended");
