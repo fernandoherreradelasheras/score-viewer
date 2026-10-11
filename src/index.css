@@ -421,11 +421,12 @@
 }
 
 /* The element reached from the facsimile, framed on the score as the facsimile frames
-   the note clicked on the score. */
+   the note clicked on the score. The stroke outweighs the one verovio gives every rect
+   of the score from its own stylesheet, keyed on the id of the SVG. */
 .svg-container svg .score-link-frame {
   fill: #0077BB;
   fill-opacity: 0.12;
-  stroke: #0077BB;
+  stroke: #0077BB !important;
   stroke-width: 3px;
   vector-effect: non-scaling-stroke;
   pointer-events: none;

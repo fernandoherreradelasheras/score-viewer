@@ -94,6 +94,7 @@ export const clearHighlighted = (container: HTMLElement | null) => {
 
 const LINK_FRAME_CLASS = "score-link-frame";
 const LINK_FRAME_PADDING = 0.3;
+const LINK_FRAME_MARGIN_PX = 6;
 
 // A frame around an element reached from the facsimile. Placed beside the element, whose
 // box is already in the coordinates of its parent: verovio puts no transform on it.
@@ -103,7 +104,8 @@ export const markLinkFrame = (container: HTMLElement | null, elementId: string) 
         return false;
     }
     const box = element.getBBox();
-    const padding = Math.min(box.width, box.height) * LINK_FRAME_PADDING;
+    const scale = element.getScreenCTM()?.a || 1;
+    const padding = Math.min(box.width, box.height) * LINK_FRAME_PADDING + LINK_FRAME_MARGIN_PX / scale;
     const frame = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     frame.setAttribute("class", LINK_FRAME_CLASS);
     frame.setAttribute("x", `${box.x - padding}`);
