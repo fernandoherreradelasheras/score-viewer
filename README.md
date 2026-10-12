@@ -28,6 +28,14 @@ It is also available as a standalone page to embed with an `<iframe>`.
 Incompatible changes to the configuration, the MEI conventions and the API are listed in
 [CHANGELOG.md](CHANGELOG.md).
 
+## In use
+
+score-viewer is the reading interface of the digital critical edition of the
+[Cancionero de Miranda](https://cdm.humanoydivino.com/), a songbook of 77 Spanish secular
+songs for several voices copied around 1700 at the Portuguese Royal Chapel: see for example
+[*Deseos de un imposible*](https://cdm.humanoydivino.com/tono/36/). Its design is described
+in [this paper](https://dl.acm.org/doi/10.1145/3748336.3748337) (DLfM 2025).
+
 ## Installation
 
 ```bash

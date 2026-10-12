@@ -13,6 +13,14 @@
     "./style.css": "./dist/style.css"
   },
   "private": false,
+  "homepage": "https://cdm.humanoydivino.com/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fernandoherreradelasheras/score-viewer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fernandoherreradelasheras/score-viewer/issues"
+  },
   "version": "1.1.21",
   "type": "module",
   "files": [
