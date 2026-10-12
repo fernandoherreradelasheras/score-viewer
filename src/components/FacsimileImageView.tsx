@@ -217,6 +217,7 @@ function FacsimileImageView({ path, items, currentItem, itemSurfaces, fitWidth, 
       }}
       panning={{
         excluded: [FACSIMILE_TARGET_CLASS],
+        allowRightClickPan: false,
       }}
     >
       <FacsimileViewReset loadedImage={imageBox?.src === imageFile ? imageFile : null} fitWidth={fitWidth}
@@ -228,7 +229,8 @@ function FacsimileImageView({ path, items, currentItem, itemSurfaces, fitWidth, 
         // view, for the image to be centred in it by layout rather than by the transform.
         {...(isHorizontalSplit && !fitWidth ? { contentStyle: { width: "100%", height: "100%" } } : {})}>
         <div style={containerStyle}>
-          <img ref={setImage} src={imageFile} alt={imageTitle} style={imageStyle} onLoad={onImageLoad} />
+          <img ref={setImage} src={imageFile} alt={imageTitle} style={{ ...imageStyle, pointerEvents: "auto" }}
+            onLoad={onImageLoad} />
           {links && surface >= 0 && imageShown ? <>
             {followsPlayback ?
               <FacsimilePlayerOverlay links={links} surface={surface} box={imageBox}
