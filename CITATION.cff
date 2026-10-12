@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using these metadata."
+type: software
+title: "score-viewer"
+abstract: "A React component and standalone iframe page for reading and listening to MEI scores rendered with Verovio, with critical apparatus, synchronized audio, linked facsimile and texts."
+authors:
+  - family-names: "Herrera de las Heras"
+    given-names: "Fernando"
+    orcid: "https://orcid.org/0009-0006-4907-6964"
+repository-code: "https://github.com/fernandoherreradelasheras/score-viewer"
+url: "https://www.npmjs.com/package/score-viewer"
+license: MIT
+keywords:
+  - MEI
+  - Verovio
+  - score viewer
+  - digital musicology
+preferred-citation:
+  type: conference-paper
+  title: "The Cancionero de Miranda Edition: Leveraging Open Source Technologies for Multi-Modal Music Publication"
+  collection-title: "Proceedings of the 12th International Conference on Digital Libraries for Musicology"
+  year: 2025
+  doi: "10.1145/3748336.3748337"
+  authors:
+    - family-names: "Herrera de las Heras"
+      given-names: "Fernando"
