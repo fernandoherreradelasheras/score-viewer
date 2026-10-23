@@ -59,7 +59,9 @@ test('links round-trip through the MEI, without adding ids', () => {
   assert.deepEqual(back.dims['S1/image-009.jpg'], { w: 1702, h: 2424 });
 
   assert.ok(r.text.includes('<surface label="Tiple 1º página 9" lrx="1702" lry="2424">'));
-  assert.ok(r.text.includes(`<note xml:id="${withId[0].id}" facs="#${za}"`));
+  assert.match(r.text, new RegExp(`<note xml:id="${withId[0].id}"[^>]* facs="#${za}"/?>`), '@facs goes last');
+  const tags = [...r.text.matchAll(/<!--[\s\S]*?-->|<(?:note|rest|mRest)\b[^>]*>/g)].map((m) => m[0]).filter((t) => !t.startsWith('<!--'));
+  assert.match(tags[noId[0].ordinal], new RegExp(` facs="#${back.eventZone[tmp]}"/?>$`), '@facs goes last without id too');
   assert.equal(scanEvents(r.text).length, events.length);
 });
 

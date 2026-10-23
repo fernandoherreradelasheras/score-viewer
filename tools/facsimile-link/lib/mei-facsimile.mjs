@@ -30,7 +30,6 @@ const EVENT_TAGS = ['note', 'rest', 'mRest'];
 // Start tags of the linkable events, in document order, skipping comments.
 const EVENT_RE = /<!--[\s\S]*?-->|<(note|rest|mRest)\b([^>]*?)(\/?)>/g;
 
-const ID_RE = /\bxml:id\s*=\s*"([^"]*)"/;
 const FACS_RE = /\s+facs\s*=\s*"[^"]*"/;
 
 function attrOf(attrs, name) {
@@ -195,7 +194,7 @@ export function writeFacsimile(text, links, opts = {}) {
   out = out.replace(/<facsimile\b[\s\S]*?<\/facsimile>/, '');
 
   // 2. Rewrite the event start tags: an existing @facs keeps its place, a new
-  //    one goes right after xml:id, or first when there is no id.
+  //    one goes last, after every other attribute.
   let ordinal = 0;
   out = out.replace(EVENT_RE, (full, tag, attrs, slash) => {
     if (!tag) return full;
@@ -204,7 +203,7 @@ export function writeFacsimile(text, links, opts = {}) {
     const facs = `facs="#${zoneId.get(r.zoneKey)}"`;
     let a;
     if (FACS_RE.test(attrs)) a = attrs.replace(FACS_RE, (m) => m.replace(/facs[\s\S]*/, facs));
-    else a = ID_RE.test(attrs) ? attrs.replace(ID_RE, (m) => `${m} ${facs}`) : ` ${facs}${attrs}`;
+    else a = attrs.replace(/\s*$/, (ws) => ` ${facs}${ws}`);
     return `<${tag}${a}${slash}>`;
   });
 
