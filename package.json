@@ -25,7 +25,7 @@
   "bugs": {
     "url": "https://github.com/fernandoherreradelasheras/score-viewer/issues"
   },
-  "version": "1.1.22",
+  "version": "1.1.23",
   "type": "module",
   "files": [
     "dist",
