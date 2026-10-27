@@ -26,7 +26,7 @@ Una imagen de 2400×1600 que debe reducirse al ancho máximo:
 
 ## Imagen dentro de un párrafo
 
-Este párrafo contiene una imagen ![pequeña en línea](editorials/intro-tiny.jpg) en medio del texto, que no debería convertirse en figura.
+Este párrafo contiene una imagen ![pequeña en línea](editorials/intro-tiny.jpg) en medio del texto: el párrafo se parte y la imagen se muestra como figura, con su pie.
 
 ## Imagen en HTML
 

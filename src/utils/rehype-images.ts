@@ -11,6 +11,25 @@ export interface RehypeImagesOptions {
 
 const isDocumentRelative = (src: string) => src.startsWith('./') || src.startsWith('../')
 
+const hasScheme = (url: string) => /^[a-z][a-z\d+.-]*:/i.test(url)
+
+// Without a page to resolve against (rendering in Node), a relative document URL gives
+// a relative result, the same one the browser must produce for the markup to hydrate.
+const resolvePath = (src: string, documentUrl: string) => {
+    const path = documentUrl.split(/[?#]/)[0]
+    const segments: string[] = []
+    for (const segment of [...path.split('/').slice(0, -1), ...src.split('/')]) {
+        const last = segments[segments.length - 1]
+        if (segment === '.') continue
+        if (segment !== '..' || last === undefined || last === '..') segments.push(segment)
+        else if (last !== '') segments.pop()
+    }
+    return segments.join('/')
+}
+
+const resolve = (src: string, documentUrl: string) =>
+    hasScheme(documentUrl) ? new URL(src, documentUrl).href : resolvePath(src, documentUrl)
+
 const rehypeImages: Plugin<[RehypeImagesOptions?], Root> = (options) => {
     const documentUrl = options?.documentUrl
     return (tree: Root) => {
@@ -18,7 +37,7 @@ const rehypeImages: Plugin<[RehypeImagesOptions?], Root> = (options) => {
             if (node.tagName === 'img' && node.properties) {
                 const src = node.properties.src as string;
                 if (src && documentUrl && isDocumentRelative(src)) {
-                    node.properties.src = new URL(src, new URL(documentUrl, document.baseURI)).href;
+                    node.properties.src = resolve(src, documentUrl);
                 } else if (src && !src.startsWith('/') && !src.startsWith('http')) {
                     // Other relative paths are taken from the site root
                     node.properties.src = '/' + src;

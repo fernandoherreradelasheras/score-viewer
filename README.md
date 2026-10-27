@@ -101,6 +101,34 @@ function App() {
 | `goToSection(sectionId)` | Turns to the page where a `<section>` of the current score starts, by its `xml:id`. |
 | `selectScore(index \| null)` | Loads the score at that index of `config.scores`, or unloads the current one with `null`. The score selector, when shown, follows it. Useful with `showScoreSelector: false` and a selector of your own. |
 
+### Texts outside the viewer
+
+`score-viewer/text` exports the components the viewer shows a score's introduction and
+poem with. They need neither the DOM nor the rest of the viewer, so they also render in
+Node (`renderToString`), and markup rendered there hydrates in the browser with the same
+props: a static page per score with the same text the viewer shows.
+
+```tsx
+import { IntroContent, PoemContent } from 'score-viewer/text';
+import { DOMParser } from '@xmldom/xmldom';
+
+<IntroContent markdown={intro} documentUrl="../scores/my-score/intro.md" language="es" />
+<PoemContent mei={mei} domParser={new DOMParser()} language="es" />
+```
+
+| Prop | |
+|---|---|
+| `markdown` | `IntroContent`: the introduction. |
+| `documentUrl` | `IntroContent`: URL of the introduction, to resolve its `./` image paths. A relative URL gives relative paths, the same in Node and in the browser. |
+| `mei` | `PoemContent`: the MEI file. The poem is read from `<back><div type="poem">`; with none, nothing is rendered. |
+| `domParser` | `PoemContent`: in Node, an XML parser with the `DOMParser` interface, such as `@xmldom/xmldom`'s. The browser's is used if not given. |
+| `language` | Of the headings they add (`en`, `es`). The viewer's current language if not given. |
+| `title` | A title above the text. |
+| `components` | Overrides for the elements written, as in react-markdown (`img`…). |
+
+They are styled by `score-viewer/style.css`. `parsePoemFromMei(mei, domParser?)` returns
+the poem as data.
+
 ### Usage with Vite
 
 Exclude `score-viewer` from dependency optimization, so the verovio worker it ships is

@@ -109,8 +109,12 @@ const extractComments = (poemDiv: Element): string | null => {
     .join('\\\n'); // hard line break between each comment
 };
 
-export const parsePoemFromMei = (meiContent: string): PoemFromMei => {
-  const doc = new DOMParser().parseFromString(meiContent, 'text/xml');
+export interface XmlParser {
+  parseFromString(source: string, mimeType: 'text/xml'): unknown;
+}
+
+export const parsePoemFromMei = (meiContent: string, parser: XmlParser = new DOMParser()): PoemFromMei => {
+  const doc = parser.parseFromString(meiContent, 'text/xml') as Document;
   const poemDiv = findPoemDiv(doc);
   if (!poemDiv) {
     return { lyrics: [], comments: null };

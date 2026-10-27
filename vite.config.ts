@@ -41,6 +41,8 @@ const separateAssets = (): Plugin => {
 
 export default defineConfig(({ mode }) => {
   const isIframeMode = mode === 'iframe';
+  // The UMD build has a single entry, so it goes in a pass of its own after the ES one.
+  const isUmdMode = mode === 'umd';
   const isDev = mode === 'development' || process.env.NODE_ENV === 'development';
 
   // Base configuration shared between all modes
@@ -51,7 +53,7 @@ export default defineConfig(({ mode }) => {
         //fastRefresh: true,
         jsxRuntime: 'automatic'
       }),
-      dts({
+      isUmdMode ? null : dts({
         bundleTypes: true,
         insertTypesEntry: true,
         staticImport: true,
@@ -61,6 +63,13 @@ export default defineConfig(({ mode }) => {
       svgr({ svgrOptions: { icon: false } }),
       separateAssets()
     ],
+    resolve: {
+      alias: {
+        // Its browser build decodes entities through document, which would keep the
+        // text components (score-viewer/text) from rendering in Node.
+        'decode-named-character-reference': resolve(__dirname, 'node_modules/decode-named-character-reference/index.js'),
+      },
+    },
     // Test fixtures served at the dev-server root by `npm run dev`.
     // The are not copied into the build output (as set by build.copyPublicDir
     // below) so they don't leak into the npm package with the component.
@@ -118,11 +127,18 @@ export default defineConfig(({ mode }) => {
       base: './',
       build: {
         ...config.build,
-        lib: {
+        emptyOutDir: !isUmdMode,
+        lib: isUmdMode ? {
           entry: resolve(__dirname, 'lib/main.ts'),
           name: 'ScoreViewer',
           fileName: 'score-viewer',
-          formats: ['es', 'umd'],
+          formats: ['umd'],
+        } : {
+          entry: {
+            'score-viewer': resolve(__dirname, 'lib/main.ts'),
+            text: resolve(__dirname, 'lib/text.ts'),
+          },
+          formats: ['es'],
         },
         rolldownOptions: {
           output: {

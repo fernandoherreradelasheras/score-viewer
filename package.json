@@ -3,12 +3,16 @@
   "description": "Multi modal score viewer. Display MEI files, txt sections and plays audio files synced with the score visualization. Delivered as a react component and as a standalone iframe using a config file",
   "main": "./dist/score-viewer.umd.cjs",
   "module": "./dist/score-viewer.js",
-  "types": "./dist/types/main.d.ts",
+  "types": "./dist/types/score-viewer.d.ts",
   "exports": {
     ".": {
       "import": "./dist/score-viewer.js",
       "require": "./dist/score-viewer.umd.cjs",
-      "types": "./dist/types/main.d.ts"
+      "types": "./dist/types/score-viewer.d.ts"
+    },
+    "./text": {
+      "types": "./dist/types/text.d.ts",
+      "import": "./dist/text.js"
     },
     "./style.css": "./dist/style.css"
   },
@@ -32,7 +36,7 @@
     "dev:iframe": "vite --config vite.config.ts --mode iframe --host",
     "validate:mei": "node scripts/validate-mei.mjs",
     "validate:mei:schematron": "node scripts/validate-mei.mjs --schematron",
-    "build": "npm run validate:mei && tsc -b && vite build",
+    "build": "npm run validate:mei && tsc -b && vite build && vite build --mode umd",
     "build:iframe": "vite build --mode iframe --config vite.config.ts",
     "build:all": "npm run build && npm run build:iframe",
     "prepublishOnly": "npm whoami && npm run lint && npm run build",
