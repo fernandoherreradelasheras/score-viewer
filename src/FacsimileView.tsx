@@ -1,9 +1,9 @@
 import { Button, Segmented, Space, Typography } from 'antd';
 import { FacsimileItem, LINK_HIGHLIGHT_MS, PlayingState } from './types';
 import useStore, { FacsimileLayout } from "./store";
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { ReactZoomPanPinchContentRef } from "react-zoom-pan-pinch";
-import { CloseOutlined, ColumnWidthOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
+import { CloseOutlined, ColumnWidthOutlined, ExpandOutlined, PictureOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import FacsimileImageView, { FacsimileFrame } from './components/FacsimileImageView';
 import FacsimilePagination from './components/FacsimilePagination';
@@ -13,6 +13,8 @@ import { bestFacsimileGrid, matchFacsimileSurface } from './utils/facsimile';
 const IMAGE_PADDING = 12;
 const CELL_GAP = 4;
 const CELL_HEADER_HEIGHT = 32;
+const CONTROLS_MARGIN = 12;
+const CLOSE_BUTTON_WIDTH = 32;
 // Until the images say otherwise: a portrait page.
 const DEFAULT_ASPECT_RATIO = 1 / 1.41;
 
@@ -51,6 +53,8 @@ function FacsimileView({ path, items, isActiveTab }: { path: string, items: Facs
     view.items.map(item => links ? matchFacsimileSurface(item, links.surfaces) : -1)), [views, links]);
 
   const [currentItems, setCurrentItems] = useState<number[]>(() => views.map(() => 0));
+  // Kept from page to page: the reader who prefers the alternate images goes on with them.
+  const [showAlternate, setShowAlternate] = useState(false);
   const [frame, setFrame] = useState<{ view: number } & FacsimileFrame | null>(null);
   const [aspectRatios, setAspectRatios] = useState<(number | null)[]>([]);
 
@@ -69,6 +73,12 @@ function FacsimileView({ path, items, isActiveTab }: { path: string, items: Facs
     setCurrentItems(current => current.map((value, i) => i === view ? item : value));
     setFrame(null);
   }, []);
+
+  const shownAlternates = [...new Set(views.flatMap((view, index) =>
+    view.items[currentItems[index] ?? 0]?.alternateRepresentation?.description ?? []))];
+
+  const alternateTitle = showAlternate ? t('facsimileView.showOriginal')
+    : t('facsimileView.showAlternate', { description: shownAlternates.join(" / ") });
 
   const hasLinkedImages = viewSurfaces.some(surfaces => surfaces.some(s => s >= 0));
   const isLinked = splitView && hasLinkedImages;
@@ -140,6 +150,7 @@ function FacsimileView({ path, items, isActiveTab }: { path: string, items: Facs
 
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
   const [controlsRow, setControlsRow] = useState<HTMLDivElement | null>(null);
+  const [buttons, setButtons] = useState<HTMLDivElement | null>(null);
   const [containerHeight, setContainerHeight] = useState<number>(0);
   const [containerWidth, setContainerWidth] = useState<number>(0);
 
@@ -168,6 +179,27 @@ function FacsimileView({ path, items, isActiveTab }: { path: string, items: Facs
       window.removeEventListener('resize', measure);
     };
   }, [root, controlsRow, splitView, splitViewOrientation])
+
+  // The buttons with text keep their width however narrow the view, and would be cut off:
+  // where they do not fit, beside the close button, they show only their icons. Their
+  // width with text is measured whenever it is on show, before it is painted, for the
+  // texts on them now.
+  const buttonTexts = [t('reset'), ...shownAlternates].join("|");
+  const [textButtonsWidth, setTextButtonsWidth] = useState<{ texts: string, width: number } | null>(null);
+  const knownTextButtonsWidth = textButtonsWidth?.texts === buttonTexts ? textButtonsWidth.width : null;
+  const compactButtons = knownTextButtonsWidth != null && containerWidth > 0 &&
+    knownTextButtonsWidth + CONTROLS_MARGIN + (splitView ? CONTROLS_MARGIN + CLOSE_BUTTON_WIDTH : 0) > containerWidth;
+  useLayoutEffect(() => {
+    if (!buttons || compactButtons) {
+      return;
+    }
+    const width = buttons.offsetWidth;
+    if (textButtonsWidth?.texts !== buttonTexts || textButtonsWidth.width !== width) {
+      // A width that can only be read from the laid out buttons.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setTextButtonsWidth({ texts: buttonTexts, width });
+    }
+  }, [buttons, compactButtons, buttonTexts, textButtonsWidth]);
 
   // The split view is sized after the one image on show; the grid of parts fits in
   // whatever it is given.
@@ -216,6 +248,7 @@ function FacsimileView({ path, items, isActiveTab }: { path: string, items: Facs
       path={path}
       items={views[view].items}
       currentItem={currentItems[view] ?? 0}
+      showAlternate={showAlternate}
       itemSurfaces={viewSurfaces[view]}
       fitWidth={allParts}
       containerHeight={containerHeight}
@@ -237,16 +270,25 @@ function FacsimileView({ path, items, isActiveTab }: { path: string, items: Facs
       ref={setRoot}>
       <div style={{ flex: "0 0 auto", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 12 }}
         ref={setControlsRow}>
-        <Space orientation="horizontal" size={12} style={{ flex: "0", marginLeft: "12px" }}>
+        <Space ref={setButtons} orientation="horizontal" size={12} style={{ flex: "0", marginLeft: CONTROLS_MARGIN }}>
           {!allParts ? <>
             <Button icon={<ZoomInOutlined />} onClick={() => transforms.get(0)?.zoomIn()} />
             <Button icon={<ZoomOutOutlined />} onClick={() => transforms.get(0)?.zoomOut()} />
           </> : null}
-          <Button onClick={resetViews}>{t('reset')}</Button>
+          {compactButtons ?
+            <Button icon={allParts ? <ColumnWidthOutlined /> : <ExpandOutlined />} title={t('reset')} aria-label={t('reset')}
+              onClick={resetViews} />
+            : <Button onClick={resetViews}>{t('reset')}</Button>}
+          {shownAlternates.length > 0 ?
+            <Button icon={<PictureOutlined />} type={showAlternate ? "primary" : "default"} aria-pressed={showAlternate}
+              title={alternateTitle} aria-label={alternateTitle}
+              onClick={() => setShowAlternate(shown => !shown)}>
+              {compactButtons ? null : shownAlternates.join(" / ")}
+            </Button> : null}
         </Space>
         {!allParts && items.length > 1 ?
           <FacsimilePagination style={{ flex: "1 1 auto", minWidth: 0, flexWrap: "wrap", textAlign: "center" }} path={path} items={items}
-            currentItem={currentItems[0] ?? 0} onItemSelected={item => selectItem(0, item)} />
+            showAlternate={showAlternate} currentItem={currentItems[0] ?? 0} onItemSelected={item => selectItem(0, item)} />
           : <div style={{ flex: 1 }} />}
         {parts.length > 1 ?
           <Segmented<FacsimileLayout> size="small" value={facsimileLayout} onChange={setFacsimileLayout}
@@ -275,7 +317,7 @@ function FacsimileView({ path, items, isActiveTab }: { path: string, items: Facs
                 </Typography.Text>
                 {view.items.length > 1 ?
                   <FacsimilePagination small style={{ flex: "0 1 auto", minWidth: 0 }} path={path} items={view.items}
-                    currentItem={currentItems[index] ?? 0} onItemSelected={item => selectItem(index, item)} />
+                    showAlternate={showAlternate} currentItem={currentItems[index] ?? 0} onItemSelected={item => selectItem(index, item)} />
                   : null}
                 <div style={{ flex: 1 }} />
                 <Space size={2}>

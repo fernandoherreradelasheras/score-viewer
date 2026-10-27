@@ -12,6 +12,9 @@ export const matchFacsimileSurface = (item: FacsimileItem, surfaces: FacsimileSu
     return byTarget != -1 ? byTarget : surfaces.findIndex(({ label }) => label != "" && label == item.name);
 };
 
+export const facsimileItemFile = (item: FacsimileItem, alternate: boolean) =>
+    alternate && item.alternateRepresentation ? item.alternateRepresentation.file : item.file;
+
 /**
  * The columns and rows that show `count` images, laid out fitting the width of their
  * cells, the largest: the arrangement where a whole image, `aspectRatio` wide for each

@@ -3,17 +3,19 @@ import { Pagination } from "antd";
 import { useTranslation } from "react-i18next";
 import { FacsimileItem } from "../types";
 import FacsimilePreview from "./FacsimilePreview";
+import { facsimileItemFile } from "../utils/facsimile";
 
 interface FacsimilePaginationProps {
     path: string;
     items: FacsimileItem[];
     currentItem: number;
+    showAlternate: boolean;
     onItemSelected: (item: number) => void;
     small?: boolean;
     style?: React.CSSProperties;
 }
 
-function FacsimilePagination({ path, items, currentItem, onItemSelected, small = false, style }: FacsimilePaginationProps) {
+function FacsimilePagination({ path, items, currentItem, showAlternate, onItemSelected, small = false, style }: FacsimilePaginationProps) {
     const { t } = useTranslation("common");
 
     return <Pagination
@@ -31,7 +33,7 @@ function FacsimilePagination({ path, items, currentItem, onItemSelected, small =
                     page={page}
                     current={page === currentItem + 1}
                     name={items[page - 1].name}
-                    src={path + items[page - 1].file}>{element as React.ReactElement}</FacsimilePreview>
+                    src={path + facsimileItemFile(items[page - 1], showAlternate)}>{element as React.ReactElement}</FacsimilePreview>
             }
             if (type === 'prev' || type === 'next') {
                 return cloneElement(element as React.ReactElement<{ title?: string }>,

@@ -223,6 +223,15 @@ export const useConfigValidation = (config: ScoreViewerConfig) => {
                 message: t('configValidation.scoreFacsimileItemPartString')
               });
             }
+            const alternate = item.alternateRepresentation;
+            if (alternate != null && (typeof alternate !== 'object' ||
+              typeof alternate.file !== 'string' || !alternate.file ||
+              typeof alternate.description !== 'string' || !alternate.description)) {
+              errors.push({
+                field: `scores[${index}].facsimileItems[${itemIndex}].alternateRepresentation`,
+                message: t('configValidation.scoreFacsimileItemAlternate')
+              });
+            }
           });
         }
       });

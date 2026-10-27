@@ -330,6 +330,31 @@
             "encodingProperties": {
                 "encodedTransposition": ""
             }
+        },
+        {
+            "_covers": "facsimile item with an alternate representation (the page without the ink bleeding through from the other side), linked to the MEI",
+            "title": "Laurelia del alma mía",
+            "path": "laurelia",
+            "meiFile": "music.mei",
+            "audioFiles": [
+                {
+                    "midi": true
+                }
+            ],
+            "facsimileItems": [
+                {
+                    "name": "Tiple 2º página 123",
+                    "file": "laurelia/S2/image-123.jpg",
+                    "part": "perfRes-tiple2",
+                    "alternateRepresentation": {
+                        "file": "laurelia/S2/image-123-sin-traspaso.jpg",
+                        "description": "Sin traspaso de tinta"
+                    }
+                }
+            ],
+            "encodingProperties": {
+                "encodedTransposition": ""
+            }
         }
     ]
 }

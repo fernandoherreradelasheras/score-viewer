@@ -40,12 +40,20 @@ export type AudioSync = {
     end?: number;
 }
 
+export type FacsimileAlternateRepresentation = {
+    file: string
+    description: string
+}
+
 export type FacsimileItem = {
     name: string
     file: string
     // xml:id of the <perfRes> whose part the image shows. Its staves are the <staffDef>s
     // whose @decls point at it. An image without one is of the full score.
     part?: string | undefined
+    // Another image of the same page, such as one treated to read better, framed like
+    // `file` so that the notes linked on it fall in the same place.
+    alternateRepresentation?: FacsimileAlternateRepresentation | undefined
 }
 
 // A <surface> of the MEI <facsimile>, in its own coordinate space, and the image it is

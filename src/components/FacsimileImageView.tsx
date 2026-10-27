@@ -5,6 +5,7 @@ import { FacsimileItem, FacsimileZone, PlayingState } from '../types';
 import FacsimileOverlay, { FACSIMILE_TARGET_CLASS, ImageBox } from './FacsimileOverlay';
 import FacsimilePlayerOverlay from './FacsimilePlayerOverlay';
 import { useFacsimileLinkHandler } from '../hooks/useFacsimileLinkHandler';
+import { facsimileItemFile } from '../utils/facsimile';
 
 const IMAGE_PADDING = 12;
 const CELL_IMAGE_PADDING = 4;
@@ -81,6 +82,8 @@ interface FacsimileImageViewProps {
   path: string;
   items: FacsimileItem[];
   currentItem: number;
+  // Shows the alternate representation of the items that have one.
+  showAlternate: boolean;
   // The <surface> of each item, -1 for those not linked.
   itemSurfaces: number[];
   // Fits the image to the width of the view, as a cell of the grid of parts does.
@@ -95,7 +98,7 @@ interface FacsimileImageViewProps {
   transformRef?: Ref<ReactZoomPanPinchContentRef>;
 }
 
-function FacsimileImageView({ path, items, currentItem, itemSurfaces, fitWidth, containerHeight, frame,
+function FacsimileImageView({ path, items, currentItem, showAlternate, itemSurfaces, fitWidth, containerHeight, frame,
   followsPlayback, onPartMoved, onAspectRatio, transformRef }: FacsimileImageViewProps) {
   const splitView = useStore.use.isSplitView();
   const splitViewOrientation = useStore.use.splitViewOrientation();
@@ -157,12 +160,19 @@ function FacsimileImageView({ path, items, currentItem, itemSurfaces, fitWidth, 
 
   const transformKey = `transform-${splitView ? 'split' : 'tab'}-${splitViewOrientation}-${fitWidth ? 'width' : 'fit'}`;
 
-  const imageFile = currentItem < items.length ? path + items[currentItem].file : '';
-  const imageTitle = currentItem < items.length ? items[currentItem].name : '';
+  const item = items[currentItem];
+  const imageFile = item ? path + facsimileItemFile(item, showAlternate) : '';
+  const imageTitle = !item ? '' : showAlternate && item.alternateRepresentation
+    ? `${item.name} (${item.alternateRepresentation.description})` : item.name;
 
+  // Either representation of the item will do, as both are framed alike: while the other
+  // one loads, the marks and the zoom stay where they are.
+  const itemImage = item ? path + item.file : null;
+  const showsItem = item != null && imageBox != null &&
+    (imageBox.src === itemImage || imageBox.src === path + facsimileItemFile(item, true));
   // Measured on the image on show: a tab hidden until now still has the size of nothing,
   // and the marks laid over it would send the view astray.
-  const imageShown = imageBox?.src === imageFile && imageBox.width > 0;
+  const imageShown = showsItem && imageBox.width > 0;
 
   const imageStyle = useMemo(() => {
     if (fitWidth || isVerticalSplit) {
@@ -220,7 +230,7 @@ function FacsimileImageView({ path, items, currentItem, itemSurfaces, fitWidth, 
         allowRightClickPan: false,
       }}
     >
-      <FacsimileViewReset loadedImage={imageBox?.src === imageFile ? imageFile : null} fitWidth={fitWidth}
+      <FacsimileViewReset loadedImage={showsItem ? itemImage : null} fitWidth={fitWidth}
         followsPlayback={followsPlayback && links != null && surface >= 0} />
       <FacsimileFrameZoom frame={frameElement} seq={frame?.seq ?? null} zoomedSeqRef={zoomedFrameSeqRef} />
       <TransformComponent

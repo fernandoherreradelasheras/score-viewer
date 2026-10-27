@@ -18,7 +18,9 @@
   },
   "facsimileView": {
     "singlePart": "Single part",
-    "allParts": "All parts"
+    "allParts": "All parts",
+    "showOriginal": "Show the original image",
+    "showAlternate": "Show “{{description}}”"
   },
   "editorial": {
     "showInFacsimile": "Show on the facsimile",
@@ -290,6 +292,7 @@
     "scoreAudioMidiSync": "midi audio follows the score timing and takes no sync",
     "scoreFacsimileItemsArray": "facsimileItems must be an array if provided",
     "scoreFacsimileItemPartString": "part must be a string (the xml:id of a <perfRes>) if provided",
+    "scoreFacsimileItemAlternate": "alternateRepresentation must be an object whose file and description are non-empty strings, if provided",
     "configurationError": "Configuration Error",
     "configurationErrorDescription": "The ScoreViewer configuration contains errors:"
   },
