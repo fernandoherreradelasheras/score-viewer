@@ -129,6 +129,15 @@ import { DOMParser } from '@xmldom/xmldom';
 They are styled by `score-viewer/style.css`. `parsePoemFromMei(mei, domParser?)` returns
 the poem as data.
 
+The texts, here and in the viewer's introduction and poem tabs, inherit their font from the
+elements around them.
+To give them another one without restyling the rest of the viewer, set the custom property
+`--score-viewer-text-font` on any of their ancestors:
+
+```css
+body { --score-viewer-text-font: Palatino, Georgia, serif; }
+```
+
 ### Usage with Vite
 
 Exclude `score-viewer` from dependency optimization, so the verovio worker it ships is
@@ -173,6 +182,8 @@ export default defineConfig({
 | `allowUserLanguageChange` | `boolean` | Required. Lets the reader change the language in the options panel. |
 | `language` | `string` | `"en"`, `"es"` or `"autodetect"` (the browser language). The reader's own choice, if allowed, takes precedence. |
 | `backgroundColor` | `string` | CSS colour behind the score. White by default. |
+| `musicFont` | `"Leipzig" \| "Bravura" \| "Leland" \| "Gootville" \| "Petaluma"` | The music font the score is engraved with, one of those Verovio has. `"Leipzig"` by default. For another font, see `musicFontFile`. |
+| `musicFontFile` | `string` | URL of a [Verovio font archive](https://github.com/rism-digital/verovio/tree/develop/fonts) (a zip with `<font>.xml`, `<font>.css` and `<font>/*.xml`, as Verovio's `fonts/generate.py` makes them). The score is engraved with the font in it, which must not be named as one of Verovio's own; `musicFont`, if given, is expected to name it, and a warning is logged otherwise. Relative URLs are resolved against the page. If it cannot be loaded or holds no font, the score is engraved in Leipzig. |
 | `selectorLabel` | `"work" \| "section"` | What the score selector calls its entries. `"work"` by default. |
 | `initialTab` | `"intro" \| "text" \| "music" \| "facsimile"` | The tab shown first, until the reader picks one. The music by default, and also when the score has no such tab. |
 | `initialScore` | `number \| string` | The score loaded first: its index in `scores` or its `path`. When given, it is loaded even with `showScoreSelector: false`. Only read when the viewer mounts; use `ref.selectScore` afterwards, or remount the viewer with another `key`. |

@@ -44,6 +44,9 @@ export interface ScoreViewerConfigScore {
 
 export type InitialTab = "intro" | "text" | "music" | "facsimile";
 
+export const MUSIC_FONTS = ["Leipzig", "Bravura", "Leland", "Gootville", "Petaluma"] as const;
+export type MusicFont = typeof MUSIC_FONTS[number];
+
 export interface ScoreViewerConfigSettings {
   showScoreSelector: boolean;
   showTitle: boolean;
@@ -54,6 +57,8 @@ export interface ScoreViewerConfigSettings {
   showOptions: boolean;
   renderTitlesFromMEI: boolean;
   backgroundColor?: string | undefined;
+  musicFont?: MusicFont | (string & {}) | undefined;
+  musicFontFile?: string | undefined;
   basePath: string;
   facsimileImagesPath: string;
   language?: string | "autodetect";

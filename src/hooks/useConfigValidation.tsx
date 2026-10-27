@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { InitialTab, ScoreViewerConfig } from '../types/config';
+import { InitialTab, MUSIC_FONTS, ScoreViewerConfig } from '../types/config';
 import { resolveScoreIndex } from '../utils/initial-score';
 
 const INITIAL_TABS: InitialTab[] = ["intro", "text", "music", "facsimile"];
@@ -111,6 +111,21 @@ export const useConfigValidation = (config: ScoreViewerConfig) => {
         errors.push({
           field: 'settings.language',
           message: t('configValidation.languageString')
+        });
+      }
+
+      if (settings.musicFontFile !== undefined && (typeof settings.musicFontFile !== 'string' || !settings.musicFontFile)) {
+        errors.push({
+          field: 'settings.musicFontFile',
+          message: t('configValidation.musicFontFileString')
+        });
+      }
+
+      if (settings.musicFont !== undefined && (typeof settings.musicFont !== 'string'
+        || (!settings.musicFontFile && !(MUSIC_FONTS as readonly string[]).includes(settings.musicFont)))) {
+        errors.push({
+          field: 'settings.musicFont',
+          message: t('configValidation.musicFontInvalid', { values: MUSIC_FONTS.join(', ') })
         });
       }
 

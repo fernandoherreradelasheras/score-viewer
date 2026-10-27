@@ -272,6 +272,8 @@
     "facsimileImagesPathRequired": "facsimileImagesPath es requerido y debe ser una cadena de texto",
     "backgroundColorString": "backgroundColor debe ser una cadena de texto si se proporciona",
     "languageString": "language debe ser una cadena de texto si se proporciona",
+    "musicFontInvalid": "musicFont debe ser uno de: {{values}}, o la fuente de musicFontFile",
+    "musicFontFileString": "musicFontFile debe ser una cadena de texto no vacía si se proporciona",
     "initialTabInvalid": "initialTab debe ser uno de: {{values}}",
     "initialScoreInvalid": "settings.initialScore debe ser el índice o el path de una de las partituras",
     "scoresArray": "Scores debe ser un array",

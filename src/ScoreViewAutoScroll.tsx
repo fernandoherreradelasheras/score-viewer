@@ -14,7 +14,7 @@ import { useSelectedAudioSync } from './hooks/usePlaybackTimemap';
 
 
 function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
-    const { backgroundColor } = scoreViewProps;
+    const { backgroundColor, musicFont, musicFontFile } = scoreViewProps;
     const { verovio } = useContext(Context);
 
     const setIsLoading = useStore.use.setIsLoading();
@@ -59,7 +59,9 @@ function ScoreViewAutoScroll(scoreViewProps: ScoreViewProps) {
     });
 
     const { executeAction } = useScoreActions({
-        verovio
+        verovio,
+        musicFont,
+        musicFontFile,
     });
 
     // The keyframes are timed on the audio being played, so another version of the score

@@ -274,6 +274,8 @@
     "facsimileImagesPathRequired": "facsimileImagesPath is required and must be a string",
     "backgroundColorString": "backgroundColor must be a string if provided",
     "languageString": "language must be a string if provided",
+    "musicFontInvalid": "musicFont must be one of: {{values}}, or the font in musicFontFile",
+    "musicFontFileString": "musicFontFile must be a non-empty string if provided",
     "initialTabInvalid": "initialTab must be one of: {{values}}",
     "initialScoreInvalid": "settings.initialScore must be the index or the path of one of the scores",
     "scoresArray": "Scores must be an array",

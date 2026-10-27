@@ -272,9 +272,11 @@
 /* Text viewer styles */
 
 /* Top container */
+/* Without --score-viewer-text-font the font-family computes to unset: inherited, as before */
 .text-view {
   margin-left: 20px;
   margin-right: 20px;
+  font-family: var(--score-viewer-text-font);
 }
 
 

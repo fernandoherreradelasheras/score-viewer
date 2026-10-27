@@ -21,6 +21,8 @@ const getAudioDurationMillis = (timemap: TimeMapEvent[]) => {
 
 export interface ScoreViewContainerProps {
     backgroundColor?: string | undefined;
+    musicFont?: string | undefined;
+    musicFontFile?: string | undefined;
     showDownloadButton?: boolean | undefined;
     height: string;
 }
@@ -32,7 +34,7 @@ export interface ScoreViewContainerRef {
 function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, ref: Ref<ScoreViewContainerRef>) {
     const { t } = useTranslation("common")
 
-    const { backgroundColor, height } = scoreViewContainerProps;
+    const { backgroundColor, musicFont, musicFontFile, height } = scoreViewContainerProps;
 
     const score = useStore.use.score();
     const autoScroll = useStore.use.autoScroll();
@@ -154,8 +156,8 @@ function ScoreViewContainer(scoreViewContainerProps: ScoreViewContainerProps, re
                         overflow: "hidden",
                     }}>
 
-                    {autoScroll ? <ScoreViewAutoScroll backgroundColor={backgroundColor} />
-                        : <ScoreView backgroundColor={backgroundColor} />}
+                    {autoScroll ? <ScoreViewAutoScroll backgroundColor={backgroundColor} musicFont={musicFont} musicFontFile={musicFontFile} />
+                        : <ScoreView backgroundColor={backgroundColor} musicFont={musicFont} musicFontFile={musicFontFile} />}
 
                 </div>
             </div>

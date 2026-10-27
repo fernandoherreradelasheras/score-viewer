@@ -229,10 +229,12 @@ const ScoreViewerContent = ({ config, height, onScoreAnalyzed, onVisualizationOp
       return <ScoreViewContainer
         ref={scoreViewContainerRef}
         backgroundColor={config.settings.backgroundColor}
+        musicFont={config.settings.musicFont}
+        musicFontFile={config.settings.musicFontFile}
         showDownloadButton={config.settings.showDownloadButton}
         height={containerHeight} />
     }
-  }, [config.settings.backgroundColor, config.settings.showDownloadButton, containerHeight, fetchScoreError, t])
+  }, [config.settings.backgroundColor, config.settings.musicFont, config.settings.musicFontFile, config.settings.showDownloadButton, containerHeight, fetchScoreError, t])
 
 
   // Which sections the current score carries. Updated only once a score is loaded (not

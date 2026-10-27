@@ -34,6 +34,7 @@ export interface VerovioWorkerInitMessage {
 export interface VerovioWorkerProxy {
     isReady: boolean;
     setOptions: (options: VerovioOptions) => Promise<void>;
+    addMusicFont: (url: string) => Promise<string>;
     loadData: (data: string) => Promise<boolean>;
     getPageCount: () => Promise<number>;
     renderToSVG: (page: number) => Promise<string>;

@@ -26,12 +26,14 @@ const TARGET_SIZE_SETTLE_MS = 120;
 
 export interface ScoreViewProps {
     backgroundColor?: string | undefined;
+    musicFont?: string | undefined;
+    musicFontFile?: string | undefined;
 }
 
 
 function ScoreView(scoreViewProps: ScoreViewProps) {
 
-    const { backgroundColor } = scoreViewProps;
+    const { backgroundColor, musicFont, musicFontFile } = scoreViewProps;
     const { verovio } = useContext(Context);
 
     const splitViewOrientation = useStore.use.splitViewOrientation();
@@ -115,6 +117,8 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
 
     const { executeAction, scoreRenderOptions } = useScoreActions({
         verovio,
+        musicFont,
+        musicFontFile,
     });
 
     // Identifies the settings a load would hand to verovio, so a change that leaves
@@ -123,7 +127,9 @@ function ScoreView(scoreViewProps: ScoreViewProps) {
     const renderKey = useMemo(() => JSON.stringify({
         ...scoreRenderOptions,
         transpose: withoutTransposition ? getReverseTransposition(score?.properties?.encodedTransposition) : "",
-    }), [scoreRenderOptions, withoutTransposition, score?.properties?.encodedTransposition]);
+        musicFont,
+        musicFontFile,
+    }), [scoreRenderOptions, withoutTransposition, score?.properties?.encodedTransposition, musicFont, musicFontFile]);
     const loadedRenderKeyRef = useRef<string | null>(null);
 
     // The store outlives this component, so `showingMei` and `renderedSvgData` may

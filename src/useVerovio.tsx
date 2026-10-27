@@ -21,6 +21,10 @@ let initializationPromise: Promise<void> | null = null;
 // Request ID counter
 let requestIdCounter = 0;
 
+// The font archives added to the worker, by URL, with the name of their font: its
+// toolkit keeps them. One that failed is left out, to be tried again.
+const musicFonts = new Map<string, Promise<string>>();
+
 /**
  * Initialize the Verovio worker (called once)
  */
@@ -137,6 +141,16 @@ function createWorkerProxy(): VerovioWorkerProxy {
             return workerReady;
         },
         setOptions: (options) => callWorkerMethod<void>('setOptions', options),
+        addMusicFont: (url) => {
+            const href = new URL(url, document.baseURI).href;
+            let added = musicFonts.get(href);
+            if (!added) {
+                added = callWorkerMethod<string>('addMusicFont', href);
+                added.catch(() => musicFonts.delete(href));
+                musicFonts.set(href, added);
+            }
+            return added;
+        },
         loadData: (data) => callWorkerMethod<boolean>('loadData', data),
         getPageCount: () => callWorkerMethod<number>('getPageCount'),
         renderToSVG: (page) => callWorkerMethod<string>('renderToSVG', page),

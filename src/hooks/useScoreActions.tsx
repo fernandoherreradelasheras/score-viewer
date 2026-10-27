@@ -152,6 +152,8 @@ export interface RenderAutoScrollResult {
 
 interface ScoreActionsConfig {
   verovio: VerovioWorkerProxy | null;
+  musicFont?: string | undefined;
+  musicFontFile?: string | undefined;
 }
 
 /**
@@ -287,6 +289,8 @@ const mergeTimemapTies = (timemap: TimeMapEvent[], tiedNotes: { first: string; s
  */
 export default function useScoreActions({
   verovio,
+  musicFont,
+  musicFontFile,
 }: ScoreActionsConfig) {
 
   const targetWidth = useStore.use.targetWidth();
@@ -375,6 +379,22 @@ export default function useScoreActions({
   }), [appOptions, showOriginalClefs, showMusicAnalysis, choiceOptions, substOptions, measureNumberInterval,
     score?.properties?.hasOriginalClefs, score?.properties?.hasHarmonicAnalysis]);
 
+  // The font to engrave with: musicFont, or the one in musicFontFile once the archive is
+  // loaded into the worker; Leipzig if that fails.
+  const engravingFont = useCallback(async () => {
+    if (!verovio || !musicFontFile) return musicFont ?? "Leipzig";
+    try {
+      const font = await verovio.addMusicFont(musicFontFile);
+      if (musicFont && musicFont !== font) {
+        console.warn(`[useScoreActions] ${musicFontFile} holds the music font ${font}, not ${musicFont}: engraving with ${font}`);
+      }
+      return font;
+    } catch (error) {
+      console.warn(`[useScoreActions] Could not load the music font ${musicFontFile}:`, error);
+      return "Leipzig";
+    }
+  }, [verovio, musicFont, musicFontFile]);
+
   const resolveTimemap = useCallback(async (timemap: TimeMapEvent[]): Promise<TimeMapEvent[]> => {
     if (!verovio) throw new Error("Verovio is not ready");
     const mei = await verovio.getMEI()
@@ -411,6 +431,7 @@ export default function useScoreActions({
     try {
       const startTime = performance.now();
 
+      options.font = await engravingFont();
       await verovio.setOptions(options);
       const timemap = await loadAndBuildTimemap(meiStr);
 
@@ -459,6 +480,7 @@ export default function useScoreActions({
     targetWidth,
     targetHeight,
     scoreRenderOptions,
+    engravingFont,
     loadAndBuildTimemap,
     midiSource,
     getSectionMap,
@@ -488,6 +510,7 @@ export default function useScoreActions({
       appXPathQuery: buildAppOptions(appOptions, (showOriginalClefs && score?.properties?.hasOriginalClefs) || false, false),
       choiceXPathQuery: choiceOptions,
       substXPathQuery: substOptions,
+      font: await engravingFont(),
       pageHeight: height,
       pageWidth: AUTO_SCROLL_RENDERING_WIDTH_LIMIT,
       scale: 100,
@@ -509,6 +532,7 @@ export default function useScoreActions({
     choiceOptions,
     substOptions,
     showOriginalClefs,
+    engravingFont,
     score,
     loadAndBuildTimemap,
     midiSource,
