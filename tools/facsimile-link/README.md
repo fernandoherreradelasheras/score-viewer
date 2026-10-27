@@ -94,10 +94,67 @@ path, or with a longer one ending in it: the viewer finds the surface either way
 | `0` | fit the image to the window |
 | `m` | next strip mode |
 | `a` | toggle auto-advance |
+| `l` | autolink mode (below) |
+| `,` / `.` (or `<` / `>`) | move the links of the current event and of the ones after it one event back / forward (below) |
+| `u` | undo the last autolink or move of links |
 | `s` or ctrl+s | save to the MEI |
 
 Clicking on an event that is already linked moves its point (and the point of every
 event sharing that figure).
+
+## Autolink
+
+On an image of a part (one with `part`; not on images of the full score), the notes and
+rests can be located first and linked afterwards, all at once. *autolink* (or `l`) shows only the
+image:
+
+1. **Locate the notes and rests.** *detect whole page* (`d`) proposes a point (orange) on
+   each note head it finds, replacing the points of the image. *detect in region* (`r`)
+   asks for a rectangle (drag it; `Esc` cancels) and adds the heads found in it, keeping
+   the points already there. Rests are not detected: add theirs by hand. Points already
+   linked, in this score or in another one that shares the image, are not proposed
+   again. Then correct them:
+
+   | | |
+   |---|---|
+   | click | add a point (and drag it) |
+   | drag | move a point |
+   | click on a point | one more event on it (2, 3…): a sign for several measure rests |
+   | shift+click | one event less on a point, or remove it |
+   | shift+drag | remove the points in a rectangle, e.g. those of another score on the same page |
+   | `z`/`x`, `Z`/`X` | image of the part, or of any part |
+   | wheel, space, ctrl or middle button + drag, `0` | zoom, pan, fit |
+   | `Esc` | back to the score, keeping the points |
+
+2. **Link them.** *link* (`l`) reads the points staff by staff, top to bottom and left to
+   right, and gives each one to the next unlinked note or rest of the part (measure
+   rests included), in order. A tied note's continuation shares the point of the note it
+   continues, so it needs none, and the events of a point with a number share it, as
+   with `t`. The view goes back to the score, on the first event
+   linked, to review it. Points left over (more points than events) stay on the image;
+   `u` undoes the links the autolink made and gives its points back.
+
+3. **Mend it.** If a point was too many or missing, the events after it are linked one
+   point off. Go to the first wrong event and move the links of it and of the ones after
+   it (as far as they are linked on the same image):
+   - `,` (or `<`), back: each event takes the point of the next one. For a point too
+     many on the current event; the last event is left unlinked.
+   - `.` (or `>`), forward: each event takes the point of the previous one. For a
+     missing point: the current event is left unlinked, to place it with a click. The
+     last point goes to the event after them if it is unlinked; otherwise it is kept
+     aside, and the next `,` on the image gives it to the event it would leave unlinked
+     (a missing point and a point too many further on: `.` on the first wrong event,
+     then `,` on the next one).
+
+   Tied notes and the events of a point with a number go along with their point. `u`
+   undoes the last move, then the autolink.
+
+The detection works on the partbooks of the repertoire (hollow, hatched and black heads,
+handwritten staves of any size, ink seen through the page) but is not perfect: it misses
+some heads, takes some clefs, accidentals, custos and lyrics close to the staff for
+heads, and a page may hold the end of another score. Every point must be right before
+linking, rests included: one point too many or too few shifts all the events after it. The points located
+and not linked are kept in the draft until the score is saved.
 
 ## What gets linked
 

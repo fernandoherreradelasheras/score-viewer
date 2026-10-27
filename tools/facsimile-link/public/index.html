@@ -33,7 +33,12 @@
         <span class="spacer"></span>
         <span id="dirty-label"></span>
         <span id="zoom-label"></span>
-        <select id="strip-mode" title="How the score strip follows the current event (m)"></select>
+        <select id="strip-mode" class="normal-only" title="How the score strip follows the current event (m)"></select>
+        <button id="autolink-btn" class="normal-only" title="Locate the notes of this image and link them in order (l)">autolink</button>
+        <button id="detect-btn" class="autolink-only" title="Detect the note heads of the whole image, replacing its points (d)">detect whole page</button>
+        <button id="region-btn" class="autolink-only" title="Drag a rectangle to detect the note heads in it, keeping the other points (r)">detect in region</button>
+        <button id="link-btn" class="autolink-only" title="Link the points, in order, to the unlinked notes of the part (l)">link</button>
+        <button id="exit-btn" class="autolink-only" title="Back to the score without linking (Esc)">exit</button>
         <button id="fit-btn" title="Fit page (0)">fit</button>
         <button id="save-btn" title="Save to the MEI (s)">save</button>
       </header>
@@ -59,7 +64,14 @@
       <b>z/x</b>&nbsp;image · <b>Z/X</b>&nbsp;all images · <b>click</b>&nbsp;place ·
       <b>t</b>&nbsp;same figure · <b>r</b>&nbsp;unlink · <b>wheel</b>&nbsp;zoom ·
       <b>space+drag</b>&nbsp;pan · <b>0</b>&nbsp;fit · <b>m</b>&nbsp;strip mode · <b>s</b>&nbsp;save ·
-      <b>a</b>&nbsp;auto-advance:&nbsp;<span id="autoadv">on</span>
+      <b>a</b>&nbsp;auto-advance:&nbsp;<span id="autoadv">on</span> ·
+      <b>l</b>&nbsp;autolink · <b>,/.</b>&nbsp;links back/forward · <b>u</b>&nbsp;undo
+    </footer>
+    <footer id="legend-autolink">
+      <b>d</b>&nbsp;detect page · <b>r</b>&nbsp;detect in region · <b>click</b>&nbsp;add · <b>drag</b>&nbsp;move ·
+      <b>click on a point</b>&nbsp;+1 event · <b>shift+click</b>&nbsp;remove · <b>shift+drag</b>&nbsp;remove an area · <b>l</b>&nbsp;link ·
+      <b>Esc</b>&nbsp;exit · <b>z/x</b>&nbsp;image · <b>wheel</b>&nbsp;zoom · <b>space+drag</b>&nbsp;pan ·
+      <b>0</b>&nbsp;fit
     </footer>
 
     <div id="toast"></div>

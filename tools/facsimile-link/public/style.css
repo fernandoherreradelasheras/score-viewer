@@ -6,6 +6,7 @@
   --muted: #9aa0ad;
   --accent: #ff5c8a;
   --accent2: #46c0ff;
+  --autolink: #ffa53c;
   --score-h: 340px;
 }
 
@@ -71,6 +72,7 @@ body {
   padding: 3px 10px;
   cursor: pointer;
   font: inherit;
+  white-space: nowrap;
 }
 #facs-header button:hover { background: #3c4150; }
 #save-btn { border-color: var(--accent); color: #ffd7e2; }
@@ -135,7 +137,7 @@ body {
 g.cur, g.cur > :not(.verse), g.cur > :not(.verse) * { fill: var(--accent) !important; stroke: var(--accent) !important; }
 
 /* ---- legend / footer ---- */
-#legend {
+#legend, #legend-autolink {
   background: var(--panel);
   border-top: 1px solid var(--line);
   color: var(--muted);
@@ -147,8 +149,31 @@ g.cur, g.cur > :not(.verse), g.cur > :not(.verse) * { fill: var(--accent) !impor
   white-space: nowrap;
   overflow: hidden;
 }
-#legend b { color: var(--fg); font-weight: 600; }
+#legend b, #legend-autolink b { color: var(--fg); font-weight: 600; }
 #autoadv { color: var(--accent2); }
+
+/* ---- autolink mode: only the facsimile ---- */
+#legend-autolink, .autolink-only { display: none; }
+#app.autolink-mode { grid-template-rows: 1fr 24px; }
+#app.autolink-mode #splitter,
+#app.autolink-mode #score-area,
+#app.autolink-mode #legend,
+#app.autolink-mode .normal-only { display: none; }
+#app.autolink-mode #legend-autolink { display: flex; }
+#app.autolink-mode .autolink-only { display: inline-block; }
+#app.autolink-mode #facs-header { box-shadow: inset 0 -2px 0 var(--autolink); }
+#app.autolink-mode #viewport.over-point { cursor: grab; }
+#app.autolink-mode #viewport.removing { cursor: not-allowed; }
+#app.autolink-mode #viewport.picking { cursor: crosshair; }
+#facs-header #region-btn.active { background: var(--autolink); color: #1b1d22; }
+.point-count {
+  fill: #ffe2bd;
+  stroke: #1b1d22;
+  stroke-width: 3px;
+  paint-order: stroke;
+  font: 700 13px system-ui, sans-serif;
+}
+#facs-header #link-btn { border-color: var(--autolink); color: #ffe2bd; }
 
 /* ---- toast + loading ---- */
 #toast {
